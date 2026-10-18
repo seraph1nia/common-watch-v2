@@ -32,7 +32,7 @@ mise run play-godot                 # default: shapes and text
 mise run play-monogame
 mise run play-godot-no-assets       # explicit: ignore sprite files
 mise run play-monogame-no-assets
-mise run play-godot-assets          # optional sprites, same geometric fallback
+mise run play-godot-assets          # optional sprites and illustrated nine-slice HUD
 mise run play-monogame-assets
 ```
 
@@ -55,6 +55,21 @@ Use **Main menu** to leave a session (also Escape in MonoGame), **Quit** from th
 Both clients play the reference game's **Echoes of Valhalla** background music, including its intro and authored loop. Open **Settings** and adjust **Music volume**; **0%** mutes it. Changes apply immediately and are saved per client between launches. Opening settings or restarting a game keeps the existing track playing. Music works in both rendering modes and uses your normal audio device during interactive play; automated graphical checks use silent audio backends. The unchanged WAV and its original provenance are in [assets/audio](assets/audio/README.md).
 
 Both rendering modes use identical logical positions and gameplay. Thirteen cutouts from the supplied source sheets are installed; see the [Pillow artwork pipeline, showrooms and source limitations](docs/ARTWORK.md). Missing/corrupt files fall back to the same shapes. Debug/plain defaults never decode artwork. Enable the full presentation with `--world-art sprites --view angled --hud-art illustrated`; `--debug-overlay on` shows anchors and bounds. No replacement artwork was generated or downloaded.
+
+## Procedural combat experiment
+
+```sh
+mise run battle-godot                 # animated figures, debug shapes by default
+mise run battle-monogame
+mise run battle-godot-assets          # the two existing character PNGs
+mise run battle-monogame-assets
+mise run test-godot-animation
+mise run test-monogame-animation
+mise run capture-godot-battle
+mise run capture-monogame-battle
+```
+
+Both clients independently sample idle, movement, melee, hit and death poses from authoritative playback. Native controls select legal swordsman, ranged/magic, status and structure replays; pause, speed, art and diagnostics remain presentation controls. Shots, magic, statuses and impacts are procedural. See [animation approach, controls, actual frame sequences and limitations](docs/COMBAT_ANIMATION.md). `mise run review-battle` creates a local interactive review from the captured PNGs and JSON receipts.
 
 ## Windows and Linux builds
 
@@ -108,7 +123,7 @@ mise run play-godot-assets -- --assets-root /absolute/path/to/sprites
 mise run scenario post-draft artifacts/scenarios/post-draft.json
 ```
 
-Checkpoints: `initial`, `settlement` (four buildings), `building-selected`, `combat` (first real attack), `draft`, `post-draft`. A checkpoint freezes automatic advancement for capture inspection; gameplay actions resume it. The scenario runner records a snapshot and selection from legal replay, without opening a graphics client. The seed is `20261018`.
+Checkpoints: `initial`, `settlement` (four buildings), `building-selected`, `battle-start`, `combat` (first real attack), `draft`, `post-draft`. A checkpoint freezes automatic advancement for capture inspection; gameplay actions resume it. The scenario runner records a snapshot and selection from legal replay, without opening a graphics client. The seed is `20261018`.
 
 ## Layout and rules boundary
 

@@ -51,8 +51,10 @@ public sealed partial class WatchGame
     void BeginSolo() => ReplaceSession(new SoloSession(matchId: Guid.NewGuid().ToString("N")));
     void ReturnToMenu()
     {
+        totalAnimatedHits = 0; battle = null; finishingCombat = false; animationProfile = null; if (battlePanel is not null) battlePanel.Visual.Visible = false;
+        title.X = 24; title.Width = 800; motion.Clear();
         session?.Dispose(); session = null!; steamLobbies?.Leave(); publishedSteamPhase = "";
-        effects.Clear(); checkpointFrozen = false; ResetCamera(); UpdateUi();
+        motion.Clear(); checkpointFrozen = false; ResetCamera(); UpdateUi();
     }
     bool RefreshSessionMenu()
     {
@@ -106,7 +108,7 @@ public sealed partial class WatchGame
         try { old.Send("ready"); throw new InvalidOperationException("Disposed session accepted input"); }
         catch (ObjectDisposedException) { }
         ReplaceSession(ScenarioRunner.CreateAt("combat")); ReturnToMenu(); BeginSolo();
-        Check(session.Snapshot.Phase == Phase.Lobby && effects.Count == 0, "combat cleanup");
+        Check(session.Snapshot.Phase == Phase.Lobby && motion.Events.Count == 0, "combat cleanup");
         Console.WriteLine("MONOGAME_SESSION_PASS menu doctrine start replacement cleanup combat-leave offline");
     }
 }

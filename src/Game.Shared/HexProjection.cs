@@ -50,6 +50,15 @@ public static class SettlementLayout
 
 public static class CombatVisuals
 {
+    public static Vector2 Point(HexPosePoint pose, MatchSnapshot snapshot, double radius = 30)
+    {
+        if (snapshot.Arena is not { } arena) return Vector2.Zero;
+        var projection = new HexProjection(radius);
+        Vector2 At(int id) => arena.Board.Cells.FirstOrDefault(c => c.Id == id) is { } cell ? projection.Project(cell.Coordinate) : Vector2.Zero;
+        Vector2 start = At(pose.Position.Cell);
+        return pose.Transition > 0 && pose.DurationTicks > 0
+            ? Vector2.Lerp(start, At(pose.Destination.Cell), Math.Clamp((float)pose.ElapsedTicks / pose.DurationTicks, 0, 1)) : start;
+    }
     public static Vector2 Position(UnitState unit, MatchSnapshot snapshot, double tick, double radius = 30)
     {
         if (unit.Hex is not { } hex || snapshot.Arena is not { } arena) return Vector2.Zero;

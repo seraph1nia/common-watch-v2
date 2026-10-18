@@ -51,6 +51,16 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
             if args.operation == 'test':
                 if all((work / f'{index}.json').exists() for index in range(args.players)):
                     records = [json.loads((work / f'{index}.json').read_text()) for index in range(args.players)]
+                    destination = ROOT / 'artifacts' / 'test-logs'
+                    destination.mkdir(parents=True, exist_ok=True)
+                    for index, record in enumerate(records):
+                        (destination / f'{args.client}-{args.players}p-{index}.json').write_text(json.dumps(record))
+                    if not all(r['animation']['hits'] > 0 for r in records):
+                        if time.monotonic() > deadline:
+                            raise AssertionError('Every host and guest must consume real hit effects: ' + str([r['animation'] for r in records]))
+                        time.sleep(.1)
+                        continue
+                    assert all(r['animation']['effects'] <= 4096 for r in records)
                     assert len({record['player'] for record in records}) == args.players
                     if not all(record['state'] == records[0]['state'] for record in records):
                         if time.monotonic() > deadline:

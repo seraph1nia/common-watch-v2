@@ -67,9 +67,9 @@ run = "bash tools/client.sh godot --render-mode debug"
 raw_args = true
 
 [tasks.play-godot-assets]
-description = "Play Godot with optional sprite loading and geometric fallback"
+description = "Play Godot with optional sprites and illustrated HUD, with plain/geometric fallback"
 depends = ["build"]
-run = "bash tools/client.sh godot --render-mode sprites"
+run = "bash tools/client.sh godot --render-mode sprites --hud-art illustrated"
 raw_args = true
 
 [tasks.play-monogame]
@@ -85,9 +85,9 @@ run = "bash tools/client.sh monogame --render-mode debug"
 raw_args = true
 
 [tasks.play-monogame-assets]
-description = "Play MonoGame with optional sprite loading and geometric fallback"
+description = "Play MonoGame with optional sprites and illustrated HUD, with plain/geometric fallback"
 depends = ["build"]
-run = "bash tools/client.sh monogame --render-mode sprites"
+run = "bash tools/client.sh monogame --render-mode sprites --hud-art illustrated"
 raw_args = true
 
 [tasks.test-godot]
@@ -257,3 +257,63 @@ run = "bash tools/graphical.sh godot capture-art"
 description = "Capture nine actual MonoGame/Gum artwork verification views on an owned display"
 depends = ["build"]
 run = "bash tools/graphical.sh monogame capture-art"
+
+[tasks.battle-godot]
+description = "Animated tabletop battle showcase, native Godot controls, default debug art"
+depends = ["build"]
+run = "bash tools/client.sh godot --battle swordsman --world-art debug"
+raw_args = true
+
+[tasks.battle-monogame]
+description = "Animated tabletop battle showcase, Gum controls, default debug art"
+depends = ["build"]
+run = "bash tools/client.sh monogame --battle swordsman --world-art debug"
+raw_args = true
+
+[tasks.battle-godot-assets]
+description = "Godot battle with the two existing static character PNGs"
+depends = ["build"]
+run = "bash tools/client.sh godot --battle swordsman --world-art sprites"
+raw_args = true
+
+[tasks.battle-monogame-assets]
+description = "MonoGame battle with the two existing static character PNGs"
+depends = ["build"]
+run = "bash tools/client.sh monogame --battle swordsman --world-art sprites"
+raw_args = true
+
+[tasks.capture-godot-battle]
+description = "Actual Godot animation phases and ordered frames with tick/event metadata"
+depends = ["build"]
+run = "bash tools/graphical.sh godot capture-battle"
+raw_args = true
+
+[tasks.capture-monogame-battle]
+description = "Actual MonoGame animation phases and ordered frames with tick/event metadata"
+depends = ["build"]
+run = "bash tools/graphical.sh monogame capture-battle"
+raw_args = true
+
+[tasks.test-godot-animation]
+description = "Godot pose/lifecycle and actual rendered animation checks"
+depends = ["build"]
+run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --filter FullyQualifiedName~Animation --nologo", "bash tools/graphical.sh godot capture-battle --no-sequence"]
+
+[tasks.test-monogame-animation]
+description = "MonoGame pose/lifecycle and actual rendered animation checks"
+depends = ["build"]
+run = ["dotnet test tests/Game.MonoGame.Session.Tests --no-build --no-restore --filter FullyQualifiedName~Animation --nologo", "bash tools/graphical.sh monogame capture-battle --no-sequence"]
+
+[tasks.profile-godot-animation]
+description = "Nine repeated native battles at 30/60/120 FPS and all three combat speeds"
+depends = ["build"]
+run = "bash tools/graphical.sh godot profile-battle"
+
+[tasks.profile-monogame-animation]
+description = "Nine repeated native battles at 30/60/120 FPS and all three combat speeds"
+depends = ["build"]
+run = "bash tools/graphical.sh monogame profile-battle"
+
+[tasks.review-battle]
+description = "Build the local HTML review from actual captured frames and profile receipts"
+run = "python3 tools/battle-review.py"

@@ -31,12 +31,12 @@ public sealed class SoloSession : IDisposable
         SelectedSlot = slot;
     }
     public CommandResult Send(string action, int slot = -1, Building building = Building.Empty,
-        UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard)
+        UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard, TechnologyId technology = TechnologyId.None)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         // Invalid selections reach authority validation without indexing the snapshot array.
         Command command = slot is >= -1 and < ArmyConfiguration.TotalPlots
-            ? Command.FromSnapshot(Snapshot, ++_sequence, action, PlayerId, slot, building, soldierType, payment: payment)
+            ? Command.FromSnapshot(Snapshot, ++_sequence, action, PlayerId, slot, building, soldierType, payment: payment, technology: technology)
             : new(++_sequence, Snapshot.MatchId, Snapshot.Phase, Snapshot.TurnSerial, action, PlayerId, slot, building, soldierType, Payment: payment);
         LastResult = _authority.ExecuteLocal(command);
         Refresh();

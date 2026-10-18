@@ -7,13 +7,14 @@ namespace Game.Shared;
 public static class ScenarioRunner
 {
     public static IReadOnlyList<string> Checkpoints { get; } = Array.AsReadOnly<string>(
-        ["initial", "settlement", "building-selected", "combat", "draft", "post-draft"]);
-    public static SoloSession CreateAt(string checkpoint, ulong seed = SoloSession.DefaultSeed)
+        ["initial", "settlement", "building-selected", "battle-start", "combat", "draft", "post-draft"]);
+    public static SoloSession CreateAt(string checkpoint, ulong seed = SoloSession.DefaultSeed, string? doctrine = null)
     {
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown scenario checkpoint: " + checkpoint);
         var session = new SoloSession(seed);
         try
         {
+            if (doctrine is not null) Require(session.Send("doctrine:" + doctrine));
             Require(session.Start());
             if (checkpoint == "initial") return session;
             Require(session.Send("build", 0, Building.Farm));
@@ -33,6 +34,7 @@ public static class ScenarioRunner
             }
             Require(session.Send("ready"));
             if (session.Snapshot.Phase != Phase.Combat) throw new InvalidOperationException("Scenario did not enter combat.");
+            if (checkpoint == "battle-start") { session.ResetPlayback(); return session; }
             if (checkpoint == "combat")
             {
                 // Allow deployment to become an actual exchange before capturing.

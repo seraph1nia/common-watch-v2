@@ -13,7 +13,6 @@ public partial class Main : Node2D
     private HexProjection _settlement = new(65);
     private HexProjection _arena = new(30);
     private readonly Dictionary<string, Texture2D?> _textures = [];
-    private readonly List<(CombatEvent Event, double Until)> _effects = [];
     private readonly List<Button> _rewardButtons = [];
     private readonly Dictionary<Building, Button> _buildButtons = [];
     private Label _resources = null!, _phase = null!, _selection = null!, _production = null!, _message = null!, _combatInfo = null!;
@@ -28,7 +27,6 @@ public partial class Main : Node2D
     private float _zoom = 1;
     private bool _dragging;
     private bool _frozen;
-    private double _time;
     private readonly Color _ink = new("e7edf2"), _muted = new("a9bcc7"), _gold = new("efd478");
     private const float SideWidth = 368, HeaderHeight = 100;
     private string[] _args = [];
@@ -60,6 +58,7 @@ public partial class Main : Node2D
             _arena = new HexProjection(30, _options.GroundCompression);
             InitializeMusic();
             string? checkpoint = Argument("--checkpoint");
+            if (Argument("--battle") is { } scenario) { _battle = new(scenario); checkpoint = "initial"; }
             if (checkpoint is not null) _session = WrapSolo(ScenarioRunner.CreateAt(checkpoint));
             _frozen = checkpoint is not null;
             CreateUi();
@@ -68,18 +67,22 @@ public partial class Main : Node2D
             else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
             else if (_session is null) ReturnToMenu(); else RefreshUi(true);
             if (_options.Showroom) { ReturnToMenu(); _sessionMenu.Visible = false; CreateShowroom(); }
+            if (_battle is not null) InitializeBattle();
             QueueRedraw();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (Argument("--battle-capture") is { } battleOutput) { await CaptureBattle(battleOutput); await QuitAfterAudioDrain(); return; }
             if (_args.Contains("--smoke-test")) await SmokeIntegration();
             if (_args.Contains("--capture-settings")) OpenSettings();
             if (Argument("--capture") is { } path)
             {
+                var captureWatch = System.Diagnostics.Stopwatch.StartNew();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 string absolute = System.IO.Path.GetFullPath(path);
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(absolute)!);
                 Error result = GetViewport().GetTexture().GetImage().SavePng(absolute);
                 if (result != Error.Ok) throw new InvalidOperationException($"Viewport capture failed: {result}");
+                if (_battle is not null) BattleCaptures.Metadata(System.IO.Path.ChangeExtension(absolute, ".json"), "godot", _battle, _options, captureWatch.Elapsed.TotalMilliseconds, GC.GetTotalAllocatedBytes(), _motion.Events.Count, CombatShader, _zoom, _pan.X, _pan.Y);
                 GD.Print($"GODOT_CAPTURE {absolute} phase={_session?.Snapshot.Phase} mode={_options.Mode}");
                 await QuitAfterAudioDrain();
             }
@@ -184,7 +187,7 @@ public partial class Main : Node2D
         _frozen = false; RefreshUi(true); QueueRedraw();
     }
     private GodotSession WrapSolo(SoloSession solo) { var session = new GodotSession { Name = "Session" }; AddChild(session); session.Solo(solo); return session; }
-    private void ReplaceSession(SoloSession session) { LeaveSteam(); _session?.Dispose(); _session = WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _effects.Clear(); _motion.Clear(); _uiKey = ""; ResetCamera(); }
+    private void ReplaceSession(SoloSession session) { LeaveSteam(); _session?.Dispose(); _session = WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _motion.Clear(); _finishingCombat = false; _uiKey = ""; ResetCamera(); }
     private void ResetCamera() { _pan = Vector2.Zero; _zoom = 1; QueueRedraw(); }
 
     public override void _Process(double delta)
@@ -192,11 +195,11 @@ public partial class Main : Node2D
         ProcessSteam();
         RunControlProbe();
         if (_session is null || _resources is null) return;
-        _time += delta;
-        if (!_frozen) _session.Advance(delta);
+        _animationProfile?.Begin(delta);
+        if (_battle is not null) _battle.Advance(_animationProfile?.Step ?? delta);
+        else if (!_frozen) _session.Advance(delta);
         if (!_session.HasState) { RefreshSessionMenu(); return; }
-        foreach (CombatEvent entry in _session.Playback.Drain()) { _effects.Add((entry, _time + .55)); _motion.Observe(entry, _time); }
-        _effects.RemoveAll(e => e.Until < _time);
+        ObserveCombat();
         RunNetworkProbe();
         RefreshUi(); QueueRedraw();
     }
@@ -204,6 +207,7 @@ public partial class Main : Node2D
     private void RefreshUi(bool force = false)
     {
         if (_session is null || !_session.HasState) { RefreshSessionMenu(); return; }
+        if (_battle is not null) { _gameUi.Visible = false; _sessionMenu.Visible = false; UpdateBattleHud(); return; }
         _message.Text = _session.Pending ? "Waiting for authority…" : (!_session.Connected ? _session.Status : _session.LastResult?.Message ?? _session.Status);
         _sessionMenu.Visible = _session.Snapshot.Phase == Phase.Lobby;
         _gameUi.Visible = !_sessionMenu.Visible;
@@ -220,7 +224,7 @@ public partial class Main : Node2D
             : state.Phase is Phase.Defeat or Phase.Victory ? $"{state.Phase}. Use New solo game to restart." : "Preparing for the next wave.";
         _selection.TooltipText = _session.SelectedSlot >= 0 ? $"Selected plot {_session.SelectedSlot + 1}: inspect costs and production below." : "Choose a settlement plot to inspect its costs and production.";
         _production.Text = "Next production: " + (city.ProductionIncome is { } income ? RunPresentation.Resources(income) : "None");
-        string key = $"{state.Phase}|{_session.SelectedSlot}|{city.Resources}|{string.Join(',', city.Slots.Select(s => $"{s.Type}:{s.Level}:{s.Purchased}"))}|{string.Join(',', city.Run.Offers)}";
+        string key = $"{state.Phase}|{_finishingCombat}|{_session.SelectedSlot}|{city.Resources}|{string.Join(',', city.Slots.Select(s => $"{s.Type}:{s.Level}:{s.Purchased}"))}|{string.Join(',', city.Run.Offers)}";
         if (!force && key == _uiKey) return; _uiKey = key;
         foreach (Node child in _actions.GetChildren()) { _actions.RemoveChild(child); child.QueueFree(); }
         _buildButtons.Clear(); _recruit = null;
@@ -258,7 +262,7 @@ public partial class Main : Node2D
         }
         else _selection.Text = "SETTLEMENT\nSelect one of the nine hex plots to build, inspect or recruit.";
         if (state.Phase == Phase.Combat) _selection.Text = "BATTLEFIELD";
-        _draft.Visible = state.Phase == Phase.RewardDraft;
+        _draft.Visible = state.Phase == Phase.RewardDraft && !_finishingCombat;
         foreach (Node child in _cards.GetChildren()) { _cards.RemoveChild(child); child.QueueFree(); }
         _rewardButtons.Clear();
         if (_draft.Visible)
@@ -279,7 +283,7 @@ public partial class Main : Node2D
     private Vector2 WorldOrigin => new((GetViewportRect().Size.X - SideWidth) / 2, HeaderHeight + (GetViewportRect().Size.Y - HeaderHeight - 48) / 2);
     private Vector2 ArenaCenter()
     {
-        var coordinates = _session.Snapshot.Arena?.Board.Cells.Select(c => V(_arena.Project(c.Coordinate))).ToArray() ?? [];
+        var coordinates = CombatState.Arena?.Board.Cells.Select(c => V(_arena.Project(c.Coordinate))).ToArray() ?? [];
         return coordinates.Length == 0 ? Vector2.Zero : new Vector2((coordinates.Min(v => v.X) + coordinates.Max(v => v.X)) / 2, (coordinates.Min(v => v.Y) + coordinates.Max(v => v.Y)) / 2);
     }
     private Vector2 SettlementCenter => new(0, 65 * 1.5f * 3 * _options.GroundCompression);
@@ -290,8 +294,16 @@ public partial class Main : Node2D
 
     public override void _Draw()
     {
+        if (_combatOverlay is not null) _combatOverlay.Visible = false;
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby) return;
-        if (_session.Snapshot.Phase == Phase.Combat) DrawCombat(); else DrawSettlement();
+        if (PresentingCombat)
+        {
+            DrawCombat();
+            if (_animationProfile is not null && _animationProfile.End(_battle!, AnimationTick, _motion.Events.Count, _figures.Count))
+            {
+                if (_animationProfile.Done) _ = QuitAfterAudioDrain(); else { Engine.MaxFps = _animationProfile.Fps; ObserveCombat(); }
+            }
+        } else { foreach (var figure in _figures.Values) figure.Visible = false; DrawSettlement(); }
     }
     private void DrawSettlement()
     {
@@ -343,68 +355,14 @@ public partial class Main : Node2D
             TextCentered($"Lv {slot.Level}", center + new Vector2(0, 47) * _zoom, 11);
         }
     }
-    private void DrawCombat()
-    {
-        var state = _session.Snapshot; var arena = state.Arena; if (arena is null) return;
-        Vector2 center = ArenaCenter();
-        DrawString(ThemeDB.FallbackFont, new Vector2(22, HeaderHeight + 28), "SHARED COMBAT ARENA", HorizontalAlignment.Left, -1, 19, _muted);
-        foreach (var cell in arena.Board.Cells)
-        {
-            DrawHex(_arena.Corners(cell.Coordinate).Select(c => Screen(V(c) - center)).ToArray(), new Color("23343d"), new Color("3f555d"), 1);
-            Sprite("terrain/woodland_hex", Screen(V(_arena.Project(cell.Coordinate)) - center),
-                new Vector2(53, 53) * _zoom);
-        }
-        foreach (var cell in arena.Board.Cells)
-        {
-            var corners = _arena.Corners(cell.Coordinate).Select(c => Screen(V(c) - center)).ToArray();
-            DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("3f555d"), 1, true);
-        }
-        foreach (var structure in _session.Playback.Structures())
-        {
-            if (!structure.Active || structure.Health <= 0) continue;
-            var cell = arena.Board.Cells.FirstOrDefault(c => c.Id == structure.Cell); if (cell is null) continue;
-            Vector2 p = Screen(V(_arena.Project(cell.Coordinate)) - center);
-            DrawRect(new Rect2(p - new Vector2(17, 17) * _zoom, new Vector2(34, 34) * _zoom), new Color("9b9872"));
-            TextCentered(structure.Kind.ToString(), p + new Vector2(0, 28), 11);
-            DrawRect(new Rect2(p + new Vector2(-22, -25), new Vector2(44, 5)), new Color("121a22"));
-            DrawRect(new Rect2(p + new Vector2(-22, -25), new Vector2(44f * structure.Health / Math.Max(1, structure.MaximumHealth), 5)), new Color("69dbae"));
-        }
-        var units = _session.Playback.Units().OrderBy(u => CombatVisuals.Position(u, state, _session.Playback.Tick).Y).ToArray();
-        Vector2 Ground(UnitState u) { var p = CombatVisuals.Position(u, state, _session.Playback.Tick); p.Y *= _options.GroundCompression; return Screen(V(p) - center); }
-        var positions = units.ToDictionary(u => u.Id, Ground);
-        foreach (var unit in units)
-        {
-            if (unit.Hex?.Lifecycle is not (UnitLifecycle.Alive or UnitLifecycle.Dying)) continue;
-            Vector2 ground = positions[unit.Id];
-            var pose = _motion.Sample(unit, _session.Playback.Tick, _time, new(ground.X, ground.Y), positions.TryGetValue(unit.TargetId, out var end) ? new System.Numerics.Vector2(end.X, end.Y) : null);
-            Vector2 p = ground + V(pose.Offset) * _zoom;
-            bool friendly = unit.Faction == Faction.Adventurers;
-            Color color = friendly ? new Color("63a9ed") : new Color("ed7778");
-            var tint = Colors.White.Lerp(new Color(1.8f, 1.8f, 1.8f), pose.Flash); tint.A = pose.Opacity;
-            if (!Sprite(VisualAssets.UnitId(unit), p, Vector2.One * _catalog.Metadata(VisualAssets.UnitId(unit)).DisplaySize * _zoom, tint)) DrawCircle(p, 8 * _zoom, color with { A = pose.Opacity });
-            if (unit.TargetId != 0 && unit.PendingImpact && positions.TryGetValue(unit.TargetId, out var target)) DrawLine(p, target, color.Lightened(.3f), 2);
-            TextCentered((friendly ? "S" : "E") + unit.Id, p + new Vector2(0, 5), 9, new Color("0d1822"));
-            float max = Math.Max(unit.Profile.Health, 1); float fraction = Math.Clamp(unit.Health / max, 0, 1);
-            float healthY = -46 * _zoom;
-            DrawLine(p + new Vector2(0, -9), p + new Vector2(0, healthY), color.Darkened(.3f), 1);
-            DrawRect(new Rect2(p + new Vector2(-9, healthY), new Vector2(18, 4)), new Color("121a22"));
-            DrawRect(new Rect2(p + new Vector2(-9, healthY), new Vector2(18 * fraction, 4)), friendly ? new Color("69dbae") : new Color("fa9a8c"));
-        }
-        foreach (var (entry, until) in _effects)
-        {
-            if (entry.Unit is null) continue;
-            Vector2 p = positions.GetValueOrDefault(entry.Unit.Id, Screen(V(CombatVisuals.Position(entry.Unit, state, entry.Tick)) - center));
-            if (entry.Type is CombatEventType.Hit or CombatEventType.StructureHit) TextCentered("-" + HealthPoints.Format(entry.Damage), p + new Vector2(0, -42 - (float)(.55 - (until - _time)) * 25), 18, _gold);
-            if (entry.Type is CombatEventType.AttackStarted or CombatEventType.Impact && positions.TryGetValue(entry.TargetId, out var target)) DrawLine(p, target, _gold, 3);
-            if (entry.Type == CombatEventType.Death) DrawArc(p, 18 + (float)(.55 - (until - _time)) * 20, 0, Mathf.Tau, 24, _muted, 2);
-        }
-    }
+    private void DrawCombat() => DrawAnimatedCombat();
     private void DrawHex(Vector2[] corners, Color fill, Color border, float width)
     {
         DrawColoredPolygon(corners, fill); DrawPolyline(corners.Append(corners[0]).ToArray(), border, width, true);
     }
     private void TextCentered(string text, Vector2 position, int size, Color? color = null)
     {
+        if (_renderingCombat && _combatOverlay is not null) { _combatOverlay.Text(text, position, size, color ?? _ink); return; }
         float width = ThemeDB.FallbackFont.GetStringSize(text, HorizontalAlignment.Left, -1, size).X;
         DrawString(ThemeDB.FallbackFont, position - new Vector2(width / 2, 0), text, HorizontalAlignment.Left, -1, size, color ?? _ink);
     }
@@ -421,6 +379,9 @@ public partial class Main : Node2D
 
     public override void _Input(InputEvent input)
     {
+        if (_battle is not null && input is InputEventKey { Pressed: true, Echo: false } battleKey
+            && battleKey.Keycode is Key.Space or Key.Backspace or Key.Tab or Key.T or Key.O or Key.V or Key.Key1 or Key.Key2 or Key.Key3 or Key.Key4 or Key.Key5 or Key.Key6)
+        { HandleBattleKey(battleKey.Keycode); GetViewport().SetInputAsHandled(); return; }
         if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
         {
             if (_settingsOverlay.Visible) CloseSettings(); else OpenSettings();
@@ -510,6 +471,7 @@ public partial class Main : Node2D
     private static void Require(bool success, string check) { if (!success) throw new InvalidOperationException("Godot integration failed: " + check); }
     public override void _ExitTree()
     {
+        _hitShader.Dispose();
         _audioSettings?.Save();
         ShutdownMusic();
         _session?.Dispose();

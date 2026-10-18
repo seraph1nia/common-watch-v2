@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><IsTestProject>true</IsTestProject><IsPackable>false</IsPackable></PropertyGroup>
+  <PropertyGroup><DefineConstants>$(DefineConstants);GODOT_ANIMATION</DefineConstants><IsTestProject>true</IsTestProject><IsPackable>false</IsPackable></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -7,4 +7,5 @@
     <ProjectReference Include="../../src/Game.Shared/Game.Shared.csproj" />
     <Compile Include="../../src/Game.Godot/SteamLobbyMetadata.cs" Link="SteamLobbyMetadata.cs" />
   </ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/CombatMotion.cs" Link="CombatMotion.cs" /><Compile Include="../../tools/animation-tests/AnimationContract.cs" Link="AnimationContract.cs" /></ItemGroup>
 </Project>

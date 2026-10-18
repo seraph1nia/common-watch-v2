@@ -7,5 +7,5 @@
   <ItemGroup>
     <ProjectReference Include="../Game.Shared/Game.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup><Compile Include="../../tools/session-probe/OpeningProbe.cs" Link="Development/OpeningProbe.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../tools/animation-tests/AnimationProfile.cs" Link="Development/AnimationProfile.cs" /><Compile Include="../../tools/session-probe/OpeningProbe.cs" Link="Development/OpeningProbe.cs" /></ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ namespace Game.GodotClient;
 public partial class Main
 {
     private long _controlWrite;
+    private bool _pausedAtDeath;
     private void RunControlProbe()
     {
         if (Argument("--control-dir") is not { } directory) return;
@@ -31,12 +32,15 @@ public partial class Main
                     _session.ProbeCommand(Text("action"), Number("owner", _session.PlayerId), Text("duplicate") == "yes"); break;
             }
         }
+        if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
+        { _pausedAtDeath = true; _session.Send("pause"); }
         if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
             for (int i = 0; i < 10; i++) _session.Step();
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
         var status = new { connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             pending = _session?.Pending ?? false, status = _session?.Status ?? "Main menu",
+            animation = new { hits = _motion.ObservedHits, effects = _motion.Events.Count, generation = _session?.Playback.Generation, resets = _visualResets, dying = _session?.Playback.Units().Count(u => u.Hex?.Lifecycle == UnitLifecycle.Dying) },
             result = _session?.LastResult, state = _session is { HasState: true } ? _session.Snapshot : null };
         string output = System.IO.Path.Combine(directory, "status.json");
         System.IO.File.WriteAllText(output + ".tmp", JsonSerializer.Serialize(status, new JsonSerializerOptions(WireJson.Options) { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never }));

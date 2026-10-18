@@ -6,7 +6,7 @@ namespace Game.GodotClient;
 public partial class Main
 {
     private AssetCatalog _catalog = null!;
-    private readonly SpriteMotion _motion = new();
+    private readonly CombatMotion _motion = new();
     private readonly Dictionary<string, Texture2D?> _hudTextures = [];
     private int _ninePatches;
 

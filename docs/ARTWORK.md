@@ -45,15 +45,17 @@ mise run play-godot
 mise run play-monogame
 mise run play-godot-no-assets
 mise run play-monogame-no-assets
-mise run play-godot-assets -- --view angled --hud-art illustrated
-mise run play-monogame-assets -- --view angled --hud-art illustrated
+mise run play-godot-assets -- --view angled
+mise run play-monogame-assets -- --view angled
 ```
 
 Both clients accept `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are debug, topdown, plain and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
 
-Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Each engine owns camera pan/zoom and native texture drawing; only detached metadata, projection and cosmetic animation sampling are shared. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
+The `play-godot-assets` and `play-monogame-assets` tasks enable both world sprites and the illustrated nine-slice HUD. Append `-- --hud-art plain` to either task for plain controls, or `-- --view angled` for the angled world view.
 
-Combat retains the original authoritative movement interpolation. Drained attack/hit events drive short lunges and flashes, playback lifecycle/ticks drive death fade, and cosmetic time drives small idle bobs. No animation frames, rig or simulation writes were introduced. Debug circles receive equivalent motion/fade feedback.
+Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Each engine owns camera pan/zoom and native texture drawing; detached metadata and projection are shared; combat poses and graphics are independently owned by each engine. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
+
+Combat retains the original authoritative movement interpolation. Each engine samples idle, movement, five-stage melee, hit and death poses from playback timing. Native procedural shots, magic, statuses and structure effects accompany real events. No animation frames, rig or simulation writes were introduced. Debug figures receive equivalent transforms and effects. See [the combat animation experiment](COMBAT_ANIMATION.md) for actual captures, legal showcases and limitations.
 
 ## Nine-slice HUD
 

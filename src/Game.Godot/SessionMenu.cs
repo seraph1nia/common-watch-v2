@@ -52,8 +52,10 @@ public partial class Main
     }
     private void ReturnToMenu()
     {
+        _totalAnimatedHits = 0; _battle = null; _finishingCombat = false; _animationProfile = null; _battleLayer?.QueueFree(); _battleLayer = null;
+        foreach (var figure in _figures.Values) figure.QueueFree(); _figures.Clear(); _motion.Clear();
         _session?.Dispose(); _session = null!; LeaveSteam();
-        _effects.Clear(); _uiKey = ""; _dragging = false;
+        _motion.Clear(); _uiKey = ""; _dragging = false;
         _gameUi.Visible = false; _sessionMenu.Visible = true;
         RefreshSessionMenu(); QueueRedraw();
     }
@@ -108,7 +110,7 @@ public partial class Main
         try { old.Send("ready"); throw new InvalidOperationException("Disposed session accepted input"); }
         catch (ObjectDisposedException) { }
         ReplaceSession(ScenarioRunner.CreateAt("combat")); ReturnToMenu(); BeginSolo();
-        Require(_session.Snapshot.Phase == Phase.Lobby && _effects.Count == 0, "leave during combat");
+        Require(_session.Snapshot.Phase == Phase.Lobby && _motion.Events.Count == 0, "leave during combat");
         GD.Print("GODOT_SESSION_PASS menu doctrine start replacement cleanup combat-leave offline");
     }
 }

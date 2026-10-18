@@ -3,10 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Game.MonoGameClient;
 
-internal sealed class OptionalSprites(GraphicsDevice graphics, RenderOptions options) : IDisposable
+internal sealed class OptionalSprites : IDisposable
 {
+    readonly GraphicsDevice graphics;
+    RenderOptions options;
+    public OptionalSprites(GraphicsDevice graphics, RenderOptions options) { this.graphics = graphics; this.options = options; Catalog = new(options.AssetsRoot, options.Mode == RenderMode.Sprites || options.Hud == HudArt.Illustrated); }
+    public void Configure(RenderOptions next) { options = next; Catalog = new(options.AssetsRoot, options.Mode == RenderMode.Sprites || options.Hud == HudArt.Illustrated); }
     readonly Dictionary<string, Texture2D?> cache = [];
-    public AssetCatalog Catalog { get; } = new(options.AssetsRoot, options.Mode == RenderMode.Sprites || options.Hud == HudArt.Illustrated);
+    public AssetCatalog Catalog { get; private set; }
     public int LoadAttempts { get; private set; }
     public Texture2D? Get(string id)
     {

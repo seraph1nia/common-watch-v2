@@ -30,7 +30,7 @@ public sealed partial class WatchGame
         }
         if (networkProbe.Complete && Arg("--report") is { } path)
         {
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = session.PlayerId, steam = session.IsSteam, reconnected = _nativeResumed, state = session.Snapshot }, WireJson.Options));
+            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = session.PlayerId, steam = session.IsSteam, reconnected = _nativeResumed, animation = new { hits = totalAnimatedHits, generationHits = motion.ObservedHits, resets = visualResets, effects = motion.Events.Count, tick = session.Playback.Tick, generation = session.Playback.Generation }, state = session.Snapshot }, WireJson.Options));
             File.Move(path + ".tmp", path, true);
             if (!probeRecorded) Console.WriteLine("MONOGAME_NETWORK_PASS legal-opening combat individual-draft wave=2");
             probeRecorded = true;

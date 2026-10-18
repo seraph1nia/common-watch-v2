@@ -12,7 +12,7 @@ namespace Game.MonoGameClient;
 
 public sealed partial class WatchGame
 {
-    readonly SpriteMotion motion = new();
+    readonly CombatMotion motion = new();
     readonly NineSliceRuntime?[] artPanels = new NineSliceRuntime?[6];
     readonly List<Button> skinnedButtons = [];
     readonly List<NineSliceRuntime> showroomPanels = [];

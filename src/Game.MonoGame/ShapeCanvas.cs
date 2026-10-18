@@ -8,17 +8,43 @@ internal sealed class ShapeCanvas : IDisposable
 {
     readonly SpriteBatch batch;
     readonly Texture2D pixel;
+    readonly BasicEffect flashEffect;
+    Matrix local = Matrix.Identity;
+    readonly List<float> intersections = new(8);
+    public int ShaderUses { get; private set; }
     public ShapeCanvas(GraphicsDevice device)
     {
         batch = new(device);
+        flashEffect = new(device) { TextureEnabled = true, VertexColorEnabled = true, FogEnabled = true, FogColor = Vector3.One };
         pixel = new(device, 1, 1);
         pixel.SetData(new[] { Color.White });
     }
     public void Begin() => batch.Begin(samplerState: SamplerState.LinearClamp);
     public void End() => batch.End();
-    public void Rect(float x, float y, float width, float height, Color color) => batch.Draw(pixel, new Rectangle((int)x, (int)y, Math.Max(1, (int)width), Math.Max(1, (int)height)), color);
+    public void Transform(Vector2 position, float rotation, float scale) => local = Matrix.CreateScale(scale) * Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0);
+    public void ResetTransform() => local = Matrix.Identity;
+    public void HitShader(float flash)
+    {
+        End();
+        flashEffect.Projection = Matrix.CreateOrthographicOffCenter(0, pixel.GraphicsDevice.Viewport.Width, pixel.GraphicsDevice.Viewport.Height, 0, 0, 1);
+        flashEffect.World = Matrix.Identity; flashEffect.View = Matrix.Identity;
+        flashEffect.FogStart = -flash; flashEffect.FogEnd = 1 - flash;
+        batch.Begin(samplerState: SamplerState.LinearClamp, effect: flashEffect);
+        ShaderUses++;
+    }
+    public void EndHitShader() { End(); Begin(); }
+
+    public void Rect(float x, float y, float width, float height, Color color)
+    {
+        if (width <= 0 || height <= 0) return;
+        Vector2 position = Vector2.Transform(new Vector2(x, y), local);
+        float scale = new Vector2(local.M11, local.M12).Length();
+        batch.Draw(pixel, position, null, color, MathF.Atan2(local.M12, local.M11), Vector2.Zero, new Vector2(width, height) * scale, SpriteEffects.None, 0);
+    }
     public void Line(Vector2 from, Vector2 to, Color color, float width = 2)
     {
+        from = Vector2.Transform(from, local); to = Vector2.Transform(to, local);
+        width *= new Vector2(local.M11, local.M12).Length();
         Vector2 delta = to - from;
         batch.Draw(pixel, from, null, color, MathF.Atan2(delta.Y, delta.X), new(0, .5f), new Vector2(delta.Length(), width), SpriteEffects.None, 0);
     }
@@ -28,7 +54,7 @@ internal sealed class ShapeCanvas : IDisposable
         int minY = (int)vertices.Min(p => p.Y), maxY = (int)vertices.Max(p => p.Y);
         for (int y = minY; y <= maxY; y++)
         {
-            List<float> intersections = [];
+            intersections.Clear();
             for (int i = 0; i < vertices.Length; i++)
             {
                 Vector2 a = vertices[i], b = vertices[(i + 1) % vertices.Length];
@@ -58,5 +84,19 @@ internal sealed class ShapeCanvas : IDisposable
         batch.Draw(texture, rect, tint ?? Color.White);
         return rect;
     }
-    public void Dispose() { batch.Dispose(); pixel.Dispose(); }
+    public void Figure(Texture2D texture, Game.Shared.AssetMetadata meta, Color tint, float extentScale = 1)
+    {
+        float scale = extentScale * new Vector2(local.M11, local.M12).Length() * meta.DisplaySize / Math.Max(texture.Width, texture.Height);
+        Vector2 position = Vector2.Transform(new Vector2(meta.Offset[0], meta.Offset[1]), local);
+        batch.Draw(texture, position, null, tint, MathF.Atan2(local.M12, local.M11), new Vector2(texture.Width * meta.Anchor[0], texture.Height * meta.Anchor[1]), scale, SpriteEffects.None, 0);
+    }
+    public void Ring(Vector2 p, float radius, Color color, float start = 0, float end = MathF.Tau, float width = 1)
+    {
+        for (int i = 0; i < 24; i++)
+        {
+            float a = start + (end - start) * i / 24, b = start + (end - start) * (i + 1) / 24;
+            Line(p + new Vector2(MathF.Cos(a), MathF.Sin(a)) * radius, p + new Vector2(MathF.Cos(b), MathF.Sin(b)) * radius, color, width);
+        }
+    }
+    public void Dispose() { flashEffect.Dispose(); batch.Dispose(); pixel.Dispose(); }
 }

@@ -42,7 +42,7 @@ public partial class Main
             }
             if (_networkProbe.Complete && Argument("--report") is { } path)
             {
-                System.IO.File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = _session.PlayerId, steam = _session.IsSteam, reconnected = _nativeResumed, state = _session.Snapshot }, WireJson.Options));
+                System.IO.File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = _session.PlayerId, steam = _session.IsSteam, reconnected = _nativeResumed, animation = new { hits = _totalAnimatedHits, generationHits = _motion.ObservedHits, resets = _visualResets, effects = _motion.Events.Count, tick = _session.Playback.Tick, generation = _session.Playback.Generation }, state = _session.Snapshot }, WireJson.Options));
                 System.IO.File.Move(path + ".tmp", path, true);
                 if (!_probeRecorded) GD.Print("GODOT_NETWORK_PASS legal-opening combat individual-draft wave=2");
                 _probeRecorded = true;

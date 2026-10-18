@@ -37,7 +37,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         logs.append(log)
         command = ['bash', 'tools/client.sh', client, '--settings-path', str(data / 'settings.json'),
                    '--data-path', str(data), '--control-dir', str(control), '--test-fast-combat', 'yes']
-        command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
+        command += ['--host', str(port), '--pause-at-death', 'yes'] if index == 0 else ['--join', f'127.0.0.1:{port}']
         command += list(extra)
         process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         processes.append(process)
@@ -54,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
             if result:
                 return result
             if any(p.poll() not in (None, 0, -signal.SIGTERM) for p in processes):
-                raise RuntimeError('Client failure: ' + message)
+                raise RuntimeError('Client failure: ' + message + '; process exits=' + repr([(p.pid, p.poll()) for p in processes]))
             time.sleep(.08)
         states = [(i, current['status'] if (current := status(i)) else 'no status') for i in range(6)]
         raise TimeoutError(message + ': ' + repr(states))
@@ -156,9 +156,14 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         send(0, 'ready')
         send(1, 'ready')
         phase('Combat')
+        wait(lambda: status(0)['state']['Paused'] and status(0)['state']['DyingBodies'], 'Authoritative pause during real death animation')
         tick = status(0)['state']['Tick']
+        resets = status(1)['animation']['resets']
         reconnect('Combat')
-        assert status(0)['state']['Tick'] > tick
+        wait(lambda: status(1)['animation']['resets'] > resets and status(1)['animation']['dying'] > 0, 'Guest baselines and renders remaining death lifecycle')
+        assert status(1)['animation']['hits'] == 0, 'Reconnect must not replay historical damage effects'
+        assert status(0)['state']['Tick'] == tick, 'Paused authority must not advance'
+        send(0, 'resume')
         phase('RewardDraft', None)
         reconnect('RewardDraft')
         for index in (0, 1):
@@ -215,7 +220,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         wait(lambda: (current := status(5)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
         refused = status(5)
         assert not refused['connected'] and refused['state'] is None
-        print(client, 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/draft resume, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
+        print(client, 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/death/draft resume, animation reset, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
     finally:
         for process in processes:
             if process.poll() is None:

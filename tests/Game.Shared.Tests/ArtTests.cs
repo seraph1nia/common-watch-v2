@@ -91,46 +91,6 @@ public sealed class ArtTests
     }
 
     [Fact]
-    public void MotionUsesRealEventsAndLeavesSnapshotsUnchanged()
-    {
-        using var session = ScenarioRunner.CreateAt("combat");
-        string before = JsonSerializer.Serialize(session.Snapshot, WireJson.Options);
-        var motion = new SpriteMotion();
-        foreach (var entry in session.Snapshot.CombatEvents) motion.Observe(entry, 1);
-        UnitState unit = session.Playback.Units().First();
-        Assert.NotEqual(motion.Sample(unit, session.Playback.Tick, 1, Vector2.Zero, null).Offset,
-            motion.Sample(unit, session.Playback.Tick, 1.3, Vector2.Zero, null).Offset);
-        Assert.Equal(before, JsonSerializer.Serialize(session.Snapshot, WireJson.Options));
-        bool attack = false, hit = false, death = false;
-        for (int i = 0; i < 5000 && session.Snapshot.Phase == Phase.Combat; i++)
-        {
-            session.Step(); session.Playback.Advance(.1, true);
-            foreach (var entry in session.Playback.Drain())
-            {
-                double seconds = session.Snapshot.Tick / (double)Match.StepsPerSecond;
-                motion.Observe(entry, seconds);
-                if (entry.Unit is not { } observed) continue;
-                if (entry.Type == CombatEventType.AttackStarted)
-                {
-                    Vector2 idle = motion.Sample(observed, entry.Tick, seconds + .14, Vector2.Zero, null).Offset;
-                    Vector2 lunge = motion.Sample(observed, entry.Tick, seconds + .14, Vector2.Zero, new Vector2(30, 0)).Offset;
-                    Assert.True(lunge.X - idle.X > 5); attack = true;
-                }
-                if (entry.Type == CombatEventType.Hit)
-                { Assert.Equal(1, motion.Sample(observed, entry.Tick, seconds, Vector2.Zero, null).Flash); hit = true; }
-                if (entry.Type == CombatEventType.Death && observed.Hex is { } hex)
-                {
-                    var start = motion.Sample(observed, hex.DeathStartTick, seconds, Vector2.Zero, null);
-                    var end = motion.Sample(observed, hex.DeathEndTick, seconds, Vector2.Zero, null);
-                    Assert.Equal(1, start.Opacity); Assert.Equal(0, end.Opacity); death = true;
-                }
-            }
-            if (attack && hit && death) break;
-        }
-        Assert.True(attack && hit && death, "Real replay must exercise lunge, hit flash and death fade");
-    }
-
-    [Fact]
     public void AllArtSettingsPreserveTheAuthorityResult()
     {
         string Play(string[] args)

@@ -16,7 +16,7 @@ export COMMON_WATCH_TEST_AUDIO=dummy
 settings_directory=$(mktemp -d)
 trap 'rm -rf "$settings_directory"' EXIT
 run_client() {
-  timeout --kill-after=5s 90s xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh "$client" --settings-path "$settings_directory/audio-settings.json" "$@"
+  timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh "$client" --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
   test)
@@ -34,6 +34,24 @@ case "$operation" in
       test -s "$output/$checkpoint.png" || { echo "Capture not produced: $output/$checkpoint.png" >&2; exit 1; }
     done
     echo "Actual rendered captures: $output"
+    ;;
+  profile-battle)
+    client_timeout=180
+    output="$(pwd)/artifacts/profiles/$client-animation.json"
+    run_client --battle swordsman --world-art sprites --battle-profile "$output" "$@"
+    test -s "$output"
+    ;;
+  capture-battle)
+    output="$(pwd)/artifacts/captures/$client/battle"
+    for mode in debug sprites; do
+      rm -rf "$output/$mode"
+      run_client --battle swordsman --world-art "$mode" --battle-capture "$output/$mode" "$@"
+      python3 tools/verify-battle-captures.py "$output/$mode"
+    done
+    run_client --battle swordsman --battle-tick 74 --world-art sprites --assets-root "$settings_directory/missing-sprites" --capture "$output/missing-sprites.png" "$@"
+    run_client --battle swordsman --battle-tick 74 --world-art sprites --view angled --debug-overlay on --battle-zoom 1.6 --battle-pan-x 80 --battle-pan-y 20 --combat-shader off --capture "$output/camera-angled-fallback.png" "$@"
+    test -s "$output/missing-sprites.png"
+    test -s "$output/camera-angled-fallback.png"
     ;;
   capture-art)
     output="$(pwd)/artifacts/captures/$client/art"
