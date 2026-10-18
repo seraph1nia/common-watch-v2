@@ -100,8 +100,29 @@ class ProcessingTests(unittest.TestCase):
 
     def test_installed_manifest_ids_are_complete(self):
         entries,_=read_manifests()
-        self.assertEqual(14,len(entries))
-        self.assertEqual({'building/arcanum','building/lumbermill','building/farm','building/barracks','unit/swordsman','unit/enemy_swordsman','terrain/woodland_hex','resource/gold','resource/wood','resource/stone','hud/panel','hud/card_frame','hud/button','hud/tooltip'}, {e['id'] for e in entries})
+        original={'building/arcanum','building/lumbermill','building/farm','building/barracks','unit/swordsman','unit/enemy_swordsman','terrain/woodland_hex','resource/gold','resource/wood','resource/stone','hud/panel','hud/card_frame','hud/button','hud/tooltip'}
+        detailed={'building/'+name for name in ['mine','metalmine','archeryrange','researchtower','arrowtower','catapulttower','stonecutter','weaver','market','townhall']}
+        detailed.update('unit/'+name for name in ['berserker','crossbowman','mage','enemy_crossbowman','enemy_mage'])
+        self.assertEqual(original | detailed, {e['id'] for e in entries})
+        self.assertEqual(29,len(entries))
+
+    def test_authored_ground_points_survive_trim_and_resize(self):
+        entries,settings=read_manifests()
+        root=Path(__file__).resolve().parents[2]
+        for entry in entries:
+            if 'ground_point' not in entry:
+                continue
+            with self.subTest(asset=entry['id']), Image.open(root/entry['source']) as source:
+                output,metadata=process_image(source,entry,settings)
+                bbox=metadata['content_bbox']
+                for axis in range(2):
+                    transformed=(entry['ground_point'][axis]-bbox[axis])*metadata['content_size'][axis]/(bbox[axis+2]-bbox[axis])+metadata['content_offset'][axis]
+                    self.assertAlmostEqual(output.size[axis]*entry['anchor'][axis],transformed,delta=1)
+                visible=output.getchannel('A').getbbox()
+                self.assertGreater(visible[0],0)
+                self.assertGreater(visible[1],0)
+                self.assertLess(visible[2],output.width)
+                self.assertLess(visible[3],output.height)
 
 
 class NineSliceTests(unittest.TestCase):

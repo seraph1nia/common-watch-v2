@@ -1,0 +1,22 @@
+{
+  "source": "Two detailed generated sheets explicitly approved in this conversation",
+  "sheets": [
+    {
+      "file": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "sha256": "e816944be5392c55cda0a95b2615b7f81534f3938ff85ff5779ec4d439197aff"
+    },
+    {
+      "file": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "sha256": "4ef3c87ecc480c09302559dd830e87f6005625a65167623d454dca89966b57ce"
+    }
+  ],
+  "conversion": {
+    "separation": "Connected-component assignment plus nearest-component assignment for detached effects",
+    "alpha_cleanup": "Alpha <=6 removed; alpha >=248 normalized to opaque; isolated <4-pixel noise removed; no RGB background threshold",
+    "vectorization": "Per-sprite 512-entry color quantization; 16 opacity levels; libpotrace Bezier contours; no raster embedding",
+    "trace_preprocessing": "Small bilateral RGB smoothing and normalization of near-opaque trace pixels",
+    "svg_preview": "Actual CairoSVG rendering, not source images"
+  },
+  "scope": "10 buildings and 5 units from the approved sheets",
+  "godot_runtime_tested": false
+}

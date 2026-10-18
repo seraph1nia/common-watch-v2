@@ -1,0 +1,563 @@
+{
+  "assets_checked": 15,
+  "svg_render_engine": "CairoSVG",
+  "godot_runtime_tested": false,
+  "checks": [
+    {
+      "id": "building/mine",
+      "xml_valid": true,
+      "vector_paths": 2178,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 134121,
+        "visible_bbox": [
+          58,
+          8,
+          454,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 134813,
+        "visible_bbox": [
+          57,
+          7,
+          455,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/metalmine",
+      "xml_valid": true,
+      "vector_paths": 2564,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 134397,
+        "visible_bbox": [
+          74,
+          8,
+          438,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 135118,
+        "visible_bbox": [
+          73,
+          7,
+          439,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/archeryrange",
+      "xml_valid": true,
+      "vector_paths": 3620,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 160596,
+        "visible_bbox": [
+          103,
+          8,
+          409,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 161583,
+        "visible_bbox": [
+          102,
+          8,
+          410,
+          469
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/researchtower",
+      "xml_valid": true,
+      "vector_paths": 3662,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 188865,
+        "visible_bbox": [
+          147,
+          8,
+          365,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 189640,
+        "visible_bbox": [
+          146,
+          7,
+          365,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/arrowtower",
+      "xml_valid": true,
+      "vector_paths": 3812,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 178537,
+        "visible_bbox": [
+          121,
+          8,
+          391,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 179630,
+        "visible_bbox": [
+          120,
+          7,
+          392,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/catapulttower",
+      "xml_valid": true,
+      "vector_paths": 2921,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 162442,
+        "visible_bbox": [
+          105,
+          8,
+          407,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 163185,
+        "visible_bbox": [
+          104,
+          7,
+          405,
+          471
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/stonecutter",
+      "xml_valid": true,
+      "vector_paths": 2721,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 132501,
+        "visible_bbox": [
+          74,
+          8,
+          438,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 133286,
+        "visible_bbox": [
+          75,
+          9,
+          437,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/weaver",
+      "xml_valid": true,
+      "vector_paths": 2954,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 144296,
+        "visible_bbox": [
+          76,
+          8,
+          436,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 145346,
+        "visible_bbox": [
+          75,
+          7,
+          437,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/market",
+      "xml_valid": true,
+      "vector_paths": 3036,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 125638,
+        "visible_bbox": [
+          60,
+          8,
+          452,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 126736,
+        "visible_bbox": [
+          59,
+          7,
+          453,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "building/townhall",
+      "xml_valid": true,
+      "vector_paths": 3278,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 152567,
+        "visible_bbox": [
+          99,
+          8,
+          413,
+          471
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 153448,
+        "visible_bbox": [
+          98,
+          8,
+          413,
+          472
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "unit/berserker",
+      "xml_valid": true,
+      "vector_paths": 4458,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 37820,
+        "visible_bbox": [
+          25,
+          6,
+          231,
+          236
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 38855,
+        "visible_bbox": [
+          24,
+          6,
+          231,
+          236
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "unit/crossbowman",
+      "xml_valid": true,
+      "vector_paths": 4192,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 34096,
+        "visible_bbox": [
+          17,
+          6,
+          239,
+          236
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 35099,
+        "visible_bbox": [
+          16,
+          6,
+          240,
+          236
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "unit/mage",
+      "xml_valid": true,
+      "vector_paths": 4531,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 35548,
+        "visible_bbox": [
+          33,
+          6,
+          223,
+          236
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 36783,
+        "visible_bbox": [
+          33,
+          6,
+          223,
+          236
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "xml_valid": true,
+      "vector_paths": 4835,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 36193,
+        "visible_bbox": [
+          6,
+          24,
+          250,
+          236
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 37358,
+        "visible_bbox": [
+          6,
+          23,
+          251,
+          237
+        ],
+        "all_content_inside_canvas": true
+      }
+    },
+    {
+      "id": "unit/enemy_mage",
+      "xml_valid": true,
+      "vector_paths": 4940,
+      "embedded_images": 0,
+      "external_resources": 0,
+      "png": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 26764,
+        "visible_bbox": [
+          6,
+          10,
+          250,
+          236
+        ],
+        "all_content_inside_canvas": true
+      },
+      "svg_render": {
+        "size": [
+          256,
+          256
+        ],
+        "mode": "RGBA",
+        "transparent_pixels": 28183,
+        "visible_bbox": [
+          6,
+          10,
+          250,
+          237
+        ],
+        "all_content_inside_canvas": true
+      }
+    }
+  ],
+  "installer_fixture_checks": "passed: dry-run, catalog merge preserving unrelated entries, backups, painted/vector variants"
+}

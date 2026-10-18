@@ -63,6 +63,28 @@ case "$operation" in
     test -s "$output/missing-sprites.png"
     test -s "$output/camera-angled-fallback.png"
     ;;
+  capture-forest)
+    output="$(pwd)/artifacts/detailed-forest-v2"
+    mkdir -p "$output/comparison" "$output/after"
+    for radius in 65 81.25 91; do
+      run_client --checkpoint sprite-settlement --world-art sprites --hud-art illustrated --view angled --settlement-radius "$radius" --settlement-zoom 1 --capture "$output/comparison/radius-$radius.png"
+    done
+    for width in 1280 1920; do
+      height=$((width * 9 / 16))
+      close_zoom=1.3
+      if [[ "$width" == 1920 ]]; then close_zoom=2.2; fi
+      for view in angled topdown; do
+        run_client --checkpoint sprite-settlement --world-art sprites --hud-art illustrated --view "$view" --width "$width" --height "$height" --capture "$output/after/settlement-$view-$width.png"
+        run_client --checkpoint sprite-settlement --world-art sprites --hud-art illustrated --view "$view" --width "$width" --height "$height" --settlement-zoom "$close_zoom" --debug-overlay on --capture "$output/after/settlement-$view-$width-close-anchors.png"
+      done
+    done
+    for page in 1 2 3; do
+      run_client --asset-showroom --showroom-page "$page" --world-art sprites --hud-art illustrated --view angled --debug-overlay on --width 1280 --height 1080 --capture "$output/after/showroom-$page.png"
+    done
+    for scenario in ranged structures; do
+      run_client --battle "$scenario" --battle-tick 74 --world-art sprites --view angled --capture "$output/after/combat-$scenario.png"
+    done
+    ;;
   capture-art)
     output="$(pwd)/artifacts/captures/godot/art"
     mkdir -p "$output"
@@ -86,6 +108,10 @@ case "$operation" in
     # Showroom constructs no match, even though the ordinary capture helper accepts a checkpoint.
     run_client --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080 --capture "$output/asset-showroom.png"
     test -s "$output/asset-showroom.png"
+    for page in 2 3; do
+      run_client --asset-showroom --showroom-page "$page" --world-art sprites --hud-art illustrated --view angled --debug-overlay on --width 1280 --height 1080 --capture "$output/asset-showroom-$page.png"
+      test -s "$output/asset-showroom-$page.png"
+    done
     echo "Actual art captures: $output"
     ;;
   *) echo "Unknown operation: $operation" >&2; exit 2 ;;

@@ -51,10 +51,11 @@ public partial class GameApplication
         Require(_audio.Player.GetInstanceId() == musicPlayer, "music player persists across game resets and phases");
         if (_args.Contains("--expect-installed-art"))
         {
-            Require(_assets.Catalog.Entries.Count == 14 && _assets.HudTextureCount == 4 && _skin.NinePatches > 0, "installed native NinePatchRect skins");
+            Require(_assets.Catalog.Entries.Count == 29 && _assets.HudTextureCount == 4 && _skin.NinePatches > 0, "installed native NinePatchRect skins");
             Require(_options.Mode != RenderMode.Sprites || _assets.WorldTextureCount > 0, "native world PNG decoding");
-            Require(_options.Mode != RenderMode.Sprites || _assets.Load("building/arcanum") is not null, "native prototype shrine decoding");
-            Require(_assets.Load("building/metalmine") is null, "missing building keeps geometric fallback");
+            if (_options.Mode == RenderMode.Sprites)
+                foreach (var entry in _assets.Catalog.Entries.Where(e => !e.Id.StartsWith("hud/", StringComparison.Ordinal)))
+                    Require(_assets.Load(entry.Id) is not null, "native installed PNG decoding: " + entry.Id);
             GD.Print($"GODOT_ART_PASS view={_options.View} hud={_options.Hud} native-nine-slices={_skin.NinePatches} dynamic-text=true");
         }
         GD.Print($"SMOKE PASS Godot mode={_options.Mode} checkpoint={checkpoint}; startup, drawing, selection, construction, recruitment, ready, combat, draft, resize; sprite_decode_attempts={_assets.DecodeAttempts}");

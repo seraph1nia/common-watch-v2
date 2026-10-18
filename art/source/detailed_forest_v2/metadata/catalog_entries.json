@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "building/mine",
+      "path": "sprites/buildings/mine.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "98a6e8b78a40792364642021b9b9648adde7042049f15aece73a8c0dd4d6e01c"
+    },
+    {
+      "id": "building/metalmine",
+      "path": "sprites/buildings/metalmine.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "c3369523e4595268d593295eb36868d09c68e03533fab030832dde146f9563db"
+    },
+    {
+      "id": "building/archeryrange",
+      "path": "sprites/buildings/archeryrange.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "8245c6c4d01b1aeb9fe3eb0952cb840607dfcdb561dde46a7b88161dd2783617"
+    },
+    {
+      "id": "building/researchtower",
+      "path": "sprites/buildings/researchtower.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "d5b3c2754601b01a7d2b6c49197da302454820c2281f2b6a3c186c8fdc29e5b0"
+    },
+    {
+      "id": "building/arrowtower",
+      "path": "sprites/buildings/arrowtower.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "24d79695362fe7e82350e946e1d0a968fc1a2234a3229a9ae6c1950d0e1677f7"
+    },
+    {
+      "id": "building/catapulttower",
+      "path": "sprites/buildings/catapulttower.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "ebd6e70b873929e6007b1d6064d836f3d14a7ac41333ef1bb0f819090742158f"
+    },
+    {
+      "id": "building/stonecutter",
+      "path": "sprites/buildings/stonecutter.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "2d596ee8a82e82897a0040c340c97ccac755888e9d47b558b658316e1ab7b926"
+    },
+    {
+      "id": "building/weaver",
+      "path": "sprites/buildings/weaver.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "d813a4d536e7b557b858bf22f847e079ebae1b9184254b4b85a80071be0a1ca7"
+    },
+    {
+      "id": "building/market",
+      "path": "sprites/buildings/market.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "6a63afc290a135d02220a6500bef401940a84e45aedbc67ce559d4015f5e0c07"
+    },
+    {
+      "id": "building/townhall",
+      "path": "sprites/buildings/townhall.png",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "59be22c48aecbbabcee9c6f4b94ef31eb58c828c51f5c5319b20121d9357ffb6"
+    },
+    {
+      "id": "unit/berserker",
+      "path": "sprites/units/berserker.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "cc1eafd7ed53a4fedc8162d341be9e437f5f2315198fddbf9b20dd89e018db47"
+    },
+    {
+      "id": "unit/crossbowman",
+      "path": "sprites/units/crossbowman.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "52ffe4891ff0ac4b5858066b1608a79e9105a1dd25e64257b6ca19060a179c55"
+    },
+    {
+      "id": "unit/mage",
+      "path": "sprites/units/mage.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "0b96b60eb5beefd81b807cc213a501d34fe822f81d37c45b73c894c9f6515317"
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "path": "sprites/units/enemy_crossbowman.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "bba6d5471570ccc829a1cafac30571f8aef53f52f7a7795cbc013d86f32fab5d"
+    },
+    {
+      "id": "unit/enemy_mage",
+      "path": "sprites/units/enemy_mage.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "sha256": "a96f9bbfed639a2e6b4b6c7dd997ffd0038769616f9baaa1976091ca6ba12694"
+    }
+  ]
+}

@@ -13,9 +13,18 @@
       "output": "sprites/buildings/lumbermill.png",
       "anchor": [
         0.5,
-        0.92
+        0.7470290492957746
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5,
+        0.7887323943661971
+      ],
+      "ground_point": [
+        255,
+        347
+      ],
+      "ground_note": "Center of the fenced sawmill/log-yard foundation, above foreground logs and grass.",
       "path": "sprites/buildings/lumbermill.png",
       "size": [
         512,
@@ -66,10 +75,6 @@
         8,
         52
       ],
-      "content_anchor": [
-        0.5,
-        1
-      ],
       "source_size": [
         1536,
         1024
@@ -88,10 +93,19 @@
       ],
       "output": "sprites/buildings/farm.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5070785490605428,
+        0.7501599333126551
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5073068893528184,
+        0.7915632754342432
+      ],
+      "ground_point": [
+        244,
+        337
+      ],
+      "ground_note": "Center of the farmhouse/fenced garden ground, above foreground planting.",
       "path": "sprites/buildings/farm.png",
       "size": [
         512,
@@ -142,10 +156,6 @@
         8,
         54
       ],
-      "content_anchor": [
-        0.5,
-        1
-      ],
       "source_size": [
         1536,
         1024
@@ -164,10 +174,19 @@
       ],
       "output": "sprites/buildings/barracks.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5078441295546559,
+        0.725710696585903
       ],
       "display_size": 148,
+      "content_anchor": [
+        0.5080971659919028,
+        0.7819383259911894
+      ],
+      "ground_point": [
+        252,
+        367
+      ],
+      "ground_note": "Courtyard foundation center; front gate and grass lie in front of the support.",
       "path": "sprites/buildings/barracks.png",
       "size": [
         512,
@@ -218,10 +237,6 @@
         8,
         15
       ],
-      "content_anchor": [
-        0.5,
-        1
-      ],
       "source_size": [
         1536,
         1024
@@ -240,8 +255,8 @@
       ],
       "output": "sprites/buildings/arcanum.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5143670550847457,
+        0.7884403935185186
       ],
       "display_size": 148,
       "mask_feather": 0.6,
@@ -355,6 +370,15 @@
           345
         ]
       ],
+      "content_anchor": [
+        0.5148305084745762,
+        0.8419753086419753
+      ],
+      "ground_point": [
+        256,
+        355
+      ],
+      "ground_note": "Root foundation behind the front steps; retained prototype mask removes the broad platform.",
       "path": "sprites/buildings/arcanum.png",
       "size": [
         512,
@@ -396,7 +420,7 @@
         485,
         419
       ],
-      "resize_scale": 1.0508474576271187,
+      "resize_scale": 1.0508474576271185,
       "content_size": [
         496,
         426
@@ -404,10 +428,6 @@
       "content_offset": [
         8,
         45
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         512,
@@ -1200,9 +1220,18 @@
       "output": "sprites/buildings/mine.png",
       "anchor": [
         0.5,
-        0.92
+        0.775139435695538
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5,
+        0.8398950131233596
+      ],
+      "ground_point": [
+        163,
+        320
+      ],
+      "ground_note": "Mine entrance foundation behind the projecting cart rails and front crystals.",
       "path": "sprites/buildings/mine.png",
       "size": [
         512,
@@ -1244,7 +1273,7 @@
         326,
         381
       ],
-      "resize_scale": 1.2153280839895013,
+      "resize_scale": 1.2152230971128608,
       "content_size": [
         396,
         463
@@ -1252,10 +1281,6 @@
       "content_offset": [
         58,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         326,
@@ -1275,10 +1300,19 @@
       ],
       "output": "sprites/buildings/metalmine.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5011654713114754,
+        0.7940661243556701
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5016393442622951,
+        0.8608247422680413
+      ],
+      "ground_point": [
+        153,
+        334
+      ],
+      "ground_note": "Forge foundation center, behind the foreground ore baskets.",
       "path": "sprites/buildings/metalmine.png",
       "size": [
         512,
@@ -1320,7 +1354,7 @@
         305,
         388
       ],
-      "resize_scale": 1.1934020618556702,
+      "resize_scale": 1.193298969072165,
       "content_size": [
         364,
         463
@@ -1328,10 +1362,6 @@
       "content_offset": [
         74,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         305,
@@ -1351,10 +1381,19 @@
       ],
       "output": "sprites/buildings/archeryrange.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5054332386363636,
+        0.7981896033653847
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.509090909090909,
+        0.8653846153846154
+      ],
+      "ground_point": [
+        140,
+        360
+      ],
+      "ground_note": "Platform support center, behind the front targets and steps.",
       "path": "sprites/buildings/archeryrange.png",
       "size": [
         512,
@@ -1396,7 +1435,7 @@
         275,
         416
       ],
-      "resize_scale": 1.113076923076923,
+      "resize_scale": 1.1129807692307694,
       "content_size": [
         306,
         463
@@ -1404,10 +1443,6 @@
       "content_offset": [
         103,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         275,
@@ -1427,10 +1462,19 @@
       ],
       "output": "sprites/buildings/researchtower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5043447066326531,
+        0.8331371461132437
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5102040816326531,
+        0.9040307101727447
+      ],
+      "ground_point": [
+        125,
+        471
+      ],
+      "ground_note": "Tower root foundation center behind the front stairs and flowers.",
       "path": "sprites/buildings/researchtower.png",
       "size": [
         512,
@@ -1472,7 +1516,7 @@
         245,
         521
       ],
-      "resize_scale": 0.8887523992322457,
+      "resize_scale": 0.8886756238003839,
       "content_size": [
         218,
         463
@@ -1480,10 +1524,6 @@
       "content_offset": [
         147,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         245,
@@ -1503,10 +1543,19 @@
       ],
       "output": "sprites/buildings/arrowtower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5009949882075472,
+        0.8304859203296704
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5018867924528302,
+        0.9010989010989011
+      ],
+      "ground_point": [
+        133,
+        410
+      ],
+      "ground_note": "Trunk support center, above foreground rocks and foliage.",
       "path": "sprites/buildings/arrowtower.png",
       "size": [
         512,
@@ -1548,7 +1597,7 @@
         265,
         455
       ],
-      "resize_scale": 1.0176703296703298,
+      "resize_scale": 1.0175824175824177,
       "content_size": [
         270,
         463
@@ -1556,10 +1605,6 @@
       "content_offset": [
         121,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         265,
@@ -1579,10 +1624,19 @@
       ],
       "output": "sprites/buildings/catapulttower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501080299908425,
+        0.8160791716507176
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5018315018315018,
+        0.8851674641148325
+      ],
+      "ground_point": [
+        137,
+        370
+      ],
+      "ground_note": "Timber support foundation, behind the foreground ammunition.",
       "path": "sprites/buildings/catapulttower.png",
       "size": [
         512,
@@ -1624,7 +1678,7 @@
         273,
         418
       ],
-      "resize_scale": 1.1077511961722488,
+      "resize_scale": 1.1076555023923444,
       "content_size": [
         302,
         463
@@ -1632,10 +1686,6 @@
       "content_offset": [
         105,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         273,
@@ -1655,10 +1705,19 @@
       ],
       "output": "sprites/buildings/stonecutter.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5012049788135593,
+        0.7752343749999999
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5016949152542373,
+        0.84
+      ],
+      "ground_point": [
+        148,
+        315
+      ],
+      "ground_note": "Saw/workshop foundation behind foreground stone blocks.",
       "path": "sprites/buildings/stonecutter.png",
       "size": [
         512,
@@ -1700,7 +1759,7 @@
         295,
         375
       ],
-      "resize_scale": 1.2347733333333333,
+      "resize_scale": 1.2346666666666666,
       "content_size": [
         364,
         463
@@ -1708,10 +1767,6 @@
       "content_offset": [
         74,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         295,
@@ -1731,10 +1786,19 @@
       ],
       "output": "sprites/buildings/weaver.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501208118556701,
+        0.7966086647727273
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5017182130584192,
+        0.8636363636363636
+      ],
+      "ground_point": [
+        146,
+        323
+      ],
+      "ground_note": "Workshop support center behind foreground bolts and paving.",
       "path": "sprites/buildings/weaver.png",
       "size": [
         512,
@@ -1776,7 +1840,7 @@
         291,
         374
       ],
-      "resize_scale": 1.2380748663101604,
+      "resize_scale": 1.2379679144385027,
       "content_size": [
         360,
         463
@@ -1784,10 +1848,6 @@
       "content_offset": [
         76,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         291,
@@ -1807,10 +1867,19 @@
       ],
       "output": "sprites/buildings/market.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501343201754386,
+        0.7938033197329376
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5017543859649123,
+        0.8605341246290801
+      ],
+      "ground_point": [
+        143,
+        290
+      ],
+      "ground_note": "Market stall footprint center behind front baskets and paving.",
       "path": "sprites/buildings/market.png",
       "size": [
         512,
@@ -1852,7 +1921,7 @@
         285,
         337
       ],
-      "resize_scale": 1.3740059347181008,
+      "resize_scale": 1.373887240356083,
       "content_size": [
         392,
         463
@@ -1860,10 +1929,6 @@
       "content_offset": [
         60,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         285,
@@ -1883,10 +1948,19 @@
       ],
       "output": "sprites/buildings/townhall.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5010120152640264,
+        0.8066318861856823
       ],
       "display_size": 142,
+      "content_anchor": [
+        0.5016501650165016,
+        0.8747203579418344
+      ],
+      "ground_point": [
+        152,
+        391
+      ],
+      "ground_note": "Hall foundation behind the projecting stairs and flowers.",
       "path": "sprites/buildings/townhall.png",
       "size": [
         512,
@@ -1928,7 +2002,7 @@
         303,
         447
       ],
-      "resize_scale": 1.0358836689038031,
+      "resize_scale": 1.03579418344519,
       "content_size": [
         314,
         463
@@ -1936,10 +2010,6 @@
       "content_offset": [
         99,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         303,
@@ -1959,10 +2029,19 @@
       ],
       "output": "sprites/units/berserker.png",
       "anchor": [
-        0.5,
-        0.92
+        0.4967338803538175,
+        0.8651853015075377
       ],
       "display_size": 46,
+      "content_anchor": [
+        0.4934823091247672,
+        0.9363484087102177
+      ],
+      "ground_point": [
+        265,
+        559
+      ],
+      "ground_note": "Midpoint of planted feet; excludes axe edge and trailing ground leaves.",
       "path": "sprites/units/berserker.png",
       "size": [
         256,
@@ -2004,7 +2083,7 @@
         537,
         597
       ],
-      "resize_scale": 0.381105527638191,
+      "resize_scale": 0.38190954773869346,
       "content_size": [
         205,
         228
@@ -2012,10 +2091,6 @@
       "content_offset": [
         26,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         537,
@@ -2036,9 +2111,18 @@
       "output": "sprites/units/crossbowman.png",
       "anchor": [
         0.5,
-        0.92
+        0.8702445652173912
       ],
       "display_size": 46,
+      "content_anchor": [
+        0.5,
+        0.9420289855072463
+      ],
+      "ground_point": [
+        234,
+        455
+      ],
+      "ground_note": "Midpoint between planted boots, above the foreground leaf fringe.",
       "path": "sprites/units/crossbowman.png",
       "size": [
         256,
@@ -2052,12 +2136,12 @@
         "visible_bbox": [
           18,
           8,
-          238,
+          239,
           236
         ],
-        "transparent_pixels": 34624,
-        "opaque_pixels": 19809,
-        "partial_pixels": 11103
+        "transparent_pixels": 34492,
+        "opaque_pixels": 19895,
+        "partial_pixels": 11149
       },
       "source_alpha": {
         "extrema": [
@@ -2080,25 +2164,21 @@
         468,
         483
       ],
-      "resize_scale": 0.471055900621118,
+      "resize_scale": 0.47204968944099374,
       "content_size": [
-        220,
+        221,
         228
       ],
       "content_offset": [
         18,
         8
       ],
-      "content_anchor": [
-        0.5,
-        1
-      ],
       "source_size": [
         468,
         483
       ],
       "source_sha256": "1b1f39dfe8e0e9364aca9e56b889a8718d00576bbc3b272f8e529aa1538183b4",
-      "sha256": "9a7ef1382bfbb55b4ab8e1d0b8a1e8c4731ad063eb2a9a7ab4ffa7b235fe151a"
+      "sha256": "22c07a7bc91a386caf6888ca87fc58b865bf375e0ab907e26ea74ea917e7ee02"
     },
     {
       "id": "unit/mage",
@@ -2111,10 +2191,19 @@
       ],
       "output": "sprites/units/mage.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5129775207900208,
+        0.8758874784853701
       ],
       "display_size": 46,
+      "content_anchor": [
+        0.5176715176715176,
+        0.9483648881239243
+      ],
+      "ground_point": [
+        249,
+        551
+      ],
+      "ground_note": "Feet/root contact point, excluding staff, robe flare and floating crystals.",
       "path": "sprites/units/mage.png",
       "size": [
         256,
@@ -2126,14 +2215,14 @@
           255
         ],
         "visible_bbox": [
-          34,
+          33,
           8,
           222,
           236
         ],
-        "transparent_pixels": 36117,
-        "opaque_pixels": 16735,
-        "partial_pixels": 12684
+        "transparent_pixels": 36004,
+        "opaque_pixels": 16792,
+        "partial_pixels": 12740
       },
       "source_alpha": {
         "extrema": [
@@ -2156,25 +2245,21 @@
         481,
         581
       ],
-      "resize_scale": 0.3916006884681584,
+      "resize_scale": 0.3924268502581756,
       "content_size": [
-        188,
+        189,
         228
       ],
       "content_offset": [
-        34,
+        33,
         8
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         481,
         581
       ],
       "source_sha256": "eaa1b5f821aa0a2ebdd89e172b69c2af6dde6181b2c56b61bf4c67174f96a34e",
-      "sha256": "c6bab2e8bb6dd86a92aeac2fb470fd803e423735cc5eefb3711992f4d2fd039f"
+      "sha256": "1eca878e7f99a7c414b9957caeb8974de2775375a21d2f8b33c973a403b731db"
     },
     {
       "id": "unit/enemy_crossbowman",
@@ -2187,10 +2272,19 @@
       ],
       "output": "sprites/units/enemy_crossbowman.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5051700367647058,
+        0.8649164244186046
       ],
       "display_size": 46,
+      "content_anchor": [
+        0.5055147058823529,
+        0.9302325581395349
+      ],
+      "ground_point": [
+        275,
+        440
+      ],
+      "ground_note": "Midpoint of planted feet, above cape scraps and ground shadows.",
       "path": "sprites/units/enemy_crossbowman.png",
       "size": [
         256,
@@ -2241,10 +2335,6 @@
         8,
         27
       ],
-      "content_anchor": [
-        0.5,
-        1
-      ],
       "source_size": [
         544,
         473
@@ -2263,10 +2353,19 @@
       ],
       "output": "sprites/units/enemy_mage.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5276785714285714,
+        0.8646368069815196
       ],
       "display_size": 46,
+      "content_anchor": [
+        0.5295238095238095,
+        0.9342915811088296
+      ],
+      "ground_point": [
+        278,
+        455
+      ],
+      "ground_note": "Midpoint of feet, excluding staff silhouette and cape fringe.",
       "path": "sprites/units/enemy_mage.png",
       "size": [
         256,
@@ -2316,10 +2415,6 @@
       "content_offset": [
         8,
         13
-      ],
-      "content_anchor": [
-        0.5,
-        1
       ],
       "source_size": [
         525,

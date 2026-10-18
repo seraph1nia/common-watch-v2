@@ -1,0 +1,122 @@
+[
+  {
+    "id": "building/mine",
+    "paths": 2178,
+    "curve_segments": 132579,
+    "svg_bytes": 4633200,
+    "seconds": 3.88,
+    "render": "svg_exports/buildings/mine.png"
+  },
+  {
+    "id": "building/metalmine",
+    "paths": 2564,
+    "curve_segments": 154383,
+    "svg_bytes": 5484015,
+    "seconds": 4.36,
+    "render": "svg_exports/buildings/metalmine.png"
+  },
+  {
+    "id": "building/archeryrange",
+    "paths": 3620,
+    "curve_segments": 148783,
+    "svg_bytes": 5316588,
+    "seconds": 3.94,
+    "render": "svg_exports/buildings/archeryrange.png"
+  },
+  {
+    "id": "building/researchtower",
+    "paths": 3662,
+    "curve_segments": 160483,
+    "svg_bytes": 5699668,
+    "seconds": 4.35,
+    "render": "svg_exports/buildings/researchtower.png"
+  },
+  {
+    "id": "building/arrowtower",
+    "paths": 3812,
+    "curve_segments": 138486,
+    "svg_bytes": 4975895,
+    "seconds": 3.68,
+    "render": "svg_exports/buildings/arrowtower.png"
+  },
+  {
+    "id": "building/catapulttower",
+    "paths": 2921,
+    "curve_segments": 135964,
+    "svg_bytes": 4855225,
+    "seconds": 3.75,
+    "render": "svg_exports/buildings/catapulttower.png"
+  },
+  {
+    "id": "building/stonecutter",
+    "paths": 2721,
+    "curve_segments": 146931,
+    "svg_bytes": 5217637,
+    "seconds": 3.75,
+    "render": "svg_exports/buildings/stonecutter.png"
+  },
+  {
+    "id": "building/weaver",
+    "paths": 2954,
+    "curve_segments": 134405,
+    "svg_bytes": 4812536,
+    "seconds": 3.59,
+    "render": "svg_exports/buildings/weaver.png"
+  },
+  {
+    "id": "building/market",
+    "paths": 3036,
+    "curve_segments": 127745,
+    "svg_bytes": 4537815,
+    "seconds": 3.52,
+    "render": "svg_exports/buildings/market.png"
+  },
+  {
+    "id": "building/townhall",
+    "paths": 3278,
+    "curve_segments": 169206,
+    "svg_bytes": 6034287,
+    "seconds": 4.55,
+    "render": "svg_exports/buildings/townhall.png"
+  },
+  {
+    "id": "unit/berserker",
+    "paths": 4458,
+    "curve_segments": 250123,
+    "svg_bytes": 9017834,
+    "seconds": 8.26,
+    "render": "svg_exports/units/berserker.png"
+  },
+  {
+    "id": "unit/crossbowman",
+    "paths": 4192,
+    "curve_segments": 208526,
+    "svg_bytes": 7513180,
+    "seconds": 6.23,
+    "render": "svg_exports/units/crossbowman.png"
+  },
+  {
+    "id": "unit/mage",
+    "paths": 4531,
+    "curve_segments": 281014,
+    "svg_bytes": 10028366,
+    "seconds": 7.96,
+    "render": "svg_exports/units/mage.png"
+  },
+  {
+    "id": "unit/enemy_crossbowman",
+    "paths": 4835,
+    "curve_segments": 232210,
+    "svg_bytes": 8360168,
+    "seconds": 7.14,
+    "render": "svg_exports/units/enemy_crossbowman.png"
+  },
+  {
+    "id": "unit/enemy_mage",
+    "paths": 4940,
+    "curve_segments": 280021,
+    "svg_bytes": 9994197,
+    "seconds": 7.52,
+    "render": "svg_exports/units/enemy_mage.png"
+  }
+]

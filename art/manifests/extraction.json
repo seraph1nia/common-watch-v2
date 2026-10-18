@@ -13,9 +13,18 @@
       "output": "sprites/buildings/lumbermill.png",
       "anchor": [
         0.5,
-        0.92
+        0.7470290492957746
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5,
+        0.7887323943661971
+      ],
+      "ground_point": [
+        255,
+        347
+      ],
+      "ground_note": "Center of the fenced sawmill/log-yard foundation, above foreground logs and grass."
     },
     {
       "id": "building/farm",
@@ -28,10 +37,19 @@
       ],
       "output": "sprites/buildings/farm.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5070785490605428,
+        0.7501599333126551
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5073068893528184,
+        0.7915632754342432
+      ],
+      "ground_point": [
+        244,
+        337
+      ],
+      "ground_note": "Center of the farmhouse/fenced garden ground, above foreground planting."
     },
     {
       "id": "building/barracks",
@@ -44,10 +62,19 @@
       ],
       "output": "sprites/buildings/barracks.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5078441295546559,
+        0.725710696585903
       ],
-      "display_size": 148
+      "display_size": 148,
+      "content_anchor": [
+        0.5080971659919028,
+        0.7819383259911894
+      ],
+      "ground_point": [
+        252,
+        367
+      ],
+      "ground_note": "Courtyard foundation center; front gate and grass lie in front of the support."
     },
     {
       "id": "building/arcanum",
@@ -60,8 +87,8 @@
       ],
       "output": "sprites/buildings/arcanum.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5143670550847457,
+        0.7884403935185186
       ],
       "display_size": 148,
       "mask_feather": 0.6,
@@ -174,7 +201,16 @@
           0,
           345
         ]
-      ]
+      ],
+      "content_anchor": [
+        0.5148305084745762,
+        0.8419753086419753
+      ],
+      "ground_point": [
+        256,
+        355
+      ],
+      "ground_note": "Root foundation behind the front steps; retained prototype mask removes the broad platform."
     },
     {
       "id": "unit/swordsman",
@@ -382,9 +418,18 @@
       "output": "sprites/buildings/mine.png",
       "anchor": [
         0.5,
-        0.92
+        0.775139435695538
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5,
+        0.8398950131233596
+      ],
+      "ground_point": [
+        163,
+        320
+      ],
+      "ground_note": "Mine entrance foundation behind the projecting cart rails and front crystals."
     },
     {
       "id": "building/metalmine",
@@ -397,10 +442,19 @@
       ],
       "output": "sprites/buildings/metalmine.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5011654713114754,
+        0.7940661243556701
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5016393442622951,
+        0.8608247422680413
+      ],
+      "ground_point": [
+        153,
+        334
+      ],
+      "ground_note": "Forge foundation center, behind the foreground ore baskets."
     },
     {
       "id": "building/archeryrange",
@@ -413,10 +467,19 @@
       ],
       "output": "sprites/buildings/archeryrange.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5054332386363636,
+        0.7981896033653847
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.509090909090909,
+        0.8653846153846154
+      ],
+      "ground_point": [
+        140,
+        360
+      ],
+      "ground_note": "Platform support center, behind the front targets and steps."
     },
     {
       "id": "building/researchtower",
@@ -429,10 +492,19 @@
       ],
       "output": "sprites/buildings/researchtower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5043447066326531,
+        0.8331371461132437
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5102040816326531,
+        0.9040307101727447
+      ],
+      "ground_point": [
+        125,
+        471
+      ],
+      "ground_note": "Tower root foundation center behind the front stairs and flowers."
     },
     {
       "id": "building/arrowtower",
@@ -445,10 +517,19 @@
       ],
       "output": "sprites/buildings/arrowtower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5009949882075472,
+        0.8304859203296704
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5018867924528302,
+        0.9010989010989011
+      ],
+      "ground_point": [
+        133,
+        410
+      ],
+      "ground_note": "Trunk support center, above foreground rocks and foliage."
     },
     {
       "id": "building/catapulttower",
@@ -461,10 +542,19 @@
       ],
       "output": "sprites/buildings/catapulttower.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501080299908425,
+        0.8160791716507176
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5018315018315018,
+        0.8851674641148325
+      ],
+      "ground_point": [
+        137,
+        370
+      ],
+      "ground_note": "Timber support foundation, behind the foreground ammunition."
     },
     {
       "id": "building/stonecutter",
@@ -477,10 +567,19 @@
       ],
       "output": "sprites/buildings/stonecutter.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5012049788135593,
+        0.7752343749999999
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5016949152542373,
+        0.84
+      ],
+      "ground_point": [
+        148,
+        315
+      ],
+      "ground_note": "Saw/workshop foundation behind foreground stone blocks."
     },
     {
       "id": "building/weaver",
@@ -493,10 +592,19 @@
       ],
       "output": "sprites/buildings/weaver.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501208118556701,
+        0.7966086647727273
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5017182130584192,
+        0.8636363636363636
+      ],
+      "ground_point": [
+        146,
+        323
+      ],
+      "ground_note": "Workshop support center behind foreground bolts and paving."
     },
     {
       "id": "building/market",
@@ -509,10 +617,19 @@
       ],
       "output": "sprites/buildings/market.png",
       "anchor": [
-        0.5,
-        0.92
+        0.501343201754386,
+        0.7938033197329376
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5017543859649123,
+        0.8605341246290801
+      ],
+      "ground_point": [
+        143,
+        290
+      ],
+      "ground_note": "Market stall footprint center behind front baskets and paving."
     },
     {
       "id": "building/townhall",
@@ -525,10 +642,19 @@
       ],
       "output": "sprites/buildings/townhall.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5010120152640264,
+        0.8066318861856823
       ],
-      "display_size": 142
+      "display_size": 142,
+      "content_anchor": [
+        0.5016501650165016,
+        0.8747203579418344
+      ],
+      "ground_point": [
+        152,
+        391
+      ],
+      "ground_note": "Hall foundation behind the projecting stairs and flowers."
     },
     {
       "id": "unit/berserker",
@@ -541,10 +667,19 @@
       ],
       "output": "sprites/units/berserker.png",
       "anchor": [
-        0.5,
-        0.92
+        0.4967338803538175,
+        0.8651853015075377
       ],
-      "display_size": 46
+      "display_size": 46,
+      "content_anchor": [
+        0.4934823091247672,
+        0.9363484087102177
+      ],
+      "ground_point": [
+        265,
+        559
+      ],
+      "ground_note": "Midpoint of planted feet; excludes axe edge and trailing ground leaves."
     },
     {
       "id": "unit/crossbowman",
@@ -558,9 +693,18 @@
       "output": "sprites/units/crossbowman.png",
       "anchor": [
         0.5,
-        0.92
+        0.8702445652173912
       ],
-      "display_size": 46
+      "display_size": 46,
+      "content_anchor": [
+        0.5,
+        0.9420289855072463
+      ],
+      "ground_point": [
+        234,
+        455
+      ],
+      "ground_note": "Midpoint between planted boots, above the foreground leaf fringe."
     },
     {
       "id": "unit/mage",
@@ -573,10 +717,19 @@
       ],
       "output": "sprites/units/mage.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5129775207900208,
+        0.8758874784853701
       ],
-      "display_size": 46
+      "display_size": 46,
+      "content_anchor": [
+        0.5176715176715176,
+        0.9483648881239243
+      ],
+      "ground_point": [
+        249,
+        551
+      ],
+      "ground_note": "Feet/root contact point, excluding staff, robe flare and floating crystals."
     },
     {
       "id": "unit/enemy_crossbowman",
@@ -589,10 +742,19 @@
       ],
       "output": "sprites/units/enemy_crossbowman.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5051700367647058,
+        0.8649164244186046
       ],
-      "display_size": 46
+      "display_size": 46,
+      "content_anchor": [
+        0.5055147058823529,
+        0.9302325581395349
+      ],
+      "ground_point": [
+        275,
+        440
+      ],
+      "ground_note": "Midpoint of planted feet, above cape scraps and ground shadows."
     },
     {
       "id": "unit/enemy_mage",
@@ -605,10 +767,19 @@
       ],
       "output": "sprites/units/enemy_mage.png",
       "anchor": [
-        0.5,
-        0.92
+        0.5276785714285714,
+        0.8646368069815196
       ],
-      "display_size": 46
+      "display_size": 46,
+      "content_anchor": [
+        0.5295238095238095,
+        0.9342915811088296
+      ],
+      "ground_point": [
+        278,
+        455
+      ],
+      "ground_note": "Midpoint of feet, excluding staff silhouette and cape fringe."
     }
   ]
 }

@@ -13,10 +13,15 @@ public partial class SettlementView : Node2D
     private AssetLoader _assets = null!;
     private static readonly Color _gold = new("efd478");
     // Settlement spacing is independent of the combat board's radius.
-    public float HexRadius { get; set; } = 81.25f;
-    public HexProjection Projection { get; private set; } = new(81.25);
+    public const float DefaultHexRadius = 81.25f;
+    public float HexRadius { get; set; } = DefaultHexRadius;
+    public HexProjection Projection { get; private set; } = new(DefaultHexRadius);
+    // Keep the tested 720p composition as the window grows; camera controls remain relative
+    // to world pixels, and combat retains its own framing.
+    public static float DefaultMagnification(Vector2 available) => Math.Clamp(
+        1.15f * Math.Min(available.X / 912, available.Y / 472), .55f, 2.2f);
     private float _compression = 1;
-    private Vector2 Center => new(0, HexRadius * 1.5f * 3 * _compression);
+    private Vector2 Center => new(HexRadius * Mathf.Sqrt(3) / 4, HexRadius * 1.5f * 3 * _compression);
     public void Initialize(AssetLoader assets) { _assets = assets; _art = new(assets); Hide(); }
     public void Present(GodotSession session, bool visible)
     {

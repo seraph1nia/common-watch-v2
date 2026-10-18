@@ -1,0 +1,650 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "building/mine",
+      "category": "buildings",
+      "name": "mine",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        13,
+        203,
+        339,
+        584
+      ],
+      "source_cutout": "source/cutouts/buildings/mine.png",
+      "png": "assets/sprites/buildings/mine.png",
+      "svg": "svg/buildings/mine.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        396,
+        463
+      ],
+      "content_offset": [
+        58,
+        8
+      ],
+      "source_to_canvas_scale": 1.2153280839895013,
+      "source_cutout_size": [
+        326,
+        381
+      ],
+      "sha256_png": "98a6e8b78a40792364642021b9b9648adde7042049f15aece73a8c0dd4d6e01c",
+      "sha256_svg": "889251d794c8de6a6e1ed68813c33eae354fc1dc4910f7e0536ffd87ee958854"
+    },
+    {
+      "id": "building/metalmine",
+      "category": "buildings",
+      "name": "metalmine",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        329,
+        195,
+        634,
+        583
+      ],
+      "source_cutout": "source/cutouts/buildings/metalmine.png",
+      "png": "assets/sprites/buildings/metalmine.png",
+      "svg": "svg/buildings/metalmine.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        364,
+        463
+      ],
+      "content_offset": [
+        74,
+        8
+      ],
+      "source_to_canvas_scale": 1.1934020618556702,
+      "source_cutout_size": [
+        305,
+        388
+      ],
+      "sha256_png": "c3369523e4595268d593295eb36868d09c68e03533fab030832dde146f9563db",
+      "sha256_svg": "2ac6f2eb7129d37da2a0c71dcc03fd4e892a2f86ab5d622349e8e88a1fb9b9b9"
+    },
+    {
+      "id": "building/archeryrange",
+      "category": "buildings",
+      "name": "archeryrange",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        640,
+        165,
+        915,
+        581
+      ],
+      "source_cutout": "source/cutouts/buildings/archeryrange.png",
+      "png": "assets/sprites/buildings/archeryrange.png",
+      "svg": "svg/buildings/archeryrange.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        306,
+        463
+      ],
+      "content_offset": [
+        103,
+        8
+      ],
+      "source_to_canvas_scale": 1.113076923076923,
+      "source_cutout_size": [
+        275,
+        416
+      ],
+      "sha256_png": "8245c6c4d01b1aeb9fe3eb0952cb840607dfcdb561dde46a7b88161dd2783617",
+      "sha256_svg": "9708f3ca3fb10096f724a03ebcf3b0d4e372ff19a22fdd8976718ea18029a87d"
+    },
+    {
+      "id": "building/researchtower",
+      "category": "buildings",
+      "name": "researchtower",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        912,
+        46,
+        1157,
+        567
+      ],
+      "source_cutout": "source/cutouts/buildings/researchtower.png",
+      "png": "assets/sprites/buildings/researchtower.png",
+      "svg": "svg/buildings/researchtower.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        218,
+        463
+      ],
+      "content_offset": [
+        147,
+        8
+      ],
+      "source_to_canvas_scale": 0.8887523992322457,
+      "source_cutout_size": [
+        245,
+        521
+      ],
+      "sha256_png": "d5b3c2754601b01a7d2b6c49197da302454820c2281f2b6a3c186c8fdc29e5b0",
+      "sha256_svg": "988b521e78216180d143d503f872fe4617b2fdb714300f2c8771e90fd29a9675"
+    },
+    {
+      "id": "building/arrowtower",
+      "category": "buildings",
+      "name": "arrowtower",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        1163,
+        114,
+        1428,
+        569
+      ],
+      "source_cutout": "source/cutouts/buildings/arrowtower.png",
+      "png": "assets/sprites/buildings/arrowtower.png",
+      "svg": "svg/buildings/arrowtower.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        270,
+        463
+      ],
+      "content_offset": [
+        121,
+        8
+      ],
+      "source_to_canvas_scale": 1.0176703296703298,
+      "source_cutout_size": [
+        265,
+        455
+      ],
+      "sha256_png": "24d79695362fe7e82350e946e1d0a968fc1a2234a3229a9ae6c1950d0e1677f7",
+      "sha256_svg": "287b55ba03628bd340573c721c3be4ecf0abcd95d0a0dbfbebf5c647c7fb3e1b"
+    },
+    {
+      "id": "building/catapulttower",
+      "category": "buildings",
+      "name": "catapulttower",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        13,
+        612,
+        286,
+        1030
+      ],
+      "source_cutout": "source/cutouts/buildings/catapulttower.png",
+      "png": "assets/sprites/buildings/catapulttower.png",
+      "svg": "svg/buildings/catapulttower.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        302,
+        463
+      ],
+      "content_offset": [
+        105,
+        8
+      ],
+      "source_to_canvas_scale": 1.1077511961722488,
+      "source_cutout_size": [
+        273,
+        418
+      ],
+      "sha256_png": "ebd6e70b873929e6007b1d6064d836f3d14a7ac41333ef1bb0f819090742158f",
+      "sha256_svg": "ed67597d58ac2ad2341c21eea21d8bfab655a835020be3377a40da809f5c5a49"
+    },
+    {
+      "id": "building/stonecutter",
+      "category": "buildings",
+      "name": "stonecutter",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        285,
+        655,
+        580,
+        1030
+      ],
+      "source_cutout": "source/cutouts/buildings/stonecutter.png",
+      "png": "assets/sprites/buildings/stonecutter.png",
+      "svg": "svg/buildings/stonecutter.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        364,
+        463
+      ],
+      "content_offset": [
+        74,
+        8
+      ],
+      "source_to_canvas_scale": 1.2347733333333333,
+      "source_cutout_size": [
+        295,
+        375
+      ],
+      "sha256_png": "2d596ee8a82e82897a0040c340c97ccac755888e9d47b558b658316e1ab7b926",
+      "sha256_svg": "9628b57bd3338c643adaee4c3b11887b931701ad5a59ae6704248500b805cedf"
+    },
+    {
+      "id": "building/weaver",
+      "category": "buildings",
+      "name": "weaver",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        571,
+        647,
+        862,
+        1021
+      ],
+      "source_cutout": "source/cutouts/buildings/weaver.png",
+      "png": "assets/sprites/buildings/weaver.png",
+      "svg": "svg/buildings/weaver.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        360,
+        463
+      ],
+      "content_offset": [
+        76,
+        8
+      ],
+      "source_to_canvas_scale": 1.2380748663101604,
+      "source_cutout_size": [
+        291,
+        374
+      ],
+      "sha256_png": "d813a4d536e7b557b858bf22f847e079ebae1b9184254b4b85a80071be0a1ca7",
+      "sha256_svg": "fa7284a4d0fd2706a8732fd1dddf288a2e84f5b07de09f913db75c59e4c57377"
+    },
+    {
+      "id": "building/market",
+      "category": "buildings",
+      "name": "market",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        850,
+        690,
+        1135,
+        1027
+      ],
+      "source_cutout": "source/cutouts/buildings/market.png",
+      "png": "assets/sprites/buildings/market.png",
+      "svg": "svg/buildings/market.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        392,
+        463
+      ],
+      "content_offset": [
+        60,
+        8
+      ],
+      "source_to_canvas_scale": 1.3740059347181008,
+      "source_cutout_size": [
+        285,
+        337
+      ],
+      "sha256_png": "6a63afc290a135d02220a6500bef401940a84e45aedbc67ce559d4015f5e0c07",
+      "sha256_svg": "50a9af08572328ac41d6f05a313fb139b54a1e955be9a2e2598dcb971bae466f"
+    },
+    {
+      "id": "building/townhall",
+      "category": "buildings",
+      "name": "townhall",
+      "source_sheet": "source/sheets/elven_fantasy_buildings_sprite_sheet.png",
+      "crop": [
+        1136,
+        581,
+        1439,
+        1028
+      ],
+      "source_cutout": "source/cutouts/buildings/townhall.png",
+      "png": "assets/sprites/buildings/townhall.png",
+      "svg": "svg/buildings/townhall.svg",
+      "size": [
+        512,
+        512
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        314,
+        463
+      ],
+      "content_offset": [
+        99,
+        8
+      ],
+      "source_to_canvas_scale": 1.0358836689038031,
+      "source_cutout_size": [
+        303,
+        447
+      ],
+      "sha256_png": "59be22c48aecbbabcee9c6f4b94ef31eb58c828c51f5c5319b20121d9357ffb6",
+      "sha256_svg": "1bc1bc31af925f853e5a04268084b0c81711c5f8d1327280c075fc3354e938bf"
+    },
+    {
+      "id": "unit/berserker",
+      "category": "units",
+      "name": "berserker",
+      "source_sheet": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "crop": [
+        19,
+        0,
+        556,
+        597
+      ],
+      "source_cutout": "source/cutouts/units/berserker.png",
+      "png": "assets/sprites/units/berserker.png",
+      "svg": "svg/units/berserker.svg",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        206,
+        230
+      ],
+      "content_offset": [
+        25,
+        6
+      ],
+      "source_to_canvas_scale": 0.3844556113902848,
+      "source_cutout_size": [
+        537,
+        597
+      ],
+      "sha256_png": "cc1eafd7ed53a4fedc8162d341be9e437f5f2315198fddbf9b20dd89e018db47",
+      "sha256_svg": "d617f6996933fc3eb9bd555b0e11dcf7afc3ad7f89bf475b35a083a542004dc0"
+    },
+    {
+      "id": "unit/crossbowman",
+      "category": "units",
+      "name": "crossbowman",
+      "source_sheet": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "crop": [
+        532,
+        111,
+        1000,
+        594
+      ],
+      "source_cutout": "source/cutouts/units/crossbowman.png",
+      "png": "assets/sprites/units/crossbowman.png",
+      "svg": "svg/units/crossbowman.svg",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        222,
+        230
+      ],
+      "content_offset": [
+        17,
+        6
+      ],
+      "source_to_canvas_scale": 0.47519668737060045,
+      "source_cutout_size": [
+        468,
+        483
+      ],
+      "sha256_png": "52ffe4891ff0ac4b5858066b1608a79e9105a1dd25e64257b6ca19060a179c55",
+      "sha256_svg": "dd04e86430b0241634de941ac8d71260cab94b85ff0be5e135f70c9fdb1721e7"
+    },
+    {
+      "id": "unit/mage",
+      "category": "units",
+      "name": "mage",
+      "source_sheet": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "crop": [
+        954,
+        18,
+        1435,
+        599
+      ],
+      "source_cutout": "source/cutouts/units/mage.png",
+      "png": "assets/sprites/units/mage.png",
+      "svg": "svg/units/mage.svg",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        190,
+        230
+      ],
+      "content_offset": [
+        33,
+        6
+      ],
+      "source_to_canvas_scale": 0.39504302925989676,
+      "source_cutout_size": [
+        481,
+        581
+      ],
+      "sha256_png": "0b96b60eb5beefd81b807cc213a501d34fe822f81d37c45b73c894c9f6515317",
+      "sha256_svg": "811e31c60681ec44831fd83ddc0a74ab4563662480b7166e122c562e87114d49"
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "category": "units",
+      "name": "enemy_crossbowman",
+      "source_sheet": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "crop": [
+        182,
+        594,
+        726,
+        1067
+      ],
+      "source_cutout": "source/cutouts/units/enemy_crossbowman.png",
+      "png": "assets/sprites/units/enemy_crossbowman.png",
+      "svg": "svg/units/enemy_crossbowman.svg",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        244,
+        212
+      ],
+      "content_offset": [
+        6,
+        24
+      ],
+      "source_to_canvas_scale": 0.4485294117647059,
+      "source_cutout_size": [
+        544,
+        473
+      ],
+      "sha256_png": "bba6d5471570ccc829a1cafac30571f8aef53f52f7a7795cbc013d86f32fab5d",
+      "sha256_svg": "ceac1af7293fd42a92b5b1dab781a62ae6fe06c007a48a4162ff6b5467da111c"
+    },
+    {
+      "id": "unit/enemy_mage",
+      "category": "units",
+      "name": "enemy_mage",
+      "source_sheet": "source/sheets/forest_crystal_guardian_character_sheet.png",
+      "crop": [
+        758,
+        586,
+        1283,
+        1073
+      ],
+      "source_cutout": "source/cutouts/units/enemy_mage.png",
+      "png": "assets/sprites/units/enemy_mage.png",
+      "svg": "svg/units/enemy_mage.svg",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "offset": [
+        0,
+        0
+      ],
+      "content_size": [
+        244,
+        226
+      ],
+      "content_offset": [
+        6,
+        10
+      ],
+      "source_to_canvas_scale": 0.46476190476190476,
+      "source_cutout_size": [
+        525,
+        487
+      ],
+      "sha256_png": "a96f9bbfed639a2e6b4b6c7dd997ffd0038769616f9baaa1976091ca6ba12694",
+      "sha256_svg": "586a853b56438b932e93653660745210c6a1a1a600feac2797b66dd015031c3e"
+    }
+  ]
+}

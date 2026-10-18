@@ -20,7 +20,7 @@ public partial class AssetShowroom : CanvasLayer
             label.AddThemeColorOverride("font_color", new Color(parchment ? "30251c" : "e7edf2")); content.AddChild(label);
         }
         LabelAt("ASSET SHOWROOM / GODOT — frozen presentation; pink = ground anchor; blue = canvas bounds", new(24, 16), new(1160, 40));
-        var allIds = assets.Catalog.Entries.Keys.Where(id => !id.StartsWith("hud/", StringComparison.Ordinal)).Order().ToArray();
+        var allIds = assets.Catalog.Entries.Select(e => e.Id).Where(id => !id.StartsWith("hud/", StringComparison.Ordinal)).Order().ToArray();
         int pages = Math.Max(1, (allIds.Length + 9) / 10);
         page = Math.Clamp(page, 0, pages - 1);
         string[] ids = allIds.Skip(page * 10).Take(10).ToArray();
@@ -37,7 +37,7 @@ public partial class AssetShowroom : CanvasLayer
                 var art = new WorldArt(assets);
                 if (id.StartsWith("building/", StringComparison.Ordinal))
                 {
-                    var projection = new HexProjection(new SettlementView().HexRadius, assets.Options.GroundCompression);
+                    var projection = new HexProjection(SettlementView.DefaultHexRadius, assets.Options.GroundCompression);
                     var corners = projection.Corners(new(0, 0)).Select(p => new Vector2(p.X, p.Y)).ToArray();
                     art.Ground(preview, "terrain/woodland_hex", corners);
                     preview.DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("62796f"), 1, true);

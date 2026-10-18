@@ -25,6 +25,13 @@ public partial class GameApplication
                     {
                         Vector2 point = _camera.ToScreen(_settlementView.PlotPosition(plot));
                         Require(_settlementView.Pick(_camera.ToWorld(point)) == plot, $"native camera logical picking {view} zoom={zoom} size={size} plot={plot}");
+                        foreach (var corner in _settlementView.Projection.Corners(SettlementLayout.Coordinates[plot]))
+                        {
+                            var logicalCenter = _settlementView.Projection.Project(SettlementLayout.Coordinates[plot]);
+                            var inside = _settlementView.PlotPosition(plot) + new Vector2(corner.X - logicalCenter.X, corner.Y - logicalCenter.Y) * .85f;
+                            Require(_settlementView.Pick(_camera.ToWorld(_camera.ToScreen(inside))) == plot,
+                                $"native picking near projected hex edges {view} zoom={zoom} size={size} plot={plot}");
+                        }
                     }
                 }
             }
@@ -32,6 +39,9 @@ public partial class GameApplication
         _options = originalOptions; GetWindow().Size = originalSize;
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         RefreshWorld(); _camera.Reset();
+        float expectedDefault = _options.Mode == RenderMode.Sprites && _options.View == ViewPreset.Angled
+            ? SettlementView.DefaultMagnification(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 48)) : 1;
+        Require(_camera.Magnification == expectedDefault && _camera.PanPixels == Vector2.Zero, "camera reset restores settlement framing");
         Vector2 target = _camera.ToScreen(_settlementView.PlotPosition(4));
         GetViewport().GuiReleaseFocus();
         Click(target);
@@ -63,7 +73,7 @@ public partial class GameApplication
         Require(_settingsButton.HasFocus(), "closing modal restores focus");
         _camera.Reset();
         Require(_session.Snapshot.Revision == revision, "camera and local UI do not issue authoritative commands");
-        GD.Print("GODOT_CAMERA_PASS native-transform=true topdown/angled zoom=0.55/1/2.2 viewport=1280/1920 mouse modal scroll focus");
+        GD.Print("GODOT_CAMERA_PASS native-transform=true topdown/angled zoom=0.55/1/2.2 viewport=1280/1920 centers+edges mouse modal scroll focus reset");
     }
     private void Click(Vector2 position)
     {

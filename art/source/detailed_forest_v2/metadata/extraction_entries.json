@@ -1,0 +1,245 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "building/mine",
+      "source": "art/source/detailed_forest_v2/buildings/mine.png",
+      "crop": [
+        0,
+        0,
+        326,
+        381
+      ],
+      "output": "sprites/buildings/mine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/metalmine",
+      "source": "art/source/detailed_forest_v2/buildings/metalmine.png",
+      "crop": [
+        0,
+        0,
+        305,
+        388
+      ],
+      "output": "sprites/buildings/metalmine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/archeryrange",
+      "source": "art/source/detailed_forest_v2/buildings/archeryrange.png",
+      "crop": [
+        0,
+        0,
+        275,
+        416
+      ],
+      "output": "sprites/buildings/archeryrange.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/researchtower",
+      "source": "art/source/detailed_forest_v2/buildings/researchtower.png",
+      "crop": [
+        0,
+        0,
+        245,
+        521
+      ],
+      "output": "sprites/buildings/researchtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/arrowtower",
+      "source": "art/source/detailed_forest_v2/buildings/arrowtower.png",
+      "crop": [
+        0,
+        0,
+        265,
+        455
+      ],
+      "output": "sprites/buildings/arrowtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/catapulttower",
+      "source": "art/source/detailed_forest_v2/buildings/catapulttower.png",
+      "crop": [
+        0,
+        0,
+        273,
+        418
+      ],
+      "output": "sprites/buildings/catapulttower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/stonecutter",
+      "source": "art/source/detailed_forest_v2/buildings/stonecutter.png",
+      "crop": [
+        0,
+        0,
+        295,
+        375
+      ],
+      "output": "sprites/buildings/stonecutter.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/weaver",
+      "source": "art/source/detailed_forest_v2/buildings/weaver.png",
+      "crop": [
+        0,
+        0,
+        291,
+        374
+      ],
+      "output": "sprites/buildings/weaver.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/market",
+      "source": "art/source/detailed_forest_v2/buildings/market.png",
+      "crop": [
+        0,
+        0,
+        285,
+        337
+      ],
+      "output": "sprites/buildings/market.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/townhall",
+      "source": "art/source/detailed_forest_v2/buildings/townhall.png",
+      "crop": [
+        0,
+        0,
+        303,
+        447
+      ],
+      "output": "sprites/buildings/townhall.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "unit/berserker",
+      "source": "art/source/detailed_forest_v2/units/berserker.png",
+      "crop": [
+        0,
+        0,
+        537,
+        597
+      ],
+      "output": "sprites/units/berserker.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/crossbowman",
+      "source": "art/source/detailed_forest_v2/units/crossbowman.png",
+      "crop": [
+        0,
+        0,
+        468,
+        483
+      ],
+      "output": "sprites/units/crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/mage",
+      "source": "art/source/detailed_forest_v2/units/mage.png",
+      "crop": [
+        0,
+        0,
+        481,
+        581
+      ],
+      "output": "sprites/units/mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "source": "art/source/detailed_forest_v2/units/enemy_crossbowman.png",
+      "crop": [
+        0,
+        0,
+        544,
+        473
+      ],
+      "output": "sprites/units/enemy_crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/enemy_mage",
+      "source": "art/source/detailed_forest_v2/units/enemy_mage.png",
+      "crop": [
+        0,
+        0,
+        525,
+        487
+      ],
+      "output": "sprites/units/enemy_mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    }
+  ]
+}

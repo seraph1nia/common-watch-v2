@@ -150,7 +150,8 @@ public partial class GameApplication : Node
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
         _camera.ConfigureDefault(_settlementView.Visible && _options.Mode == RenderMode.Sprites
-            && _options.View == ViewPreset.Angled ? 1.15f : 1);
+            && _options.View == ViewPreset.Angled
+            ? SettlementView.DefaultMagnification(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 48)) : 1);
     }
     public override void _Input(InputEvent input)
     {
