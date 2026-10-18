@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+**/.godot/
+# Build bundles, captures and test logs.
+artifacts/
+.lavish/

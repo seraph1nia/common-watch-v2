@@ -1,0 +1,78 @@
+using System.Diagnostics;
+using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
+namespace Game.Integration.Tests;
+
+// Real graphics checks intentionally fail clearly when Linux Xvfb prerequisites are absent.
+// Headless-only environments can still run test-core and test-shared independently.
+public sealed class ClientTests
+{
+    [Fact, Trait("Client", "godot")]
+    public Task GodotFullLoopBothModes() => VerifyClient("godot");
+
+    [Fact, Trait("Client", "monogame")]
+    public Task MonoGameFullLoopBothModes() => VerifyClient("monogame");
+
+    private static async Task VerifyClient(string client)
+    {
+        string root = FindRoot();
+        string temporary = Path.Combine(Path.GetTempPath(), "common-watch-integration-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(temporary);
+        try
+        {
+            // Empty directory exercises permanent artwork independence in both modes.
+            await Run(root, client, temporary);
+            // Corrupt files are textual fixtures, never generated images. The debug
+            // renderer must ignore them; sprite mode must fall back without crashing.
+            Directory.CreateDirectory(Path.Combine(temporary, "buildings"));
+            Directory.CreateDirectory(Path.Combine(temporary, "units"));
+            await File.WriteAllTextAsync(Path.Combine(temporary, "buildings", "farm.png"), "invalid PNG - fallback test");
+            await File.WriteAllTextAsync(Path.Combine(temporary, "units", "swordsman.png"), "invalid PNG - fallback test");
+            await Run(root, client, temporary);
+        }
+        finally { Directory.Delete(temporary, recursive: true); }
+    }
+
+    private static async Task Run(string root, string client, string assets)
+    {
+        var start = new ProcessStartInfo("bash")
+        {
+            WorkingDirectory = root,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false
+        };
+        foreach (string argument in new[] { "tools/graphical.sh", client, "test", "--assets-root", assets })
+            start.ArgumentList.Add(argument);
+        using var process = Process.Start(start) ?? throw new InvalidOperationException("Failed to launch graphical checks.");
+        Task<string> output = process.StandardOutput.ReadToEndAsync();
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+        try { await process.WaitForExitAsync(timeout.Token); }
+        catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new TimeoutException($"{client} graphical integration exceeded four minutes."); }
+        string transcript = await output + "\n" + await error;
+        string logDirectory = Path.Combine(root, "artifacts", "test-logs");
+        Directory.CreateDirectory(logDirectory);
+        await File.WriteAllTextAsync(Path.Combine(logDirectory, client + "-" + (Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
+        Assert.True(process.ExitCode == 0, $"{client} actual-graphics check failed ({process.ExitCode}):\n{transcript}");
+        Assert.Equal(2, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
+        Assert.True(transcript.Split(client.ToUpperInvariant() + "_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
+            "Both rendering modes must decode and start the bundled music, including settings checks.");
+        Assert.Contains("settings=0/50/100 persisted=true", transcript);
+        Assert.Contains("mode=Debug", transcript);
+        Assert.Contains("mode=Sprites", transcript);
+    }
+
+    private static string FindRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "CommonWatch.slnx"))) return directory.FullName;
+            directory = directory.Parent;
+        }
+        throw new DirectoryNotFoundException("Cannot locate CommonWatch.slnx.");
+    }
+}

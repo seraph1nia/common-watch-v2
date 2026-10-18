@@ -1,0 +1,57 @@
+# Verification
+
+Verified on Linux x86_64 with .NET SDK 10.0.401, Godot .NET 4.7.2, MonoGame DesktopGL 3.8.4.1 and Gum.MonoGame 2026.1.31.1. Real graphics ran on owned Xvfb displays using Mesa llvmpipe OpenGL 4.6. Graphical integration uses silent audio backends; separate output checks used isolated PulseAudio sinks. No OS packages were installed.
+
+## Automated results
+
+- `mise run build`: complete solution, locked NuGet restore; zero warnings/errors.
+- `mise run test-core`: **40 passed**, none failed/skipped. Includes unchanged upstream authority/resource/hex-board tests and a deterministic, paid first-wave combat/draft regression.
+- Shared tests: **26 passed**, none failed/skipped. All six replay checkpoints, exact economy/recruitment, snapshot isolation, projection/hit testing, frozen/dead movement, cosmetic cohort positions, asset IDs/fallback, render-mode independence, and local audio preferences (clamping, persistence, mute and corrupt/inaccessible-file fallback).
+- `mise run test`: **68 passed** across all three test projects, none failed/skipped.
+- `mise run test-godot` and `mise run test-monogame`: passed actual graphical integration. Each test launches four processes: debug and sprites modes against empty and invalid sprite directories. Actual native UI callbacks cover selection, construction, recruitment, preparation, combat, draft and reward selection. Checks also resize and confirm debug performs zero sprite decode attempts. Integration transcripts are written to `artifacts/test-logs/`.
+- `mise run scenario post-draft artifacts/scenarios/post-draft.json`: recorded real authoritative wave-two state after legal command replay and reward selection.
+
+## Background music and settings
+
+Both clients decode the unchanged upstream **Echoes of Valhalla** WAV and keep one player across game resets and phases, independently of sprite rendering. Godot retains the WAV's embedded loop metadata. MonoGame queues PCM buffers because its pinned DesktopGL SoundEffect implementation ignores custom loop points; buffer-boundary checks verify the jump from sample 6,195,530 (inclusive) to 1,548,939.
+
+Actual graphical integration in both rendering modes exercises the native settings button, volume slider at 0/50/100%, underlying native volume, settings save/reload, closing the menu, and unchanged gameplay state. Test preferences are temporary; interactive launches use normal audio devices and persistent per-client preferences.
+
+Separate normal-driver launches routed each application into its own temporary PulseAudio sink. Captured output contained nonzero music samples at saved volume 50% (Godot peak 8,947; MonoGame peak 8,939, signed 16-bit PCM) and exactly zero samples at saved volume 0%. These checks captured only the isolated application sinks and left desktop device/default settings unchanged. Results: `artifacts/test-logs/audio-output.json`. Physical speaker/headphone listening and a full-duration audible loop transition have not been assessed.
+
+Actual settings-menu frames were captured and inspected at both 1280×720 and 1920×1080: `artifacts/captures/{godot,monogame}/settings-1280.png` and `settings-1920.png`. No controls are clipped.
+
+## Platform release builds
+
+All four commands completed successfully on the Linux development host: `mise run build-godot-windows`, `build-godot-linux`, `build-monogame-windows`, and `build-monogame-linux`. Outputs under `artifacts/builds/<client>/<platform>/` are gitignored. Executables are confirmed x64 Windows PE or Linux ELF as appropriate; each folder contains a self-contained .NET runtime, game dependencies, the unchanged music WAV, optional sprite directories, license and provenance.
+
+Both Linux release folders were copied into temporary directories outside the checkout and launched from a different working directory with `DOTNET_ROOT` pointing to a nonexistent installation. Actual graphical smoke checks passed in **both rendering modes**, including the complete gameplay loop and music/settings checks. No source asset arguments were supplied: bundled music and sprites resolve beside the executable. Release transcripts are `artifacts/test-logs/{godot,monogame}-linux-release-{debug,sprites}.log`. Actual release settings captures were inspected at `artifacts/captures/{godot,monogame}/linux-release-settings.png`.
+
+The full `mise run test` was rerun after these changes: **68 passed**, none failed/skipped; complete build reported zero warnings/errors. All eight runtime-specific dependency lockfiles preserve the existing package versions. The unchanged 47-file Core import was checked byte-for-byte again. Windows outputs were built but have **not** been launched on Windows.
+
+Invalid-image fixtures are plain text in temporary files named `.png`, not manufactured artwork. In both clients, sprites mode exercised Farm and Swordsman fallback and debug ignored the same files. No game sprite or artwork was created, downloaded or copied.
+
+## Actual captures
+
+`mise run capture-godot` and `mise run capture-monogame` produce and were checked for:
+
+| Checkpoint | Godot | MonoGame |
+| --- | --- | --- |
+| Four-building settlement | `artifacts/captures/godot/settlement.png` | `artifacts/captures/monogame/settlement.png` |
+| Selected Barracks | `artifacts/captures/godot/building-selected.png` | `artifacts/captures/monogame/building-selected.png` |
+| Wave-one combat at tick 180 | `artifacts/captures/godot/combat.png` | `artifacts/captures/monogame/combat.png` |
+| Real three-card reward draft | `artifacts/captures/godot/draft.png` | `artifacts/captures/monogame/draft.png` |
+
+These are real viewport/backbuffer frames at 1280×720, using no artwork. Both clients also resize to 1920×1080 during graphical checks; actual `draft-1920.png` captures were produced and inspected for both clients. The combat checkpoint has actual movement, attacks and damaged units; exact unit health is readable in the side panel. Terrain completes before anchored buildings/units; optional image dimensions never determine gameplay coordinates.
+
+## Unexecuted and environment-dependent checks
+
+- **Positive loading of a valid external game PNG is not exercised.** No suitable sprite was present in the starting project. Runtime PNG decoding and logical path routing are implemented; missing/corrupt fallback is exercised. No artwork was manufactured to claim a positive test.
+- Native Windows/macOS launches and captures have not been run. This repository's pinned automated graphical workflow targets Linux x86_64.
+- Virtual-display tests verify application rendering and callbacks. They do not qualify a physical GPU/display or desktop input device. Audio output has additionally been measured through isolated software sinks as described above; physical listening remains unexecuted.
+
+The VSync warning from Godot under Xvfb is expected; graphical checks still render using actual software OpenGL. Nothing above relies on headless Godot to validate graphics.
+
+## Source integrity
+
+All **47** tracked `src/Game.Core` files match the pinned upstream revision byte-for-byte, including its project and NuGet lockfile. The four imported test/fixture sources also match their upstream blobs; see `tests/Game.Core.Tests/Upstream/PROVENANCE.md`. The original reference checkout was not modified.

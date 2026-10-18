@@ -1,0 +1,113 @@
+[tools]
+dotnet = "10.0.401"
+[tool_alias]
+godot-dotnet = "github:godotengine/godot"
+[tools.godot-dotnet]
+version = "4.7.2-stable"
+[tools.godot-dotnet.platforms.linux-x64]
+asset_pattern = "Godot_v{{ version }}_mono_linux*x86_64.zip"
+strip_components = 1
+bin_path = "."
+rename_exe = { "Godot_v*_mono_linux*" = "godot" }
+[settings]
+task.run_auto_install = false
+exec_auto_install = false
+[env]
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_NOLOGO = "1"
+
+[tasks.build]
+description = "Restore locked dependencies and compile the complete solution"
+run = ["dotnet restore CommonWatch.slnx --locked-mode", "dotnet build CommonWatch.slnx --no-restore --nologo"]
+
+[tasks.build-godot-windows]
+description = "Export a self-contained Godot Windows x64 release into artifacts/builds"
+run = "bash tools/build-client.sh godot windows"
+
+[tasks.build-godot-linux]
+description = "Export a self-contained Godot Linux x64 release into artifacts/builds"
+run = "bash tools/build-client.sh godot linux"
+
+[tasks.build-monogame-windows]
+description = "Publish a self-contained MonoGame Windows x64 release into artifacts/builds"
+run = "bash tools/build-client.sh monogame windows"
+
+[tasks.build-monogame-linux]
+description = "Publish a self-contained MonoGame Linux x64 release into artifacts/builds"
+run = "bash tools/build-client.sh monogame linux"
+
+[tasks.test-core]
+description = "Headless authoritative simulation tests"
+run = ["dotnet restore tests/Game.Core.Tests/Game.Core.Tests.csproj --locked-mode", "dotnet test tests/Game.Core.Tests/Game.Core.Tests.csproj --no-restore --nologo"]
+
+[tasks.test-shared]
+description = "Headless adapter, projection, assets and deterministic scenario tests"
+run = ["dotnet restore tests/Game.Shared.Tests/Game.Shared.Tests.csproj --locked-mode", "dotnet test tests/Game.Shared.Tests/Game.Shared.Tests.csproj --no-restore --nologo"]
+
+[tasks.test]
+description = "All Core, shared and actual graphical integration tests"
+depends = ["build"]
+run = "dotnet test CommonWatch.slnx --no-build --no-restore --nologo"
+
+[tasks.scenario]
+description = "Replay the authoritative first-wave scenario and write JSON checkpoints"
+run = "dotnet run --project tools/scenarios/Scenarios.csproj --"
+raw_args = true
+
+[tasks.play-godot]
+description = "Play Godot 2D with shapes and text (default)"
+depends = ["build"]
+run = "bash tools/client.sh godot --render-mode debug"
+raw_args = true
+
+[tasks.play-godot-no-assets]
+description = "Play Godot explicitly ignoring all optional sprites"
+depends = ["build"]
+run = "bash tools/client.sh godot --render-mode debug"
+raw_args = true
+
+[tasks.play-godot-assets]
+description = "Play Godot with optional sprite loading and geometric fallback"
+depends = ["build"]
+run = "bash tools/client.sh godot --render-mode sprites"
+raw_args = true
+
+[tasks.play-monogame]
+description = "Play MonoGame with shapes and text (default)"
+depends = ["build"]
+run = "bash tools/client.sh monogame --render-mode debug"
+raw_args = true
+
+[tasks.play-monogame-no-assets]
+description = "Play MonoGame explicitly ignoring all optional sprites"
+depends = ["build"]
+run = "bash tools/client.sh monogame --render-mode debug"
+raw_args = true
+
+[tasks.play-monogame-assets]
+description = "Play MonoGame with optional sprite loading and geometric fallback"
+depends = ["build"]
+run = "bash tools/client.sh monogame --render-mode sprites"
+raw_args = true
+
+[tasks.test-godot]
+description = "Godot graphical integration checks in both rendering modes"
+depends = ["build"]
+run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter Client=godot --nologo"
+
+[tasks.test-monogame]
+description = "MonoGame graphical integration checks in both rendering modes"
+depends = ["build"]
+run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter Client=monogame --nologo"
+
+[tasks.capture-godot]
+description = "Capture four actual rendered Godot checkpoints on an owned virtual display"
+depends = ["build"]
+run = "bash tools/graphical.sh godot capture"
+raw_args = true
+
+[tasks.capture-monogame]
+description = "Capture four actual rendered MonoGame checkpoints on an owned virtual display"
+depends = ["build"]
+run = "bash tools/graphical.sh monogame capture"
+raw_args = true

@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Game.Core/Game.Core.csproj" />
+    <Project Path="src/Game.Shared/Game.Shared.csproj" />
+    <Project Path="src/Game.Godot/Game.Godot.csproj" />
+    <Project Path="src/Game.MonoGame/Game.MonoGame.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Game.Core.Tests/Game.Core.Tests.csproj" />
+    <Project Path="tests/Game.Shared.Tests/Game.Shared.Tests.csproj" />
+    <Project Path="tests/Game.Integration.Tests/Game.Integration.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/scenarios/Scenarios.csproj" />
+  </Folder>
+</Solution>
