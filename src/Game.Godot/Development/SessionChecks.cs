@@ -6,11 +6,20 @@ namespace Game.GodotClient;
 
 public partial class GameApplication
 {
-    private void SmokeSessionLifecycle()
+    private async Task SmokeSessionLifecycle()
     {
         ReturnToMenu(); Require(_session is null && _sessionMenu.Visible, "menu owns no authority");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _camera.SetPose(1.4f, new Vector2(37, -23));
+        string endpoint = _sessionMenu.Endpoint.Text;
+        _sessionMenu.Endpoint.GrabFocus(); _sessionMenu.Endpoint.CaretColumn = endpoint.Length;
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.R, PhysicalKeycode = Key.R, Unicode = 'r', Pressed = true }, true);
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.R, PhysicalKeycode = Key.R, Pressed = false }, true);
+        Require(_sessionMenu.Endpoint.Text == endpoint + "r" && _camera.Magnification == 1.4f, "endpoint typing uses native focus and does not reset the camera");
+        _sessionMenu.Endpoint.Text = endpoint; _camera.Reset(); GetViewport().GuiReleaseFocus();
         _sessionMenu.SoloButton.EmitSignal(BaseButton.SignalName.Pressed);
         var old = _session!; string match = old.Snapshot.MatchId;
+        Require(old.GetPath() == new NodePath("/root/CommonWatch/Session"), "stable native RPC node path");
         Require(old.Snapshot.Phase == Phase.Lobby, "pregame selection");
         ((Button)_sessionMenu.Doctrines.GetChild(1)).EmitSignal(BaseButton.SignalName.Pressed);
         Require(old.City.Run.Doctrine == RunCatalog.Doctrines[1].Id, "doctrine UI");

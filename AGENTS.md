@@ -18,7 +18,7 @@ Work in this repository. Ordinary development edits C#, text Godot scenes/resour
 | Native audio buses and preferences | `Audio/AudioController.cs`, `Audio/default_bus_layout.tres`; retain the existing JSON settings format | `mise run test-session` checks WAV, loops, bus volume/mute and persistence |
 | CLI-only development probes, capture and showroom | `src/Game.Godot/Development`, `tools`; probes submit legal commands or observe detached state | Relevant mise capture/integration task; [verification](docs/VERIFICATION.md) |
 
-Paths without the `src/Game.Godot` prefix in the table are relative to that project. Keep application lifecycle partials scoped to coordination; put UI, drawing, transport and resources in their actual owners. Disconnect cross-owner events on exit. Session generations and old-session guards must survive refactors.
+Paths without the `src/Game.Godot` prefix in the table are relative to that project. Keep application lifecycle partials scoped to coordination; put UI, drawing, transport and resources in their actual owners. Disconnect cross-owner events on exit. Session generations and old-session guards must survive refactors. Keep the published `/root/CommonWatch/Session` RPC path stable: the session remains an application-root child while SessionCoordinator exclusively owns its lifetime.
 
 The application submits authoritative commands and reads detached snapshots. Never write simulation state or duplicate rules. Combat presentation samples Core playback; independent wall-clock Tweens/particles must not drive combat timing, damage or occupancy.
 

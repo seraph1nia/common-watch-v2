@@ -148,15 +148,16 @@ public partial class GameApplication : Node
     public override void _Input(InputEvent input)
     {
         if (_inviteConfirmation is { Visible: true }) { _camera.StopDrag(); return; }
-        if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
-        {
-            if (_settings.Visible) _settings.Close(); else _settings.Open();
-            GetViewport().SetInputAsHandled();
-        }
         if (input is InputEventMouseButton { Pressed: false } mouse && mouse.ButtonIndex is MouseButton.Middle or MouseButton.Right) _camera.StopDrag();
     }
     public override void _UnhandledInput(InputEvent input)
     {
+        if (_inviteConfirmation.Visible) return;
+        if (input.IsActionPressed("ui_cancel"))
+        {
+            if (_settings.Visible) _settings.Close(); else _settings.Open();
+            GetViewport().SetInputAsHandled(); return;
+        }
         if (_settings.Visible || _inviteConfirmation.Visible || GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
         if (_battle is not null)
         {

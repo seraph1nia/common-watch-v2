@@ -44,6 +44,12 @@ public partial class SettingsPanel : Control
         else if (IsInstanceValid(FallbackFocus) && FallbackFocus!.IsVisibleInTree()) FallbackFocus.GrabFocus();
         _previousFocus = null;
     }
+    public override void _Input(InputEvent input)
+    {
+        if (!IsVisibleInTree() || !input.IsActionPressed("ui_cancel")) return;
+        Close();
+        GetViewport().SetInputAsHandled();
+    }
     public override void _ExitTree()
     {
         if (_audio is not null) _audio.VolumeChanged -= Refresh;

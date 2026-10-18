@@ -12,7 +12,8 @@ public partial class SessionCoordinator : Node
     {
         Close();
         var session = new GodotSession { Name = "Session" };
-        AddChild(session);
+        // Keep the published RPC node path stable; this coordinator owns its lifetime.
+        GetParent().AddChild(session);
         Current = session;
         try { initialize(session); }
         catch { Close(); throw; }

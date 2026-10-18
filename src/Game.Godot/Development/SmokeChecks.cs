@@ -8,7 +8,7 @@ public partial class GameApplication
 {
     private async Task SmokeIntegration()
     {
-        SmokeSessionLifecycle();
+        await SmokeSessionLifecycle();
         ulong musicPlayer = _audio.Player.GetInstanceId();
         string checkpoint = Argument("--checkpoint") ?? "settlement";
         ReplaceSession(new SoloSession()); _session.Start(); RefreshUi(true);

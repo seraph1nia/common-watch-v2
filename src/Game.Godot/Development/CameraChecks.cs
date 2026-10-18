@@ -43,17 +43,25 @@ public partial class GameApplication
         GetViewport().PushInput(new InputEventMouseButton { Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 80, 260), ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_camera.Magnification == before, "scrolling native inspector does not zoom world");
+        _camera.SetPose(1.3f, new Vector2(7, -9)); before = _camera.Magnification;
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         Click(_settingsButton.GetGlobalRect().GetCenter());
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_settings.Visible && _settings.Slider.HasFocus(), $"mouse opens native modal with keyboard focus (visible={_settings.Visible}, focus={GetViewport().GuiGetFocusOwner()?.Name}, button={_settingsButton.GetGlobalRect()})");
-        Click(target);
+        Vector2 coveredPlot = _camera.ToScreen(_settlementView.PlotPosition(0));
+        Require(!_settings.Panel.GetGlobalRect().HasPoint(coveredPlot), "modal capture probe avoids its interactive controls");
+        Click(coveredPlot);
+        Require(_settings.Visible, "clicking modal shade keeps settings open");
         GetViewport().PushInput(new InputEventKey { PhysicalKeycode = Key.R, Keycode = Key.R, Pressed = true }, true);
         GetViewport().PushInput(new InputEventKey { PhysicalKeycode = Key.R, Keycode = Key.R, Pressed = false }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_session.SelectedSlot == selected && _camera.Magnification == before, "modal captures world clicks and reset shortcut");
-        _settings.Close();
+        using var cancel = new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = true };
+        GetViewport().PushInput(cancel, true);
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = false }, true);
+        Require(!_settings.Visible, "native cancel action closes settings");
         Require(_settingsButton.HasFocus(), "closing modal restores focus");
+        _camera.Reset();
         Require(_session.Snapshot.Revision == revision, "camera and local UI do not issue authoritative commands");
         GD.Print("GODOT_CAMERA_PASS native-transform=true topdown/angled zoom=0.55/1/2.2 viewport=1280/1920 mouse modal scroll focus");
     }
