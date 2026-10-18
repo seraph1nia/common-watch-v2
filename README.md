@@ -78,6 +78,14 @@ Copy the **whole output folder** to the target machine. Each includes the .NET r
 
 Run build tasks from the project root with the pinned mise tools. Godot additionally requires its matching **4.7.2.stable.mono .NET export templates**, installed through Godot's **Manage Export Templates** dialog or unpacked into its standard `export_templates/4.7.2.stable.mono` directory. Tasks do not download templates or install system packages. NuGet access may be needed for the first self-contained publish. Runtime-specific dependency locks live in `tools/nuget-locks`; they preserve the original Core lockfile. Each task replaces only its own platform output folder.
 
+## GitHub Actions
+
+The separate [Godot](.github/workflows/godot.yml) and [MonoGame](.github/workflows/monogame.yml) workflows run on every push, pull request and manual dispatch. Both use the same `mise install --locked` setup on Ubuntu 24.04, build the solution, and run Core, shared and artwork-pipeline tests. Each also runs its client's offline session/Steam suite and actual graphical UI, multiplayer and reconnect tests on owned Xvfb displays, including both rendering modes and installed-art/fallback checks. Live Steam account tests remain explicitly gated.
+
+After all tests pass, each workflow cross-builds its client for Linux and Windows x64. The Godot workflow installs matching Mono export templates from the pinned upstream release and verifies their pinned upstream SHA-256 digest. Neither workflow installs system packages; missing graphical prerequisites fail the job.
+
+Download `common-watch-<client>-linux-x64.tar.gz` or `common-watch-<client>-windows-x64.zip` from the successful run's **Artifacts** section. Extract the entire archive; Linux tarballs preserve executable permissions. Bundles include the runtime, assets, licenses and provenance. Test diagnostics are retained separately for seven days, including on failure. Windows outputs are cross-built on Linux; these workflows do not qualify native Windows execution.
+
 ## Test and capture
 
 ```sh

@@ -1,0 +1,118 @@
+name: Godot
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+
+      - name: Install pinned mise tools
+        uses: jdx/mise-action@v5.2.0
+        with:
+          install_args: --locked
+
+      - name: Check graphical prerequisites
+        run: |
+          for prerequisite in Xvfb xvfb-run xauth timeout python3; do
+            command -v "$prerequisite" >/dev/null || { echo "Missing graphical prerequisite: $prerequisite" >&2; exit 1; }
+          done
+          python3 -c 'import ctypes; ctypes.CDLL("libGL.so.1")'
+
+      - name: Build solution with locked dependencies
+        run: mise run build
+
+      - name: Test Core
+        run: mise run test-core
+
+      - name: Test shared adapter and presentation
+        run: mise run test-shared
+
+      - name: Test artwork pipeline
+        run: |
+          mise run art-setup
+          mise run test-art
+
+      - name: Test offline Godot sessions and Steam integration
+        run: mise run test-godot-steam
+
+      - name: Test Godot UI, multiplayer and reconnect on virtual displays
+        run: >-
+          mise exec -- dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj
+          --no-build --no-restore --filter 'Client=godot' --nologo
+          --logger 'trx;LogFileName=godot.trx' --results-directory artifacts/test-results
+
+      - name: Install matching Godot Mono export templates
+        env:
+          # Upstream 4.7.2-stable Mono export-template asset digest:
+          # https://api.github.com/repos/godotengine/godot/releases/assets/519689406
+          GODOT_EXPORT_TEMPLATES_SHA256: 92f8681e349ef1f90891b792da95e3b2b0bd1ed610b78018c58feb2d87e15a9d
+        run: |
+          godot_version=$(python3 -c 'import tomllib; print(tomllib.load(open("mise.toml", "rb"))["tools"]["godot-dotnet"]["version"])')
+          archive="Godot_v${godot_version}_mono_export_templates.tpz"
+          release_url="https://github.com/godotengine/godot/releases/download/${godot_version}"
+          download_directory=$(mktemp -d)
+          trap 'rm -rf "$download_directory"' EXIT
+          curl --fail --silent --show-error --location --retry 3 "$release_url/$archive" -o "$download_directory/$archive"
+          (
+            cd "$download_directory"
+            printf '%s  %s\n' "$GODOT_EXPORT_TEMPLATES_SHA256" "$archive" > template.sha256
+            sha256sum --check template.sha256
+            unzip -q "$archive"
+          )
+          template_version=$(cat "$download_directory/templates/version.txt")
+          test "$template_version" = "${godot_version/-/.}.mono"
+          template_directory="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/$template_version"
+          mkdir -p "$template_directory"
+          cp -a "$download_directory/templates/." "$template_directory/"
+
+      - name: Build Linux x64 release
+        run: mise run build-godot-linux
+
+      - name: Build Windows x64 release
+        run: mise run build-godot-windows
+
+      - name: Archive complete release folders
+        run: |
+          test -x artifacts/builds/godot/linux/CommonWatch.x86_64
+          test -s artifacts/builds/godot/windows/CommonWatch.exe
+          mkdir -p artifacts/packages
+          tar -czf artifacts/packages/common-watch-godot-linux-x64.tar.gz -C artifacts/builds/godot/linux .
+          python3 -c 'import shutil; shutil.make_archive("artifacts/packages/common-watch-godot-windows-x64", "zip", "artifacts/builds/godot/windows")'
+
+      - name: Upload Linux release
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: artifacts/packages/common-watch-godot-linux-x64.tar.gz
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload Windows release
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: artifacts/packages/common-watch-godot-windows-x64.zip
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: godot-test-diagnostics
+          path: |
+            artifacts/test-logs/
+            artifacts/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
