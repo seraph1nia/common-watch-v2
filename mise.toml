@@ -18,7 +18,7 @@ DOTNET_NOLOGO = "1"
 
 [tasks.build]
 description = "Restore locked dependencies and compile the complete solution"
-run = ["dotnet restore CommonWatch.slnx --locked-mode", "dotnet build CommonWatch.slnx --no-restore --nologo"]
+run = ["python3 tools/verify-dependency-pins.py", "dotnet restore CommonWatch.slnx --locked-mode", "dotnet build CommonWatch.slnx --no-restore --nologo"]
 
 [tasks.build-godot-windows]
 description = "Export a self-contained Godot Windows x64 release into artifacts/builds"
@@ -93,12 +93,12 @@ raw_args = true
 [tasks.test-godot]
 description = "Godot graphical integration checks in both rendering modes"
 depends = ["build"]
-run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter Client=godot --nologo"
+run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'Client=godot&FullyQualifiedName~ClientTests' --nologo"
 
 [tasks.test-monogame]
 description = "MonoGame graphical integration checks in both rendering modes"
 depends = ["build"]
-run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter Client=monogame --nologo"
+run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'Client=monogame&FullyQualifiedName~ClientTests' --nologo"
 
 [tasks.capture-godot]
 description = "Capture four actual rendered Godot checkpoints on an owned virtual display"
@@ -110,4 +110,104 @@ raw_args = true
 description = "Capture four actual rendered MonoGame checkpoints on an owned virtual display"
 depends = ["build"]
 run = "bash tools/graphical.sh monogame capture"
+raw_args = true
+
+[tasks.test-godot-session]
+description = "Actual Godot menu, doctrine, replacement and gameplay lifecycle checks"
+depends = ["test-godot"]
+
+[tasks.test-monogame-session]
+description = "Actual Gum menu, doctrine, replacement and gameplay lifecycle checks"
+depends = ["test-monogame"]
+
+[tasks.test-godot-multiplayer]
+description = "Actual godot LAN processes: two, three and four players through combat and drafting"
+depends = ["build"]
+run = "bash tools/multiplayer.sh godot test"
+raw_args = true
+
+[tasks.dev-godot-multiplayer]
+description = "Launch a LAN host and guests with normal graphics/audio; --players 1..4"
+depends = ["build"]
+run = "bash tools/multiplayer.sh godot dev"
+raw_args = true
+
+[tasks.test-monogame-multiplayer]
+description = "Actual monogame LAN processes: two, three and four players through combat and drafting"
+depends = ["build"]
+run = "bash tools/multiplayer.sh monogame test"
+raw_args = true
+
+[tasks.dev-monogame-multiplayer]
+description = "Launch a LAN host and guests with normal graphics/audio; --players 1..4"
+depends = ["build"]
+run = "bash tools/multiplayer.sh monogame dev"
+raw_args = true
+
+[tasks.test-godot-lobby]
+description = "Actual godot lobby checks"
+depends = ["test-godot-multiplayer"]
+
+[tasks.test-godot-reconnect]
+description = "Actual godot reconnect checks"
+depends = ["build"]
+run = "bash tools/reconnect.sh godot"
+
+[tasks.test-godot-network-faults]
+description = "Actual godot network-faults checks"
+depends = ["test-godot-reconnect"]
+
+[tasks.capture-godot-lobby]
+description = "Capture the actual two-, three- and four-player native lobby controls"
+depends = ["test-godot-multiplayer"]
+
+[tasks.test-monogame-lobby]
+description = "Actual monogame lobby checks"
+depends = ["test-monogame-multiplayer"]
+
+[tasks.test-monogame-reconnect]
+description = "Actual monogame reconnect checks"
+depends = ["build"]
+run = "bash tools/reconnect.sh monogame"
+
+[tasks.test-monogame-network-faults]
+description = "Actual monogame network-faults checks"
+depends = ["test-monogame-reconnect"]
+
+[tasks.capture-monogame-lobby]
+description = "Capture the actual two-, three- and four-player native lobby controls"
+depends = ["test-monogame-multiplayer"]
+
+[tasks.test-godot-steam]
+description = "Offline Godot Steam operation, metadata and authenticated admission tests"
+depends = ["build"]
+run = "dotnet test tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj --no-build --no-restore --nologo"
+
+[tasks.play-godot-steam]
+description = "Optional Steam startup using COMMON_WATCH_STEAM_APP_ID; offline fallback remains available"
+depends = ["build"]
+run = "bash tools/client.sh godot --render-mode debug --steam"
+raw_args = true
+
+[tasks.test-godot-steam-native]
+description = "Explicitly gated live Steam SDK/gameplay worker; see docs/SESSIONS.md"
+depends = ["build"]
+run = "bash tools/steam-native.sh godot"
+raw_args = true
+
+[tasks.test-monogame-steam]
+description = "Offline MonoGame Steam operation, metadata and authenticated admission tests"
+depends = ["build"]
+run = "dotnet test tests/Game.MonoGame.Session.Tests/Game.MonoGame.Session.Tests.csproj --no-build --no-restore --nologo"
+
+[tasks.play-monogame-steam]
+description = "Optional Steam startup using COMMON_WATCH_STEAM_APP_ID; offline fallback remains available"
+depends = ["build"]
+run = "bash tools/client.sh monogame --render-mode debug --steam"
+raw_args = true
+
+[tasks.test-monogame-steam-native]
+description = "Explicitly gated live Steam SDK/gameplay worker; see docs/SESSIONS.md"
+depends = ["build"]
+run = "bash tools/steam-native.sh monogame"
 raw_args = true

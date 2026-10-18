@@ -1,6 +1,6 @@
 # The Common Watch — two C# vertical slices
 
-Godot 2D and MonoGame DesktopGL/Gum clients share the original deterministic `Game.Core`. Both implement settlement → automatic combat → three-card reward draft → next preparation. Default presentation is permanently artwork independent: shapes and readable labels.
+Godot 2D and MonoGame DesktopGL/Gum clients share the original deterministic `Game.Core`. Both implement solo and host-authoritative 1–4 player sessions: lobby/doctrine selection → settlement → automatic shared combat → individual three-card reward draft → next preparation. Steam support is optional; native account verification remains unexecuted. Default presentation is permanently artwork independent: shapes and readable labels.
 
 ## Setup
 
@@ -8,6 +8,7 @@ Required tools are pinned in `mise.toml`/`mise.lock` and `global.json`:
 
 - mise; .NET SDK **10.0.401** (including the .NET 10 runtime).
 - Godot **4.7.2 .NET/Mono**, with its adjacent GodotSharp directory intact. The standard Godot edition cannot run C#.
+- Python 3 for process supervision and pinned binary checks.
 - NuGet access for the initial restore. Package versions and transitive resolutions are committed in `packages.lock.json`.
 - A display and working OpenGL 3.3 driver for interactive play. MonoGame additionally uses SDL2/OpenAL native runtime libraries; package-native dependencies are resolved through NuGet where provided.
 - Linux automated graphical checks/captures require `Xvfb`, `xvfb-run`, `xauth`, `timeout` and Mesa software OpenGL. Tests use their own virtual displays and silent audio backends. Tasks never install OS packages or tool upgrades.
@@ -34,7 +35,9 @@ mise run play-godot-assets          # optional sprites, same geometric fallback
 mise run play-monogame-assets
 ```
 
-Left-click a settlement hex to inspect/build/recruit. Right-drag pans in both clients (Godot also supports middle-drag), wheel zooms, and **R** resets the camera. Side-panel actions display the authoritative result or rejection reason. Advance/Ready settles production and advances the original preparation stages. Combat runs automatically on the separate shared arena. Choose one of three rewards after winning. New game restarts the solo session.
+Start with **Single player**, select a doctrine and **Start match**, or use **Host LAN** / **Join LAN**. See [sessions, multiplayer and Steam](docs/SESSIONS.md) for hosting, private reconnect data, Steam setup and all new test/dev commands.
+
+Left-click a settlement hex to inspect/build/recruit. Right-drag pans in both clients (Godot also supports middle-drag), wheel zooms, and **R** resets the camera. Side-panel actions display the authoritative result or rejection reason. Advance/Ready settles production and advances the original preparation stages. Combat runs automatically on the separate shared arena. Choose one of three rewards after winning. Main menu disposes the current session; Single player creates a fresh authority.
 
 A tested legal opening under unchanged rules:
 
@@ -46,7 +49,7 @@ A tested legal opening under unchanged rules:
 
 The Swordsmen require production from the Metal Mine. Insufficient resources, occupied plots and unavailable actions are rejected by Core. There is no client-side replacement economy or combat logic.
 
-Press **Escape** or close the window to exit MonoGame; close the Godot window to exit Godot.
+Use **Main menu** to leave a session (also Escape in MonoGame), **Quit** from the menu, or close the window to exit.
 
 Both clients play the reference game's **Echoes of Valhalla** background music, including its intro and authored loop. Open **Settings** and adjust **Music volume**; **0%** mutes it. Changes apply immediately and are saved per client between launches. Opening settings or restarting a game keeps the existing track playing. Music works in both rendering modes and uses your normal audio device during interactive play; automated graphical checks use silent audio backends. The unchanged WAV and its original provenance are in [assets/audio](assets/audio/README.md).
 
@@ -101,9 +104,9 @@ Checkpoints: `initial`, `settlement` (four buildings), `building-selected`, `com
 ## Layout and rules boundary
 
 - `src/Game.Core`: unchanged upstream rules and Arch ECS; independently buildable with `mise exec -- dotnet build src/Game.Core/Game.Core.csproj`.
-- `src/Game.Shared`: solo authority adapter, replay, hex projection/hit testing, visual IDs and render options. No graphical framework references.
-- `src/Game.Godot`: code-first Node2D drawing and native Controls; minimal bootstrap scene.
-- `src/Game.MonoGame`: SpriteBatch drawing and code-only Gum Forms. Framework font/shape resources are technical UI dependencies, not game artwork.
+- `src/Game.Shared`: solo authority adapter, replay, bounded snapshot codec, private command/credential files, hex projection/hit testing, visual IDs and render options. It contains no transport abstraction. No graphical framework references.
+- `src/Game.Godot`: Node2D drawing, native Controls, session Node, ENet RPCs and pinned GodotSteam integration.
+- `src/Game.MonoGame`: SpriteBatch drawing, code-only Gum Forms, disposable C# sessions, LiteNetLib and Facepunch Steam sockets. Framework font/shape resources are technical UI dependencies, not game artwork.
 - `tests`: Core, shared and actual-process client integration suites.
 - `tools`: scenario CLI and bounded graphical launch/capture scripts.
 

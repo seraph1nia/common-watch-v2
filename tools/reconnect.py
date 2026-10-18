@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+"""Real-process LAN reconnection/fault checks. No authority state is manufactured."""
+import json
+import os
+from pathlib import Path
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import uuid
+
+def terminate(signum, frame):
+    raise SystemExit(128 + signum)
+
+signal.signal(signal.SIGTERM, terminate)
+
+ROOT = Path(__file__).resolve().parent.parent
+client = sys.argv[1]
+processes = []
+logs = []
+serial = 0
+with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
+    work = Path(temporary)
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as reservation:
+        reservation.bind(('127.0.0.1', 0))
+        port = reservation.getsockname()[1]
+
+    def launch(index, extra=()):
+        data = work / str(index)
+        data.mkdir(exist_ok=True)
+        control = data / 'control'
+        control.mkdir(exist_ok=True)
+        (control / 'status.json').unlink(missing_ok=True)
+        log = open(work / f'{index}-{len(logs)}.log', 'w+')
+        logs.append(log)
+        command = ['bash', 'tools/client.sh', client, '--settings-path', str(data / 'settings.json'),
+                   '--data-path', str(data), '--control-dir', str(control), '--test-fast-combat', 'yes']
+        command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
+        command += list(extra)
+        process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        processes.append(process)
+        return process
+
+    def status(index):
+        path = work / str(index) / 'control' / 'status.json'
+        return json.loads(path.read_text()) if path.exists() else None
+
+    def wait(predicate, message, seconds=20):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            if predicate():
+                return
+            if any(p.poll() not in (None, 0, -signal.SIGTERM) for p in processes):
+                raise RuntimeError('Client failure: ' + message)
+            time.sleep(.08)
+        states = [(i, status(i)['status'] if status(i) else 'no status') for i in range(6)]
+        raise TimeoutError(message + ': ' + repr(states))
+
+    def control(index, kind, **values):
+        global serial
+        serial += 1
+        path = work / str(index) / 'control' / f'request-{serial:06}.json'
+        path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
+        path.with_suffix('.tmp').replace(path)
+
+    def send(index, action, accepted=True, **values):
+        previous = status(index)['result']
+        sequence = previous['Sequence'] if previous else 0
+        control(index, 'send', action=action, **values)
+        wait(lambda: status(index)['result'] and status(index)['result']['Sequence'] > sequence and not status(index)['pending'], 'Command acknowledgment: ' + action)
+        assert status(index)['result']['Accepted'] == accepted, status(index)['result']
+
+    def phase(expected, turn=None):
+        wait(lambda: all(status(i) and status(i)['state'] and status(i)['state']['Phase'] == expected and
+                         (turn is None or status(i)['state']['Turn'] == turn) for i in (0, 1)), expected)
+
+    def reconnect(expected_phase):
+        before = status(1)
+        player = before['player']
+        match = before['state']['MatchId']
+        last_sequence = before['result']['Sequence'] if before['result'] else 0
+        control(1, 'leave')
+        wait(lambda: status(1)['state'] is None, 'Guest returns to menu')
+        wait(lambda: not next(p for p in status(0)['state']['Players'] if p['Id'] == player)['Connected'], 'Authority observes disconnect')
+        control(1, 'reconnect')
+        wait(lambda: status(1)['connected'], 'Resume admission')
+        assert status(1)['player'] == player and status(1)['state']['MatchId'] == match
+        assert status(1)['state']['Phase'] == expected_phase
+        saved = json.loads((work / '1' / 'resume.json').read_text())
+        assert saved['NextSequence'] > last_sequence
+        if os.name != 'nt':
+            assert (work / '1' / 'resume.json').stat().st_mode & 0o777 == 0o600
+        print(client, 'reconnected during', expected_phase, flush=True)
+
+    try:
+        host = launch(0)
+        wait(lambda: status(0) and status(0)['connected'], 'Host')
+        guest = launch(1)
+        wait(lambda: status(1) and status(1)['connected'], 'Guest admission')
+        phase('Lobby')
+        # Ownership and duplicate handling use actual remote delivery.
+        control(1, 'probe', action='doctrine:merchant', owner=1, duplicate='yes')
+        wait(lambda: status(1)['result'] is not None, 'Unauthorized acknowledgment')
+        assert not status(1)['result']['Accepted']
+        assert 'own' in status(1)['result']['Message']
+        control(1, 'probe', action='doctrine:warden', owner=2, duplicate='yes')
+        wait(lambda: status(1)['result'] is not None and status(1)['result']['Accepted'], 'Duplicate acknowledgment')
+        # Protocol mismatch is rejected before any city is admitted.
+        bad = launch(2, ['--core-version', '-1'])
+        wait(lambda: status(2) and 'version' in status(2)['status'].lower(), 'Protocol refusal')
+        assert not status(2)['connected'] and status(2)['state'] is None
+        control(2, 'quit')
+        bad.wait(timeout=8)
+        send(1, 'start', accepted=False)
+        send(0, 'start')
+        phase('Building', 1)
+        reconnect('Building')
+        # A restarted client reuses its retained city and continues the sequence.
+        control(1, 'quit')
+        guest.wait(timeout=8)
+        wait(lambda: not status(0)['state']['Players'][1]['Connected'], 'Restart disconnect')
+        guest = launch(1)
+        wait(lambda: status(1) and status(1)['connected'], 'Process restart resume')
+        assert status(1)['player'] == 2
+        for index in (0, 1):
+            for slot, building in enumerate(['Farm', 'Barracks', 'MetalMine', 'Lumbermill']):
+                send(index, 'build', slot=slot, building=building, payment='GoldRecovery' if slot == 3 else 'Standard')
+        for turn in (2, 3):
+            send(0, 'ready')
+            send(1, 'ready')
+            phase('Building' if turn == 2 else 'Preparation', turn)
+            for index in (0, 1):
+                send(index, 'recruit', slot=1)
+                send(index, 'recruit', slot=1)
+        wait(lambda: all(len(status(i)['state']['Players'][1]['Soldiers']) == 4 for i in (0, 1)), 'Authoritative recruitment baseline before retry')
+        accepted = status(1)['result']['Sequence']
+        city = status(1)['state']['Players'][1]
+        before_retry = (city['Resources'], [u['Id'] for u in city['Soldiers']])
+        reconnect('Preparation')
+        control(1, 'retry')
+        wait(lambda: status(1)['result'] is not None and not status(1)['pending'], 'Accepted command retry after reconnect')
+        assert status(1)['result']['Accepted'] and status(1)['result']['Sequence'] == accepted
+        city = status(1)['state']['Players'][1]
+        assert (city['Resources'], [u['Id'] for u in city['Soldiers']]) == before_retry
+        send(0, 'ready')
+        send(1, 'ready')
+        phase('Combat')
+        tick = status(0)['state']['Tick']
+        reconnect('Combat')
+        assert status(0)['state']['Tick'] > tick
+        phase('RewardDraft', None)
+        reconnect('RewardDraft')
+        for index in (0, 1):
+            offer = status(index)['state']['Players'][index]['Run']['Offers'][0]
+            send(index, 'reward:' + offer)
+        phase('Building', 1)
+        assert status(0)['state']['Wave'] == 2
+        reconnect('Building')
+        # Invalid credentials and expired match cannot create additional cities.
+        original = (work / '1' / 'resume.json').read_text()
+        control(1, 'leave')
+        wait(lambda: status(1)['state'] is None, 'Leave before invalid resume')
+        for field, value in [('Token', '0' * 64), ('MatchId', uuid.uuid4().hex)]:
+            saved = json.loads(original)
+            saved[field] = value
+            (work / '1' / 'resume.json').write_text(json.dumps(saved))
+            control(1, 'reconnect')
+            wait(lambda: 'expired' in status(1)['status'].lower(), 'Invalid/expired resume refusal')
+            assert not status(1)['connected']
+            control(1, 'leave')
+            wait(lambda: status(1)['state'] is None and status(1)['status'] == 'Main menu', 'Rejected session cleanup')
+        (work / '1' / 'resume.json').write_text(original)
+        control(1, 'reconnect')
+        wait(lambda: status(1)['connected'], 'Valid resume after failed attempts')
+        # Fresh players cannot join a running match.
+        fresh = launch(3)
+        wait(lambda: status(3) and 'locked' in status(3)['status'].lower(), 'Mid-match admission refusal')
+        assert len(status(0)['state']['Players']) == 2
+        control(3, 'quit')
+        fresh.wait(timeout=8)
+        control(0, 'quit')
+        host.wait(timeout=8)
+        wait(lambda: not status(1)['connected'], 'Host shutdown')
+        # A new authority on the same endpoint is a new match, with a fresh four-city lobby.
+        control(1, 'leave')
+        wait(lambda: status(1)['state'] is None, 'Old match cleanup')
+        (work / '1' / 'resume.json').unlink()
+        host = launch(0)
+        wait(lambda: status(0) and status(0)['connected'], 'Replacement authority')
+        control(1, 'reconnect')
+        wait(lambda: status(1)['connected'], 'Fresh authority admission')
+        third = launch(2)
+        wait(lambda: status(2) and status(2)['connected'], 'Third lobby player')
+        fourth = launch(3)
+        wait(lambda: status(3) and status(3)['connected'], 'Fourth lobby player')
+        fifth = launch(4)
+        wait(lambda: status(4) and 'full' in status(4)['status'].lower(), 'Fifth player refused')
+        assert [p['Id'] for p in status(0)['state']['Players']] == [1, 2, 3, 4]
+        control(3, 'quit'); fourth.wait(timeout=8)
+        wait(lambda: not status(0)['state']['Players'][3]['Connected'], 'Lobby leave retained city')
+        control(0, 'quit'); host.wait(timeout=8)
+        wait(lambda: not status(2)['connected'], 'Host leaving lobby')
+        absent = launch(5)
+        wait(lambda: status(5) and ('timed out' in status(5)['status'].lower() or 'unavailable' in status(5)['status'].lower()), 'Missing authority fails connection', seconds=22)
+        assert not status(5)['connected'] and status(5)['state'] is None
+        print(client, 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/draft resume, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
+    finally:
+        for process in processes:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGTERM)
+        cleanup_deadline = time.monotonic() + 3
+        for process in processes:
+            try:
+                process.wait(timeout=max(.05, cleanup_deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.wait(timeout=5)
+        destination = ROOT / 'artifacts' / 'test-logs'
+        destination.mkdir(parents=True, exist_ok=True)
+        diagnostic_errors = []
+        for index, log in enumerate(logs):
+            log.flush(); log.seek(0)
+            text = log.read()
+            (destination / f'{client}-reconnect-{index}.log').write_text(text)
+            print(text[-1200:])
+            if 'ERROR:' in text or 'Unhandled exception' in text:
+                diagnostic_errors.append(text)
+            log.close()
+        if diagnostic_errors:
+            raise RuntimeError('Engine diagnostics during process verification:\n' + '\n'.join(diagnostic_errors))

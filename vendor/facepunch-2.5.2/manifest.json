@@ -1,0 +1,12 @@
+{
+  "release": "2.5.2",
+  "url": "https://github.com/Facepunch/Facepunch.Steamworks/releases/tag/2.5.2",
+  "archive_sha256": "83ef0b8b07bd5545c3732c65011f0baa9bf003cb53c2279c56397270368bca22",
+  "files": {
+    "Facepunch.Steamworks.Posix.dll": "983fa6e00291e18cb58e31369a21c12f7f1961f33ceaf6bb2efb5616d0c67694",
+    "Facepunch.Steamworks.Win64.dll": "11de6033ec2009c418c23428c2e64d03c729b95691fb29bacc3b145aa4a4ead5",
+    "Facepunch.Steamworks.Posix.xml": "37b4368410d9e9e026d3db9ca72ac4e88415c57b58b16d7b89828c3c3c9cc003",
+    "linux-x64/libsteam_api.so": "b343f8be18ad3b2ddb26f64f157f0cb6a8f84777f129160c7fb2cf83d6aba787",
+    "win-x64/steam_api64.dll": "670d654aa3255c5061cf0236a1cdbb2f5076cbd5ae44f613b6f4921558e83e2d"
+  }
+}

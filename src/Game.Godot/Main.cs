@@ -8,7 +8,7 @@ namespace Game.GodotClient;
 /// <summary>Godot presentation only: every edit goes through SoloSession.</summary>
 public partial class Main : Node2D
 {
-    private SoloSession _session = null!;
+    private GodotSession _session = null!;
     private RenderOptions _options = null!;
     private readonly HexProjection _settlement = new(65);
     private readonly HexProjection _arena = new(30);
@@ -38,16 +38,32 @@ public partial class Main : Node2D
         try
         {
             _args = OS.GetCmdlineUserArgs();
+            if (_args.Contains("--check-steam-extension"))
+            {
+                Require(Engine.HasSingleton("Steam") && ClassDB.ClassExists("SteamMultiplayerPeer"), "pinned GodotSteam extension loaded");
+                using var peer = ClassDB.Instantiate("SteamMultiplayerPeer").AsGodotObject() as MultiplayerPeer;
+                Require(peer is not null, "native Steam peer converts to C# MultiplayerPeer");
+                foreach (string method in new[] { "create_host", "create_client", "get_steam_id_for_peer_id" })
+                    Require(peer!.HasMethod(method), "Steam peer API: " + method);
+                var api = Engine.GetSingleton("Steam");
+                foreach (string method in new[] { "steamInitEx", "run_callbacks", "initRelayNetworkAccess", "activateGameOverlayInviteDialog", "getLobbyOwner", "setLobbyData", "getNumLobbyMembers", "getLobbyMemberByIndex", "inviteUserToLobby", "getFriendRelationship", "getLaunchCommandLine" })
+                    Require(api.HasMethod(method), "GodotSteam API: " + method);
+                foreach (string signal in new[] { "lobby_created", "lobby_joined", "join_requested" }) Require(api.HasSignal(signal), "Steam signal: " + signal);
+                GD.Print("GODOT_STEAM_ABI_PASS extension=4.22.1 engine=" + Engine.GetVersionInfo()["string"]);
+                GetTree().Quit(); return;
+            }
             if (Argument("--width") is { } width && Argument("--height") is { } height) GetWindow().Size = new Vector2I(int.Parse(width), int.Parse(height));
             _options = RenderOptions.Parse(_args);
             if (Argument("--assets-root") is null) _options = _options with { AssetsRoot = AssetDirectory("sprites") };
             InitializeMusic();
             string? checkpoint = Argument("--checkpoint");
-            _session = checkpoint is null ? new SoloSession() : ScenarioRunner.CreateAt(checkpoint);
-            if (checkpoint is null) _session.Start();
+            if (checkpoint is not null) _session = WrapSolo(ScenarioRunner.CreateAt(checkpoint));
             _frozen = checkpoint is not null;
             CreateUi();
-            RefreshUi(true);
+            CreateSessionMenu();
+            if (Argument("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
+            else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
+            else if (_session is null) ReturnToMenu(); else RefreshUi(true);
             QueueRedraw();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             if (_args.Contains("--smoke-test")) await SmokeIntegration();
@@ -60,7 +76,7 @@ public partial class Main : Node2D
                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(absolute)!);
                 Error result = GetViewport().GetTexture().GetImage().SavePng(absolute);
                 if (result != Error.Ok) throw new InvalidOperationException($"Viewport capture failed: {result}");
-                GD.Print($"GODOT_CAPTURE {absolute} phase={_session.Snapshot.Phase} mode={_options.Mode}");
+                GD.Print($"GODOT_CAPTURE {absolute} phase={_session?.Snapshot.Phase} mode={_options.Mode}");
                 await QuitAfterAudioDrain();
             }
             else if (_args.Contains("--smoke-test")) await QuitAfterAudioDrain();
@@ -85,7 +101,7 @@ public partial class Main : Node2D
     private void CreateUi()
     {
         var layer = new CanvasLayer(); AddChild(layer);
-        var root = new Control(); layer.AddChild(root); root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var root = new Control(); _gameUi = root; layer.AddChild(root); root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         root.MouseFilter = Control.MouseFilterEnum.Ignore;
         var theme = new Theme { DefaultFontSize = 16 }; root.Theme = theme;
         var header = new PanelContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -106,7 +122,7 @@ public partial class Main : Node2D
         _ready = Button("Advance preparation / Ready", () => Act(() => _session.Send("ready"))); column.AddChild(_ready);
         _combatInfo = WrapLabel(); column.AddChild(_combatInfo);
         column.AddChild(Button("Reset camera [R]", ResetCamera));
-        column.AddChild(Button("New solo game", () => { ReplaceSession(new SoloSession()); _session.Start(); _frozen = false; RefreshUi(true); }));
+        column.AddChild(Button("Return to main menu", ReturnToMenu));
         column.AddChild(WrapLabel("Select: left click • Pan: middle/right drag\nZoom: wheel • Reset: R\nOpening: Farm, Barracks, Metal Mine.\nAt zero wood, use Lumbermill recovery.\nReady, recruit two Swordsmen; Ready, recruit two more; Ready to fight.\nReady settles real resource production."));
         var footer = new PanelContainer(); root.AddChild(footer); footer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomWide); footer.OffsetTop = -44;
         _message = WrapLabel("Choose a settlement plot. All actions use the shared authoritative simulation."); footer.AddChild(Margin(_message, 10));
@@ -117,6 +133,10 @@ public partial class Main : Node2D
         draftColumn.AddChild(new Label { Text = "WAVE COMPLETE — CHOOSE ONE REWARD", Modulate = _gold });
         _cards = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; draftColumn.AddChild(_cards);
         _draft.Visible = false;
+        var menu = Button("Main menu", ReturnToMenu); root.AddChild(menu);
+        menu.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopRight);
+        menu.OffsetLeft = -260; menu.OffsetRight = -140; menu.OffsetTop = 12; menu.OffsetBottom = 48;
+        column.AddChild(Button("Reconnect", ReconnectCurrent));
         CreateAudioUi(root);
     }
 
@@ -137,33 +157,42 @@ public partial class Main : Node2D
     {
         var button = new Button { Text = text, CustomMinimumSize = new Vector2(0, 36) }; button.Pressed += clicked; return button;
     }
-    private void Act(Func<CommandResult> action)
+    private void Act(Action action)
     {
-        CommandResult result = action(); _message.Text = result.Message;
-        _message.Modulate = result.Accepted ? _ink : new Color("ffb3a6");
+        action();
         _frozen = false; RefreshUi(true); QueueRedraw();
     }
-    private void ReplaceSession(SoloSession session) { _session.Dispose(); _session = session; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _effects.Clear(); _uiKey = ""; ResetCamera(); }
+    private GodotSession WrapSolo(SoloSession solo) { var session = new GodotSession { Name = "Session" }; AddChild(session); session.Solo(solo); return session; }
+    private void ReplaceSession(SoloSession session) { LeaveSteam(); _session?.Dispose(); _session = WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _effects.Clear(); _uiKey = ""; ResetCamera(); }
     private void ResetCamera() { _pan = Vector2.Zero; _zoom = 1; QueueRedraw(); }
 
     public override void _Process(double delta)
     {
+        ProcessSteam();
+        RunControlProbe();
         if (_session is null || _resources is null) return;
         _time += delta;
         if (!_frozen) _session.Advance(delta);
+        if (!_session.HasState) { RefreshSessionMenu(); return; }
         foreach (CombatEvent entry in _session.Playback.Drain()) _effects.Add((entry, _time + .55));
         _effects.RemoveAll(e => e.Until < _time);
+        RunNetworkProbe();
         RefreshUi(); QueueRedraw();
     }
 
     private void RefreshUi(bool force = false)
     {
+        if (_session is null || !_session.HasState) { RefreshSessionMenu(); return; }
+        _message.Text = _session.Pending ? "Waiting for authority…" : (!_session.Connected ? _session.Status : _session.LastResult?.Message ?? _session.Status);
+        _sessionMenu.Visible = _session.Snapshot.Phase == Phase.Lobby;
+        _gameUi.Visible = !_sessionMenu.Visible;
+        RefreshSessionMenu();
         var state = _session.Snapshot; var city = _session.City;
         _phase.Text = $"Wave {state.Wave}/{state.TotalWaves}  •  {state.Phase}  •  preparation {state.Turn}  •  city HP {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}  •  {_options.Mode}";
         _resources.Text = $"Gold {city.Gold}   Wood {city.Wood}   Food {city.Food}   Stone {city.Stone}   Metal {city.Metal}   Cloth {city.Cloth}   •   Swordsmen {city.Soldiers.Count(u => u.Type == UnitType.Swordsman)}";
         _ready.Visible = state.Phase != Phase.Combat;
         _production.Visible = state.Phase != Phase.Combat; _actions.Visible = state.Phase != Phase.Combat;
-        _ready.Disabled = state.Phase is not (Phase.Building or Phase.Preparation);
+        _ready.Disabled = !_session.Connected || state.Phase is not (Phase.Building or Phase.Preparation);
         _combatInfo.Text = state.Phase == Phase.Combat ? $"Automatic combat • tick {state.Tick}\nBlue: friendly  Red: enemy\nLiving friends: {city.Soldiers.Count(u => u.Health > 0)}  Enemies: {state.Enemies.Count(u => u.Health > 0)}"
             + "\n\n" + string.Join("\n", city.Soldiers.Concat(state.Enemies).Where(u => u.Health > 0)
                 .Select(u => $"{(u.Faction == Faction.Adventurers ? "S" : "E")}{u.Id} {(u.Faction == Faction.Adventurers ? "" : "Enemy ")}{u.Type} HP: {HealthPoints.Format(u.Health)}/{HealthPoints.Format(u.Profile.Health)}"))
@@ -178,7 +207,7 @@ public partial class Main : Node2D
         {
             var slot = city.Slots[slotIndex];
             _selection.Text = $"PLOT {slotIndex + 1}\n{(slot.Purchased ? slot.Type == Building.Empty ? "Empty plot" : $"{slot.Type} — level {slot.Level}" : "Unpurchased plot")}";
-            bool editable = state.Phase is Phase.Building or Phase.Preparation;
+            bool editable = _session.Connected && state.Phase is Phase.Building or Phase.Preparation;
             if (!editable) _actions.AddChild(WrapLabel("Settlement actions are available during preparation."));
             else if (!slot.Purchased) _actions.AddChild(Button("Buy plot", () => Act(() => _session.Send("buy-plot", slotIndex))));
             else if (slot.Type == Building.Empty)
@@ -219,7 +248,7 @@ public partial class Main : Node2D
                 var content = new VBoxContainer(); panel.AddChild(Margin(content, 15));
                 content.AddChild(WrapLabel(card.Name)); content.AddChild(WrapLabel(card.Rarity.ToString()));
                 content.AddChild(WrapLabel(card.Effect + (card.Multiplied ? $"\nResources multiplied by {RunEffects.Multiplier(city.Run.DraftWave)}." : "")));
-                var choose = Button("Choose reward", () => Act(() => _session.ChooseReward(id))); content.AddChild(choose);
+                var choose = Button("Choose reward", () => Act(() => _session.ChooseReward(id))); choose.Disabled = !_session.Connected; content.AddChild(choose);
                 _rewardButtons.Add(choose); _cards.AddChild(panel);
             }
     }
@@ -238,7 +267,7 @@ public partial class Main : Node2D
 
     public override void _Draw()
     {
-        if (_session is null) return;
+        if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby) return;
         if (_session.Snapshot.Phase == Phase.Combat) DrawCombat(); else DrawSettlement();
     }
     private void DrawSettlement()
@@ -379,7 +408,7 @@ public partial class Main : Node2D
     }
     public override void _UnhandledInput(InputEvent input)
     {
-        if (_session is null) return;
+        if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby) return;
         if (_settingsOverlay.Visible) return;
         if (input is InputEventKey { Pressed: true, Keycode: Key.R }) ResetCamera();
         if (input is InputEventMouseButton mouse)
@@ -407,6 +436,7 @@ public partial class Main : Node2D
 
     private async Task SmokeIntegration()
     {
+        SmokeSessionLifecycle();
         ulong musicPlayer = _music.GetInstanceId();
         string checkpoint = Argument("--checkpoint") ?? "settlement";
         ReplaceSession(new SoloSession()); _session.Start(); RefreshUi(true);
@@ -454,6 +484,7 @@ public partial class Main : Node2D
         _audioSettings?.Save();
         ShutdownMusic();
         _session?.Dispose();
+        DisposeSteam();
         foreach (var texture in _textures.Values) texture?.Dispose();
     }
 }

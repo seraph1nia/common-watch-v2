@@ -12,7 +12,7 @@ using Label = Gum.Forms.Controls.Label;
 
 namespace Game.MonoGameClient;
 
-public sealed class WatchGame : Microsoft.Xna.Framework.Game
+public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
 {
     readonly GraphicsDeviceManager graphics;
     readonly RenderOptions options;
@@ -20,12 +20,13 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
     readonly bool smoke;
     readonly string audioRoot, settingsPath;
     readonly bool captureSettings;
+    readonly string[] arguments;
     AudioSettings audioSettings = null!;
     LoopingMusic music = null!;
     MusicSettingsMenu settingsMenu = null!;
     KeyboardState previousKeyboard;
     bool checkpointFrozen;
-    SoloSession session;
+    MonoSession session = null!;
     ShapeCanvas canvas = null!;
     OptionalSprites sprites = null!;
     readonly HexProjection settlementProjection = new(66);
@@ -52,6 +53,7 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
 
     public WatchGame(string[] args)
     {
+        arguments = args;
         options = RenderOptions.Parse(args);
         string? Arg(string name)
         {
@@ -67,7 +69,7 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         settingsPath = Arg("--settings-path") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "common-watch", "settings.json");
         string? checkpoint = Arg("--checkpoint");
         checkpointFrozen = checkpoint is not null;
-        session = ScenarioRunner.CreateAt(checkpoint ?? "initial");
+        if (checkpoint is not null) session = new MonoSession(ScenarioRunner.CreateAt(checkpoint));
         graphics = new(this)
         {
             PreferredBackBufferWidth = int.Parse(Arg("--width") ?? "1280"),
@@ -112,7 +114,7 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         AddButton("Upgrade selected building", () => Submit("upgrade"));
         ready = AddButton("Advance preparation / ready", () => Submit("ready", selected: false));
         AddButton("Reset camera [R]", ResetCamera);
-        AddButton("New game", () => ReplaceSession(ScenarioRunner.CreateAt("initial")));
+        AddButton("Return to main menu", ReturnToMenu);
         hintText = new Label { Width = 310, Height = 90 };
         hintText.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.Absolute;
         hintText.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
@@ -138,10 +140,17 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         music = new LoopingMusic(audioRoot, audioSettings.MusicVolume);
         settingsMenu = new MusicSettingsMenu(audioSettings, music);
         if (captureSettings) settingsMenu.SetOpen(true);
-        lastPhase = session.Snapshot.Phase;
+        var menuButton = new Button { Text = "Main menu", Width = 150, Height = 32, X = 740, Y = 15 };
+        menuButton.AddToRoot(); menuButton.Click += (_, _) => ReturnToMenu();
+        var reconnectButton = new Button { Text = "Reconnect", Width = 175, Height = 32, X = 740, Y = 52 };
+        reconnectButton.AddToRoot(); reconnectButton.Click += (_, _) => ReconnectCurrent();
+        CreateSessionMenu();
+        if (Arg("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
+        else if (Arg("--join") is { } endpoint) BeginJoin(endpoint);
+        lastPhase = session is { HasState: true } ? session.Snapshot.Phase : Phase.Lobby;
         UpdateUi();
         base.Initialize();
-        Console.WriteLine($"MonoGame initialized; rendering={options.Mode}; checkpoint={session.Snapshot.Phase}; {Window.ClientBounds.Width}x{Window.ClientBounds.Height}");
+        Console.WriteLine($"MonoGame initialized; rendering={options.Mode}; checkpoint={(session is { HasState: true } ? session.Snapshot.Phase : null)}; {Window.ClientBounds.Width}x{Window.ClientBounds.Height}");
     }
 
     TextRuntime NewText(float x, float y, float width)
@@ -172,29 +181,31 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         if (session.City.Run.Offers.ElementAtOrDefault(index) is { } id) session.ChooseReward(id);
         UpdateUi();
     }
-    void ReplaceSession(SoloSession next) { checkpointFrozen = false; session.Dispose(); session = next; effects.Clear(); ResetCamera(); UpdateUi(); }
+    void ReplaceSession(SoloSession next) { checkpointFrozen = false; session?.Dispose(); steamLobbies?.Leave(); session = new MonoSession(next); effects.Clear(); ResetCamera(); UpdateUi(); }
     void ResetCamera() { cameraPan = Vector2.Zero; cameraZoom = 1; }
 
     protected override void Update(GameTime gameTime)
     {
         frames++;
         elapsed += gameTime.ElapsedGameTime.TotalSeconds;
+        ProcessSteam();
         GumUI.Update(gameTime);
-        if (!checkpointFrozen && !smoke && !settingsMenu.IsOpen) session.Advance(gameTime.ElapsedGameTime.TotalSeconds);
+        RunControlProbe();
+        if (!checkpointFrozen && !smoke) session?.Advance(gameTime.ElapsedGameTime.TotalSeconds);
         MouseState mouse = Mouse.GetState();
-        bool overWorld = !settingsMenu.IsOpen && mouse.X < Window.ClientBounds.Width - SidebarWidth && mouse.Y > 112 && mouse.Y < Window.ClientBounds.Height - 42;
+        bool overWorld = session is { HasState: true } && session.Snapshot.Phase != Phase.Lobby && !settingsMenu.IsOpen && mouse.X < Window.ClientBounds.Width - SidebarWidth && mouse.Y > 112 && mouse.Y < Window.ClientBounds.Height - 42;
         if (overWorld)
         {
             if (mouse.RightButton == ButtonState.Pressed && previousMouse.RightButton == ButtonState.Pressed)
                 cameraPan += new Vector2(mouse.X - previousMouse.X, mouse.Y - previousMouse.Y);
             if (mouse.ScrollWheelValue != previousMouse.ScrollWheelValue)
                 cameraZoom = Math.Clamp(cameraZoom * MathF.Pow(1.12f, (mouse.ScrollWheelValue - previousMouse.ScrollWheelValue) / 120f), .5f, 2f);
-            if (mouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released && session.Snapshot.Phase != Phase.Combat && session.Snapshot.Phase != Phase.RewardDraft)
+            if (mouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released && session!.Snapshot.Phase != Phase.Combat && session.Snapshot.Phase != Phase.RewardDraft)
                 SelectAt(new(mouse.X, mouse.Y));
         }
         KeyboardState keys = Keyboard.GetState();
         if (keys.IsKeyDown(Keys.Escape) && previousKeyboard.IsKeyUp(Keys.Escape))
-        { if (settingsMenu.IsOpen) settingsMenu.SetOpen(false); else Exit(); }
+        { if (settingsMenu.IsOpen) settingsMenu.SetOpen(false); else ReturnToMenu(); }
         if (keys.IsKeyDown(Keys.F10) && previousKeyboard.IsKeyUp(Keys.F10)) settingsMenu.SetOpen(!settingsMenu.IsOpen);
         previousKeyboard = keys;
         if (!settingsMenu.IsOpen)
@@ -207,11 +218,18 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
             if (keys.IsKeyDown(Keys.Down)) cameraPan.Y -= move;
         }
         previousMouse = mouse;
+        if (session is null || !session.HasState)
+        {
+            UpdateUi();
+            if (smoke && frames == 4) RunSmoke();
+            base.Update(gameTime); return;
+        }
         if (lastPhase != session.Snapshot.Phase) { ResetCamera(); lastPhase = session.Snapshot.Phase; }
         foreach (CombatEvent entry in session.Playback.Drain())
             if (entry.Unit is { } unit && entry.Type is CombatEventType.Hit or CombatEventType.Death)
                 effects.Add((CombatVisuals.Position(unit, session.Snapshot, session.Playback.Tick, combatProjection.Radius).ToXna(), entry.Type == CombatEventType.Death ? "fallen" : "-" + HealthPoints.Format(entry.Damage), elapsed + .9));
         effects.RemoveAll(effect => effect.Until < elapsed);
+        RunNetworkProbe();
         UpdateUi();
         if (smoke && frames == 4) RunSmoke();
         if (smokeCompleted && frames > 12) Exit();
@@ -245,15 +263,16 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
     void UpdateUi()
     {
         if (sidebar is null) return;
+        if (RefreshSessionMenu()) return;
         MatchSnapshot snapshot = session.Snapshot; CityState city = session.City;
         int width = Window.ClientBounds.Width, height = Window.ClientBounds.Height;
         title.Text = "THE COMMON WATCH  /  MonoGame + Gum";
         resources.Text = $"Gold {city.Gold}    Wood {city.Wood}    Food {city.Food}    Stone {city.Stone}    Metal {city.Metal}    Cloth {city.Cloth}    Keep HP {HealthPoints.Format(city.Health)}";
         status.Text = $"Wave {snapshot.Wave}   |   {snapshot.Phase}   |   Preparation {snapshot.Turn}   |   Soldiers {city.Soldiers.Length}   |   {options.Mode}   |   {(music.Loaded ? "Music on" : "Music unavailable - see Settings")}";
         footer.Y = height - 35;
-        footer.Text = $"{session.LastResult?.Message ?? "Select a settlement hex. Build an economy, recruit, then ready for battle."}    /    Pan: right drag or arrows  |  Zoom: wheel  |  Reset: R";
+        footer.Text = $"{(!session.Connected ? session.Status : session.Pending ? "Waiting for authority…" : session.LastResult?.Message) ?? "Select a settlement hex. Build an economy, recruit, then ready for battle."}    /    Pan: right drag or arrows  |  Zoom: wheel  |  Reset: R";
         sidebar.X = width - SidebarWidth + 12;
-        sidebar.IsEnabled = !settingsMenu.IsOpen;
+        sidebar.IsEnabled = !settingsMenu.IsOpen && session.Connected;
         sidebar.Visual.Visible = !settingsMenu.IsOpen && snapshot.Phase is not (Phase.RewardDraft or Phase.Combat);
         combatRoster.Visible = !settingsMenu.IsOpen && snapshot.Phase == Phase.Combat;
         combatRoster.X = width - SidebarWidth + 15;
@@ -271,7 +290,7 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         ready.IsEnabled = snapshot.Phase is Phase.Building or Phase.Preparation;
         for (int i = 0; i < rewardPanels.Count; i++)
         {
-            rewardButtons[i].IsEnabled = !settingsMenu.IsOpen;
+            rewardButtons[i].IsEnabled = !settingsMenu.IsOpen && session.Connected;
             rewardPanels[i].Visual.Visible = !settingsMenu.IsOpen && snapshot.Phase == Phase.RewardDraft;
             rewardPanels[i].X = (width - 920) / 2f + i * 310 + 12;
             rewardPanels[i].Y = Math.Max(170, (height - 390) / 2f);
@@ -289,14 +308,14 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         GraphicsDevice.Clear(new Color(16, 24, 32));
         labelCount = 0;
         canvas.Begin();
-        if (!settingsMenu.IsOpen)
+        if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase != Phase.Lobby)
         {
             if (session.Snapshot.Phase == Phase.Combat) DrawCombat(); else if (session.Snapshot.Phase != Phase.RewardDraft) DrawSettlement();
         }
         canvas.Rect(0, 0, Window.ClientBounds.Width, 111, new(23, 35, 47));
         canvas.Rect(Window.ClientBounds.Width - SidebarWidth, 112, SidebarWidth, Window.ClientBounds.Height - 112, new(25, 36, 49));
         canvas.Rect(0, Window.ClientBounds.Height - 42, Window.ClientBounds.Width, 42, new(12, 18, 25));
-        if (!settingsMenu.IsOpen && session.Snapshot.Phase == Phase.RewardDraft)
+        if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase == Phase.RewardDraft)
         {
             canvas.Rect(0, 112, Window.ClientBounds.Width, Window.ClientBounds.Height - 154, new(15, 22, 34));
             for (int i = 0; i < 3; i++) canvas.Rect(rewardPanels[i].X - 12, rewardPanels[i].Y - 15, 290, 380, new(42, 54, 72));
@@ -306,6 +325,9 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
         canvas.End();
         for (int i = labelCount; i < worldLabels.Count; i++) worldLabels[i].Visible = false;
         GumUI.Draw();
+        if (!probeCaptured && Arg("--network-test") is { } count && Arg("--lobby-capture") is { } lobbyCapture
+            && session is { HasState: true } && session.Snapshot.Phase == Phase.Lobby && session.Snapshot.Players.Length == int.Parse(count))
+        { probeCaptured = true; SaveCapture(lobbyCapture); }
         if (capturePath is not null && frames >= 8)
         {
             SaveCapture(capturePath);
@@ -408,6 +430,8 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
     void RunSmoke()
     {
         void Check(bool condition, string message) { if (!condition) throw new InvalidOperationException("SMOKE FAILED: " + message); }
+        SmokeSessionLifecycle();
+        ReplaceSession(ScenarioRunner.CreateAt("initial"));
         long settingsRevision = session.Snapshot.Revision, settingsTick = session.Snapshot.Tick;
         settingsMenu.OpenButton.PerformClick();
         Check(settingsMenu.IsOpen, "Gum settings open callback");
@@ -460,7 +484,7 @@ public sealed class WatchGame : Microsoft.Xna.Framework.Game
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing) { session.Dispose(); music?.Dispose(); sprites?.Dispose(); canvas?.Dispose(); }
+        if (disposing) { session?.Dispose(); steamLobbies?.Dispose(); music?.Dispose(); sprites?.Dispose(); canvas?.Dispose(); }
         base.Dispose(disposing);
     }
 }

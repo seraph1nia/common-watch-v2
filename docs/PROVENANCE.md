@@ -5,3 +5,13 @@
 No visual artwork has been imported or generated. Optional sprite directories intentionally start empty.
 
 `assets/audio/LVS04_11_Echoes_of_Valhalla_bpm82_loop.wav` and its accompanying README are copied unchanged from `src/Game/Assets/Music/` at the same pinned upstream revision. The track is **Echoes of Valhalla** by **LUShvalleySound**. The WAV SHA-256 is `3783f4deed1ecd7933a17538a1d880ffb04319f6e11f34dc66f2df7a05ab70b4`. See [the retained upstream music provenance](../assets/audio/README.md) for the owner's supplied-file history and the limits of the recorded licensing information; the music is not asserted to have the source code's GPL license.
+
+## Session work
+
+`src/Game.Shared/SnapshotPayload.cs` and `SessionFile.cs` adapt the original project's proven codec and private credential file behavior. `tests/Game.Godot.Session.Tests/SteamOperationStateTests.cs` adapts its callback-state regression tests. The authority remains the unchanged pinned import. Original lifecycle/RPC scene-reset infrastructure was not copied. New session implementations and tests are GPL-3.0-only.
+
+GodotSteam is copied unchanged from the original project's pinned `src/Game/addons/godotsteam` distribution: **v4.22.1-gde**, SDK **1.65**, upstream archive `godotsteam-4.22.1-gdextension-plugin-4.4.zip`. The retained manifest contains its URL, archive SHA-256 and individual library hashes; licenses/readme are retained under `src/Game.Godot/addons/godotsteam`.
+
+MonoGame uses official **Facepunch.Steamworks 2.5.2** release artifacts from <https://github.com/Facepunch/Facepunch.Steamworks/releases/tag/2.5.2>. Only the .NET 6 POSIX/Win64 assemblies, technical XML API documentation and matching Linux/Windows x64 Steam API redistributables were extracted. `vendor/facepunch-2.5.2/manifest.json` pins the release archive and individual SHA-256 hashes, and `LICENSE` retains the wrapper's MIT license. Steam API redistribution remains subject to Valve's applicable SDK terms; the redistributables are not asserted to be GPL source. The old Windows-only NuGet package was not substituted for the current official release. LiteNetLib **2.1.4** is resolved through pinned NuGet locks.
+
+No artwork was created, imported or extracted for the session work. Lobby captures are actual application frames. The original repository was read only.

@@ -2,14 +2,26 @@
 
 Verified on Linux x86_64 with .NET SDK 10.0.401, Godot .NET 4.7.2, MonoGame DesktopGL 3.8.4.1 and Gum.MonoGame 2026.1.31.1. Real graphics ran on owned Xvfb displays using Mesa llvmpipe OpenGL 4.6. Graphical integration uses silent audio backends; separate output checks used isolated PulseAudio sinks. No OS packages were installed.
 
-## Automated results
+## Session extension results
 
-- `mise run build`: complete solution, locked NuGet restore; zero warnings/errors.
-- `mise run test-core`: **40 passed**, none failed/skipped. Includes unchanged upstream authority/resource/hex-board tests and a deterministic, paid first-wave combat/draft regression.
-- Shared tests: **26 passed**, none failed/skipped. All six replay checkpoints, exact economy/recruitment, snapshot isolation, projection/hit testing, frozen/dead movement, cosmetic cohort positions, asset IDs/fallback, render-mode independence, and local audio preferences (clamping, persistence, mute and corrupt/inaccessible-file fallback).
-- `mise run test`: **68 passed** across all three test projects, none failed/skipped.
-- `mise run test-godot` and `mise run test-monogame`: passed actual graphical integration. Each test launches four processes: debug and sprites modes against empty and invalid sprite directories. Actual native UI callbacks cover selection, construction, recruitment, preparation, combat, draft and reward selection. Checks also resize and confirm debug performs zero sprite decode attempts. Integration transcripts are written to `artifacts/test-logs/`.
-- `mise run scenario post-draft artifacts/scenarios/post-draft.json`: recorded real authoritative wave-two state after legal command replay and reward selection.
+- `mise run build`: complete solution, pinned binary hash verification and locked NuGet restore; zero warnings/errors.
+- `mise run test`: **120 passed**, none failed/skipped: Core **40**, Shared **31**, Godot session **17**, MonoGame session **26**, graphical/process integration **6**. Ordinary tests require neither Steam initialization nor artwork.
+- Solo lifecycle checks in each actual client cover the main menu, doctrine selection, match start, legal construction/recruitment, combat, drafting, leaving during combat, resource cleanup and a new independent match. Existing settings, resize, music and optional-sprite fallback checks remain passing.
+- Real application processes completed **two-, three- and four-player** games independently for Godot ENet and MonoGame LiteNetLib. Every player used paid construction/recruitment, Core readiness, shared automatic combat and an individual reward draft. Final authoritative snapshots converged. Lobby frames were captured at `artifacts/captures/{godot,monogame}/lobby-{2,3,4}p.png`; four-player frames were inspected in both clients.
+- Each framework's real-network reconnect/fault exercise passed preparation, process-restart, combat and drafting reconnects; retained city identity; ongoing host combat; exact accepted-command retry without duplicate spending; unauthorized commands; duplicate commands; incompatible protocol; invalid/expired credentials; late admission rejection; four-city capacity; lobby departure and original-host shutdown. A replacement authority rejects the old match's credentials.
+- Supervisors allocate isolated ports and private data, bound execution, terminate owned process groups and clean temporary files. Graphical workers own their virtual display. Interactive development tasks retain normal display/audio.
+- Both clients passed graphical gameplay/lifecycle checks in debug and sprites modes with `COMMON_WATCH_STEAM_DISABLED=1`, including an explicit Steam startup request. Offline startup and LAN do not initialize the SDK.
+- The final aggregate transcript is `artifacts/test-logs/final-session-suite.log`. See [session commands and prerequisites](SESSIONS.md) for focused tests and reproducible multi-process launches.
+
+Godot keeps native RPC/ENet sessions separate from rendering; MonoGame keeps LiteNetLib and Steam Sockets delivery separate from Gum and SpriteBatch. Both use the unchanged Core authority. Solo avoids a network socket. The shared additions are bounded snapshot serialization and private resume-file storage, not a shared transport framework.
+
+## Steam verification boundary
+
+GodotSteam 4.22.1 GDExtension binaries load with pinned Godot 4.7.2 .NET; an actual headless native ABI check verified C# Steam peer conversion and every SDK method/signal used. MonoGame compiles against official Facepunch 2.5.2 POSIX/Win64 assemblies under .NET 10; its offline native-load check resolves the current Steam SDK initialization export without initializing Steam. Vendored binary manifests and licenses are preserved and checked by the build.
+
+Offline tests cover operation ordering/cancellation, timeouts, duplicate invitations, late callbacks, session replacement, missing Steam, V2 metadata, immutable original hosts and authenticated-identity rules. Steam integration includes private lobbies, invitations, original-host validation, authenticated transports, reconnect and shutdown. MonoGame uses Steam Networking Sockets relay APIs; Godot uses SteamMultiplayerPeer.
+
+**Native SDK initialization with eligible accounts, invitation delivery/acceptance, Steam gameplay, relay routing and authenticated reconnect have not been executed.** Loading libraries and passing mocked state machines do not qualify these features end to end. Explicitly gated native workers are provided for a pair of eligible accounts; [the native verification instructions](SESSIONS.md#native-steam-verification-gate) describe authorization, prerequisites and evidence. Steam remains unqualified until those checks run. No account credentials or fixed development AppID were added.
 
 ## Background music and settings
 
@@ -25,9 +37,9 @@ Actual settings-menu frames were captured and inspected at both 1280×720 and 19
 
 All four commands completed successfully on the Linux development host: `mise run build-godot-windows`, `build-godot-linux`, `build-monogame-windows`, and `build-monogame-linux`. Outputs under `artifacts/builds/<client>/<platform>/` are gitignored. Executables are confirmed x64 Windows PE or Linux ELF as appropriate; each folder contains a self-contained .NET runtime, game dependencies, the unchanged music WAV, optional sprite directories, license and provenance.
 
-Both Linux release folders were copied into temporary directories outside the checkout and launched from a different working directory with `DOTNET_ROOT` pointing to a nonexistent installation. Actual graphical smoke checks passed in **both rendering modes**, including the complete gameplay loop and music/settings checks. No source asset arguments were supplied: bundled music and sprites resolve beside the executable. Release transcripts are `artifacts/test-logs/{godot,monogame}-linux-release-{debug,sprites}.log`. Actual release settings captures were inspected at `artifacts/captures/{godot,monogame}/linux-release-settings.png`.
+Both Linux release folders were copied into temporary directories outside the checkout and launched from a different working directory with `DOTNET_ROOT` pointing to a nonexistent installation. Actual graphical smoke checks passed in **both rendering modes**, including the complete gameplay loop and music/settings checks. No source asset arguments were supplied: bundled music and sprites resolve beside the executable. The session-enabled release transcripts are `artifacts/test-logs/{godot,monogame}-release-session-{debug,sprites}.log`. The exported Godot bundle also passed its native extension ABI check (`godot-release-steam-abi.log`) without SDK initialization. Actual release settings captures were inspected at `artifacts/captures/{godot,monogame}/linux-release-settings.png`.
 
-The full `mise run test` was rerun after these changes: **68 passed**, none failed/skipped; complete build reported zero warnings/errors. All eight runtime-specific dependency lockfiles preserve the existing package versions. The unchanged 47-file Core import was checked byte-for-byte again. Windows outputs were built but have **not** been launched on Windows.
+All four release builds were repeated for the session extension. Matching Linux/Windows native Steam libraries and their licenses are bundled. Windows PE and Linux ELF architectures were checked. Existing package versions remain pinned; MonoGame runtime locks additionally pin LiteNetLib 2.1.4. The Core default and runtime-specific lockfiles were not regenerated. The unchanged 47-file Core import was checked byte-for-byte again. Windows outputs were built but have **not** been launched on Windows.
 
 Invalid-image fixtures are plain text in temporary files named `.png`, not manufactured artwork. In both clients, sprites mode exercised Farm and Swordsman fallback and debug ignored the same files. No game sprite or artwork was created, downloaded or copied.
 

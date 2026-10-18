@@ -163,6 +163,7 @@ public partial class Main
     {
         if (_quitting) return;
         _quitting = true;
+        _session?.Dispose(); _session = null!;
         ShutdownMusic();
         // AudioServer releases stopped WAV playback on its next mixing buffers.
         await ToSignal(GetTree().CreateTimer(.25), Godot.Timer.SignalName.Timeout);

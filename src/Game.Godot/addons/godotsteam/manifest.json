@@ -1,0 +1,23 @@
+{
+  "release": "v4.22.1-gde",
+  "steamworks_sdk": "1.65",
+  "archive": "godotsteam-4.22.1-gdextension-plugin-4.4.zip",
+  "url": "https://codeberg.org/godotsteam/godotsteam/releases/download/v4.22.1-gde/godotsteam-4.22.1-gdextension-plugin-4.4.zip",
+  "archive_sha256": "2b12b3499434c50da16104a0d22b725aee15cc5cd41223c1cea825bae59bfa8f",
+  "inspected": "2026-09-30",
+  "prerelease": false,
+  "published_at": "2026-09-04T03:32:46+02:00",
+  "repository_archived": false,
+  "repository_updated_at": "2026-09-25T06:55:20+02:00",
+  "publisher_stability": "unstable",
+  "files": {
+    "license.md": "4b72012dba000de1e0b4c0183e5ed99f4fe8e949f50e570442f692ce3995bae2",
+    "linux64/libgodotsteam.linux.template_debug.x86_64.so": "7d2d5e574390d66b4178b830a256031f9948ba37b1f00051ca8d28c359d39760",
+    "linux64/libgodotsteam.linux.template_release.x86_64.so": "7aaa02843e5bdb8bfec52cf43dab949663ff38255116956db51f438ec6a95cbe",
+    "linux64/libsteam_api.so": "659127fd3c36788162149006efb607ae24c08b7264259c7af52c806fa40c2b4f",
+    "readme.md": "1eff9de97d048348645c6a3927fca18c32a8d7a647dbc05cefbc0833e4cbc66c",
+    "win64/libgodotsteam.windows.template_debug.x86_64.dll": "da20924a9d29085c2256988b67de47003835910316712302e208e31c00f24b96",
+    "win64/libgodotsteam.windows.template_release.x86_64.dll": "b7a6316bb866691d01d311e181b76b0fe0c38602913725d1589083bee1db7f26",
+    "win64/steam_api64.dll": "8de54d32508e216c9135b8bf025749243d44e404c1c22a8e5fe35acecabe7a9c"
+  }
+}

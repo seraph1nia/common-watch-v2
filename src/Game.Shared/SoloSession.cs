@@ -8,6 +8,7 @@ public sealed class SoloSession : IDisposable
     public const ulong DefaultSeed = 20261018;
     private readonly AuthoritySession _authority;
     private long _sequence;
+    private bool _disposed;
     public int PlayerId => _authority.LocalPlayerId;
     public MatchSnapshot Snapshot { get; private set; }
     public CityState City => Snapshot.Players.Single(p => p.Id == PlayerId);
@@ -15,9 +16,9 @@ public sealed class SoloSession : IDisposable
     public CommandResult? LastResult { get; private set; }
     public int SelectedSlot { get; private set; } = -1;
 
-    public SoloSession(ulong seed = DefaultSeed)
+    public SoloSession(ulong seed = DefaultSeed, string? matchId = null)
     {
-        _authority = new(AuthorityPolicy.Solo, matchId: $"common-watch-{seed}", combatSeed: seed);
+        _authority = new(AuthorityPolicy.Solo, matchId: matchId ?? $"common-watch-{seed}", combatSeed: seed);
         Snapshot = _authority.Snapshot();
         Playback.Accept(Snapshot, baseline: true);
     }
@@ -32,6 +33,7 @@ public sealed class SoloSession : IDisposable
     public CommandResult Send(string action, int slot = -1, Building building = Building.Empty,
         UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         // Invalid selections reach authority validation without indexing the snapshot array.
         Command command = slot is >= -1 and < ArmyConfiguration.TotalPlots
             ? Command.FromSnapshot(Snapshot, ++_sequence, action, PlayerId, slot, building, soldierType, payment: payment)
@@ -42,12 +44,14 @@ public sealed class SoloSession : IDisposable
     }
     public void Advance(double seconds)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         _authority.Advance(seconds);
         Refresh();
         Playback.Advance(seconds, connected: true);
     }
     public void Step()
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         _authority.Step();
         Refresh();
         Playback.Advance(1.0 / Match.StepsPerSecond, connected: true);
@@ -58,5 +62,5 @@ public sealed class SoloSession : IDisposable
         Playback.Accept(Snapshot);
     }
     public void ResetPlayback() => Playback.Accept(Snapshot, baseline: true);
-    public void Dispose() => _authority.Dispose();
+    public void Dispose() { if (_disposed) return; _disposed = true; _authority.Dispose(); }
 }

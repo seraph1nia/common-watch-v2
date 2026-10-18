@@ -7,7 +7,9 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Game.Core.Tests/Game.Core.Tests.csproj" />
+    <Project Path="tests/Game.MonoGame.Session.Tests/Game.MonoGame.Session.Tests.csproj" />
     <Project Path="tests/Game.Shared.Tests/Game.Shared.Tests.csproj" />
+    <Project Path="tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj" />
     <Project Path="tests/Game.Integration.Tests/Game.Integration.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">

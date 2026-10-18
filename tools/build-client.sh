@@ -38,6 +38,14 @@ else
   dotnet publish src/Game.MonoGame/Game.MonoGame.csproj --no-restore -c Release -r "$rid" --self-contained true -p:PublishReadyToRun=false -o "$output"
 fi
 cp LICENSE "$output/LICENSE"
+mkdir -p "$output/licenses"
+if [[ "$client" == monogame ]]; then
+  cp vendor/facepunch-2.5.2/LICENSE "$output/licenses/Facepunch.Steamworks.LICENSE"
+  cp vendor/facepunch-2.5.2/manifest.json "$output/licenses/Facepunch.Steamworks.manifest.json"
+else
+  cp src/Game.Godot/addons/godotsteam/license.md "$output/licenses/GodotSteam.LICENSE"
+  cp src/Game.Godot/addons/godotsteam/manifest.json "$output/licenses/GodotSteam.manifest.json"
+fi
 mkdir -p "$output/docs"
 cp docs/PROVENANCE.md "$output/docs/PROVENANCE.md"
 echo "Built $client ($rid): $output"
