@@ -46,13 +46,16 @@ jobs:
           mise run test-art
 
       - name: Test offline Godot sessions and Steam integration
-        run: mise run test-godot-steam
+        run: mise run test-steam
 
       - name: Test Godot UI, multiplayer and reconnect on virtual displays
         run: >-
           mise exec -- dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj
-          --no-build --no-restore --filter 'Client=godot' --nologo
+          --no-build --no-restore --nologo
           --logger 'trx;LogFileName=godot.trx' --results-directory artifacts/test-results
+
+      - name: Test and capture deterministic combat animation
+        run: mise run test-animation
 
       - name: Install matching Godot Mono export templates
         env:
@@ -79,10 +82,10 @@ jobs:
           cp -a "$download_directory/templates/." "$template_directory/"
 
       - name: Build Linux x64 release
-        run: mise run build-godot-linux
+        run: mise run build-linux
 
       - name: Build Windows x64 release
-        run: mise run build-godot-windows
+        run: mise run build-windows
 
       - name: Archive complete release folders
         run: |
@@ -114,5 +117,7 @@ jobs:
           path: |
             artifacts/test-logs/
             artifacts/test-results/
+            artifacts/captures/godot/
+            artifacts/profiles/
           if-no-files-found: ignore
           retention-days: 7

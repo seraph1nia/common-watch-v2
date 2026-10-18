@@ -1,4 +1,4 @@
-# Pillow to native 2D clients
+# Pillow to Godot 2D
 
 The supplied archive was inspected for absolute paths, traversal and symlinks, then its four PNGs were extracted once into `art/source/`, retaining filenames and bytes. `art/manifests/provenance.json` records the archive hash, source hashes, RGBA modes and dimensions (all 1536 × 1024). The archive's README is retained unchanged. The archive is no longer an input: no archive discovery, extraction script, configuration or mise task exists.
 
@@ -41,27 +41,23 @@ Buildings use 512 × 512, units 256 × 256, resource icons 128 × 128 and the wo
 ## Views and modes
 
 ```sh
-mise run play-godot
-mise run play-monogame
-mise run play-godot-no-assets
-mise run play-monogame-no-assets
-mise run play-godot-assets -- --view angled
-mise run play-monogame-assets -- --view angled
+mise run play
+mise run play-assets -- --view angled
 ```
 
-Both clients accept `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are debug, topdown, plain and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
+The application accepts `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are debug, topdown, plain and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
 
-The `play-godot-assets` and `play-monogame-assets` tasks enable both world sprites and the illustrated nine-slice HUD. Append `-- --hud-art plain` to either task for plain controls, or `-- --view angled` for the angled world view.
+The `play-assets` task enables both world sprites and the illustrated nine-slice HUD. Append `-- --hud-art plain` to the task for plain controls, or `-- --view angled` for the angled world view.
 
-Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Each engine owns camera pan/zoom and native texture drawing; detached metadata and projection are shared; combat poses and graphics are independently owned by each engine. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
+Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Godot owns camera pan/zoom, native textures and combat presentation; detached metadata and logical projection remain engine independent. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
 
-Combat retains the original authoritative movement interpolation. Each engine samples idle, movement, five-stage melee, hit and death poses from playback timing. Native procedural shots, magic, statuses and structure effects accompany real events. No animation frames, rig or simulation writes were introduced. Debug figures receive equivalent transforms and effects. See [the combat animation experiment](COMBAT_ANIMATION.md) for actual captures, legal showcases and limitations.
+Combat retains the original authoritative movement interpolation. Godot samples idle, movement, five-stage melee, hit and death poses from playback timing. Native procedural shots, magic, statuses and structure effects accompany real events. No animation frames, rig or simulation writes were introduced. Debug figures receive equivalent transforms and effects. See [the combat animation experiment](COMBAT_ANIMATION.md) for actual captures, legal showcases and limitations.
 
 ## Nine-slice HUD
 
 Godot uses native `NinePatchRect` behind normal Controls. A non-Control parent keeps Container layout from resetting its scale. Native tooltip ownership supplies a skinned Control; labels, values, costs, reward descriptions and button interaction remain native UI.
 
-MonoGame uses Gum `NineSliceRuntime`, including native button backgrounds, with `CustomFrameTextureCoordinateWidth` and `BorderScale`. The pinned Gum version uses one source border width for both axes. Measured crops deliberately use equal margins around their actual ornaments, so no normalized duplicate texture or custom renderer is required:
+The source margins are retained in the catalog:
 
 | Skin | Source dimensions | Left / top / right / bottom | Native border scale |
 | --- | --- | --- | --- |
@@ -70,20 +66,18 @@ MonoGame uses Gum `NineSliceRuntime`, including native button backgrounds, with 
 | Button | 251 × 104 | 32 / 32 / 32 / 32 | 0.42 |
 | Tooltip | 241 × 97 | 30 / 30 / 30 / 30 | 0.50 |
 
-These are source-coordinate cuts, not destination padding. Scaling the native border leaves corners fixed at their intended display size. Text is inset separately. MonoGame premultiplies straight-alpha PNG pixels once for SpriteBatch/Gum. Tooltip text is sampled from the hovered logical settlement plot. Missing skins retain ordinary UI and contrasting text.
+These are source-coordinate cuts, not destination padding. Scaling the native border leaves corners fixed at their intended display size. Text is inset separately. Tooltip text is sampled from the hovered logical settlement plot. Missing skins retain ordinary UI and contrasting text.
 
 [The reusable nine-slice preview](../art/previews/nine-slice-preview.png) includes 160 × 48 button, 480 × 160 panel, 640 × 420 dialog and 260 × 390 card. [The contact sheet](../art/previews/contact-sheet.png) shows all thirteen cutouts.
 
 ```sh
-mise run art-showroom-godot
-mise run art-showroom-monogame
-mise run capture-godot-art
-mise run capture-monogame-art
+mise run art-showroom
+mise run capture-art
 ```
 
-Showrooms construct no authority and advance no match. They show assets near their game display sizes, anchors/bounds, a debug fallback and native nine-slices at the preview sizes with separate text. Godot's showroom can scroll; MonoGame's 1280 × 1080 showroom fits the full layout. Interactive tasks use normal audio; capture/check tasks own Xvfb and temporary audio settings.
+Showrooms construct no authority and advance no match. They show assets near their game display sizes, anchors/bounds, a debug fallback and native nine-slices at the preview sizes with separate text. The showroom scrolls at smaller viewport sizes. Interactive tasks use normal audio; capture/check tasks own Xvfb and temporary audio settings.
 
-Art captures are real application frames under `artifacts/captures/{godot,monogame}/art/`: `settlement-debug.png`, `settlement-angled.png`, `settlement-sprites.png`, `combat-sprites.png`, `hud-plain.png`, `hud-illustrated.png`, `nine-slice-small.png`, `nine-slice-large.png`, `asset-showroom.png`. Small/large checks use 1280 × 720 and 1920 × 1080; showroom is 1280 × 1080. Scenario captures use legal replay, never fabricated match state.
+Art captures are real application frames under `artifacts/captures/godot/art/`: `settlement-debug.png`, `settlement-angled.png`, `settlement-sprites.png`, `combat-sprites.png`, `hud-plain.png`, `hud-illustrated.png`, `nine-slice-small.png`, `nine-slice-large.png`, `asset-showroom.png`. Small/large checks use 1280 × 720 and 1920 × 1080; showroom is 1280 × 1080. Scenario captures use legal replay, never fabricated match state.
 
 ## Source limitations
 

@@ -9,7 +9,7 @@ mise exec -- dotnet run --project tools/scenarios -- draft /tmp/draft.json
 
 The CLI accepts a checkpoint and an optional JSON output path. Without a path,
 it prints JSON. The default checkpoint is `post-draft`; the seed is `20261018`.
-Both graphical clients use the same `ScenarioRunner.CreateAt` replay.
+The Godot application uses the same `ScenarioRunner.CreateAt` replay.
 
 | Checkpoint | Authoritative state |
 | --- | --- |

@@ -1,19 +1,10 @@
-# The Common Watch — two C# vertical slices
+# The Common Watch — Godot 2D
 
-Godot 2D and MonoGame DesktopGL/Gum clients share the original deterministic `Game.Core`. Both implement solo and host-authoritative 1–4 player sessions: lobby/doctrine selection → settlement → automatic shared combat → individual three-card reward draft → next preparation. Steam support is optional; native account verification remains unexecuted. Default presentation is permanently artwork independent: shapes and readable labels.
+A code-first C# game with a pure C# authoritative simulation and one Godot 2D application. Solo and host-authoritative 1–4 player sessions cover lobby/doctrine selection, settlement, shared automatic combat, individual reward drafting and wave progression. Optional GodotSteam integration remains unqualified with live accounts. The complete game defaults to shapes and readable text; artwork is optional.
 
 ## Setup
 
-Required tools are pinned in `mise.toml`/`mise.lock` and `global.json`:
-
-- mise; .NET SDK **10.0.401** (including the .NET 10 runtime).
-- Godot **4.7.2 .NET/Mono**, with its adjacent GodotSharp directory intact. The standard Godot edition cannot run C#.
-- Python 3 for process supervision and pinned binary checks; a local Pillow environment for art tests (`mise run art-setup`).
-- NuGet access for the initial restore. Package versions and transitive resolutions are committed in `packages.lock.json`.
-- A display and working OpenGL 3.3 driver for interactive play. MonoGame additionally uses SDL2/OpenAL native runtime libraries; package-native dependencies are resolved through NuGet where provided.
-- Linux automated graphical checks/captures require `Xvfb`, `xvfb-run`, `xauth`, `timeout` and Mesa software OpenGL. Tests use their own virtual displays and silent audio backends. Tasks never install OS packages or tool upgrades.
-
-From this directory:
+Tools are pinned in `mise.toml`, `mise.lock` and `global.json`: .NET SDK **10.0.401**, Godot **4.7.2 .NET** (keep its adjacent GodotSharp directory), Python 3 and Pillow **11.3.0**. Initial restore requires NuGet access. Keep committed dependency locks and versions unchanged during ordinary development.
 
 ```sh
 mise trust
@@ -23,115 +14,90 @@ mise run build
 mise run test
 ```
 
-Tool setup currently pins Linux x86_64, which is the verified capture/test platform. Windows and Linux x64 release builds are supported below; native Windows/macOS runtime qualification has not been performed. Install OS prerequisites yourself if missing; graphical commands report missing executables and fail instead of silently passing. `test-core` and `test-shared` need neither a display nor Godot.
+Interactive play requires a display and OpenGL 3.3 driver. Linux automated checks require existing `Xvfb`, `xvfb-run`, `xauth`, `timeout` and Mesa OpenGL; tasks never install system packages. Checks own their virtual displays, temporary settings and private session directories. Automated audio uses Godot's Dummy driver; interactive play uses normal audio. `test-core` and `test-shared` need no display, Godot startup, assets, Steam or audio hardware.
 
 ## Play
 
 ```sh
-mise run play-godot                 # default: shapes and text
-mise run play-monogame
-mise run play-godot-no-assets       # explicit: ignore sprite files
-mise run play-monogame-no-assets
-mise run play-godot-assets          # optional sprites and illustrated nine-slice HUD
-mise run play-monogame-assets
+mise run play                      # artwork-independent debug/plain defaults
+mise run play-assets               # optional sprites and illustrated HUD
+mise run dev-multiplayer           # supervised LAN host and guest
+mise run dev-multiplayer -- --players 4
+mise run play-steam                # optional; requires your authorized AppID
 ```
 
-Start with **Single player**, select a doctrine and **Start match**, or use **Host LAN** / **Join LAN**. See [sessions, multiplayer and Steam](docs/SESSIONS.md) for hosting, private reconnect data, Steam setup and all new test/dev commands.
+Choose **Single player**, a doctrine and **Start match**, or **Host LAN** / **Join LAN**. Left-click selects logical settlement plots; middle/right drag pans, wheel zooms and **R** resets the camera. Controls display authoritative results and rejection messages. Ready advances preparation and settles real production. Combat plays automatically; choose a reward after winning. Main menu leaves the authority, and a fresh match gets a new identity.
 
-Left-click a settlement hex to inspect/build/recruit. Right-drag pans in both clients (Godot also supports middle-drag), wheel zooms, and **R** resets the camera. Side-panel actions display the authoritative result or rejection reason. Advance/Ready settles production and advances the original preparation stages. Combat runs automatically on the separate shared arena. Choose one of three rewards after winning. Main menu disposes the current session; Single player creates a fresh authority.
+A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
-A tested legal opening under unchanged rules:
+Settings controls music volume, with zero muting. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
 
-1. Build **Farm** on plot 1, **Barracks** on plot 2 and **Metal Mine** on plot 3. These spend the six starting wood.
-2. Build **Lumbermill** on plot 4 using the **4 Gold recovery** construction action.
-3. Advance preparation; select Barracks and recruit **two Swordsmen**.
-4. Advance preparation again and recruit **two more Swordsmen**.
-5. Ready for combat. Win wave one and choose a reward to enter wave two.
+Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Thirteen supplied cutouts and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
-The Swordsmen require production from the Metal Mine. Insufficient resources, occupied plots and unavailable actions are rejected by Core. There is no client-side replacement economy or combat logic.
-
-Use **Main menu** to leave a session (also Escape in MonoGame), **Quit** from the menu, or close the window to exit.
-
-Both clients play the reference game's **Echoes of Valhalla** background music, including its intro and authored loop. Open **Settings** and adjust **Music volume**; **0%** mutes it. Changes apply immediately and are saved per client between launches. Opening settings or restarting a game keeps the existing track playing. Music works in both rendering modes and uses your normal audio device during interactive play; automated graphical checks use silent audio backends. The unchanged WAV and its original provenance are in [assets/audio](assets/audio/README.md).
-
-Both rendering modes use identical logical positions and gameplay. Thirteen cutouts from the supplied source sheets are installed; see the [Pillow artwork pipeline, showrooms and source limitations](docs/ARTWORK.md). Missing/corrupt files fall back to the same shapes. Debug/plain defaults never decode artwork. Enable the full presentation with `--world-art sprites --view angled --hud-art illustrated`; `--debug-overlay on` shows anchors and bounds. No replacement artwork was generated or downloaded.
-
-## Procedural combat experiment
+## Battle and artwork tools
 
 ```sh
-mise run battle-godot                 # animated figures, debug shapes by default
-mise run battle-monogame
-mise run battle-godot-assets          # the two existing character PNGs
-mise run battle-monogame-assets
-mise run test-godot-animation
-mise run test-monogame-animation
-mise run capture-godot-battle
-mise run capture-monogame-battle
+mise run battle
+mise run battle-assets
+mise run test-animation
+mise run capture-battle
+mise run profile-animation
+mise run review-battle
+mise run art-process
+mise run art-validate
+mise run art-install
+mise run art-preview
+mise run art-showroom
+mise run test-art
 ```
 
-Both clients independently sample idle, movement, melee, hit and death poses from authoritative playback. Native controls select legal swordsman, ranged/magic, status and structure replays; pause, speed, art and diagnostics remain presentation controls. Shots, magic, statuses and impacts are procedural. See [animation approach, controls, actual frame sequences and limitations](docs/COMBAT_ANIMATION.md). `mise run review-battle` creates a local interactive review from the captured PNGs and JSON receipts.
+Combat poses, shots, statuses, hits and deaths follow authoritative playback. Showcase scenarios are earned through legal commands. [Animation documentation](docs/COMBAT_ANIMATION.md) covers controls, receipts, captures and known static-sprite limitations.
 
-## Windows and Linux builds
+## Verification
 
 ```sh
-mise run build-godot-windows
-mise run build-godot-linux
-mise run build-monogame-windows
-mise run build-monogame-linux
+mise run build
+mise run test-core
+mise run test-shared
+mise run test                       # Pillow + all .NET and actual-process tests
+mise run test-session
+mise run test-multiplayer
+mise run test-reconnect
+mise run test-network-faults
+mise run test-steam                 # offline rules/state tests
+mise run test-steam-native -- host FRIEND_STEAM_ID  # explicitly gated
+mise run capture
+mise run capture-art
+mise run capture-lobby
 ```
 
-These create self-contained **x64 Release** builds under the gitignored `artifacts/builds/` directory:
-
-| Task | Output executable |
-| --- | --- |
-| `build-godot-windows` | `artifacts/builds/godot/windows/CommonWatch.exe` |
-| `build-godot-linux` | `artifacts/builds/godot/linux/CommonWatch.x86_64` |
-| `build-monogame-windows` | `artifacts/builds/monogame/windows/Game.MonoGame.exe` |
-| `build-monogame-linux` | `artifacts/builds/monogame/linux/Game.MonoGame` |
-
-Copy the **whole output folder** to the target machine. Each includes the .NET runtime, game dependencies, music, current optional sprites and provenance; no .NET installation or source checkout is needed to play. A working desktop graphics/audio environment is still required. Builds default to geometric presentation; pass `--render-mode sprites` to MonoGame, or `-- --render-mode sprites` to Godot, to enable bundled optional sprites. Assets resolve relative to the executable, independently of the working directory.
-
-Run build tasks from the project root with the pinned mise tools. Godot additionally requires its matching **4.7.2.stable.mono .NET export templates**, installed through Godot's **Manage Export Templates** dialog or unpacked into its standard `export_templates/4.7.2.stable.mono` directory. Tasks do not download templates or install system packages. NuGet access may be needed for the first self-contained publish. Runtime-specific dependency locks live in `tools/nuget-locks`; they preserve the original Core lockfile. Each task replaces only its own platform output folder.
-
-## GitHub Actions
-
-The separate [Godot](.github/workflows/godot.yml) and [MonoGame](.github/workflows/monogame.yml) workflows run on every push, pull request and manual dispatch. Both use the same `mise install --locked` setup on Ubuntu 24.04, build the solution, and run Core, shared and artwork-pipeline tests. Each also runs its client's offline session/Steam suite and actual graphical UI, multiplayer and reconnect tests on owned Xvfb displays, including both rendering modes and installed-art/fallback checks. Live Steam account tests remain explicitly gated.
-
-After all tests pass, each workflow cross-builds its client for Linux and Windows x64. The Godot workflow installs matching Mono export templates from the pinned upstream release and verifies their pinned upstream SHA-256 digest. Neither workflow installs system packages; missing graphical prerequisites fail the job.
-
-Download `common-watch-<client>-linux-x64.tar.gz` or `common-watch-<client>-windows-x64.zip` from the successful run's **Artifacts** section. Extract the entire archive; Linux tarballs preserve executable permissions. Bundles include the runtime, assets, licenses and provenance. Test diagnostics are retained separately for seven days, including on failure. Windows outputs are cross-built on Linux; these workflows do not qualify native Windows execution.
-
-## Test and capture
+[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the unchanged rules, with seed `20261018`.
 
 ```sh
-mise run build                     # locked restore and complete solution build
-mise run test-core                 # upstream authoritative rules + slice regressions
-mise run test-shared               # adapter, projection, assets and deterministic replay
-mise run test-godot                # real graphical integration, both modes
-mise run test-monogame             # real graphical integration, both modes
-mise run test                     # all of the above test suites
-mise run capture-godot
-mise run capture-monogame
-```
-
-Captures are actual application frames in `artifacts/captures/{godot,monogame}/`: `settlement.png`, `building-selected.png`, `combat.png`, `draft.png`. They default to debug mode and replay legal fixed-seed checkpoints. Capture/test commands always own an Xvfb display; they do not use the desktop session. Raw client options can be forwarded, for example:
-
-```sh
-mise run capture-godot -- --width 1920 --height 1080
-mise run play-monogame -- --checkpoint draft
-mise run play-godot-assets -- --assets-root /absolute/path/to/sprites
+mise run capture -- --width 1920 --height 1080
+mise run play-assets -- --checkpoint draft --view angled
 mise run scenario post-draft artifacts/scenarios/post-draft.json
 ```
 
-Checkpoints: `initial`, `settlement` (four buildings), `building-selected`, `battle-start`, `combat` (first real attack), `draft`, `post-draft`. A checkpoint freezes automatic advancement for capture inspection; gameplay actions resume it. The scenario runner records a snapshot and selection from legal replay, without opening a graphics client. The seed is `20261018`.
+## Distribution and CI
 
-## Layout and rules boundary
+```sh
+mise run build-linux
+mise run build-windows
+```
 
-- `src/Game.Core`: unchanged upstream rules and Arch ECS; independently buildable with `mise exec -- dotnet build src/Game.Core/Game.Core.csproj`.
-- `src/Game.Shared`: solo authority adapter, replay, bounded snapshot codec, private command/credential files, hex projection/hit testing, visual IDs and render options. It contains no transport abstraction. No graphical framework references.
-- `src/Game.Godot`: Node2D drawing, native Controls, session Node, ENet RPCs and pinned GodotSteam integration.
-- `src/Game.MonoGame`: SpriteBatch drawing, code-only Gum Forms, disposable C# sessions, LiteNetLib and Facepunch Steam sockets. Framework font/shape resources are technical UI dependencies, not game artwork.
-- `tests`: Core, shared and actual-process client integration suites.
-- `tools`: scenario CLI and bounded graphical launch/capture scripts.
+Self-contained x64 Release outputs are `artifacts/builds/godot/linux/CommonWatch.x86_64` and `artifacts/builds/godot/windows/CommonWatch.exe`. Copy the **whole output folder**, including managed runtime, optional assets, music and licenses. Asset lookup is executable relative. Exported game arguments follow Godot's separator: `CommonWatch.x86_64 -- --world-art sprites`.
 
-All commands run from the project root. See [source provenance](docs/PROVENANCE.md), [verification](docs/VERIFICATION.md), [agent instructions](AGENTS.md) and [GPL-3.0-only license](LICENSE). Do not modify the reference repository.
+Install matching **4.7.2.stable.mono export templates** in Godot's standard user `export_templates` directory before exporting. The [Godot GitHub Actions workflow](.github/workflows/godot.yml) fetches the pinned upstream templates and verifies their SHA-256. Builds use RID-specific locks under `tools/nuget-locks`, preserving Core's original lockfile. Tasks replace only their own output directory.
+
+One workflow builds the entire solution, runs headless/art/session/Steam logic and real graphical/multiplayer/reconnect/animation checks, cross-builds Linux/Windows and uploads complete archives plus diagnostics. It checks existing graphical prerequisites and never installs system packages. Live Steam tests are excluded. Cross-building Windows does not qualify Windows runtime execution.
+
+## Ownership
+
+- `src/Game.Core`: unchanged pinned upstream gameplay and Arch ECS, independently buildable/testable.
+- `src/Game.Shared`: solo adapter, deterministic scenarios/playback helpers, bounded snapshot codec, private resume files, logical projection and asset metadata; no graphical dependencies or transport framework.
+- `src/Game.Godot`: sole graphical application, native Controls/Node2D, ENet RPC sessions, GodotSteam, audio and presentation resources.
+- `tests`: headless rules, shared/session logic, artwork and actual Godot process checks.
+- `tools`: reproducible CLI launch, capture, scenario, profiling, artwork and release tasks.
+
+Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).

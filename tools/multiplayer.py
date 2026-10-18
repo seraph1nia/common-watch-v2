@@ -17,7 +17,6 @@ signal.signal(signal.SIGTERM, terminate)
 
 ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser()
-parser.add_argument('client', choices=['godot', 'monogame'])
 parser.add_argument('operation', choices=['test', 'dev'])
 parser.add_argument('--players', type=int, choices=[1, 2, 3, 4], default=2)
 args = parser.parse_args()
@@ -34,13 +33,13 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
             data.mkdir()
             log = open(work / f'{index}.log', 'w+')
             logs.append(log)
-            command = ['bash', 'tools/client.sh', args.client, '--settings-path', str(data / 'settings.json'),
+            command = ['bash', 'tools/client.sh', '--settings-path', str(data / 'settings.json'),
                        '--data-path', str(data), '--render-mode', 'debug']
             command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
             if args.operation == 'test':
                 command += ['--network-test', str(args.players), '--report', str(work / f'{index}.json')]
                 if index == 0:
-                    command += ['--lobby-capture', str(ROOT / 'artifacts' / 'captures' / args.client / f'lobby-{args.players}p.png')]
+                    command += ['--lobby-capture', str(ROOT / 'artifacts' / 'captures' / 'godot' / f'lobby-{args.players}p.png')]
             processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
             if index == 0:
                 time.sleep(1)
@@ -54,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
                     destination = ROOT / 'artifacts' / 'test-logs'
                     destination.mkdir(parents=True, exist_ok=True)
                     for index, record in enumerate(records):
-                        (destination / f'{args.client}-{args.players}p-{index}.json').write_text(json.dumps(record))
+                        (destination / f'godot-{args.players}p-{index}.json').write_text(json.dumps(record))
                     if not all(r['animation']['hits'] > 0 for r in records):
                         if time.monotonic() > deadline:
                             raise AssertionError('Every host and guest must consume real hit effects: ' + str([r['animation'] for r in records]))
@@ -69,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
                         continue
                     assert records[0]['state']['Wave'] == 2
                     assert len(records[0]['state']['Players']) == args.players
-                    print(f'{args.client}: {args.players} actual processes passed admission, paid opening, all-player readiness, combat, individual drafting and identical wave-two snapshots', flush=True)
+                    print(f'godot: {args.players} actual processes passed admission, paid opening, all-player readiness, combat, individual drafting and identical wave-two snapshots', flush=True)
                     break
                 if time.monotonic() > deadline:
                     raise TimeoutError('Actual multiplayer exercise exceeded 150 seconds')
@@ -92,7 +91,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
             log.flush()
             log.seek(0)
             transcript = log.read()
-            (destination / f'{args.client}-{args.players}p-{index}.log').write_text(transcript)
+            (destination / f'godot-{args.players}p-{index}.log').write_text(transcript)
             if args.operation == 'test':
                 print(transcript[-2000:])
             if 'ERROR:' in transcript or 'Unhandled exception' in transcript:

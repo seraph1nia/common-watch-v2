@@ -4,5 +4,5 @@
   "alpha_ceiling": 250,
   "padding": 8,
   "canvases": {"building":[512,512],"unit":[256,256],"resource":[128,128],"terrain":[256,256]},
-  "notes": "RGBA cutouts are already present. Remove only near-transparent alpha noise, never threshold RGB. Retain soft edges, contact shadows and painted ground islands. HUD crops retain their measured coordinate system so slice margins stay stable. Equal opposing margins are intentionally chosen around the actual ornaments for Gum's single frame-coordinate-width convention. No grid assumption or generated artwork."
+  "notes": "RGBA cutouts are already present. Remove only near-transparent alpha noise, never threshold RGB. Retain soft edges, contact shadows and painted ground islands. HUD crops retain their measured coordinate system so slice margins stay stable. Equal opposing margins follow the actual ornaments. No grid assumption or generated artwork."
 }

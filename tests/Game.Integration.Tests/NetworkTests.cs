@@ -5,22 +5,18 @@ namespace Game.Integration.Tests;
 
 public sealed class NetworkTests
 {
-    [Fact, Trait("Client", "godot"), Trait("Layer", "multiplayer")]
-    public Task GodotTwoThroughFourPlayers() => Run("godot", "multiplayer.sh");
-    [Fact, Trait("Client", "monogame"), Trait("Layer", "multiplayer")]
-    public Task MonoGameTwoThroughFourPlayers() => Run("monogame", "multiplayer.sh");
-    [Fact, Trait("Client", "godot"), Trait("Layer", "reconnect")]
-    public Task GodotReconnectAndFailures() => Run("godot", "reconnect.sh");
-    [Fact, Trait("Client", "monogame"), Trait("Layer", "reconnect")]
-    public Task MonoGameReconnectAndFailures() => Run("monogame", "reconnect.sh");
+    [Fact, Trait("Layer", "multiplayer")]
+    public Task GodotTwoThroughFourPlayers() => Run("multiplayer.sh");
+    [Fact, Trait("Layer", "reconnect")]
+    public Task GodotReconnectAndFailures() => Run("reconnect.sh");
 
-    private static async Task Run(string client, string script)
+    private static async Task Run(string script)
     {
         DirectoryInfo? root = new(AppContext.BaseDirectory);
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "CommonWatch.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         var start = new ProcessStartInfo("bash") { WorkingDirectory = root.FullName, RedirectStandardOutput = true, RedirectStandardError = true };
-        start.ArgumentList.Add("tools/" + script); start.ArgumentList.Add(client);
+        start.ArgumentList.Add("tools/" + script);
         if (script == "multiplayer.sh") start.ArgumentList.Add("test");
         using var process = Process.Start(start)!;
         var output = process.StandardOutput.ReadToEndAsync(); var error = process.StandardError.ReadToEndAsync();

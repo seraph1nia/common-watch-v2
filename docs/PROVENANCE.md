@@ -12,6 +12,4 @@ Four user-supplied generated PNG source sheets were extracted unchanged from `co
 
 GodotSteam is copied unchanged from the original project's pinned `src/Game/addons/godotsteam` distribution: **v4.22.1-gde**, SDK **1.65**, upstream archive `godotsteam-4.22.1-gdextension-plugin-4.4.zip`. The retained manifest contains its URL, archive SHA-256 and individual library hashes; licenses/readme are retained under `src/Game.Godot/addons/godotsteam`.
 
-MonoGame uses official **Facepunch.Steamworks 2.5.2** release artifacts from <https://github.com/Facepunch/Facepunch.Steamworks/releases/tag/2.5.2>. Only the .NET 6 POSIX/Win64 assemblies, technical XML API documentation and matching Linux/Windows x64 Steam API redistributables were extracted. `vendor/facepunch-2.5.2/manifest.json` pins the release archive and individual SHA-256 hashes, and `LICENSE` retains the wrapper's MIT license. Steam API redistribution remains subject to Valve's applicable SDK terms; the redistributables are not asserted to be GPL source. The old Windows-only NuGet package was not substituted for the current official release. LiteNetLib **2.1.4** is resolved through pinned NuGet locks.
-
 No artwork was created, imported or extracted for the session work. Lobby captures are actual application frames. The original repository was read only.

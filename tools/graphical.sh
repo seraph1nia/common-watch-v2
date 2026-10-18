@@ -1,32 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-client=${1:?Usage: tools/graphical.sh godot\|monogame test\|capture [arguments]}
-operation=${2:?Missing operation}
-shift 2
+operation=${1:?Usage: tools/graphical.sh test\|capture\|capture-art\|capture-battle\|profile-battle [arguments]}
+shift
 # Tests/captures own their virtual display, including on a running desktop.
 for prerequisite in xvfb-run Xvfb xauth timeout; do
   command -v "$prerequisite" >/dev/null || { echo "Missing graphical prerequisite: $prerequisite. See README.md; no packages installed automatically." >&2; exit 2; }
 done
 export LIBGL_ALWAYS_SOFTWARE=1
-export ALSOFT_DRIVERS=null
-export SDL_AUDIODRIVER=dummy
-export COMMON_WATCH_TEST_AUDIO=dummy
+export COMMON_WATCH_TEST_AUDIO=dummy COMMON_WATCH_STEAM_DISABLED=1
 # Automated checks use disposable preferences instead of changing the player's volume.
 settings_directory=$(mktemp -d)
 trap 'rm -rf "$settings_directory"' EXIT
 run_client() {
-  timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh "$client" --settings-path "$settings_directory/audio-settings.json" "$@"
+  timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
   test)
     # --smoke-test runs actual native controls, commands, playback, resize and draft checks.
     for mode in debug sprites; do
-      run_client --render-mode "$mode" --smoke-test "$@"
+      run_client --render-mode "$mode" --smoke-test --steam "$@"
     done
     ;;
   capture)
-    output="$(pwd)/artifacts/captures/$client"
+    output="$(pwd)/artifacts/captures/godot"
     mkdir -p "$output"
     for checkpoint in settlement building-selected combat draft; do
       rm -f "$output/$checkpoint.png"
@@ -37,12 +34,12 @@ case "$operation" in
     ;;
   profile-battle)
     client_timeout=180
-    output="$(pwd)/artifacts/profiles/$client-animation.json"
+    output="$(pwd)/artifacts/profiles/godot-animation.json"
     run_client --battle swordsman --world-art sprites --battle-profile "$output" "$@"
     test -s "$output"
     ;;
   capture-battle)
-    output="$(pwd)/artifacts/captures/$client/battle"
+    output="$(pwd)/artifacts/captures/godot/battle"
     for mode in debug sprites; do
       rm -rf "$output/$mode"
       run_client --battle swordsman --world-art "$mode" --battle-capture "$output/$mode" "$@"
@@ -54,7 +51,7 @@ case "$operation" in
     test -s "$output/camera-angled-fallback.png"
     ;;
   capture-art)
-    output="$(pwd)/artifacts/captures/$client/art"
+    output="$(pwd)/artifacts/captures/godot/art"
     mkdir -p "$output"
     capture_art() {
       name=$1; checkpoint=$2

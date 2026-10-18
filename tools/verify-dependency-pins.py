@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
-for relative in ('vendor/facepunch-2.5.2', 'src/Game.Godot/addons/godotsteam'):
+for relative in ('src/Game.Godot/addons/godotsteam',):
     directory = root / relative
     manifest = json.loads((directory / 'manifest.json').read_text())
     for filename, expected in manifest['files'].items():

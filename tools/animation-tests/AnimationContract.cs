@@ -2,11 +2,8 @@ using Game.Core;
 using Game.Shared;
 using System.Numerics;
 using Xunit;
-#if GODOT_ANIMATION
 using Motion = Game.GodotClient.CombatMotion;
-#else
-using Motion = Game.MonoGameClient.CombatMotion;
-#endif
+
 
 namespace Game.Animation.Tests;
 

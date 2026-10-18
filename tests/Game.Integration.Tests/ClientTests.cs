@@ -9,19 +9,13 @@ namespace Game.Integration.Tests;
 // Headless-only environments can still run test-core and test-shared independently.
 public sealed class ClientTests
 {
-    [Fact, Trait("Client", "godot")]
-    public Task GodotFullLoopBothModes() => VerifyClient("godot");
+    [Fact]
+    public Task GodotFullLoopBothModes() => VerifyClient();
 
-    [Fact, Trait("Client", "monogame")]
-    public Task MonoGameFullLoopBothModes() => VerifyClient("monogame");
+    [Fact]
+    public Task GodotInstalledArt() => Run(FindRoot(), Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
 
-    [Fact, Trait("Client", "godot")]
-    public Task GodotInstalledArt() => Run(FindRoot(), "godot", Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
-
-    [Fact, Trait("Client", "monogame")]
-    public Task MonoGameInstalledArt() => Run(FindRoot(), "monogame", Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
-
-    private static async Task VerifyClient(string client)
+    private static async Task VerifyClient()
     {
         string root = FindRoot();
         string temporary = Path.Combine(Path.GetTempPath(), "common-watch-integration-" + Guid.NewGuid().ToString("N"));
@@ -29,20 +23,20 @@ public sealed class ClientTests
         try
         {
             // Empty directory exercises permanent artwork independence in both modes.
-            await Run(root, client, temporary);
-            await Run(root, client, temporary, missingHud: true);
+            await Run(root, temporary);
+            await Run(root, temporary, missingHud: true);
             // Corrupt files are textual fixtures, never generated images. The debug
             // renderer must ignore them; sprite mode must fall back without crashing.
             Directory.CreateDirectory(Path.Combine(temporary, "buildings"));
             Directory.CreateDirectory(Path.Combine(temporary, "units"));
             await File.WriteAllTextAsync(Path.Combine(temporary, "buildings", "farm.png"), "invalid PNG - fallback test");
             await File.WriteAllTextAsync(Path.Combine(temporary, "units", "swordsman.png"), "invalid PNG - fallback test");
-            await Run(root, client, temporary);
+            await Run(root, temporary);
         }
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
-    private static async Task Run(string root, string client, string assets, bool illustrated = false, bool missingHud = false)
+    private static async Task Run(string root, string assets, bool illustrated = false, bool missingHud = false)
     {
         var start = new ProcessStartInfo("bash")
         {
@@ -51,7 +45,7 @@ public sealed class ClientTests
             RedirectStandardError = true,
             UseShellExecute = false
         };
-        foreach (string argument in new[] { "tools/graphical.sh", client, "test", "--assets-root", assets })
+        foreach (string argument in new[] { "tools/graphical.sh", "test", "--assets-root", assets })
             start.ArgumentList.Add(argument);
         if (illustrated)
             foreach (string argument in new[] { "--view", "angled", "--hud-art", "illustrated", "--debug-overlay", "on", "--expect-installed-art" }) start.ArgumentList.Add(argument);
@@ -62,14 +56,14 @@ public sealed class ClientTests
         Task<string> error = process.StandardError.ReadToEndAsync();
         using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
         try { await process.WaitForExitAsync(timeout.Token); }
-        catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new TimeoutException($"{client} graphical integration exceeded four minutes."); }
+        catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new TimeoutException($"Godot graphical integration exceeded four minutes."); }
         string transcript = await output + "\n" + await error;
         string logDirectory = Path.Combine(root, "artifacts", "test-logs");
         Directory.CreateDirectory(logDirectory);
-        await File.WriteAllTextAsync(Path.Combine(logDirectory, client + "-" + (illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
-        Assert.True(process.ExitCode == 0, $"{client} actual-graphics check failed ({process.ExitCode}):\n{transcript}");
+        await File.WriteAllTextAsync(Path.Combine(logDirectory, "godot-" + (illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
+        Assert.True(process.ExitCode == 0, $"Godot actual-graphics check failed ({process.ExitCode}):\n{transcript}");
         Assert.Equal(2, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
-        Assert.True(transcript.Split(client.ToUpperInvariant() + "_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
+        Assert.True(transcript.Split("GODOT_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
             "Both rendering modes must decode and start the bundled music, including settings checks.");
         Assert.Contains("settings=0/50/100 persisted=true", transcript);
         Assert.Contains("mode=Debug", transcript);

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-client=${1:?client}; shift
 if [[ ${COMMON_WATCH_STEAM_NATIVE_AUTHORIZED:-} != 1 ]]; then
   echo 'Native Steam verification is unexecuted: set COMMON_WATCH_STEAM_NATIVE_AUTHORIZED=1 only when authorized to use the logged-in eligible account. See docs/SESSIONS.md.' >&2
   exit 2
@@ -22,8 +21,8 @@ for prerequisite in xvfb-run Xvfb xauth timeout; do
 done
 worker_directory=$(mktemp -d)
 trap 'rm -rf "$worker_directory"' EXIT
-export LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null SDL_AUDIODRIVER=dummy COMMON_WATCH_TEST_AUDIO=dummy
-mkdir -p "artifacts/native-steam/$client"
-report="$(pwd)/artifacts/native-steam/$client/$role.json"
+export LIBGL_ALWAYS_SOFTWARE=1 COMMON_WATCH_TEST_AUDIO=dummy
+mkdir -p "artifacts/native-steam/godot"
+report="$(pwd)/artifacts/native-steam/godot/$role.json"
 rm -f "$report"
-timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1280x720x24' bash tools/client.sh "$client" --steam --render-mode debug --network-test 2 --native-verify yes --report "$report" --settings-path "$worker_directory/settings.json" --data-path "$worker_directory/private" "${role_args[@]}" "$@"
+timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1280x720x24' bash tools/client.sh --steam --render-mode debug --network-test 2 --native-verify yes --report "$report" --settings-path "$worker_directory/settings.json" --data-path "$worker_directory/private" "${role_args[@]}" "$@"

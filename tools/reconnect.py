@@ -6,7 +6,6 @@ from pathlib import Path
 import signal
 import socket
 import subprocess
-import sys
 import tempfile
 import time
 import uuid
@@ -17,7 +16,6 @@ def terminate(signum, frame):
 signal.signal(signal.SIGTERM, terminate)
 
 ROOT = Path(__file__).resolve().parent.parent
-client = sys.argv[1]
 processes = []
 logs = []
 serial = 0
@@ -35,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         (control / 'status.json').unlink(missing_ok=True)
         log = open(work / f'{index}-{len(logs)}.log', 'w+')
         logs.append(log)
-        command = ['bash', 'tools/client.sh', client, '--settings-path', str(data / 'settings.json'),
+        command = ['bash', 'tools/client.sh', '--settings-path', str(data / 'settings.json'),
                    '--data-path', str(data), '--control-dir', str(control), '--test-fast-combat', 'yes']
         command += ['--host', str(port), '--pause-at-death', 'yes'] if index == 0 else ['--join', f'127.0.0.1:{port}']
         command += list(extra)
@@ -99,7 +97,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         assert saved['NextSequence'] > last_sequence
         if os.name != 'nt':
             assert (work / '1' / 'resume.json').stat().st_mode & 0o777 == 0o600
-        print(client, 'reconnected during', expected_phase, flush=True)
+        print('godot', 'reconnected during', expected_phase, flush=True)
 
     try:
         host = launch(0)
@@ -220,7 +218,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         wait(lambda: (current := status(5)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
         refused = status(5)
         assert not refused['connected'] and refused['state'] is None
-        print(client, 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/death/draft resume, animation reset, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
+        print('godot', 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/death/draft resume, animation reset, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
     finally:
         for process in processes:
             if process.poll() is None:
@@ -238,7 +236,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         for index, log in enumerate(logs):
             log.flush(); log.seek(0)
             text = log.read()
-            (destination / f'{client}-reconnect-{index}.log').write_text(text)
+            (destination / f'godot-reconnect-{index}.log').write_text(text)
             print(text[-1200:])
             if 'ERROR:' in text or 'Unhandled exception' in text:
                 diagnostic_errors.append(text)

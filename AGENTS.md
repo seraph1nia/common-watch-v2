@@ -1,16 +1,15 @@
-# The Common Watch vertical slices
+# The Common Watch — Godot 2D
 
 Work in this repository. Use `mise run build`, `mise run test-core`, `mise run test-shared`, and the affected graphical checks. See README.md for setup and commands.
 
-Platform release tasks are `build-{godot,monogame}-{windows,linux}`. Their self-contained x64 outputs belong in gitignored `artifacts/builds/<client>/<platform>/`. Include music/optional sprites and preserve executable-relative asset lookup. Runtime-specific NuGet locks are in `tools/nuget-locks`; do not regenerate the pinned upstream Core lockfile for publishing.
+Platform release tasks are `build-linux` and `build-windows`. Their self-contained x64 outputs belong in gitignored `artifacts/builds/godot/<platform>/`. Include music/optional sprites and preserve executable-relative asset lookup. Runtime-specific NuGet locks are in `tools/nuget-locks`; do not regenerate the pinned upstream Core lockfile for publishing.
 
 ## Boundaries
 
 - `src/Game.Core` is an unmodified pinned upstream import; provenance is in `docs/PROVENANCE.md`. It owns all gameplay rules and Arch ECS. Do not edit it for presentation needs.
 - `src/Game.Shared` owns the minimal solo authority adapter, deterministic replay, projection and visual IDs. No graphical dependencies.
 - `src/Game.Godot` owns Godot 2D drawing and native Controls.
-- `src/Game.MonoGame` owns SpriteBatch drawing and code-only Gum Forms.
-- Clients submit authoritative commands and read detached snapshots. Never write simulation state or duplicate rules.
+- The client submits authoritative commands and read detached snapshots. Never write simulation state or duplicate rules.
 
 ## Workflow
 

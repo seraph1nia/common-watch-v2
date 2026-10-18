@@ -41,7 +41,7 @@ public sealed class SessionDataTests
             Assert.Equal(2, second.Reserve());
             second.Welcome("match", "private-credential"); Assert.Equal(3, second.Reserve());
             if (!OperatingSystem.IsWindows()) Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite, File.GetUnixFileMode(path));
-            foreach (var other in new[] { new SessionFile(path, "elsewhere", "enet", "v2-godot"), new SessionFile(path, "localhost:1234", "steam", "v2-godot"), new SessionFile(path, "localhost:1234", "enet", "v2-monogame") })
+            foreach (var other in new[] { new SessionFile(path, "elsewhere", "enet", "v2-godot"), new SessionFile(path, "localhost:1234", "steam", "v2-godot"), new SessionFile(path, "localhost:1234", "enet", "unrelated-application") })
             { other.Load(); Assert.Null(other.Value); }
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }

@@ -20,21 +20,13 @@ DOTNET_NOLOGO = "1"
 description = "Restore locked dependencies and compile the complete solution"
 run = ["python3 tools/verify-dependency-pins.py", "dotnet restore CommonWatch.slnx --locked-mode", "dotnet build CommonWatch.slnx --no-restore --nologo"]
 
-[tasks.build-godot-windows]
+[tasks.build-windows]
 description = "Export a self-contained Godot Windows x64 release into artifacts/builds"
-run = "bash tools/build-client.sh godot windows"
+run = "bash tools/build-client.sh windows"
 
-[tasks.build-godot-linux]
+[tasks.build-linux]
 description = "Export a self-contained Godot Linux x64 release into artifacts/builds"
-run = "bash tools/build-client.sh godot linux"
-
-[tasks.build-monogame-windows]
-description = "Publish a self-contained MonoGame Windows x64 release into artifacts/builds"
-run = "bash tools/build-client.sh monogame windows"
-
-[tasks.build-monogame-linux]
-description = "Publish a self-contained MonoGame Linux x64 release into artifacts/builds"
-run = "bash tools/build-client.sh monogame linux"
+run = "bash tools/build-client.sh linux"
 
 [tasks.test-core]
 description = "Headless authoritative simulation tests"
@@ -54,162 +46,77 @@ description = "Replay the authoritative first-wave scenario and write JSON check
 run = "dotnet run --project tools/scenarios/Scenarios.csproj --"
 raw_args = true
 
-[tasks.play-godot]
+[tasks.play]
 description = "Play Godot 2D with shapes and text (default)"
 depends = ["build"]
-run = "bash tools/client.sh godot --render-mode debug"
+run = "bash tools/client.sh --render-mode debug"
 raw_args = true
 
-[tasks.play-godot-no-assets]
-description = "Play Godot explicitly ignoring all optional sprites"
-depends = ["build"]
-run = "bash tools/client.sh godot --render-mode debug"
-raw_args = true
-
-[tasks.play-godot-assets]
+[tasks.play-assets]
 description = "Play Godot with optional sprites and illustrated HUD, with plain/geometric fallback"
 depends = ["build"]
-run = "bash tools/client.sh godot --render-mode sprites --hud-art illustrated"
+run = "bash tools/client.sh --render-mode sprites --hud-art illustrated"
 raw_args = true
 
-[tasks.play-monogame]
-description = "Play MonoGame with shapes and text (default)"
-depends = ["build"]
-run = "bash tools/client.sh monogame --render-mode debug"
-raw_args = true
-
-[tasks.play-monogame-no-assets]
-description = "Play MonoGame explicitly ignoring all optional sprites"
-depends = ["build"]
-run = "bash tools/client.sh monogame --render-mode debug"
-raw_args = true
-
-[tasks.play-monogame-assets]
-description = "Play MonoGame with optional sprites and illustrated HUD, with plain/geometric fallback"
-depends = ["build"]
-run = "bash tools/client.sh monogame --render-mode sprites --hud-art illustrated"
-raw_args = true
-
-[tasks.test-godot]
+[tasks.test-graphics]
 description = "Godot graphical integration checks in both rendering modes"
 depends = ["build"]
-run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'Client=godot&FullyQualifiedName~ClientTests' --nologo"
+run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'FullyQualifiedName~ClientTests' --nologo"
 
-[tasks.test-monogame]
-description = "MonoGame graphical integration checks in both rendering modes"
-depends = ["build"]
-run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'Client=monogame&FullyQualifiedName~ClientTests' --nologo"
-
-[tasks.capture-godot]
+[tasks.capture]
 description = "Capture four actual rendered Godot checkpoints on an owned virtual display"
 depends = ["build"]
-run = "bash tools/graphical.sh godot capture"
+run = "bash tools/graphical.sh capture"
 raw_args = true
 
-[tasks.capture-monogame]
-description = "Capture four actual rendered MonoGame checkpoints on an owned virtual display"
-depends = ["build"]
-run = "bash tools/graphical.sh monogame capture"
-raw_args = true
-
-[tasks.test-godot-session]
+[tasks.test-session]
 description = "Actual Godot menu, doctrine, replacement and gameplay lifecycle checks"
-depends = ["test-godot"]
+depends = ["test-graphics"]
 
-[tasks.test-monogame-session]
-description = "Actual Gum menu, doctrine, replacement and gameplay lifecycle checks"
-depends = ["test-monogame"]
-
-[tasks.test-godot-multiplayer]
+[tasks.test-multiplayer]
 description = "Actual godot LAN processes: two, three and four players through combat and drafting"
 depends = ["build"]
-run = "bash tools/multiplayer.sh godot test"
+run = "bash tools/multiplayer.sh test"
 raw_args = true
 
-[tasks.dev-godot-multiplayer]
+[tasks.dev-multiplayer]
 description = "Launch a LAN host and guests with normal graphics/audio; --players 1..4"
 depends = ["build"]
-run = "bash tools/multiplayer.sh godot dev"
+run = "bash tools/multiplayer.sh dev"
 raw_args = true
 
-[tasks.test-monogame-multiplayer]
-description = "Actual monogame LAN processes: two, three and four players through combat and drafting"
-depends = ["build"]
-run = "bash tools/multiplayer.sh monogame test"
-raw_args = true
-
-[tasks.dev-monogame-multiplayer]
-description = "Launch a LAN host and guests with normal graphics/audio; --players 1..4"
-depends = ["build"]
-run = "bash tools/multiplayer.sh monogame dev"
-raw_args = true
-
-[tasks.test-godot-lobby]
+[tasks.test-lobby]
 description = "Actual godot lobby checks"
-depends = ["test-godot-multiplayer"]
+depends = ["test-multiplayer"]
 
-[tasks.test-godot-reconnect]
+[tasks.test-reconnect]
 description = "Actual godot reconnect checks"
 depends = ["build"]
-run = "bash tools/reconnect.sh godot"
+run = "bash tools/reconnect.sh"
 
-[tasks.test-godot-network-faults]
+[tasks.test-network-faults]
 description = "Actual godot network-faults checks"
-depends = ["test-godot-reconnect"]
+depends = ["test-reconnect"]
 
-[tasks.capture-godot-lobby]
+[tasks.capture-lobby]
 description = "Capture the actual two-, three- and four-player native lobby controls"
-depends = ["test-godot-multiplayer"]
+depends = ["test-multiplayer"]
 
-[tasks.test-monogame-lobby]
-description = "Actual monogame lobby checks"
-depends = ["test-monogame-multiplayer"]
-
-[tasks.test-monogame-reconnect]
-description = "Actual monogame reconnect checks"
-depends = ["build"]
-run = "bash tools/reconnect.sh monogame"
-
-[tasks.test-monogame-network-faults]
-description = "Actual monogame network-faults checks"
-depends = ["test-monogame-reconnect"]
-
-[tasks.capture-monogame-lobby]
-description = "Capture the actual two-, three- and four-player native lobby controls"
-depends = ["test-monogame-multiplayer"]
-
-[tasks.test-godot-steam]
+[tasks.test-steam]
 description = "Offline Godot Steam operation, metadata and authenticated admission tests"
 depends = ["build"]
 run = "dotnet test tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj --no-build --no-restore --nologo"
 
-[tasks.play-godot-steam]
+[tasks.play-steam]
 description = "Optional Steam startup using COMMON_WATCH_STEAM_APP_ID; offline fallback remains available"
 depends = ["build"]
-run = "bash tools/client.sh godot --render-mode debug --steam"
+run = "bash tools/client.sh --render-mode debug --steam"
 raw_args = true
 
-[tasks.test-godot-steam-native]
+[tasks.test-steam-native]
 description = "Explicitly gated live Steam SDK/gameplay worker; see docs/SESSIONS.md"
 depends = ["build"]
-run = "bash tools/steam-native.sh godot"
-raw_args = true
-
-[tasks.test-monogame-steam]
-description = "Offline MonoGame Steam operation, metadata and authenticated admission tests"
-depends = ["build"]
-run = "dotnet test tests/Game.MonoGame.Session.Tests/Game.MonoGame.Session.Tests.csproj --no-build --no-restore --nologo"
-
-[tasks.play-monogame-steam]
-description = "Optional Steam startup using COMMON_WATCH_STEAM_APP_ID; offline fallback remains available"
-depends = ["build"]
-run = "bash tools/client.sh monogame --render-mode debug --steam"
-raw_args = true
-
-[tasks.test-monogame-steam-native]
-description = "Explicitly gated live Steam SDK/gameplay worker; see docs/SESSIONS.md"
-depends = ["build"]
-run = "bash tools/steam-native.sh monogame"
+run = "bash tools/steam-native.sh"
 raw_args = true
 
 [tasks.art-setup]
@@ -236,83 +143,44 @@ run = ".venv-art/bin/python tools/art/pipeline.py preview"
 description = "Test Pillow cropping, alpha, anchors, nine-slicing and deterministic processing"
 run = ".venv-art/bin/python -m unittest discover -s tests/art -v"
 
-[tasks.art-showroom-godot]
+[tasks.art-showroom]
 description = "Inspect installed artwork and native nine-slices without a running match"
 depends = ["build"]
-run = "bash tools/client.sh godot --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
+run = "bash tools/client.sh --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
 raw_args = true
 
-[tasks.art-showroom-monogame]
-description = "Inspect installed artwork and native Gum nine-slices without a running match"
-depends = ["build"]
-run = "bash tools/client.sh monogame --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
-raw_args = true
-
-[tasks.capture-godot-art]
+[tasks.capture-art]
 description = "Capture nine actual Godot artwork verification views on an owned display"
 depends = ["build"]
-run = "bash tools/graphical.sh godot capture-art"
+run = "bash tools/graphical.sh capture-art"
 
-[tasks.capture-monogame-art]
-description = "Capture nine actual MonoGame/Gum artwork verification views on an owned display"
-depends = ["build"]
-run = "bash tools/graphical.sh monogame capture-art"
-
-[tasks.battle-godot]
+[tasks.battle]
 description = "Animated tabletop battle showcase, native Godot controls, default debug art"
 depends = ["build"]
-run = "bash tools/client.sh godot --battle swordsman --world-art debug"
+run = "bash tools/client.sh --battle swordsman --world-art debug"
 raw_args = true
 
-[tasks.battle-monogame]
-description = "Animated tabletop battle showcase, Gum controls, default debug art"
-depends = ["build"]
-run = "bash tools/client.sh monogame --battle swordsman --world-art debug"
-raw_args = true
-
-[tasks.battle-godot-assets]
+[tasks.battle-assets]
 description = "Godot battle with the two existing static character PNGs"
 depends = ["build"]
-run = "bash tools/client.sh godot --battle swordsman --world-art sprites"
+run = "bash tools/client.sh --battle swordsman --world-art sprites"
 raw_args = true
 
-[tasks.battle-monogame-assets]
-description = "MonoGame battle with the two existing static character PNGs"
-depends = ["build"]
-run = "bash tools/client.sh monogame --battle swordsman --world-art sprites"
-raw_args = true
-
-[tasks.capture-godot-battle]
+[tasks.capture-battle]
 description = "Actual Godot animation phases and ordered frames with tick/event metadata"
 depends = ["build"]
-run = "bash tools/graphical.sh godot capture-battle"
+run = "bash tools/graphical.sh capture-battle"
 raw_args = true
 
-[tasks.capture-monogame-battle]
-description = "Actual MonoGame animation phases and ordered frames with tick/event metadata"
-depends = ["build"]
-run = "bash tools/graphical.sh monogame capture-battle"
-raw_args = true
-
-[tasks.test-godot-animation]
+[tasks.test-animation]
 description = "Godot pose/lifecycle and actual rendered animation checks"
 depends = ["build"]
-run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --filter FullyQualifiedName~Animation --nologo", "bash tools/graphical.sh godot capture-battle --no-sequence"]
+run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --filter FullyQualifiedName~Animation --nologo", "bash tools/graphical.sh capture-battle --no-sequence"]
 
-[tasks.test-monogame-animation]
-description = "MonoGame pose/lifecycle and actual rendered animation checks"
-depends = ["build"]
-run = ["dotnet test tests/Game.MonoGame.Session.Tests --no-build --no-restore --filter FullyQualifiedName~Animation --nologo", "bash tools/graphical.sh monogame capture-battle --no-sequence"]
-
-[tasks.profile-godot-animation]
+[tasks.profile-animation]
 description = "Nine repeated native battles at 30/60/120 FPS and all three combat speeds"
 depends = ["build"]
-run = "bash tools/graphical.sh godot profile-battle"
-
-[tasks.profile-monogame-animation]
-description = "Nine repeated native battles at 30/60/120 FPS and all three combat speeds"
-depends = ["build"]
-run = "bash tools/graphical.sh monogame profile-battle"
+run = "bash tools/graphical.sh profile-battle"
 
 [tasks.review-battle]
 description = "Build the local HTML review from actual captured frames and profile receipts"

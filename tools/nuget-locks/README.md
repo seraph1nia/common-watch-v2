@@ -5,7 +5,6 @@
 The build tasks always restore in locked mode. To intentionally update publish dependencies after reviewing a package/toolchain change, regenerate both `linux-x64` and `win-x64` graphs:
 
 ```sh
-mise exec -- dotnet restore src/Game.MonoGame/Game.MonoGame.csproj -p:RuntimeIdentifier=linux-x64 -p:SelfContained=true -p:RestoreLockedMode=false --force-evaluate
 mise exec -- dotnet restore src/Game.Godot/Game.Godot.csproj -p:RuntimeIdentifier=linux-x64 -p:Configuration=ExportRelease -p:SelfContained=true -p:RestoreLockedMode=false --force-evaluate
 # Repeat with RuntimeIdentifier=win-x64, then review every changed lock.
 ```
