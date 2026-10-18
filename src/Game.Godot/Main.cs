@@ -10,8 +10,8 @@ public partial class Main : Node2D
 {
     private GodotSession _session = null!;
     private RenderOptions _options = null!;
-    private readonly HexProjection _settlement = new(65);
-    private readonly HexProjection _arena = new(30);
+    private HexProjection _settlement = new(65);
+    private HexProjection _arena = new(30);
     private readonly Dictionary<string, Texture2D?> _textures = [];
     private readonly List<(CombatEvent Event, double Until)> _effects = [];
     private readonly List<Button> _rewardButtons = [];
@@ -55,6 +55,9 @@ public partial class Main : Node2D
             if (Argument("--width") is { } width && Argument("--height") is { } height) GetWindow().Size = new Vector2I(int.Parse(width), int.Parse(height));
             _options = RenderOptions.Parse(_args);
             if (Argument("--assets-root") is null) _options = _options with { AssetsRoot = AssetDirectory("sprites") };
+            _catalog = new AssetCatalog(_options.AssetsRoot, _options.Mode == RenderMode.Sprites || _options.Hud == HudArt.Illustrated);
+            _settlement = new HexProjection(65, _options.GroundCompression);
+            _arena = new HexProjection(30, _options.GroundCompression);
             InitializeMusic();
             string? checkpoint = Argument("--checkpoint");
             if (checkpoint is not null) _session = WrapSolo(ScenarioRunner.CreateAt(checkpoint));
@@ -64,6 +67,7 @@ public partial class Main : Node2D
             if (Argument("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
             else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
             else if (_session is null) ReturnToMenu(); else RefreshUi(true);
+            if (_options.Showroom) { ReturnToMenu(); _sessionMenu.Visible = false; CreateShowroom(); }
             QueueRedraw();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             if (_args.Contains("--smoke-test")) await SmokeIntegration();
@@ -106,16 +110,24 @@ public partial class Main : Node2D
         var theme = new Theme { DefaultFontSize = 16 }; root.Theme = theme;
         var header = new PanelContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         root.AddChild(header); header.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopWide); header.OffsetBottom = HeaderHeight;
-        var top = new VBoxContainer(); header.AddChild(Margin(top, 14));
-        top.AddChild(new Label { Text = "THE COMMON WATCH  /  GODOT 2D", Modulate = _gold });
+        SkinPanel(header);
+        var top = new VBoxContainer(); header.AddChild(Margin(top, 18));
+        top.AddChild(new Label { Text = "THE COMMON WATCH  /  GODOT 2D" });
         _phase = new Label(); top.AddChild(_phase);
         _resources = new Label(); top.AddChild(_resources);
         var side = new PanelContainer(); root.AddChild(side);
         side.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.RightWide);
-        side.OffsetLeft = -SideWidth; side.OffsetTop = HeaderHeight + 8; side.OffsetBottom = -50; side.OffsetRight = -8;
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; side.AddChild(Margin(scroll, 12));
+        side.OffsetLeft = -SideWidth; side.OffsetTop = HeaderHeight + 8; side.OffsetBottom = -60; side.OffsetRight = -8;
+        SkinPanel(side);
+        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; side.AddChild(Margin(scroll, 26));
         var column = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; scroll.AddChild(column);
-        _selection = WrapLabel(); column.AddChild(_selection);
+        _selection = new ArtTooltipLabel
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            MakeTooltip = text => { var panel = new PanelContainer(); SkinPanel(panel, "hud/tooltip"); panel.AddChild(Margin(new Label { Text = text }, 22)); return panel; }
+        };
+        column.AddChild(_selection);
         _production = WrapLabel(); column.AddChild(_production);
         _actions = new VBoxContainer(); column.AddChild(_actions);
         column.AddChild(new HSeparator());
@@ -124,10 +136,12 @@ public partial class Main : Node2D
         column.AddChild(Button("Reset camera [R]", ResetCamera));
         column.AddChild(Button("Return to main menu", ReturnToMenu));
         column.AddChild(WrapLabel("Select: left click • Pan: middle/right drag\nZoom: wheel • Reset: R\nOpening: Farm, Barracks, Metal Mine.\nAt zero wood, use Lumbermill recovery.\nReady, recruit two Swordsmen; Ready, recruit two more; Ready to fight.\nReady settles real resource production."));
-        var footer = new PanelContainer(); root.AddChild(footer); footer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomWide); footer.OffsetTop = -44;
-        _message = WrapLabel("Choose a settlement plot. All actions use the shared authoritative simulation."); footer.AddChild(Margin(_message, 10));
+        var footer = new PanelContainer(); root.AddChild(footer); footer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomWide); footer.OffsetTop = -52;
+        SkinPanel(footer, "hud/tooltip");
+        _message = WrapLabel("Choose a settlement plot. All actions use the shared authoritative simulation."); var footerMargin = Margin(_message, 14); footerMargin.AddThemeConstantOverride("margin_left", 24); footer.AddChild(footerMargin);
         _draft = new PanelContainer(); root.AddChild(_draft); _draft.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.Center);
         _draft.AddThemeStyleboxOverride("panel", PanelStyle(new Color("14212c"), _gold));
+        SkinPanel(_draft);
         _draft.OffsetLeft = -560; _draft.OffsetRight = 560; _draft.OffsetTop = -210; _draft.OffsetBottom = 210;
         var draftColumn = new VBoxContainer(); _draft.AddChild(Margin(draftColumn, 20));
         draftColumn.AddChild(new Label { Text = "WAVE COMPLETE — CHOOSE ONE REWARD", Modulate = _gold });
@@ -142,9 +156,16 @@ public partial class Main : Node2D
 
     private static StyleBoxFlat PanelStyle(Color background, Color border) => new()
     {
-        BgColor = background, BorderColor = border,
-        BorderWidthLeft = 2, BorderWidthRight = 2, BorderWidthTop = 2, BorderWidthBottom = 2,
-        CornerRadiusTopLeft = 5, CornerRadiusTopRight = 5, CornerRadiusBottomLeft = 5, CornerRadiusBottomRight = 5
+        BgColor = background,
+        BorderColor = border,
+        BorderWidthLeft = 2,
+        BorderWidthRight = 2,
+        BorderWidthTop = 2,
+        BorderWidthBottom = 2,
+        CornerRadiusTopLeft = 5,
+        CornerRadiusTopRight = 5,
+        CornerRadiusBottomLeft = 5,
+        CornerRadiusBottomRight = 5
     };
     private static MarginContainer Margin(Control child, int padding)
     {
@@ -153,9 +174,9 @@ public partial class Main : Node2D
         margin.AddChild(child); return margin;
     }
     private static Label WrapLabel(string text = "") => new() { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-    private static Button Button(string text, Action clicked)
+    private Button Button(string text, Action clicked)
     {
-        var button = new Button { Text = text, CustomMinimumSize = new Vector2(0, 36) }; button.Pressed += clicked; return button;
+        var button = new Button { Text = text, CustomMinimumSize = new Vector2(0, 36) }; button.Pressed += clicked; SkinButton(button); return button;
     }
     private void Act(Action action)
     {
@@ -163,7 +184,7 @@ public partial class Main : Node2D
         _frozen = false; RefreshUi(true); QueueRedraw();
     }
     private GodotSession WrapSolo(SoloSession solo) { var session = new GodotSession { Name = "Session" }; AddChild(session); session.Solo(solo); return session; }
-    private void ReplaceSession(SoloSession session) { LeaveSteam(); _session?.Dispose(); _session = WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _effects.Clear(); _uiKey = ""; ResetCamera(); }
+    private void ReplaceSession(SoloSession session) { LeaveSteam(); _session?.Dispose(); _session = WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_message is not null) _message.Text = "Select a plot to inspect its authoritative actions."; _effects.Clear(); _motion.Clear(); _uiKey = ""; ResetCamera(); }
     private void ResetCamera() { _pan = Vector2.Zero; _zoom = 1; QueueRedraw(); }
 
     public override void _Process(double delta)
@@ -174,7 +195,7 @@ public partial class Main : Node2D
         _time += delta;
         if (!_frozen) _session.Advance(delta);
         if (!_session.HasState) { RefreshSessionMenu(); return; }
-        foreach (CombatEvent entry in _session.Playback.Drain()) _effects.Add((entry, _time + .55));
+        foreach (CombatEvent entry in _session.Playback.Drain()) { _effects.Add((entry, _time + .55)); _motion.Observe(entry, _time); }
         _effects.RemoveAll(e => e.Until < _time);
         RunNetworkProbe();
         RefreshUi(); QueueRedraw();
@@ -197,6 +218,7 @@ public partial class Main : Node2D
             + "\n\n" + string.Join("\n", city.Soldiers.Concat(state.Enemies).Where(u => u.Health > 0)
                 .Select(u => $"{(u.Faction == Faction.Adventurers ? "S" : "E")}{u.Id} {(u.Faction == Faction.Adventurers ? "" : "Enemy ")}{u.Type} HP: {HealthPoints.Format(u.Health)}/{HealthPoints.Format(u.Profile.Health)}"))
             : state.Phase is Phase.Defeat or Phase.Victory ? $"{state.Phase}. Use New solo game to restart." : "Preparing for the next wave.";
+        _selection.TooltipText = _session.SelectedSlot >= 0 ? $"Selected plot {_session.SelectedSlot + 1}: inspect costs and production below." : "Choose a settlement plot to inspect its costs and production.";
         _production.Text = "Next production: " + (city.ProductionIncome is { } income ? RunPresentation.Resources(income) : "None");
         string key = $"{state.Phase}|{_session.SelectedSlot}|{city.Resources}|{string.Join(',', city.Slots.Select(s => $"{s.Type}:{s.Level}:{s.Purchased}"))}|{string.Join(',', city.Run.Offers)}";
         if (!force && key == _uiKey) return; _uiKey = key;
@@ -245,7 +267,8 @@ public partial class Main : Node2D
                 var card = RunCatalog.Card(id);
                 var panel = new PanelContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
                 panel.AddThemeStyleboxOverride("panel", PanelStyle(new Color("20313e"), new Color("526a79")));
-                var content = new VBoxContainer(); panel.AddChild(Margin(content, 15));
+                SkinPanel(panel, "hud/card_frame");
+                var content = new VBoxContainer(); panel.AddChild(Margin(content, 36));
                 content.AddChild(WrapLabel(card.Name)); content.AddChild(WrapLabel(card.Rarity.ToString()));
                 content.AddChild(WrapLabel(card.Effect + (card.Multiplied ? $"\nResources multiplied by {RunEffects.Multiplier(city.Run.DraftWave)}." : "")));
                 var choose = Button("Choose reward", () => Act(() => _session.ChooseReward(id))); choose.Disabled = !_session.Connected; content.AddChild(choose);
@@ -259,7 +282,7 @@ public partial class Main : Node2D
         var coordinates = _session.Snapshot.Arena?.Board.Cells.Select(c => V(_arena.Project(c.Coordinate))).ToArray() ?? [];
         return coordinates.Length == 0 ? Vector2.Zero : new Vector2((coordinates.Min(v => v.X) + coordinates.Max(v => v.X)) / 2, (coordinates.Min(v => v.Y) + coordinates.Max(v => v.Y)) / 2);
     }
-    private Vector2 SettlementCenter => new(0, 65 * 1.5f * 3);
+    private Vector2 SettlementCenter => new(0, 65 * 1.5f * 3 * _options.GroundCompression);
     private Vector2 SettlementScreen(NumVector point) => Screen(V(point) - SettlementCenter);
     private static Vector2 V(NumVector value) => new(value.X, value.Y);
     private Vector2 Screen(Vector2 world) => WorldOrigin + _pan + world * _zoom;
@@ -278,7 +301,7 @@ public partial class Main : Node2D
             var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.City.Slots[i];
             var center = SettlementScreen(_settlement.Project(coordinate));
             DrawHex(_settlement.Corners(coordinate).Select(SettlementScreen).ToArray(), slot.Purchased ? new Color("304a40") : new Color("252e34"), i == _session.SelectedSlot ? _gold : new Color("62796f"), i == _session.SelectedSlot ? 4 : 2);
-            Sprite("terrain/hex", center + new Vector2(0, 30) * _zoom, new Vector2(110, 110) * _zoom);
+            Sprite("terrain/woodland_hex", center, new Vector2(116, 116) * _zoom);
         }
         // Keep borders and selection readable above optional opaque terrain textures.
         for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
@@ -295,20 +318,29 @@ public partial class Main : Node2D
             var center = SettlementScreen(_settlement.Project(coordinate));
             if (slot.Type != Building.Empty)
             {
-                if (!Sprite(VisualAssets.BuildingId(slot.Type), center, new Vector2(75, 82) * _zoom))
+                if (!Sprite(VisualAssets.BuildingId(slot.Type), center, Vector2.One * _catalog.Metadata(VisualAssets.BuildingId(slot.Type)).DisplaySize * _zoom))
                 {
                     DrawRect(new Rect2(center - new Vector2(24, 26) * _zoom, new Vector2(48, 43) * _zoom), new Color("92b5a5"));
                     DrawLine(center + new Vector2(-28, -26) * _zoom, center + new Vector2(0, -44) * _zoom, _gold, 3);
                     DrawLine(center + new Vector2(0, -44) * _zoom, center + new Vector2(28, -26) * _zoom, _gold, 3);
                 }
-                TextCentered(slot.Type.ToString(), center + new Vector2(0, 37) * _zoom, 15);
-                TextCentered($"Lv {slot.Level}", center + new Vector2(0, 54) * _zoom, 12);
+
             }
             else
             {
                 TextCentered(slot.Purchased ? "Empty" : "Buy plot", center + new Vector2(0, 6), 16);
                 TextCentered($"{i + 1}", center + new Vector2(0, 26), 13);
             }
+        }
+        // Labels finish after every tall sprite so the next row cannot cover them.
+        for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
+        {
+            var slot = _session.City.Slots[i];
+            if (slot.Type == Building.Empty) continue;
+            Vector2 center = SettlementScreen(_settlement.Project(SettlementLayout.Coordinates[i]));
+            DrawRect(new Rect2(center + new Vector2(-50, 17) * _zoom, new Vector2(100, 35) * _zoom), new Color(0.04f, .07f, .08f, .8f));
+            TextCentered(slot.Type.ToString(), center + new Vector2(0, 32) * _zoom, 14);
+            TextCentered($"Lv {slot.Level}", center + new Vector2(0, 47) * _zoom, 11);
         }
     }
     private void DrawCombat()
@@ -319,8 +351,8 @@ public partial class Main : Node2D
         foreach (var cell in arena.Board.Cells)
         {
             DrawHex(_arena.Corners(cell.Coordinate).Select(c => Screen(V(c) - center)).ToArray(), new Color("23343d"), new Color("3f555d"), 1);
-            Sprite("terrain/hex", Screen(V(_arena.Project(cell.Coordinate)) - center) + new Vector2(0, 18) * _zoom,
-                new Vector2(52, 60) * _zoom);
+            Sprite("terrain/woodland_hex", Screen(V(_arena.Project(cell.Coordinate)) - center),
+                new Vector2(53, 53) * _zoom);
         }
         foreach (var cell in arena.Board.Cells)
         {
@@ -338,16 +370,22 @@ public partial class Main : Node2D
             DrawRect(new Rect2(p + new Vector2(-22, -25), new Vector2(44f * structure.Health / Math.Max(1, structure.MaximumHealth), 5)), new Color("69dbae"));
         }
         var units = _session.Playback.Units().OrderBy(u => CombatVisuals.Position(u, state, _session.Playback.Tick).Y).ToArray();
-        var positions = units.ToDictionary(u => u.Id, u => Screen(V(CombatVisuals.Position(u, state, _session.Playback.Tick)) - center));
+        Vector2 Ground(UnitState u) { var p = CombatVisuals.Position(u, state, _session.Playback.Tick); p.Y *= _options.GroundCompression; return Screen(V(p) - center); }
+        var positions = units.ToDictionary(u => u.Id, Ground);
         foreach (var unit in units)
         {
-            Vector2 p = positions[unit.Id]; bool friendly = unit.Faction == Faction.Adventurers;
+            if (unit.Hex?.Lifecycle is not (UnitLifecycle.Alive or UnitLifecycle.Dying)) continue;
+            Vector2 ground = positions[unit.Id];
+            var pose = _motion.Sample(unit, _session.Playback.Tick, _time, new(ground.X, ground.Y), positions.TryGetValue(unit.TargetId, out var end) ? new System.Numerics.Vector2(end.X, end.Y) : null);
+            Vector2 p = ground + V(pose.Offset) * _zoom;
+            bool friendly = unit.Faction == Faction.Adventurers;
             Color color = friendly ? new Color("63a9ed") : new Color("ed7778");
-            if (!Sprite(VisualAssets.UnitId(unit), p + new Vector2(0, 7), new Vector2(30, 43) * _zoom)) DrawCircle(p, 8 * _zoom, color);
+            var tint = Colors.White.Lerp(new Color(1.8f, 1.8f, 1.8f), pose.Flash); tint.A = pose.Opacity;
+            if (!Sprite(VisualAssets.UnitId(unit), p, Vector2.One * _catalog.Metadata(VisualAssets.UnitId(unit)).DisplaySize * _zoom, tint)) DrawCircle(p, 8 * _zoom, color with { A = pose.Opacity });
             if (unit.TargetId != 0 && unit.PendingImpact && positions.TryGetValue(unit.TargetId, out var target)) DrawLine(p, target, color.Lightened(.3f), 2);
             TextCentered((friendly ? "S" : "E") + unit.Id, p + new Vector2(0, 5), 9, new Color("0d1822"));
             float max = Math.Max(unit.Profile.Health, 1); float fraction = Math.Clamp(unit.Health / max, 0, 1);
-            float healthY = -15;
+            float healthY = -46 * _zoom;
             DrawLine(p + new Vector2(0, -9), p + new Vector2(0, healthY), color.Darkened(.3f), 1);
             DrawRect(new Rect2(p + new Vector2(-9, healthY), new Vector2(18, 4)), new Color("121a22"));
             DrawRect(new Rect2(p + new Vector2(-9, healthY), new Vector2(18 * fraction, 4)), friendly ? new Color("69dbae") : new Color("fa9a8c"));
@@ -370,31 +408,15 @@ public partial class Main : Node2D
         float width = ThemeDB.FallbackFont.GetStringSize(text, HorizontalAlignment.Left, -1, size).X;
         DrawString(ThemeDB.FallbackFont, position - new Vector2(width / 2, 0), text, HorizontalAlignment.Left, -1, size, color ?? _ink);
     }
-    private bool Sprite(string id, Vector2 anchor, Vector2 size)
+    private bool Sprite(string id, Vector2 anchor, Vector2 size, Color? tint = null)
     {
-        // Debug mode returns before path resolution or disk access, even if artwork exists.
-        if (_options.Mode != RenderMode.Sprites) return false;
-        if (!_textures.TryGetValue(id, out var texture))
-        {
-            texture = null;
-            if (VisualAssets.Resolve(_options.AssetsRoot, id, _options.Mode) is { } path)
-            {
-                try
-                {
-                    _spriteDecodeAttempts++;
-                    using var source = System.IO.File.OpenRead(path);
-                    Span<byte> signature = stackalloc byte[8];
-                    if (source.Read(signature) != 8 || !signature.SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }))
-                        throw new InvalidDataException("Invalid PNG header");
-                    using var image = new Image();
-                    if (image.Load(path) == Error.Ok && !image.IsEmpty()) texture = ImageTexture.CreateFromImage(image);
-                }
-                catch (Exception exception) { GD.PushWarning($"Optional sprite {id}: {exception.Message}. Using shapes."); }
-            }
-            _textures[id] = texture;
-        }
-        if (texture is null) return false;
-        DrawTextureRect(texture, new Rect2(anchor - new Vector2(size.X / 2, size.Y * .8f), size), false); return true;
+        if (LoadArt(id) is not { } texture) { Overlay(anchor, new Rect2(anchor - new Vector2(24, 32), new Vector2(48, 40) * _zoom)); return false; }
+        float factor = Math.Min(size.X / texture.GetWidth(), size.Y / texture.GetHeight());
+        size = new Vector2(texture.GetWidth(), texture.GetHeight()) * factor;
+        var meta = _catalog.Metadata(id);
+        var rect = new Rect2(anchor - new Vector2(meta.Anchor[0], meta.Anchor[1]) * size + new Vector2(meta.Offset[0], meta.Offset[1]) * _zoom, size);
+        DrawTextureRect(texture, rect, false, tint ?? Colors.White);
+        Overlay(anchor, rect); return true;
     }
 
     public override void _Input(InputEvent input)
@@ -476,6 +498,13 @@ public partial class Main : Node2D
         await SmokeAudioSettings();
         Require(_options.Mode != RenderMode.Debug || _spriteDecodeAttempts == 0, "no-assets ignores sprite files");
         Require(_music.GetInstanceId() == musicPlayer, "music player persists across game resets and phases");
+        if (_args.Contains("--expect-installed-art"))
+        {
+            Require(_catalog.Entries.Count == 13 && _hudTextures.Values.Count(t => t is not null) == 4 && _ninePatches > 0, "installed native NinePatchRect skins");
+            Require(_options.Mode != RenderMode.Sprites || _textures.Values.Any(t => t is not null), "native world PNG decoding");
+            Require(LoadArt("building/metalmine") is null, "missing building keeps geometric fallback");
+            GD.Print($"GODOT_ART_PASS view={_options.View} hud={_options.Hud} native-nine-slices={_ninePatches} dynamic-text=true");
+        }
         GD.Print($"SMOKE PASS Godot mode={_options.Mode} checkpoint={checkpoint}; startup, drawing, selection, construction, recruitment, ready, combat, draft, resize; sprite_decode_attempts={_spriteDecodeAttempts}");
     }
     private static void Require(bool success, string check) { if (!success) throw new InvalidOperationException("Godot integration failed: " + check); }
@@ -485,6 +514,7 @@ public partial class Main : Node2D
         ShutdownMusic();
         _session?.Dispose();
         DisposeSteam();
+        foreach (var texture in _hudTextures.Values) texture?.Dispose();
         foreach (var texture in _textures.Values) texture?.Dispose();
     }
 }

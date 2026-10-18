@@ -1,0 +1,163 @@
+using System.Numerics;
+using System.Text.Json;
+using Game.Core;
+using Game.Shared;
+using Xunit;
+
+namespace Game.Shared.Tests;
+
+public sealed class ArtTests
+{
+    [Fact]
+    public void OptionsAreLocalStrictAndDebugByDefault()
+    {
+        var defaults = RenderOptions.Parse([]);
+        Assert.Equal(RenderMode.Debug, defaults.Mode); Assert.Equal(HudArt.Plain, defaults.Hud); Assert.Equal(1, defaults.GroundCompression);
+        var illustrated = RenderOptions.Parse(["--world-art", "sprites", "--hud-art", "illustrated", "--view", "angled", "--debug-overlay", "on"]);
+        Assert.Equal(RenderMode.Sprites, illustrated.Mode); Assert.Equal(HudArt.Illustrated, illustrated.Hud); Assert.Equal(.72f, illustrated.GroundCompression); Assert.True(illustrated.DebugOverlay);
+        foreach (string option in new[] { "--world-art", "--hud-art", "--view", "--debug-overlay" })
+        {
+            Assert.Throws<ArgumentException>(() => RenderOptions.Parse([option]));
+            Assert.Throws<ArgumentException>(() => RenderOptions.Parse([option, "wrong"]));
+        }
+    }
+
+    [Theory]
+    [InlineData(.72)]
+    [InlineData(1)]
+    public void ProjectedCellsCornersAndInverseSelectionAgree(double compression)
+    {
+        var projection = new HexProjection(65, compression);
+        foreach (var cell in SettlementLayout.Coordinates)
+        {
+            Vector2 ground = projection.Project(cell);
+            Assert.Equal(cell, projection.HitTest(ground, SettlementLayout.Coordinates));
+            Assert.Equal(cell, projection.Unproject(ground + new Vector2(4, -3)));
+            Vector2[] corners = projection.Corners(cell);
+            Assert.InRange(corners.Max(p => p.Y) - corners.Min(p => p.Y), (float)(130 * compression) - .001f, (float)(130 * compression) + .001f);
+        }
+        Assert.Throws<ArgumentOutOfRangeException>(() => new HexProjection(65, 0));
+    }
+
+    [Fact]
+    public void CatalogResolvesReplacementAndMissingAssetsWithoutCodeChanges()
+    {
+        WithCatalog((root, spriteRoot) =>
+        {
+            WriteCatalog(root, "sprites/buildings/version-two.png");
+            var catalog = new AssetCatalog(spriteRoot);
+            Assert.Null(catalog.Error);
+            Assert.Null(catalog.Resolve("building/farm", true));
+            string replacement = Path.Combine(root, "sprites/buildings/version-two.png");
+            Directory.CreateDirectory(Path.GetDirectoryName(replacement)!); File.WriteAllText(replacement, "native client validates PNG");
+            Assert.Equal(replacement, catalog.Resolve("building/farm", true));
+            Assert.Null(catalog.Resolve("building/farm", false));
+            Assert.Equal(.92f, catalog.Metadata("building/farm").Anchor[1]);
+            File.Delete(replacement); Assert.Null(catalog.Resolve("building/farm", true));
+            Assert.Empty(new AssetCatalog(spriteRoot, false).Entries);
+        });
+    }
+
+    [Theory]
+    [InlineData("../outside.png", 512, .5f)]
+    [InlineData("sprites/buildings/farm.png", 0, .5f)]
+    [InlineData("sprites/buildings/farm.png", 512, 2f)]
+    public void InvalidCatalogFallsBack(string path, int width, float anchor)
+    {
+        WithCatalog((root, spriteRoot) =>
+        {
+            WriteCatalog(root, path, width, anchor);
+            var catalog = new AssetCatalog(spriteRoot);
+            Assert.NotNull(catalog.Error); Assert.Empty(catalog.Entries);
+            Assert.Null(catalog.Resolve("building/farm", true));
+        });
+        Assert.False(new SliceMargins(48, 48, 48, 48).Valid(90, 200));
+        Assert.False(new SliceMargins(-1, 1, 1, 1).Valid(100, 100));
+    }
+
+    [Fact]
+    public void InstalledCatalogHasEveryRequiredIdAndValidHudMargins()
+    {
+        DirectoryInfo? dir = new(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CommonWatch.slnx"))) dir = dir.Parent;
+        Assert.NotNull(dir);
+        var catalog = new AssetCatalog(Path.Combine(dir!.FullName, "assets/sprites"));
+        Assert.Null(catalog.Error); Assert.Equal(13, catalog.Entries.Count);
+        foreach (var entry in catalog.Entries)
+        {
+            Assert.NotNull(catalog.Resolve(entry.Id, true));
+            if (entry.Id.StartsWith("hud/")) Assert.True(entry.Slice!.Valid(entry.Size[0], entry.Size[1]));
+        }
+    }
+
+    [Fact]
+    public void MotionUsesRealEventsAndLeavesSnapshotsUnchanged()
+    {
+        using var session = ScenarioRunner.CreateAt("combat");
+        string before = JsonSerializer.Serialize(session.Snapshot, WireJson.Options);
+        var motion = new SpriteMotion();
+        foreach (var entry in session.Snapshot.CombatEvents) motion.Observe(entry, 1);
+        UnitState unit = session.Playback.Units().First();
+        Assert.NotEqual(motion.Sample(unit, session.Playback.Tick, 1, Vector2.Zero, null).Offset,
+            motion.Sample(unit, session.Playback.Tick, 1.3, Vector2.Zero, null).Offset);
+        Assert.Equal(before, JsonSerializer.Serialize(session.Snapshot, WireJson.Options));
+        bool attack = false, hit = false, death = false;
+        for (int i = 0; i < 5000 && session.Snapshot.Phase == Phase.Combat; i++)
+        {
+            session.Step(); session.Playback.Advance(.1, true);
+            foreach (var entry in session.Playback.Drain())
+            {
+                double seconds = session.Snapshot.Tick / (double)Match.StepsPerSecond;
+                motion.Observe(entry, seconds);
+                if (entry.Unit is not { } observed) continue;
+                if (entry.Type == CombatEventType.AttackStarted)
+                {
+                    Vector2 idle = motion.Sample(observed, entry.Tick, seconds + .14, Vector2.Zero, null).Offset;
+                    Vector2 lunge = motion.Sample(observed, entry.Tick, seconds + .14, Vector2.Zero, new Vector2(30, 0)).Offset;
+                    Assert.True(lunge.X - idle.X > 5); attack = true;
+                }
+                if (entry.Type == CombatEventType.Hit)
+                { Assert.Equal(1, motion.Sample(observed, entry.Tick, seconds, Vector2.Zero, null).Flash); hit = true; }
+                if (entry.Type == CombatEventType.Death && observed.Hex is { } hex)
+                {
+                    var start = motion.Sample(observed, hex.DeathStartTick, seconds, Vector2.Zero, null);
+                    var end = motion.Sample(observed, hex.DeathEndTick, seconds, Vector2.Zero, null);
+                    Assert.Equal(1, start.Opacity); Assert.Equal(0, end.Opacity); death = true;
+                }
+            }
+            if (attack && hit && death) break;
+        }
+        Assert.True(attack && hit && death, "Real replay must exercise lunge, hit flash and death fade");
+    }
+
+    [Fact]
+    public void AllArtSettingsPreserveTheAuthorityResult()
+    {
+        string Play(string[] args)
+        {
+            var options = RenderOptions.Parse(args);
+            using var session = ScenarioRunner.CreateAt("combat");
+            var projection = new HexProjection(65, options.GroundCompression);
+            while (session.Snapshot.Phase == Phase.Combat)
+            {
+                foreach (var unit in session.Playback.Units()) _ = projection.Project(new HexCoordinate(0, 0));
+                session.Step();
+            }
+            session.ChooseReward(session.City.Run.Offers[0]);
+            return JsonSerializer.Serialize(session.Snapshot, WireJson.Options);
+        }
+        Assert.Equal(Play([]), Play(["--world-art", "sprites", "--hud-art", "illustrated", "--view", "angled", "--debug-overlay", "on"]));
+    }
+
+    static void WithCatalog(Action<string, string> action)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "watch-art-" + Guid.NewGuid().ToString("N"));
+        string sprites = Path.Combine(root, "sprites"); Directory.CreateDirectory(sprites);
+        try { action(root, sprites); } finally { Directory.Delete(root, true); }
+    }
+    static void WriteCatalog(string root, string path, int width = 512, float anchor = .5f)
+    {
+        var data = new { version = 1, assets = new[] { new { id = "building/farm", path, size = new[] { width, 512 }, anchor = new[] { anchor, .92f }, display_size = 142 } } };
+        File.WriteAllText(Path.Combine(root, "catalog.json"), JsonSerializer.Serialize(data));
+    }
+}

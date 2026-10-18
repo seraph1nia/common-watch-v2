@@ -47,7 +47,7 @@ run = ["dotnet restore tests/Game.Shared.Tests/Game.Shared.Tests.csproj --locked
 [tasks.test]
 description = "All Core, shared and actual graphical integration tests"
 depends = ["build"]
-run = "dotnet test CommonWatch.slnx --no-build --no-restore --nologo"
+run = [".venv-art/bin/python -m unittest discover -s tests/art -v", "dotnet test CommonWatch.slnx --no-build --no-restore --nologo"]
 
 [tasks.scenario]
 description = "Replay the authoritative first-wave scenario and write JSON checkpoints"
@@ -211,3 +211,49 @@ description = "Explicitly gated live Steam SDK/gameplay worker; see docs/SESSION
 depends = ["build"]
 run = "bash tools/steam-native.sh monogame"
 raw_args = true
+
+[tasks.art-setup]
+description = "Create the local Pillow environment (no archive import)"
+run = ["python3 -m venv .venv-art", ".venv-art/bin/pip install -r tools/art/requirements.txt"]
+
+[tasks.art-process]
+description = "Crop existing source PNGs and prepare deterministic staged sprites, metadata and previews"
+run = ".venv-art/bin/python tools/art/pipeline.py process"
+
+[tasks.art-validate]
+description = "Validate staged PNGs, metadata, source hashes and nine-slice margins"
+run = ".venv-art/bin/python tools/art/pipeline.py validate"
+
+[tasks.art-install]
+description = "Install validated staged PNGs and catalog into assets"
+run = ".venv-art/bin/python tools/art/pipeline.py install"
+
+[tasks.art-preview]
+description = "Render contact sheet and multi-size nine-slice previews"
+run = ".venv-art/bin/python tools/art/pipeline.py preview"
+
+[tasks.test-art]
+description = "Test Pillow cropping, alpha, anchors, nine-slicing and deterministic processing"
+run = ".venv-art/bin/python -m unittest discover -s tests/art -v"
+
+[tasks.art-showroom-godot]
+description = "Inspect installed artwork and native nine-slices without a running match"
+depends = ["build"]
+run = "bash tools/client.sh godot --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
+raw_args = true
+
+[tasks.art-showroom-monogame]
+description = "Inspect installed artwork and native Gum nine-slices without a running match"
+depends = ["build"]
+run = "bash tools/client.sh monogame --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
+raw_args = true
+
+[tasks.capture-godot-art]
+description = "Capture nine actual Godot artwork verification views on an owned display"
+depends = ["build"]
+run = "bash tools/graphical.sh godot capture-art"
+
+[tasks.capture-monogame-art]
+description = "Capture nine actual MonoGame/Gum artwork verification views on an owned display"
+depends = ["build"]
+run = "bash tools/graphical.sh monogame capture-art"

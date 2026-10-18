@@ -35,5 +35,27 @@ case "$operation" in
     done
     echo "Actual rendered captures: $output"
     ;;
+  capture-art)
+    output="$(pwd)/artifacts/captures/$client/art"
+    mkdir -p "$output"
+    capture_art() {
+      name=$1; checkpoint=$2
+      shift 2
+      run_client --checkpoint "$checkpoint" --capture "$output/$name.png" "$@"
+      test -s "$output/$name.png"
+    }
+    capture_art settlement-debug settlement --world-art debug --hud-art plain --view topdown
+    capture_art settlement-angled settlement --world-art debug --hud-art plain --view angled --debug-overlay on
+    capture_art settlement-sprites settlement --world-art sprites --hud-art plain --view angled
+    capture_art combat-sprites combat --world-art sprites --hud-art illustrated --view angled
+    capture_art hud-plain draft --world-art sprites --hud-art plain --view angled
+    capture_art hud-illustrated draft --world-art sprites --hud-art illustrated --view angled
+    capture_art nine-slice-small building-selected --world-art sprites --hud-art illustrated --view angled --width 1280 --height 720
+    capture_art nine-slice-large draft --world-art sprites --hud-art illustrated --view angled --width 1920 --height 1080
+    # Showroom constructs no match, even though the ordinary capture helper accepts a checkpoint.
+    run_client --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080 --capture "$output/asset-showroom.png"
+    test -s "$output/asset-showroom.png"
+    echo "Actual art captures: $output"
+    ;;
   *) echo "Unknown operation: $operation" >&2; exit 2 ;;
 esac

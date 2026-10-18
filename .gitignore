@@ -4,3 +4,6 @@
 # Build bundles, captures and test logs.
 artifacts/
 .lavish/
+.venv-art/
+**/__pycache__/
+art/processed/

@@ -2,6 +2,21 @@
 
 Verified on Linux x86_64 with .NET SDK 10.0.401, Godot .NET 4.7.2, MonoGame DesktopGL 3.8.4.1 and Gum.MonoGame 2026.1.31.1. Real graphics ran on owned Xvfb displays using Mesa llvmpipe OpenGL 4.6. Graphical integration uses silent audio backends; separate output checks used isolated PulseAudio sinks. No OS packages were installed.
 
+## Artwork integration (2026-10-18)
+
+The supplied four source sheets were extracted once and preserved byte-for-byte. Thirteen assets were cropped, uniformly fitted into their documented canvases, validated and installed, with source/output metadata. All source, output and preview PNGs also passed an explicit PNG-chunk CRC check. No replacement artwork, archive tool or Core changes were introduced. All 47 tracked Core files were also compared byte-for-byte against their original Git blobs. A second real processing run reproduced the installed PNG hashes, catalog bytes and preview bytes exactly. See [workflow, catalog, source choices and limitations](ARTWORK.md).
+
+- `mise run art-process`, `art-validate`, `art-install`, `art-preview`, `test-art`: successful. **14 Pillow tests** cover crops, RGBA/alpha, visible bounds, aspect ratio, canvas/anchor placement, invalid inputs, conservative edge cleanup, deterministic bytes and nine-slice corners at all four required sizes.
+- `mise run build`: locked restore and complete solution build with zero warnings/errors. No dependency versions or NuGet locks changed.
+- `mise run test-core`: **40 passed**. `mise run test-shared`: **41 passed**, including catalog replacement/missing metadata, path rejection, installed IDs, 0.72 projection/inverse selection, actual authoritative attack/hit/death event sampling and identical game results across art settings.
+- `mise run test`: **132 .NET tests passed**, none failed/skipped, plus the 14 Pillow tests. Breakdown: Core 40, Shared 41, Godot session 17, MonoGame session 26, graphical/process integration 8. This includes the existing multiplayer and reconnect process checks. The aggregate transcript is `artifacts/full-test.log`.
+- Both actual graphical clients ran their complete UI/gameplay smoke loops against installed art, empty asset directories and corrupt PNG fixtures. Installed-art checks use angled view, illustrated HUD and overlays in both world modes, exercise native texture decoding and native nine-slices, preserve dynamic text and test 1280/1920 resizing. Additional empty-directory illustrated-HUD checks verify fallback to ordinary controls. Debug reports zero world-image decoding. Per-client evidence is in `artifacts/test-logs/{godot,monogame}-{installed,empty,empty-illustrated,invalid}.log`.
+- Final focused reruns after the last layout corrections: `mise run test-godot` and `test-monogame` each passed both graphical facts, including installed art and empty/corrupt/illustrated-fallback launches. Their transcripts are `artifacts/final-{godot,monogame}-test.log`.
+- `mise run capture-godot-art` and `capture-monogame-art`: nine actual frames each, all inspected. Paths are `artifacts/captures/{godot,monogame}/art/`. The required names cover debug/topdown, angled/overlays, sprites, combat, plain/illustrated draft HUD, small/large nine-slice layouts and showrooms. Large captures are 1920 × 1080; showrooms are 1280 × 1080. Showroom logs confirm `authority=none`.
+- Inspection corrected Godot container scaling/background draw order, native viewport sizing, labels hidden by tall sprites, button/card text padding, MonoGame frame insets and showroom UI remnants. Native corners and connected edges remain intact; the large painted parchment center retains the documented grain/stretch limitation.
+
+These results qualify Linux/Mesa presentation. Windows/macOS rendering, physical input/audio and fresh platform release builds were not run for this artwork change. The release/session sections below retain their earlier qualification history. Previously empty optional directories now contain the supplied cutouts; positive native PNG decoding is now exercised.
+
 ## Session extension results
 
 - `mise run build`: complete solution, pinned binary hash verification and locked NuGet restore; zero warnings/errors.
@@ -58,7 +73,7 @@ These are real viewport/backbuffer frames at 1280×720, using no artwork. Both c
 
 ## Unexecuted and environment-dependent checks
 
-- **Positive loading of a valid external game PNG is not exercised.** No suitable sprite was present in the starting project. Runtime PNG decoding and logical path routing are implemented; missing/corrupt fallback is exercised. No artwork was manufactured to claim a positive test.
+- Positive native PNG loading is now covered by the artwork integration checks above. The original empty/corrupt-fixture checks remain in place.
 - Native Windows/macOS launches and captures have not been run. This repository's pinned automated graphical workflow targets Linux x86_64.
 - Virtual-display tests verify application rendering and callbacks. They do not qualify a physical GPU/display or desktop input device. Audio output has additionally been measured through isolated software sinks as described above; physical listening remains unexecuted.
 

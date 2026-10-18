@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "assets": [
+    {"id":"building/lumbermill","source":"art/source/01-world-sprites.png","crop":[10,55,520,506],"output":"sprites/buildings/lumbermill.png","anchor":[0.5,0.92],"display_size":142},
+    {"id":"building/farm","source":"art/source/01-world-sprites.png","crop":[530,78,1017,508],"output":"sprites/buildings/farm.png","anchor":[0.5,0.92],"display_size":142},
+    {"id":"building/barracks","source":"art/source/01-world-sprites.png","crop":[1025,45,1528,515],"output":"sprites/buildings/barracks.png","anchor":[0.5,0.92],"display_size":148},
+    {"id":"unit/swordsman","source":"art/source/03-angled-sprites-and-hud-sheet.png","crop":[48,420,159,552],"output":"sprites/units/swordsman.png","anchor":[0.5,0.92],"display_size":46},
+    {"id":"unit/enemy_swordsman","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1378,344,1521,508],"output":"sprites/units/enemy_swordsman.png","anchor":[0.5,0.92],"display_size":46},
+    {"id":"terrain/woodland_hex","source":"art/source/01-world-sprites.png","crop":[1050,560,1478,974],"output":"sprites/terrain/woodland_hex.png","anchor":[0.5,0.5],"display_size":116},
+    {"id":"resource/gold","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[13,834,109,954],"output":"sprites/resources/gold.png","anchor":[0.5,0.5],"display_size":28},
+    {"id":"resource/wood","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[111,828,230,952],"output":"sprites/resources/wood.png","anchor":[0.5,0.5],"display_size":28},
+    {"id":"resource/stone","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[230,829,334,951],"output":"sprites/resources/stone.png","anchor":[0.5,0.5],"display_size":28},
+    {"id":"hud/panel","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[556,797,1044,987],"output":"hud/panel.png","slice":{"left":64,"top":64,"right":64,"bottom":64},"border_scale":0.42},
+    {"id":"hud/card_frame","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1317,764,1518,1015],"output":"hud/card_frame.png","slice":{"left":48,"top":48,"right":48,"bottom":48},"border_scale":0.75},
+    {"id":"hud/button","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1054,791,1305,895],"output":"hud/button.png","slice":{"left":32,"top":32,"right":32,"bottom":32},"border_scale":0.42},
+    {"id":"hud/tooltip","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1050,891,1291,988],"output":"hud/tooltip.png","slice":{"left":30,"top":30,"right":30,"bottom":30},"border_scale":0.5}
+  ]
+}

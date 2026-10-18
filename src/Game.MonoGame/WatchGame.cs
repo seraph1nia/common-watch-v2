@@ -29,8 +29,8 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
     MonoSession session = null!;
     ShapeCanvas canvas = null!;
     OptionalSprites sprites = null!;
-    readonly HexProjection settlementProjection = new(66);
-    readonly HexProjection combatProjection = new(31);
+    readonly HexProjection settlementProjection;
+    readonly HexProjection combatProjection;
     readonly List<TextRuntime> worldLabels = [];
     readonly List<(Button Button, Action Action)> actions = [];
     readonly List<StackPanel> rewardPanels = [];
@@ -55,6 +55,8 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
     {
         arguments = args;
         options = RenderOptions.Parse(args);
+        settlementProjection = new(66, options.GroundCompression);
+        combatProjection = new(31, options.GroundCompression);
         string? Arg(string name)
         {
             int index = Array.IndexOf(args, name);
@@ -90,6 +92,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         GumUI.Initialize(this, DefaultVisualsVersion.V3);
         canvas = new(GraphicsDevice);
         sprites = new(GraphicsDevice, options);
+        CreateHudArt();
         // Text uses Gum's packaged technical font, without a content build or game art.
         for (int i = 0; i < 180; i++) worldLabels.Add(NewText(0, 0, 200));
         title = NewText(24, 14, 800); title.FontScale = 1.15f;
@@ -97,9 +100,9 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         status = NewText(24, 78, 900);
         footer = NewText(24, 0, 1100); footer.FontScale = .8f;
         combatRoster = NewText(0, 145, 310); combatRoster.FontScale = .8f; combatRoster.Height = 480;
-        sidebar = new StackPanel { Width = SidebarWidth - 24, X = Window.ClientBounds.Width - SidebarWidth + 12, Y = 125 };
+        sidebar = new StackPanel { Width = SidebarWidth - (artPanels[1] is not null ? 56 : 24), X = Window.ClientBounds.Width - SidebarWidth + 12, Y = 125 };
         sidebar.AddToRoot();
-        selectedText = new Label { Width = 310, Height = 80 };
+        selectedText = new Label { Width = sidebar.Width, Height = 80 };
         selectedText.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.Absolute;
         selectedText.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
         sidebar.AddChild(selectedText);
@@ -115,7 +118,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         ready = AddButton("Advance preparation / ready", () => Submit("ready", selected: false));
         AddButton("Reset camera [R]", ResetCamera);
         AddButton("Return to main menu", ReturnToMenu);
-        hintText = new Label { Width = 310, Height = 90 };
+        hintText = new Label { Width = sidebar.Width, Height = 80 };
         hintText.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.Absolute;
         hintText.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
         sidebar.AddChild(hintText);
@@ -124,9 +127,9 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             int choice = i;
             var panel = new StackPanel { Width = 275, Height = 380, Y = 240 };
             panel.AddToRoot();
-            var name = new Label { Width = 255, Height = 70 };
-            var description = new Label { Width = 255, Height = 220 };
-            var choose = new Button { Text = "Choose reward", Width = 255, Height = 42 };
+            var name = new Label { Width = 235, Height = 70, X = 18 };
+            var description = new Label { Width = 235, Height = 180, X = 18 };
+            var choose = new Button { Text = "Choose reward", Width = 235, Height = 42, X = 18 };
             name.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.Absolute;
             description.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.Absolute;
             name.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
@@ -134,21 +137,24 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             choose.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
             panel.AddChild(name); panel.AddChild(description); panel.AddChild(choose);
             choose.Click += (_, _) => ChooseReward(choice);
+            SkinButton(choose);
             rewardPanels.Add(panel); rewardNames.Add(name); rewardDescriptions.Add(description); rewardButtons.Add(choose);
         }
         audioSettings = AudioSettings.Load(settingsPath);
         music = new LoopingMusic(audioRoot, audioSettings.MusicVolume);
         settingsMenu = new MusicSettingsMenu(audioSettings, music);
+        SkinButton(settingsMenu.OpenButton);
         if (captureSettings) settingsMenu.SetOpen(true);
         var menuButton = new Button { Text = "Main menu", Width = 150, Height = 32, X = 740, Y = 15 };
-        menuButton.AddToRoot(); menuButton.Click += (_, _) => ReturnToMenu();
+        menuButton.AddToRoot(); SkinButton(menuButton); menuButton.Click += (_, _) => ReturnToMenu();
         var reconnectButton = new Button { Text = "Reconnect", Width = 175, Height = 32, X = 740, Y = 52 };
-        reconnectButton.AddToRoot(); reconnectButton.Click += (_, _) => ReconnectCurrent();
+        reconnectButton.AddToRoot(); SkinButton(reconnectButton); reconnectButton.Click += (_, _) => ReconnectCurrent();
         CreateSessionMenu();
         if (Arg("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
         else if (Arg("--join") is { } endpoint) BeginJoin(endpoint);
         lastPhase = session is { HasState: true } ? session.Snapshot.Phase : Phase.Lobby;
         UpdateUi();
+        if (options.Showroom) { ReturnToMenu(); sessionMenu.Visual.Visible = false; menuButton.Visual.Visible = false; reconnectButton.Visual.Visible = false; settingsMenu.OpenButton.Visual.Visible = false; }
         base.Initialize();
         Console.WriteLine($"MonoGame initialized; rendering={options.Mode}; checkpoint={(session is { HasState: true } ? session.Snapshot.Phase : null)}; {Window.ClientBounds.Width}x{Window.ClientBounds.Height}");
     }
@@ -162,8 +168,9 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
     }
     Button AddButton(string text, Action action)
     {
-        var button = new Button { Text = text, Width = 310, Height = 31 };
+        var button = new Button { Text = text, Width = sidebar.Width, Height = 30 };
         button.Visual.HeightUnits = Gum.DataTypes.DimensionUnitType.Absolute;
+        SkinButton(button);
         button.Click += (_, _) => action();
         sidebar.AddChild(button);
         actions.Add((button, action));
@@ -181,13 +188,14 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         if (session.City.Run.Offers.ElementAtOrDefault(index) is { } id) session.ChooseReward(id);
         UpdateUi();
     }
-    void ReplaceSession(SoloSession next) { checkpointFrozen = false; session?.Dispose(); steamLobbies?.Leave(); session = new MonoSession(next); effects.Clear(); ResetCamera(); UpdateUi(); }
+    void ReplaceSession(SoloSession next) { checkpointFrozen = false; session?.Dispose(); steamLobbies?.Leave(); session = new MonoSession(next); effects.Clear(); motion.Clear(); ResetCamera(); UpdateUi(); }
     void ResetCamera() { cameraPan = Vector2.Zero; cameraZoom = 1; }
 
     protected override void Update(GameTime gameTime)
     {
         frames++;
         elapsed += gameTime.ElapsedGameTime.TotalSeconds;
+        if (options.Showroom) { GumUI.Update(gameTime); base.Update(gameTime); return; }
         ProcessSteam();
         GumUI.Update(gameTime);
         RunControlProbe();
@@ -226,8 +234,11 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         }
         if (lastPhase != session.Snapshot.Phase) { ResetCamera(); lastPhase = session.Snapshot.Phase; }
         foreach (CombatEvent entry in session.Playback.Drain())
+        {
+            motion.Observe(entry, elapsed);
             if (entry.Unit is { } unit && entry.Type is CombatEventType.Hit or CombatEventType.Death)
                 effects.Add((CombatVisuals.Position(unit, session.Snapshot, session.Playback.Tick, combatProjection.Radius).ToXna(), entry.Type == CombatEventType.Death ? "fallen" : "-" + HealthPoints.Format(entry.Damage), elapsed + .9));
+        }
         effects.RemoveAll(effect => effect.Until < elapsed);
         RunNetworkProbe();
         UpdateUi();
@@ -271,11 +282,13 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         status.Text = $"Wave {snapshot.Wave}   |   {snapshot.Phase}   |   Preparation {snapshot.Turn}   |   Soldiers {city.Soldiers.Length}   |   {options.Mode}   |   {(music.Loaded ? "Music on" : "Music unavailable - see Settings")}";
         footer.Y = height - 35;
         footer.Text = $"{(!session.Connected ? session.Status : session.Pending ? "Waiting for authority…" : session.LastResult?.Message) ?? "Select a settlement hex. Build an economy, recruit, then ready for battle."}    /    Pan: right drag or arrows  |  Zoom: wheel  |  Reset: R";
-        sidebar.X = width - SidebarWidth + 12;
+        sidebar.X = width - SidebarWidth + (artPanels[1] is not null ? 28 : 12);
+        sidebar.Y = artPanels[1] is not null ? 140 : 125;
         sidebar.IsEnabled = !settingsMenu.IsOpen && session.Connected;
         sidebar.Visual.Visible = !settingsMenu.IsOpen && snapshot.Phase is not (Phase.RewardDraft or Phase.Combat);
         combatRoster.Visible = !settingsMenu.IsOpen && snapshot.Phase == Phase.Combat;
-        combatRoster.X = width - SidebarWidth + 15;
+        combatRoster.X = width - SidebarWidth + (artPanels[1] is not null ? 28 : 15);
+        combatRoster.Width = artPanels[1] is not null ? SidebarWidth - 56 : 310;
         combatRoster.Text = "AUTOMATIC COMBAT\n\n" + string.Join("\n\n", session.Playback.Units().Where(unit => unit.Hex?.Lifecycle is UnitLifecycle.Alive or UnitLifecycle.Dying).Select(unit => $"{(unit.Faction == Faction.Adventurers ? "S" : "E")}{unit.Id} {unit.Type}\nHP: {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)}"));
         SlotState? slot = city.Slots.ElementAtOrDefault(session.SelectedSlot);
         string selected = slot is null ? "Select a settlement hex" : $"Plot {session.SelectedSlot + 1}: {(slot.Purchased ? slot.Type == Building.Empty ? "Empty" : slot.Type.ToString() : "Unpurchased")}\nLevel {slot.Level}";
@@ -293,7 +306,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             rewardButtons[i].IsEnabled = !settingsMenu.IsOpen && session.Connected;
             rewardPanels[i].Visual.Visible = !settingsMenu.IsOpen && snapshot.Phase == Phase.RewardDraft;
             rewardPanels[i].X = (width - 920) / 2f + i * 310 + 12;
-            rewardPanels[i].Y = Math.Max(170, (height - 390) / 2f);
+            rewardPanels[i].Y = Math.Max(170, (height - 390) / 2f) + 40;
             if (city.Run.Offers.ElementAtOrDefault(i) is { } id)
             {
                 RewardCard card = RunCatalog.Card(id);
@@ -308,22 +321,27 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         GraphicsDevice.Clear(new Color(16, 24, 32));
         labelCount = 0;
         canvas.Begin();
-        if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase != Phase.Lobby)
+        if (options.Showroom) DrawShowroom();
+        else
         {
-            if (session.Snapshot.Phase == Phase.Combat) DrawCombat(); else if (session.Snapshot.Phase != Phase.RewardDraft) DrawSettlement();
+            if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase != Phase.Lobby)
+            {
+                if (session.Snapshot.Phase == Phase.Combat) DrawCombat(); else if (session.Snapshot.Phase != Phase.RewardDraft) DrawSettlement();
+            }
+            canvas.Rect(0, 0, Window.ClientBounds.Width, 111, new(23, 35, 47));
+            canvas.Rect(Window.ClientBounds.Width - SidebarWidth, 112, SidebarWidth, Window.ClientBounds.Height - 112, new(25, 36, 49));
+            canvas.Rect(0, Window.ClientBounds.Height - 42, Window.ClientBounds.Width, 42, new(12, 18, 25));
+            if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase == Phase.RewardDraft)
+            {
+                canvas.Rect(0, 112, Window.ClientBounds.Width, Window.ClientBounds.Height - 154, new(15, 22, 34));
+                for (int i = 0; i < 3; i++) if (artPanels[i + 2] is null) canvas.Rect(rewardPanels[i].X - 12, rewardPanels[i].Y - 15, 290, 340, new(42, 54, 72));
+                WorldLabel("WAVE CLEARED - CHOOSE ONE REWARD", new(Window.ClientBounds.Width / 2f, 130), 650, 1.1f);
+            }
+            settingsMenu.Draw(canvas, Window.ClientBounds.Width, Window.ClientBounds.Height);
         }
-        canvas.Rect(0, 0, Window.ClientBounds.Width, 111, new(23, 35, 47));
-        canvas.Rect(Window.ClientBounds.Width - SidebarWidth, 112, SidebarWidth, Window.ClientBounds.Height - 112, new(25, 36, 49));
-        canvas.Rect(0, Window.ClientBounds.Height - 42, Window.ClientBounds.Width, 42, new(12, 18, 25));
-        if (!settingsMenu.IsOpen && session is { HasState: true } && session.Snapshot.Phase == Phase.RewardDraft)
-        {
-            canvas.Rect(0, 112, Window.ClientBounds.Width, Window.ClientBounds.Height - 154, new(15, 22, 34));
-            for (int i = 0; i < 3; i++) canvas.Rect(rewardPanels[i].X - 12, rewardPanels[i].Y - 15, 290, 380, new(42, 54, 72));
-            WorldLabel("WAVE CLEARED - CHOOSE ONE REWARD", new(Window.ClientBounds.Width / 2f, 130), 650, 1.1f);
-        }
-        settingsMenu.Draw(canvas, Window.ClientBounds.Width, Window.ClientBounds.Height);
         canvas.End();
         for (int i = labelCount; i < worldLabels.Count; i++) worldLabels[i].Visible = false;
+        if (!options.Showroom) UpdateHudArt();
         GumUI.Draw();
         if (!probeCaptured && Arg("--network-test") is { } count && Arg("--lobby-capture") is { } lobbyCapture
             && session is { HasState: true } && session.Snapshot.Phase == Phase.Lobby && session.Snapshot.Players.Length == int.Parse(count))
@@ -344,7 +362,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             Vector2 point = Screen(settlementProjection.Project(coordinate));
             bool selected = index == session.SelectedSlot;
             canvas.Polygon(settlementProjection.Corners(coordinate).Select(Screen).ToArray(), slot.Purchased ? new(53, 91, 73) : new(43, 51, 50), selected ? new(250, 210, 92) : new(107, 140, 118), selected ? 4 : 2);
-            if (sprites.Get("terrain/hex") is { } terrain) canvas.Sprite(terrain, point + new Vector2(0, 56 * cameraZoom), 112 * cameraZoom, 112 * cameraZoom);
+            WorldSprite("terrain/woodland_hex", point, 116 * cameraZoom);
         }
         // Terrain artwork cannot obscure logical borders or the selection outline.
         foreach ((HexCoordinate coordinate, int index) in SettlementLayout.Coordinates.Select((coordinate, index) => (coordinate, index)))
@@ -360,9 +378,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             Vector2 point = Screen(settlementProjection.Project(coordinate));
             if (slot.Type != Building.Empty)
             {
-                if (sprites.Get(VisualAssets.BuildingId(slot.Type)) is { } texture)
-                    canvas.Sprite(texture, point + new Vector2(0, 15 * cameraZoom), 74 * cameraZoom, 86 * cameraZoom);
-                else
+                if (!WorldSprite(VisualAssets.BuildingId(slot.Type), point, sprites.Catalog.Metadata(VisualAssets.BuildingId(slot.Type)).DisplaySize * cameraZoom))
                     canvas.Rect(point.X - 24 * cameraZoom, point.Y - 27 * cameraZoom, 48 * cameraZoom, 33 * cameraZoom, new(32, 51, 51));
             }
             WorldLabel(slot.Purchased ? slot.Type == Building.Empty ? "Empty plot" : slot.Type.ToString() : "Unpurchased", point + new Vector2(0, 8 * cameraZoom), 150 * cameraZoom, .8f * cameraZoom);
@@ -378,8 +394,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         foreach (HexCellDefinition cell in arena.Board.Cells)
         {
             canvas.Polygon(combatProjection.Corners(cell.Coordinate).Select(Screen).ToArray(), new(36, 56, 54), new(63, 83, 76), 1);
-            if (sprites.Get("terrain/hex") is { } terrain)
-                canvas.Sprite(terrain, Screen(combatProjection.Project(cell.Coordinate)) + new Vector2(0, 31 * cameraZoom), 54 * cameraZoom, 62 * cameraZoom);
+            WorldSprite("terrain/woodland_hex", Screen(combatProjection.Project(cell.Coordinate)), 54 * cameraZoom);
         }
         foreach (HexCellDefinition cell in arena.Board.Cells)
         {
@@ -396,18 +411,22 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
             WorldLabel(structure.Kind + "\n" + HealthPoints.Format(structure.Health) + " HP", position - new Vector2(0, 13), 115, .6f);
         }
         UnitState[] units = session.Playback.Units();
+        Vector2 Ground(UnitState unit) { NumVector p = CombatVisuals.Position(unit, snapshot, session.Playback.Tick, combatProjection.Radius); p.Y *= options.GroundCompression; return Screen(p); }
         foreach (UnitState unit in units.OrderBy(unit => CombatVisuals.Position(unit, snapshot, session.Playback.Tick).Y))
         {
-            if (unit.Hex?.Lifecycle is UnitLifecycle.Stored or UnitLifecycle.Reserve or UnitLifecycle.Queued or UnitLifecycle.Dying) continue;
-            Vector2 position = Screen(CombatVisuals.Position(unit, snapshot, session.Playback.Tick, combatProjection.Radius));
+            if (unit.Hex?.Lifecycle is UnitLifecycle.Stored or UnitLifecycle.Reserve or UnitLifecycle.Queued) continue;
+            Vector2 ground = Ground(unit);
+            UnitState? targetUnit = units.FirstOrDefault(u => u.Id == unit.TargetId);
+            var pose = motion.Sample(unit, session.Playback.Tick, elapsed, ground.ToNumerics(), targetUnit is null ? null : Ground(targetUnit).ToNumerics());
+            Vector2 position = ground + pose.Offset.ToXna() * cameraZoom;
             Color color = unit.Faction == Faction.Adventurers ? new(74, 151, 233) : new(226, 89, 89);
             if (unit.TargetId > 0 && units.FirstOrDefault(target => target.Id == unit.TargetId) is { } target && unit.PendingImpact)
                 canvas.Line(position, Screen(CombatVisuals.Position(target, snapshot, session.Playback.Tick, combatProjection.Radius)), new(245, 201, 91), 2);
-            if (sprites.Get(VisualAssets.UnitId(unit)) is { } texture) canvas.Sprite(texture, position + new Vector2(0, 10), 26, 32);
-            else canvas.Circle(position, 7 * cameraZoom, color);
+            Color tint = Color.Lerp(Color.White, new Color(255, 80, 80), pose.Flash) * pose.Opacity;
+            if (!WorldSprite(VisualAssets.UnitId(unit), position, sprites.Catalog.Metadata(VisualAssets.UnitId(unit)).DisplaySize * cameraZoom, tint)) canvas.Circle(position, 7 * cameraZoom, color * pose.Opacity);
             float ratio = Math.Clamp((float)unit.Health / Math.Max(1, unit.Profile.Health), 0, 1);
-            canvas.Rect(position.X - 7, position.Y - 14, 14, 3, new(18, 24, 29));
-            canvas.Rect(position.X - 7, position.Y - 14, 14 * ratio, 3, color);
+            canvas.Rect(position.X - 7, position.Y - 46 * cameraZoom, 14, 3, new(18, 24, 29));
+            canvas.Rect(position.X - 7, position.Y - 46 * cameraZoom, 14 * ratio, 3, color);
             WorldLabel((unit.Faction == Faction.Adventurers ? "S" : "E") + unit.Id, position + new Vector2(0, 10), 60, .5f);
         }
         foreach (var effect in effects) WorldLabel(effect.Text, Screen(effect.Position.ToNumerics()) - new Vector2(0, 28), 90, .8f);
@@ -424,7 +443,7 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         texture.SetData(pixels);
         using var file = File.Create(path);
         texture.SaveAsPng(file, width, height);
-        Console.WriteLine($"CAPTURE {Path.GetFullPath(path)} {width}x{height} phase={session.Snapshot.Phase}");
+        Console.WriteLine($"CAPTURE {Path.GetFullPath(path)} {width}x{height} phase={session?.Snapshot.Phase}");
     }
 
     void RunSmoke()
@@ -478,6 +497,13 @@ public sealed partial class WatchGame : Microsoft.Xna.Framework.Game
         Check(sidebar.X + sidebar.Width <= 1280, "1280x720 resize");
         sprites.Get("building/lumbermill"); sprites.Get("building/farm"); sprites.Get("unit/swordsman");
         if (options.Mode == RenderMode.Debug) Check(sprites.LoadAttempts == 0, "debug ignores sprite files");
+        if (arguments.Contains("--expect-installed-art"))
+        {
+            Check(sprites.Catalog.Entries.Count == 13 && nineSliceCount >= 6 && artPanels.All(p => p is not null), "installed native Gum NineSliceRuntime skins");
+            Check(options.Mode != RenderMode.Sprites || sprites.Get("building/farm") is not null && sprites.Get("unit/swordsman") is not null, "native world PNG decoding");
+            Check(sprites.Get("building/metalmine") is null, "missing building keeps geometric fallback");
+            Console.WriteLine($"MONOGAME_ART_PASS view={options.View} hud={options.Hud} native-nine-slices={nineSliceCount} dynamic-text=true");
+        }
         Console.WriteLine($"SMOKE PASS MonoGame: startup, Gum UI, selection, build, recruit, ready, combat, draft, reward, rejection, resize, mode={options.Mode}, sprite-load-attempts={sprites.LoadAttempts}");
         smokeCompleted = true;
     }

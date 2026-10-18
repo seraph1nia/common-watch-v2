@@ -1,0 +1,953 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "building/lumbermill",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        10,
+        55,
+        520,
+        506
+      ],
+      "output": "sprites/buildings/lumbermill.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/lumbermill.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          52,
+          504,
+          471
+        ],
+        "transparent_pixels": 127994,
+        "opaque_pixels": 116513,
+        "partial_pixels": 17637
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          510,
+          451
+        ],
+        "transparent_pixels": 72697,
+        "opaque_pixels": 0,
+        "partial_pixels": 157313
+      },
+      "content_bbox": [
+        3,
+        11,
+        507,
+        437
+      ],
+      "resize_scale": 0.9841269841269841,
+      "content_size": [
+        496,
+        419
+      ],
+      "content_offset": [
+        8,
+        52
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "bed8a30d25912060bbff601303272c35c758caa8f185da4a4129844e52a47c6d",
+      "sha256": "1b0abae5886f485e7fbf50a42b8efb6156470861a25618a3fc1438b8dd7c773b"
+    },
+    {
+      "id": "building/farm",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        530,
+        78,
+        1017,
+        508
+      ],
+      "output": "sprites/buildings/farm.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/farm.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          54,
+          504,
+          471
+        ],
+        "transparent_pixels": 123234,
+        "opaque_pixels": 120405,
+        "partial_pixels": 18505
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          487,
+          430
+        ],
+        "transparent_pixels": 64911,
+        "opaque_pixels": 0,
+        "partial_pixels": 144499
+      },
+      "content_bbox": [
+        1,
+        18,
+        480,
+        421
+      ],
+      "resize_scale": 1.0354906054279749,
+      "content_size": [
+        496,
+        417
+      ],
+      "content_offset": [
+        8,
+        54
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "bed8a30d25912060bbff601303272c35c758caa8f185da4a4129844e52a47c6d",
+      "sha256": "22ba68f4545387e1868923dd6f33be609819e05bc1c705afab52c7a57439b9fa"
+    },
+    {
+      "id": "building/barracks",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        1025,
+        45,
+        1528,
+        515
+      ],
+      "output": "sprites/buildings/barracks.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 148,
+      "path": "sprites/buildings/barracks.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          15,
+          504,
+          471
+        ],
+        "transparent_pixels": 110310,
+        "opaque_pixels": 132588,
+        "partial_pixels": 19246
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          497,
+          470
+        ],
+        "transparent_pixels": 72995,
+        "opaque_pixels": 0,
+        "partial_pixels": 163415
+      },
+      "content_bbox": [
+        1,
+        12,
+        495,
+        466
+      ],
+      "resize_scale": 1.0040485829959513,
+      "content_size": [
+        496,
+        456
+      ],
+      "content_offset": [
+        8,
+        15
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "bed8a30d25912060bbff601303272c35c758caa8f185da4a4129844e52a47c6d",
+      "sha256": "e678debf114fbfd939219e52e371b2d1ab2c034ebc18062cde9fbd8f62c34757"
+    },
+    {
+      "id": "unit/swordsman",
+      "source": "art/source/03-angled-sprites-and-hud-sheet.png",
+      "crop": [
+        48,
+        420,
+        159,
+        552
+      ],
+      "output": "sprites/units/swordsman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/swordsman.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          28,
+          8,
+          229,
+          236
+        ],
+        "transparent_pixels": 33191,
+        "opaque_pixels": 10964,
+        "partial_pixels": 21381
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          0,
+          5,
+          111,
+          129
+        ],
+        "transparent_pixels": 4605,
+        "opaque_pixels": 0,
+        "partial_pixels": 10047
+      },
+      "content_bbox": [
+        0,
+        7,
+        104,
+        125
+      ],
+      "resize_scale": 1.928135593220339,
+      "content_size": [
+        201,
+        228
+      ],
+      "content_offset": [
+        28,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "f0e4914545dadc460f21fa1d7b3b7ef8eabd1452253774c1109f2fad7aa3880c",
+      "sha256": "343147b9a4383a369f50e89682aada945233ad995c65183f236c5d080f50cbb6"
+    },
+    {
+      "id": "unit/enemy_swordsman",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1378,
+        344,
+        1521,
+        508
+      ],
+      "output": "sprites/units/enemy_swordsman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/enemy_swordsman.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          24,
+          8,
+          233,
+          236
+        ],
+        "transparent_pixels": 38532,
+        "opaque_pixels": 13079,
+        "partial_pixels": 13925
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          0,
+          9,
+          132,
+          154
+        ],
+        "transparent_pixels": 12139,
+        "opaque_pixels": 0,
+        "partial_pixels": 11313
+      },
+      "content_bbox": [
+        4,
+        16,
+        130,
+        153
+      ],
+      "resize_scale": 1.6607299270072993,
+      "content_size": [
+        209,
+        228
+      ],
+      "content_offset": [
+        24,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "97bc0128e910f1f8beae18a9361291d73651aa732bdbd82e6b7abb75e01f9e66"
+    },
+    {
+      "id": "terrain/woodland_hex",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        1050,
+        560,
+        1478,
+        974
+      ],
+      "output": "sprites/terrain/woodland_hex.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 116,
+      "path": "sprites/terrain/woodland_hex.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          12,
+          248,
+          245
+        ],
+        "transparent_pixels": 24851,
+        "opaque_pixels": 37120,
+        "partial_pixels": 3565
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          1,
+          0,
+          426,
+          414
+        ],
+        "transparent_pixels": 61569,
+        "opaque_pixels": 0,
+        "partial_pixels": 115623
+      },
+      "content_bbox": [
+        8,
+        14,
+        405,
+        400
+      ],
+      "resize_scale": 0.6045340050377834,
+      "content_size": [
+        240,
+        233
+      ],
+      "content_offset": [
+        8,
+        12
+      ],
+      "content_anchor": [
+        0.5,
+        0.5
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "bed8a30d25912060bbff601303272c35c758caa8f185da4a4129844e52a47c6d",
+      "sha256": "1e83c3aa3bb65f32ec03a8a1fbefde7fd096eff4888c3b3b5ae537ac3ec9346e"
+    },
+    {
+      "id": "resource/gold",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        13,
+        834,
+        109,
+        954
+      ],
+      "output": "sprites/resources/gold.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28,
+      "path": "sprites/resources/gold.png",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          19,
+          8,
+          109,
+          120
+        ],
+        "transparent_pixels": 9151,
+        "opaque_pixels": 5235,
+        "partial_pixels": 1998
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          3,
+          6,
+          96,
+          113
+        ],
+        "transparent_pixels": 4834,
+        "opaque_pixels": 0,
+        "partial_pixels": 6686
+      },
+      "content_bbox": [
+        7,
+        8,
+        90,
+        111
+      ],
+      "resize_scale": 1.087378640776699,
+      "content_size": [
+        90,
+        112
+      ],
+      "content_offset": [
+        19,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        0.5
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "e3d21119ceec50336eb63db488fe90a8b9f6705e4221a51c44d9742a10d018eb"
+    },
+    {
+      "id": "resource/wood",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        111,
+        828,
+        230,
+        952
+      ],
+      "output": "sprites/resources/wood.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28,
+      "path": "sprites/resources/wood.png",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          11,
+          120,
+          117
+        ],
+        "transparent_pixels": 9101,
+        "opaque_pixels": 5073,
+        "partial_pixels": 2210
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          5,
+          119,
+          116
+        ],
+        "transparent_pixels": 6395,
+        "opaque_pixels": 0,
+        "partial_pixels": 8361
+      },
+      "content_bbox": [
+        4,
+        10,
+        115,
+        115
+      ],
+      "resize_scale": 1.009009009009009,
+      "content_size": [
+        112,
+        106
+      ],
+      "content_offset": [
+        8,
+        11
+      ],
+      "content_anchor": [
+        0.5,
+        0.5
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "5e1f0567a4807b77201fa66b51c827454f18e72302ce4f53a67ddc6f35beb663"
+    },
+    {
+      "id": "resource/stone",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        230,
+        829,
+        334,
+        951
+      ],
+      "output": "sprites/resources/stone.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28,
+      "path": "sprites/resources/stone.png",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          10,
+          8,
+          117,
+          120
+        ],
+        "transparent_pixels": 8121,
+        "opaque_pixels": 5592,
+        "partial_pixels": 2671
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          0,
+          11,
+          104,
+          115
+        ],
+        "transparent_pixels": 5260,
+        "opaque_pixels": 0,
+        "partial_pixels": 7428
+      },
+      "content_bbox": [
+        1,
+        13,
+        96,
+        112
+      ],
+      "resize_scale": 1.1313131313131313,
+      "content_size": [
+        107,
+        112
+      ],
+      "content_offset": [
+        10,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        0.5
+      ],
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "dc2fbe2801df998c69ca1de711a03d4ff8f7426b7b174f6fcbdf5bf96dee5486"
+    },
+    {
+      "id": "hud/panel",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        556,
+        797,
+        1044,
+        987
+      ],
+      "output": "hud/panel.png",
+      "slice": {
+        "left": 64,
+        "top": 64,
+        "right": 64,
+        "bottom": 64
+      },
+      "border_scale": 0.42,
+      "path": "hud/panel.png",
+      "size": [
+        488,
+        190
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          2,
+          0,
+          483,
+          190
+        ],
+        "transparent_pixels": 7944,
+        "opaque_pixels": 76032,
+        "partial_pixels": 8744
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          488,
+          190
+        ],
+        "transparent_pixels": 4868,
+        "opaque_pixels": 0,
+        "partial_pixels": 87852
+      },
+      "content_bbox": [
+        2,
+        0,
+        483,
+        190
+      ],
+      "resize_scale": 1,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "c927d37bf95dab01b3ee1d80d3beecdd6b6e525ecb0c15523abe67a2e3ef2f83"
+    },
+    {
+      "id": "hud/card_frame",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1317,
+        764,
+        1518,
+        1015
+      ],
+      "output": "hud/card_frame.png",
+      "slice": {
+        "left": 48,
+        "top": 48,
+        "right": 48,
+        "bottom": 48
+      },
+      "border_scale": 0.75,
+      "path": "hud/card_frame.png",
+      "size": [
+        201,
+        251
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          192,
+          247
+        ],
+        "transparent_pixels": 6997,
+        "opaque_pixels": 39592,
+        "partial_pixels": 3862
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          254
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          195,
+          248
+        ],
+        "transparent_pixels": 4967,
+        "opaque_pixels": 0,
+        "partial_pixels": 45484
+      },
+      "content_bbox": [
+        0,
+        0,
+        192,
+        247
+      ],
+      "resize_scale": 1,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "2e8b4c8c25b5be265ec6b82c5a9b9e1defc35e62740982d9d12d09ec5a55952f"
+    },
+    {
+      "id": "hud/button",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1054,
+        791,
+        1305,
+        895
+      ],
+      "output": "hud/button.png",
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "border_scale": 0.42,
+      "path": "hud/button.png",
+      "size": [
+        251,
+        104
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          2,
+          4,
+          251,
+          104
+        ],
+        "transparent_pixels": 4734,
+        "opaque_pixels": 18312,
+        "partial_pixels": 3058
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          251,
+          104
+        ],
+        "transparent_pixels": 2488,
+        "opaque_pixels": 0,
+        "partial_pixels": 23616
+      },
+      "content_bbox": [
+        2,
+        4,
+        251,
+        104
+      ],
+      "resize_scale": 1,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "0958556b6eae79f8022010aea87eb1355c4b6e3f9b78516f774042a1e0a012c7"
+    },
+    {
+      "id": "hud/tooltip",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1050,
+        891,
+        1291,
+        988
+      ],
+      "output": "hud/tooltip.png",
+      "slice": {
+        "left": 30,
+        "top": 30,
+        "right": 30,
+        "bottom": 30
+      },
+      "border_scale": 0.5,
+      "path": "hud/tooltip.png",
+      "size": [
+        241,
+        97
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          3,
+          0,
+          236,
+          88
+        ],
+        "transparent_pixels": 5318,
+        "opaque_pixels": 15378,
+        "partial_pixels": 2681
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          253
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          240,
+          89
+        ],
+        "transparent_pixels": 3546,
+        "opaque_pixels": 0,
+        "partial_pixels": 19831
+      },
+      "content_bbox": [
+        3,
+        0,
+        236,
+        88
+      ],
+      "resize_scale": 1,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
+      "sha256": "9485fad0d8e8e15888201c8ca17d92d71edc58505959509f859030910b45e447"
+    }
+  ]
+}

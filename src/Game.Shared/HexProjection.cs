@@ -7,15 +7,18 @@ namespace Game.Shared;
 public sealed class HexProjection
 {
     public double Radius { get; }
-    public HexProjection(double radius)
+    public double Compression { get; }
+    public HexProjection(double radius, double compression = 1)
     {
         if (!double.IsFinite(radius) || radius <= 0) throw new ArgumentOutOfRangeException(nameof(radius));
-        Radius = radius;
+        if (!double.IsFinite(compression) || compression <= 0 || compression > 1) throw new ArgumentOutOfRangeException(nameof(compression));
+        Radius = radius; Compression = compression;
     }
     public Vector2 Project(HexCoordinate coordinate) => new(
-        (float)(Radius * Math.Sqrt(3) * (coordinate.Q + coordinate.R / 2.0)), (float)(Radius * 1.5 * coordinate.R));
+        (float)(Radius * Math.Sqrt(3) * (coordinate.Q + coordinate.R / 2.0)), (float)(Radius * 1.5 * coordinate.R * Compression));
     public HexCoordinate Unproject(Vector2 point)
     {
+        point.Y /= (float)Compression;
         double q = (Math.Sqrt(3) / 3 * point.X - point.Y / 3.0) / Radius;
         double r = point.Y * 2 / 3.0 / Radius;
         double x = Math.Round(q), z = Math.Round(r), y = Math.Round(-q - r);
@@ -29,7 +32,7 @@ public sealed class HexProjection
         Vector2 center = Project(coordinate);
         return Enumerable.Range(0, 6).Select(i => center + new Vector2(
             (float)(Radius * Math.Cos((60 * i - 30) * Math.PI / 180)),
-            (float)(Radius * Math.Sin((60 * i - 30) * Math.PI / 180)))).ToArray();
+            (float)(Radius * Compression * Math.Sin((60 * i - 30) * Math.PI / 180)))).ToArray();
     }
     public HexCoordinate? HitTest(Vector2 point, IEnumerable<HexCoordinate> cells)
     {

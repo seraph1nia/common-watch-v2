@@ -15,6 +15,12 @@ public sealed class ClientTests
     [Fact, Trait("Client", "monogame")]
     public Task MonoGameFullLoopBothModes() => VerifyClient("monogame");
 
+    [Fact, Trait("Client", "godot")]
+    public Task GodotInstalledArt() => Run(FindRoot(), "godot", Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
+
+    [Fact, Trait("Client", "monogame")]
+    public Task MonoGameInstalledArt() => Run(FindRoot(), "monogame", Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
+
     private static async Task VerifyClient(string client)
     {
         string root = FindRoot();
@@ -24,6 +30,7 @@ public sealed class ClientTests
         {
             // Empty directory exercises permanent artwork independence in both modes.
             await Run(root, client, temporary);
+            await Run(root, client, temporary, missingHud: true);
             // Corrupt files are textual fixtures, never generated images. The debug
             // renderer must ignore them; sprite mode must fall back without crashing.
             Directory.CreateDirectory(Path.Combine(temporary, "buildings"));
@@ -35,7 +42,7 @@ public sealed class ClientTests
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
-    private static async Task Run(string root, string client, string assets)
+    private static async Task Run(string root, string client, string assets, bool illustrated = false, bool missingHud = false)
     {
         var start = new ProcessStartInfo("bash")
         {
@@ -46,6 +53,10 @@ public sealed class ClientTests
         };
         foreach (string argument in new[] { "tools/graphical.sh", client, "test", "--assets-root", assets })
             start.ArgumentList.Add(argument);
+        if (illustrated)
+            foreach (string argument in new[] { "--view", "angled", "--hud-art", "illustrated", "--debug-overlay", "on", "--expect-installed-art" }) start.ArgumentList.Add(argument);
+        if (missingHud)
+            foreach (string argument in new[] { "--view", "angled", "--hud-art", "illustrated" }) start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("Failed to launch graphical checks.");
         Task<string> output = process.StandardOutput.ReadToEndAsync();
         Task<string> error = process.StandardError.ReadToEndAsync();
@@ -55,7 +66,7 @@ public sealed class ClientTests
         string transcript = await output + "\n" + await error;
         string logDirectory = Path.Combine(root, "artifacts", "test-logs");
         Directory.CreateDirectory(logDirectory);
-        await File.WriteAllTextAsync(Path.Combine(logDirectory, client + "-" + (Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
+        await File.WriteAllTextAsync(Path.Combine(logDirectory, client + "-" + (illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
         Assert.True(process.ExitCode == 0, $"{client} actual-graphics check failed ({process.ExitCode}):\n{transcript}");
         Assert.Equal(2, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
         Assert.True(transcript.Split(client.ToUpperInvariant() + "_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
@@ -63,6 +74,11 @@ public sealed class ClientTests
         Assert.Contains("settings=0/50/100 persisted=true", transcript);
         Assert.Contains("mode=Debug", transcript);
         Assert.Contains("mode=Sprites", transcript);
+        if (illustrated)
+        {
+            Assert.Equal(2, transcript.Split("_ART_PASS", StringSplitOptions.None).Length - 1);
+            Assert.Contains("view=Angled hud=Illustrated", transcript);
+        }
     }
 
     private static string FindRoot()

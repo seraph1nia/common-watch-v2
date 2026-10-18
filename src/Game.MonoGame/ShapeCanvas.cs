@@ -49,7 +49,14 @@ internal sealed class ShapeCanvas : IDisposable
             Rect(center.X - extent, center.Y + y, extent * 2, 1, color);
         }
     }
-    public void Sprite(Texture2D texture, Vector2 anchor, float width, float height) =>
-        batch.Draw(texture, new Rectangle((int)(anchor.X - width / 2), (int)(anchor.Y - height), (int)width, (int)height), Color.White);
+    public Rectangle Sprite(Texture2D texture, Vector2 ground, float extent, Game.Shared.AssetMetadata metadata, Color? tint = null)
+    {
+        float factor = extent / Math.Max(texture.Width, texture.Height);
+        Vector2 size = new Vector2(texture.Width, texture.Height) * factor;
+        var rect = new Rectangle((int)(ground.X - size.X * metadata.Anchor[0] + metadata.Offset[0]),
+            (int)(ground.Y - size.Y * metadata.Anchor[1] + metadata.Offset[1]), Math.Max(1, (int)size.X), Math.Max(1, (int)size.Y));
+        batch.Draw(texture, rect, tint ?? Color.White);
+        return rect;
+    }
     public void Dispose() { batch.Dispose(); pixel.Dispose(); }
 }

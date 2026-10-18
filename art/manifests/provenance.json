@@ -1,0 +1,59 @@
+{
+  "archive": "common-watch-v2-art-source-sheets.zip",
+  "archive_sha256": "bf55d957cb5a0835afcf52407202c61815c32ddaa7db67c100cee24ae3e7c215",
+  "source": "User-supplied generated artwork; extracted once, byte-for-byte from source-sheets/. No replacement artwork generated or downloaded.",
+  "sheets": [
+    {
+      "path": "art/source/01-world-sprites.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "sha256": "bed8a30d25912060bbff601303272c35c758caa8f185da4a4129844e52a47c6d"
+    },
+    {
+      "path": "art/source/02-world-and-hud-reference-sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "sha256": "33cc924cdc252eafcec5f97801363b92b6eb7e088488a9a7db1b8a97467a27f8"
+    },
+    {
+      "path": "art/source/03-angled-sprites-and-hud-sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "sha256": "f0e4914545dadc460f21fa1d7b3b7ef8eabd1452253774c1109f2fad7aa3880c"
+    },
+    {
+      "path": "art/source/04-expanded-art-and-hud-sheet.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5"
+    }
+  ]
+}

@@ -6,23 +6,32 @@ namespace Game.MonoGameClient;
 internal sealed class OptionalSprites(GraphicsDevice graphics, RenderOptions options) : IDisposable
 {
     readonly Dictionary<string, Texture2D?> cache = [];
+    public AssetCatalog Catalog { get; } = new(options.AssetsRoot, options.Mode == RenderMode.Sprites || options.Hud == HudArt.Illustrated);
     public int LoadAttempts { get; private set; }
     public Texture2D? Get(string id)
     {
-        if (options.Mode == RenderMode.Debug) return null;
+        if (id.StartsWith("hud/") ? options.Hud != HudArt.Illustrated : options.Mode == RenderMode.Debug) return null;
         if (cache.TryGetValue(id, out Texture2D? existing)) return existing;
         Texture2D? texture = null;
-        string? path = VisualAssets.Resolve(options.AssetsRoot, id, options.Mode);
+        string? path = Catalog.Resolve(id, true);
         if (path is not null)
         {
-            LoadAttempts++;
+            if (!id.StartsWith("hud/")) LoadAttempts++;
             try
             {
                 using var input = File.OpenRead(path);
                 texture = Texture2D.FromStream(graphics, input);
+                var metadata = Catalog.Metadata(id);
+                if (metadata.Size.Length == 2 && (metadata.Size[0] != texture.Width || metadata.Size[1] != texture.Height))
+                    throw new InvalidOperationException("PNG dimensions differ from catalog");
+                // Native SpriteBatch and Gum use premultiplied alpha; PNG stores straight alpha.
+                var pixels = new Microsoft.Xna.Framework.Color[texture.Width * texture.Height];
+                texture.GetData(pixels);
+                for (int i = 0; i < pixels.Length; i++) pixels[i] = Microsoft.Xna.Framework.Color.FromNonPremultiplied(pixels[i].ToVector4());
+                texture.SetData(pixels);
             }
             catch (Exception exception) when (exception is IOException or ArgumentException or InvalidOperationException or NotSupportedException)
-            { Console.Error.WriteLine($"Sprite fallback for {id}: {exception.Message}"); }
+            { texture?.Dispose(); texture = null; Console.Error.WriteLine($"Sprite fallback for {id}: {exception.Message}"); }
         }
         cache[id] = texture;
         return texture;

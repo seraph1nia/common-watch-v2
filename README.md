@@ -8,7 +8,7 @@ Required tools are pinned in `mise.toml`/`mise.lock` and `global.json`:
 
 - mise; .NET SDK **10.0.401** (including the .NET 10 runtime).
 - Godot **4.7.2 .NET/Mono**, with its adjacent GodotSharp directory intact. The standard Godot edition cannot run C#.
-- Python 3 for process supervision and pinned binary checks.
+- Python 3 for process supervision and pinned binary checks; a local Pillow environment for art tests (`mise run art-setup`).
 - NuGet access for the initial restore. Package versions and transitive resolutions are committed in `packages.lock.json`.
 - A display and working OpenGL 3.3 driver for interactive play. MonoGame additionally uses SDL2/OpenAL native runtime libraries; package-native dependencies are resolved through NuGet where provided.
 - Linux automated graphical checks/captures require `Xvfb`, `xvfb-run`, `xauth`, `timeout` and Mesa software OpenGL. Tests use their own virtual displays and silent audio backends. Tasks never install OS packages or tool upgrades.
@@ -18,6 +18,7 @@ From this directory:
 ```sh
 mise trust
 mise install --locked
+mise run art-setup
 mise run build
 mise run test
 ```
@@ -53,7 +54,7 @@ Use **Main menu** to leave a session (also Escape in MonoGame), **Quit** from th
 
 Both clients play the reference game's **Echoes of Valhalla** background music, including its intro and authored loop. Open **Settings** and adjust **Music volume**; **0%** mutes it. Changes apply immediately and are saved per client between launches. Opening settings or restarting a game keeps the existing track playing. Music works in both rendering modes and uses your normal audio device during interactive play; automated graphical checks use silent audio backends. The unchanged WAV and its original provenance are in [assets/audio](assets/audio/README.md).
 
-Both rendering modes use identical logical positions and gameplay. Add appropriately licensed PNGs under `assets/sprites` if desired; see [sprite mappings](assets/sprites/README.md). Missing/corrupt files fall back to the same shapes. Debug mode never decodes sprite files. No game artwork is included or generated.
+Both rendering modes use identical logical positions and gameplay. Thirteen cutouts from the supplied source sheets are installed; see the [Pillow artwork pipeline, showrooms and source limitations](docs/ARTWORK.md). Missing/corrupt files fall back to the same shapes. Debug/plain defaults never decode artwork. Enable the full presentation with `--world-art sprites --view angled --hud-art illustrated`; `--debug-overlay on` shows anchors and bounds. No replacement artwork was generated or downloaded.
 
 ## Windows and Linux builds
 
