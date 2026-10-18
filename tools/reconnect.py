@@ -50,12 +50,13 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
     def wait(predicate, message, seconds=20):
         deadline = time.monotonic() + seconds
         while time.monotonic() < deadline:
-            if predicate():
-                return
+            result = predicate()
+            if result:
+                return result
             if any(p.poll() not in (None, 0, -signal.SIGTERM) for p in processes):
                 raise RuntimeError('Client failure: ' + message)
             time.sleep(.08)
-        states = [(i, status(i)['status'] if status(i) else 'no status') for i in range(6)]
+        states = [(i, current['status'] if (current := status(i)) else 'no status') for i in range(6)]
         raise TimeoutError(message + ': ' + repr(states))
 
     def control(index, kind, **values):
@@ -65,16 +66,22 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
         path.with_suffix('.tmp').replace(path)
 
+    def acknowledgment(index, after_sequence=0):
+        # The client atomically replaces status.json; retain one snapshot per poll.
+        current = status(index)
+        result = current['result'] if current else None
+        return result if result and result['Sequence'] > after_sequence and not current['pending'] else None
+
     def send(index, action, accepted=True, **values):
         previous = status(index)['result']
         sequence = previous['Sequence'] if previous else 0
         control(index, 'send', action=action, **values)
-        wait(lambda: status(index)['result'] and status(index)['result']['Sequence'] > sequence and not status(index)['pending'], 'Command acknowledgment: ' + action)
-        assert status(index)['result']['Accepted'] == accepted, status(index)['result']
+        result = wait(lambda: acknowledgment(index, sequence), 'Command acknowledgment: ' + action)
+        assert result['Accepted'] == accepted, result
 
     def phase(expected, turn=None):
-        wait(lambda: all(status(i) and status(i)['state'] and status(i)['state']['Phase'] == expected and
-                         (turn is None or status(i)['state']['Turn'] == turn) for i in (0, 1)), expected)
+        wait(lambda: all((current := status(i)) and (state := current['state']) and state['Phase'] == expected and
+                         (turn is None or state['Turn'] == turn) for i in (0, 1)), expected)
 
     def reconnect(expected_phase):
         before = status(1)
@@ -85,9 +92,9 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         wait(lambda: status(1)['state'] is None, 'Guest returns to menu')
         wait(lambda: not next(p for p in status(0)['state']['Players'] if p['Id'] == player)['Connected'], 'Authority observes disconnect')
         control(1, 'reconnect')
-        wait(lambda: status(1)['connected'], 'Resume admission')
-        assert status(1)['player'] == player and status(1)['state']['MatchId'] == match
-        assert status(1)['state']['Phase'] == expected_phase
+        after = wait(lambda: (current := status(1)) and current['connected'] and current, 'Resume admission')
+        assert after['player'] == player and after['state']['MatchId'] == match
+        assert after['state']['Phase'] == expected_phase
         saved = json.loads((work / '1' / 'resume.json').read_text())
         assert saved['NextSequence'] > last_sequence
         if os.name != 'nt':
@@ -96,21 +103,23 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
 
     try:
         host = launch(0)
-        wait(lambda: status(0) and status(0)['connected'], 'Host')
+        wait(lambda: (current := status(0)) and current['connected'], 'Host')
         guest = launch(1)
-        wait(lambda: status(1) and status(1)['connected'], 'Guest admission')
+        wait(lambda: (current := status(1)) and current['connected'], 'Guest admission')
         phase('Lobby')
         # Ownership and duplicate handling use actual remote delivery.
         control(1, 'probe', action='doctrine:merchant', owner=1, duplicate='yes')
-        wait(lambda: status(1)['result'] is not None, 'Unauthorized acknowledgment')
-        assert not status(1)['result']['Accepted']
-        assert 'own' in status(1)['result']['Message']
+        result = wait(lambda: acknowledgment(1), 'Unauthorized acknowledgment')
+        assert not result['Accepted']
+        assert 'own' in result['Message']
         control(1, 'probe', action='doctrine:warden', owner=2, duplicate='yes')
-        wait(lambda: status(1)['result'] is not None and status(1)['result']['Accepted'], 'Duplicate acknowledgment')
+        result = wait(lambda: acknowledgment(1, result['Sequence']), 'Duplicate acknowledgment')
+        assert result['Accepted'], result
         # Protocol mismatch is rejected before any city is admitted.
         bad = launch(2, ['--core-version', '-1'])
-        wait(lambda: status(2) and 'version' in status(2)['status'].lower(), 'Protocol refusal')
-        assert not status(2)['connected'] and status(2)['state'] is None
+        wait(lambda: (current := status(2)) and 'version' in current['status'].lower(), 'Protocol refusal')
+        refused = status(2)
+        assert not refused['connected'] and refused['state'] is None
         control(2, 'quit')
         bad.wait(timeout=8)
         send(1, 'start', accepted=False)
@@ -122,7 +131,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         guest.wait(timeout=8)
         wait(lambda: not status(0)['state']['Players'][1]['Connected'], 'Restart disconnect')
         guest = launch(1)
-        wait(lambda: status(1) and status(1)['connected'], 'Process restart resume')
+        wait(lambda: (current := status(1)) and current['connected'], 'Process restart resume')
         assert status(1)['player'] == 2
         for index in (0, 1):
             for slot, building in enumerate(['Farm', 'Barracks', 'MetalMine', 'Lumbermill']):
@@ -140,8 +149,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         before_retry = (city['Resources'], [u['Id'] for u in city['Soldiers']])
         reconnect('Preparation')
         control(1, 'retry')
-        wait(lambda: status(1)['result'] is not None and not status(1)['pending'], 'Accepted command retry after reconnect')
-        assert status(1)['result']['Accepted'] and status(1)['result']['Sequence'] == accepted
+        result = wait(lambda: acknowledgment(1), 'Accepted command retry after reconnect')
+        assert result['Accepted'] and result['Sequence'] == accepted
         city = status(1)['state']['Players'][1]
         assert (city['Resources'], [u['Id'] for u in city['Soldiers']]) == before_retry
         send(0, 'ready')
@@ -170,13 +179,13 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
             wait(lambda: 'expired' in status(1)['status'].lower(), 'Invalid/expired resume refusal')
             assert not status(1)['connected']
             control(1, 'leave')
-            wait(lambda: status(1)['state'] is None and status(1)['status'] == 'Main menu', 'Rejected session cleanup')
+            wait(lambda: (current := status(1))['state'] is None and current['status'] == 'Main menu', 'Rejected session cleanup')
         (work / '1' / 'resume.json').write_text(original)
         control(1, 'reconnect')
         wait(lambda: status(1)['connected'], 'Valid resume after failed attempts')
         # Fresh players cannot join a running match.
         fresh = launch(3)
-        wait(lambda: status(3) and 'locked' in status(3)['status'].lower(), 'Mid-match admission refusal')
+        wait(lambda: (current := status(3)) and 'locked' in current['status'].lower(), 'Mid-match admission refusal')
         assert len(status(0)['state']['Players']) == 2
         control(3, 'quit')
         fresh.wait(timeout=8)
@@ -192,19 +201,20 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         control(1, 'reconnect')
         wait(lambda: status(1)['connected'], 'Fresh authority admission')
         third = launch(2)
-        wait(lambda: status(2) and status(2)['connected'], 'Third lobby player')
+        wait(lambda: (current := status(2)) and current['connected'], 'Third lobby player')
         fourth = launch(3)
-        wait(lambda: status(3) and status(3)['connected'], 'Fourth lobby player')
+        wait(lambda: (current := status(3)) and current['connected'], 'Fourth lobby player')
         fifth = launch(4)
-        wait(lambda: status(4) and 'full' in status(4)['status'].lower(), 'Fifth player refused')
+        wait(lambda: (current := status(4)) and 'full' in current['status'].lower(), 'Fifth player refused')
         assert [p['Id'] for p in status(0)['state']['Players']] == [1, 2, 3, 4]
         control(3, 'quit'); fourth.wait(timeout=8)
         wait(lambda: not status(0)['state']['Players'][3]['Connected'], 'Lobby leave retained city')
         control(0, 'quit'); host.wait(timeout=8)
         wait(lambda: not status(2)['connected'], 'Host leaving lobby')
         absent = launch(5)
-        wait(lambda: status(5) and ('timed out' in status(5)['status'].lower() or 'unavailable' in status(5)['status'].lower()), 'Missing authority fails connection', seconds=22)
-        assert not status(5)['connected'] and status(5)['state'] is None
+        wait(lambda: (current := status(5)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
+        refused = status(5)
+        assert not refused['connected'] and refused['state'] is None
         print(client, 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/draft resume, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
     finally:
         for process in processes:
