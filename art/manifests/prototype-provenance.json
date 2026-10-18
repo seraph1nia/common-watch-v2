@@ -1,0 +1,131 @@
+{
+  "archive": "common_watch_cutout_prototype.zip",
+  "archive_sha256": "9f70a17e4c95cd6b9401e67cc398e204cc87dfe543ed97eb69f471f64260c46b",
+  "source": "User-supplied prototype ZIP inspected in Downloads, safely extracted to a temporary directory. Only the shrine was retained byte-for-byte. No new artwork generated or downloaded. No separate artwork license supplied.",
+  "status": "Prototype only. Shrine ground platform trimmed by an explicit manifest mask; residual ground fragments and cutout edges still need an artist pass. Guardian rejected for gray cutout remnant; tree and waterfall rejected for diorama platforms and unrelated IDs. Existing production sprites preserved.",
+  "files": [
+    {
+      "file": "crystal_shrine_prototype_asset.png",
+      "sha256": "9b679d9f1a619f57e411bf46198c28e3700416c47797fdd4f5fd36764af89caa",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": true
+    },
+    {
+      "file": "crystal_shrine_rough.png",
+      "sha256": "34f2373991905bf7b4c8c3ba086e63dcb7fd581f0c8beb790f6b2b16fd3fb471",
+      "size": [
+        559,
+        516
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "enchanted_tree_prototype_asset.png",
+      "sha256": "ddb24ff23b6aeced448576ccd452c5037df9a45adcdd7f6cdb6adc13eea05b81",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "enchanted_tree_rough.png",
+      "sha256": "91d207bc36f6efaae28188f0cdab519ea5a73cf6bc1a7400e30636d5f9d9fb71",
+      "size": [
+        581,
+        504
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "forest_guardian_prototype_asset.png",
+      "sha256": "bbbe2f7b460c40b430722fda9138f66d03e77ccb2b9b949015f3ff657594423a",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "forest_guardian_rough.png",
+      "sha256": "058e00cae30513c1ac697a852eca5514c99c5de2b3f072b41c433d45505dd3b2",
+      "size": [
+        695,
+        519
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "magical_waterfall_prototype_asset.png",
+      "sha256": "8fa2468a21df2ed466b8ba26a8b97aa386ec263a79134dd28940357e60f5a7e6",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "magical_waterfall_rough.png",
+      "sha256": "2ef10b5f5207f0fa498f2a1256950bbbc5d8e29004bd6e0516635ef5e02ee5cd",
+      "size": [
+        631,
+        513
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "installed": false
+    },
+    {
+      "file": "scale_preview.png",
+      "sha256": "34d76cc069952fdf0582ea7ab8bf849c91488219c7c8160a395a22142f075daa",
+      "size": [
+        950,
+        600
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "installed": false
+    }
+  ]
+}

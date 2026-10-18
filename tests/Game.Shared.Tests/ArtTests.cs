@@ -34,6 +34,8 @@ public sealed class ArtTests
             Assert.Equal(cell, projection.HitTest(ground, SettlementLayout.Coordinates));
             Assert.Equal(cell, projection.Unproject(ground + new Vector2(4, -3)));
             Vector2[] corners = projection.Corners(cell);
+            foreach (Vector2 corner in corners)
+                Assert.Equal(cell, projection.HitTest(Vector2.Lerp(ground, corner, .98f), SettlementLayout.Coordinates));
             Assert.InRange(corners.Max(p => p.Y) - corners.Min(p => p.Y), (float)(130 * compression) - .001f, (float)(130 * compression) + .001f);
         }
         Assert.Throws<ArgumentOutOfRangeException>(() => new HexProjection(65, 0));
@@ -82,12 +84,40 @@ public sealed class ArtTests
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CommonWatch.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
         var catalog = new AssetCatalog(Path.Combine(dir!.FullName, "assets/sprites"));
-        Assert.Null(catalog.Error); Assert.Equal(13, catalog.Entries.Count);
+        Assert.Null(catalog.Error); Assert.Equal(14, catalog.Entries.Count);
+        Assert.Equal(6, catalog.Metadata("terrain/woodland_hex").GroundUv!.Length);
+        Assert.Equal(.92f, catalog.Metadata("building/arcanum").Anchor[1]);
         foreach (var entry in catalog.Entries)
         {
             Assert.NotNull(catalog.Resolve(entry.Id, true));
             if (entry.Id.StartsWith("hud/")) Assert.True(entry.Slice!.Valid(entry.Size[0], entry.Size[1]));
         }
+    }
+
+    [Fact]
+    public void InvalidTerrainUvFailsClosed()
+    {
+        WithCatalog((root, spriteRoot) =>
+        {
+            foreach (string uv in new[] { "[[0,0]]", "[[0,0],[1,0],[1,1],[0,1],[0,0],[-1,0]]", "[[0,0,1],[1,0],[1,1],[0,1],[0,0],[0,0]]" })
+            {
+                File.WriteAllText(Path.Combine(root, "catalog.json"), "{\"version\":1,\"assets\":[{\"id\":\"terrain/woodland_hex\",\"path\":\"sprites/terrain/woodland_hex.png\",\"size\":[256,256],\"ground_uv\":" + uv + "}]}");
+                var catalog = new AssetCatalog(spriteRoot);
+                Assert.NotNull(catalog.Error);
+                Assert.Empty(catalog.Entries);
+            }
+        });
+    }
+
+    [Fact]
+    public void ShrineCaptureEarnsResourcesThroughLegalProduction()
+    {
+        using var session = ScenarioRunner.CreateAt("sprite-settlement");
+        Assert.Equal(Building.Arcanum, session.City.Slots[4].Type);
+        Assert.Equal(4, session.SelectedSlot);
+        Assert.Contains(session.City.Slots, s => s.Type == Building.Lumbermill);
+        Assert.Contains(session.City.Slots, s => s.Type == Building.Barracks);
+        Assert.True(session.Snapshot.Phase is Phase.Preparation or Phase.Building);
     }
 
     [Fact]

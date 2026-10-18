@@ -7,7 +7,7 @@ namespace Game.Shared;
 public static class ScenarioRunner
 {
     public static IReadOnlyList<string> Checkpoints { get; } = Array.AsReadOnly<string>(
-        ["initial", "settlement", "building-selected", "battle-start", "combat", "draft", "post-draft"]);
+        ["initial", "settlement", "building-selected", "sprite-settlement", "battle-start", "combat", "draft", "post-draft"]);
     public static SoloSession CreateAt(string checkpoint, ulong seed = SoloSession.DefaultSeed, string? doctrine = null)
     {
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown scenario checkpoint: " + checkpoint);
@@ -17,6 +17,17 @@ public static class ScenarioRunner
             if (doctrine is not null) Require(session.Send("doctrine:" + doctrine));
             Require(session.Start());
             if (checkpoint == "initial") return session;
+            if (checkpoint == "sprite-settlement")
+            {
+                // Earn the shrine's wood and stone through a real preparation production.
+                Require(session.Send("build", 0, Building.Lumbermill));
+                Require(session.Send("build", 1, Building.Barracks));
+                Require(session.Send("build", 2, Building.Stonecutter));
+                Require(session.Send("ready"));
+                Require(session.Send("build", 4, Building.Arcanum));
+                session.SelectSlot(4);
+                return session;
+            }
             Require(session.Send("build", 0, Building.Farm));
             Require(session.Send("build", 1, Building.Barracks));
             Require(session.Send("build", 2, Building.MetalMine));

@@ -108,8 +108,15 @@ public partial class BattlefieldView : Node2D
         Vector2 Cell(int cell) => arena.Board.Cells.FirstOrDefault(c => c.Id == cell) is { } c ? V(_arena.Project(c.Coordinate)) - center : Vector2.Zero;
         foreach (var cell in arena.Board.Cells)
         {
-            WorldArt.Hex(this, _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray(), new Color("23343d"), new Color("3b4d50"), 1);
-            _art.Sprite(this, "terrain/woodland_hex", Cell(cell.Id), new Vector2(53, 53), new Color(.36f, .43f, .4f));
+            var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
+            DrawColoredPolygon(corners, new Color("23343d"));
+            _art.Ground(this, "terrain/woodland_hex", corners, new Color(.52f, .61f, .55f));
+        }
+        // Borders finish after all terrain so opaque texture edges cannot hide neighboring outlines.
+        foreach (var cell in arena.Board.Cells)
+        {
+            var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
+            DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("3b4d50"), 1, true);
         }
         foreach (var structure in Playback.Structures())
         {

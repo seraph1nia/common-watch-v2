@@ -26,6 +26,17 @@ public sealed class WorldArt(AssetLoader _assets)
         Overlay(canvas, anchor, rect); return true;
     }
 
+    public bool Ground(Node2D canvas, string id, Vector2[] corners, Color? tint = null)
+    {
+        if (_assets.Load(id) is not { } texture) return false;
+        // Only the authored top surface maps to the ground. Do not squash an entire terrain
+        // cutout (which can include rocks, side faces or transparent padding) as a rectangle.
+        var uv = _assets.Catalog.Metadata(id).GroundUv;
+        if (uv is null) return false; // Unqualified terrain keeps the geometric hex fallback.
+        canvas.DrawPolygon(corners, new Color[] { tint ?? Colors.White }, uv.Select(p => new Vector2(p.X, p.Y)).ToArray(), texture);
+        return true;
+    }
+
     private void Overlay(Node2D canvas, Vector2 ground, Rect2 bounds)
     {
         if (!_assets.Options.DebugOverlay) return;

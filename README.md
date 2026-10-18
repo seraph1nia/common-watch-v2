@@ -32,7 +32,7 @@ A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then 
 
 Settings controls music volume, with zero muting. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
 
-Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Thirteen supplied cutouts and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
+Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. `play-assets` prefers the angled view; `-- --view topdown` overrides it. Fourteen supplied cutouts (including a prototype crystal shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
 ## Battle and artwork tools
 
@@ -78,6 +78,7 @@ mise run capture-lobby
 ```sh
 mise run capture -- --width 1920 --height 1080
 mise run play-assets -- --checkpoint draft --view angled
+mise run play-assets -- --checkpoint sprite-settlement --debug-overlay on
 mise run scenario post-draft artifacts/scenarios/post-draft.json
 ```
 

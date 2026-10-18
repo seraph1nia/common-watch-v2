@@ -81,14 +81,27 @@ class ProcessingTests(unittest.TestCase):
             data=io.BytesIO();output.save(data,format='PNG',compress_level=9);return data.getvalue()
         self.assertEqual(encoded(),encoded())
 
+    def test_ground_uv_tracks_trimming_padding_and_resize(self):
+        self.settings['canvases']['terrain']=[256,256]
+        entry=dict(self.entry,id='terrain/test',anchor=[.5,.5],
+                   ground_polygon=[[45,12],[45,27],[30,28],[12,27],[12,12],[30,11]])
+        output,metadata=process_image(self.source,entry,self.settings)
+        for point,uv in zip(entry['ground_polygon'],metadata['ground_uv']):
+            x,y=(round(v*256) for v in uv)
+            self.assertEqual(255,output.getpixel((x,y))[3])
+        with self.assertRaises(ValueError):
+            process_image(self.source,dict(entry,ground_polygon=[[0,0]]),self.settings)
+        with self.assertRaises(ValueError):
+            process_image(self.source,dict(entry,id='unit/test'),self.settings)
+
     def test_path_escape_rejected(self):
         with self.assertRaises(ValueError): bounded_path(Path('/tmp/catalog'),'../escape.png')
         with self.assertRaises(ValueError): bounded_path(Path('/tmp/catalog'),'/etc/passwd')
 
     def test_installed_manifest_ids_are_complete(self):
         entries,_=read_manifests()
-        self.assertEqual(13,len(entries))
-        self.assertEqual({'building/lumbermill','building/farm','building/barracks','unit/swordsman','unit/enemy_swordsman','terrain/woodland_hex','resource/gold','resource/wood','resource/stone','hud/panel','hud/card_frame','hud/button','hud/tooltip'}, {e['id'] for e in entries})
+        self.assertEqual(14,len(entries))
+        self.assertEqual({'building/arcanum','building/lumbermill','building/farm','building/barracks','unit/swordsman','unit/enemy_swordsman','terrain/woodland_hex','resource/gold','resource/wood','resource/stone','hud/panel','hud/card_frame','hud/button','hud/tooltip'}, {e['id'] for e in entries})
 
 
 class NineSliceTests(unittest.TestCase):

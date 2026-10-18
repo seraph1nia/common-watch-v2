@@ -10,6 +10,8 @@ public sealed record SliceMargins(int Left, int Top, int Right, int Bottom)
 public sealed record AssetMetadata(string Id, string Path, int[] Size, float[] Anchor, float DisplaySize,
     float[] Offset, SliceMargins? Slice, float BorderScale)
 {
+    // Six top-surface UVs in HexProjection.Corners order. Vertical faces stay outside this footprint.
+    public System.Numerics.Vector2[]? GroundUv { get; init; }
     public static AssetMetadata Default(string id) => new(id, "", [], [.5f, id.StartsWith("terrain/") || id.StartsWith("resource/") ? .5f : .92f],
         id.StartsWith("building/") ? 142 : id.StartsWith("terrain/") ? 116 : id.StartsWith("resource/") ? 28 : 46, [0, 0], null, 1);
 }
@@ -57,7 +59,15 @@ public sealed class AssetCatalog
                     if (!slice.Valid(size[0], size[1])) throw new FormatException("Invalid nine-slice margins");
                 }
                 if (id.StartsWith("hud/") && slice is null) throw new FormatException("HUD requires slice metadata");
-                if (!entries.TryAdd(id, new(id, path, size, anchor, display, offset, slice, border))) throw new FormatException("Duplicate asset ID");
+                System.Numerics.Vector2[]? groundUv = null;
+                if (e.TryGetProperty("ground_uv", out var uv))
+                {
+                    float[][] points = uv.EnumerateArray().Select(p => p.EnumerateArray().Select(v => v.GetSingle()).ToArray()).ToArray();
+                    if (!id.StartsWith("terrain/") || points.Length != 6 || points.Any(p => p.Length != 2 || p.Any(v => !float.IsFinite(v) || v < 0 || v > 1)))
+                        throw new FormatException("Terrain requires six normalized top-surface UVs");
+                    groundUv = points.Select(p => new System.Numerics.Vector2(p[0], p[1])).ToArray();
+                }
+                if (!entries.TryAdd(id, new(id, path, size, anchor, display, offset, slice, border) { GroundUv = groundUv })) throw new FormatException("Duplicate asset ID");
             }
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException or FormatException or ArgumentException or KeyNotFoundException or OverflowException)

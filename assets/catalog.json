@@ -230,6 +230,193 @@
       "sha256": "e678debf114fbfd939219e52e371b2d1ab2c034ebc18062cde9fbd8f62c34757"
     },
     {
+      "id": "building/arcanum",
+      "source": "art/source/prototypes/crystal_shrine_prototype_asset.png",
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "output": "sprites/buildings/arcanum.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 148,
+      "mask_feather": 0.6,
+      "mask_polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          512,
+          0
+        ],
+        [
+          512,
+          326
+        ],
+        [
+          470,
+          326
+        ],
+        [
+          462,
+          343
+        ],
+        [
+          445,
+          345
+        ],
+        [
+          455,
+          360
+        ],
+        [
+          474,
+          372
+        ],
+        [
+          455,
+          390
+        ],
+        [
+          423,
+          383
+        ],
+        [
+          407,
+          400
+        ],
+        [
+          371,
+          388
+        ],
+        [
+          340,
+          407
+        ],
+        [
+          302,
+          409
+        ],
+        [
+          291,
+          406
+        ],
+        [
+          225,
+          406
+        ],
+        [
+          210,
+          416
+        ],
+        [
+          177,
+          399
+        ],
+        [
+          145,
+          403
+        ],
+        [
+          134,
+          390
+        ],
+        [
+          107,
+          395
+        ],
+        [
+          91,
+          379
+        ],
+        [
+          69,
+          378
+        ],
+        [
+          75,
+          363
+        ],
+        [
+          45,
+          360
+        ],
+        [
+          40,
+          345
+        ],
+        [
+          0,
+          345
+        ]
+      ],
+      "path": "sprites/buildings/arcanum.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          45,
+          504,
+          471
+        ],
+        "transparent_pixels": 135462,
+        "opaque_pixels": 111155,
+        "partial_pixels": 15527
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          14,
+          504,
+          471
+        ],
+        "transparent_pixels": 122328,
+        "opaque_pixels": 126763,
+        "partial_pixels": 13053
+      },
+      "content_bbox": [
+        13,
+        14,
+        485,
+        419
+      ],
+      "resize_scale": 1.0508474576271187,
+      "content_size": [
+        496,
+        426
+      ],
+      "content_offset": [
+        8,
+        45
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "source_sha256": "9b679d9f1a619f57e411bf46198c28e3700416c47797fdd4f5fd36764af89caa",
+      "sha256": "a3022a11a77b90d5d92129e58847ffcac884559486cc430fcfcdae993101baf9"
+    },
+    {
       "id": "unit/swordsman",
       "source": "art/source/03-angled-sprites-and-hud-sheet.png",
       "crop": [
@@ -396,6 +583,32 @@
         0.5
       ],
       "display_size": 116,
+      "ground_polygon": [
+        [
+          384,
+          114
+        ],
+        [
+          384,
+          282
+        ],
+        [
+          207,
+          378
+        ],
+        [
+          28,
+          281
+        ],
+        [
+          30,
+          112
+        ],
+        [
+          209,
+          29
+        ]
+      ],
       "path": "sprites/terrain/woodland_hex.png",
       "size": [
         256,
@@ -449,6 +662,32 @@
       "content_anchor": [
         0.5,
         0.5
+      ],
+      "ground_uv": [
+        [
+          0.9191593198992444,
+          0.282666774611399
+        ],
+        [
+          0.9191593198992444,
+          0.6787969559585493
+        ],
+        [
+          0.5011807304785894,
+          0.9051570595854922
+        ],
+        [
+          0.07847921914357683,
+          0.6764390382124352
+        ],
+        [
+          0.08320214105793451,
+          0.277950939119171
+        ],
+        [
+          0.5059036523929471,
+          0.08224376619170984
+        ]
       ],
       "source_size": [
         1536,

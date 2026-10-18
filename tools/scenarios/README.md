@@ -16,6 +16,7 @@ The Godot application uses the same `ScenarioRunner.CreateAt` replay.
 | `initial` | Started game, nine empty settlement plots, five purchased |
 | `settlement` | Farm 0, Barracks 1, Metal Mine 2, Lumbermill 3 |
 | `building-selected` | Same settlement, selected Barracks 1 |
+| `sprite-settlement` | Lumbermill 0, Barracks 1, Stonecutter 2; paid Arcanum 4 after production, selected |
 | `combat` | Four Swordsmen in the shared 63-cell arena, a unit attack after at least 180 ticks |
 | `draft` | Wave one won, three actual reward offers |
 | `post-draft` | First offer selected, wave two preparation |

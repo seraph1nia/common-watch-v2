@@ -126,8 +126,19 @@ def process_image(source, entry, settings):
     offset = tuple(round(total*target - extent*pivot) for total, target, extent, pivot in zip(canvas, anchor, size, content_anchor))
     output = Image.new('RGBA', tuple(canvas))
     output.alpha_composite(content, offset)
-    return output, {'source_alpha': initial, 'content_bbox': bbox, 'resize_scale': scale,
-                    'content_size': size, 'content_offset': offset, 'content_anchor': content_anchor}
+    info = {'source_alpha': initial, 'content_bbox': bbox, 'resize_scale': scale,
+            'content_size': size, 'content_offset': offset, 'content_anchor': content_anchor}
+    if 'ground_polygon' in entry:
+        points = entry['ground_polygon']
+        if not entry['id'].startswith('terrain/') or len(points) != 6 or any(
+                len(p) != 2 or any(not math.isfinite(v) or not 0 <= v <= limit for v, limit in zip(p, cropped.size)) for p in points):
+            raise ValueError('Ground polygon requires six crop-local top-surface points')
+        # Resize rounding can differ on the two axes. Use actual content dimensions, not the ideal scale.
+        info['ground_uv'] = [[(p[axis] - bbox[axis]) * size[axis] / (bbox[axis+2] - bbox[axis]) / canvas[axis]
+                              + offset[axis] / canvas[axis] for axis in range(2)] for p in points]
+        if any(not 0 <= v <= 1 for p in info['ground_uv'] for v in p):
+            raise ValueError('Ground polygon lies outside the processed canvas')
+    return output, info
 
 
 def read_manifests():

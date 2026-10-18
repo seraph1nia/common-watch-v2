@@ -2,6 +2,8 @@
 
 The supplied archive was inspected for absolute paths, traversal and symlinks, then its four PNGs were extracted once into `art/source/`, retaining filenames and bytes. `art/manifests/provenance.json` records the archive hash, source hashes, RGBA modes and dimensions (all 1536 × 1024). The archive's README is retained unchanged. The archive is no longer an input: no archive discovery, extraction script, configuration or mise task exists.
 
+The separately supplied `~/Downloads/common_watch_cutout_prototype.zip` was inspected and safely extracted to a temporary directory for the tilted-view work. It contains four prepared transparent cutouts, four rough versions and an opaque scale preview. Only the unchanged 512 × 512 shrine source is retained under `art/source/prototypes/`. [Prototype provenance](../art/manifests/prototype-provenance.json) records the archive hash, every inspected image's hash/dimensions/alpha and the reuse decisions. Builds and processing never read Downloads.
+
 ## Reproduce the installed artwork
 
 From the project root:
@@ -19,7 +21,7 @@ Python 3 with venv/pip is needed for setup; tasks do not install system packages
 
 `extraction.json` contains explicit, non-grid crop rectangles, stable IDs, output paths, normalized anchors, display sizes and actual nine-slice margins. `processing.json` sets canvases, padding and conservative alpha cleanup. Crops use Pillow's half-open `[left, top, right, bottom]` convention. The pipeline validates paths, crops, alpha, dimensions, duplicate IDs, anchors and slice centers before installation. Output metadata includes source/crop dimensions, visible bounding boxes, content offsets, uniform resize scale, alpha statistics and input/output SHA-256s. There are no timestamps or random image operations.
 
-The sheets have useful cutout alpha already. Hidden RGB pixels retain their painted backgrounds; RGB-only viewers can make the files appear opaque. Processing zeros alpha values at most 2 and normalizes values at least 250. Every other alpha value and foreground RGB is retained. No global RGB threshold is used. Optional explicit crop-local polygon masks (at most two pixels feather) and boundary-connected color flood cleanup are available for future inputs; neither is needed for these selected cutouts. A dark object enclosed within the foreground is never removed by the boundary flood.
+The sheets have useful cutout alpha already. Hidden RGB pixels retain their painted backgrounds; RGB-only viewers can make the files appear opaque. Processing zeros alpha values at most 2 and normalizes values at least 250. Every other alpha value and foreground RGB is retained. No global RGB threshold is used. Explicit crop-local polygon masks (at most two pixels feather) and boundary-connected color flood cleanup are supported. The shrine uses a measured polygon mask with 0.6 pixel feather to remove its broad baked hex platform while retaining roots, steps and low foliage. No color flood is enabled. A dark object enclosed within the foreground is never removed by the boundary flood.
 
 Buildings use 512 × 512, units 256 × 256, resource icons 128 × 128 and the woodland hex 256 × 256. Visible contents are trimmed and uniformly fitted into transparent canvases. Buildings/units place the bottom of their visible content at the configurable ground anchor, normally `(0.5, 0.92)`. Terrain/resources are centered. Canvas size, artwork silhouette and display size never affect occupancy, commands or selection.
 
@@ -30,6 +32,7 @@ Buildings use 512 × 512, units 256 × 256, resource icons 128 × 128 and the wo
 | `building/lumbermill` | 01 | `assets/sprites/buildings/lumbermill.png` |
 | `building/farm` | 01 | `assets/sprites/buildings/farm.png` |
 | `building/barracks` | 01 | `assets/sprites/buildings/barracks.png` |
+| `building/arcanum` | Supplied shrine prototype | `assets/sprites/buildings/arcanum.png` |
 | `unit/swordsman` | 03 | `assets/sprites/units/swordsman.png` |
 | `unit/enemy_swordsman` | 04 | `assets/sprites/units/enemy_swordsman.png` |
 | `terrain/woodland_hex` | 01 | `assets/sprites/terrain/woodland_hex.png` |
@@ -47,9 +50,13 @@ mise run play-assets -- --view angled
 
 The application accepts `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are debug, topdown, plain and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
 
-The `play-assets` task enables both world sprites and the illustrated nine-slice HUD. Append `-- --hud-art plain` to the task for plain controls, or `-- --view angled` for the angled world view.
+The `play-assets` and `battle-assets` tasks prefer the angled view; `play-assets` also enables the illustrated nine-slice HUD. Append `-- --hud-art plain` for plain controls, or `-- --view topdown` for the topdown comparison. Bare application/debug defaults remain unchanged.
 
 Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Camera2D owns camera pan/zoom, AssetLoader caches native external PNG textures and BattlefieldView owns combat presentation; detached metadata and logical projection remain engine independent. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
+
+Terrain now draws as one textured polygon per logical cell using the **same six corners** as its outline. `ground_polygon` records six crop-local points on the source's top surface, in `HexProjection.Corners` order (upper-right, lower-right, bottom, lower-left, upper-left, top). Processing converts these through trimming, canvas padding and actual rounded resize dimensions into normalized `ground_uv` catalog coordinates. Godot maps that surface directly onto projected corners: it does not compress the complete upright terrain cutout or apply the source's perspective twice. Source perimeter/side faces remain outside the UV footprint. Geometry supplies the fallback when the texture or six qualified UVs are absent. Future tall terrain decoration belongs in an upright object sprite, outside this ground-only surface.
+
+The retained woodland PNG's bytes are unchanged. Its mapped surface fills adjacent cells without the old unprojected rectangular overhang. Board outlines finish after terrain in settlement and combat. Settlement sprites and their captions draw from far to near by projected ground Y, then X, so a rear caption no longer paints over a nearer shrine. Logical selection still uses the inverse projection and native Camera2D inversion. All sprite anchors and scales remain catalog controlled; the shrine uses `(0.5, 0.92)` and 148 world pixels.
 
 Combat retains the original authoritative movement interpolation. Godot samples idle, movement, five-stage melee, hit and death poses from playback timing. Native procedural shots, magic, statuses and structure effects accompany real events. No animation frames, rig or simulation writes were introduced. Debug figures receive equivalent transforms and effects. See [the combat animation experiment](COMBAT_ANIMATION.md) for actual captures, legal showcases and limitations.
 
@@ -68,16 +75,16 @@ The source margins are retained in the catalog:
 
 These are source-coordinate cuts, not destination padding. Scaling the native border leaves corners fixed at their intended display size. Text is inset separately. Tooltip text is sampled from the hovered logical settlement plot. Missing skins retain ordinary UI and contrasting text.
 
-[The reusable nine-slice preview](../art/previews/nine-slice-preview.png) includes 160 × 48 button, 480 × 160 panel, 640 × 420 dialog and 260 × 390 card. [The contact sheet](../art/previews/contact-sheet.png) shows all thirteen cutouts.
+[The reusable nine-slice preview](../art/previews/nine-slice-preview.png) includes 160 × 48 button, 480 × 160 panel, 640 × 420 dialog and 260 × 390 card. [The contact sheet](../art/previews/contact-sheet.png) shows all fourteen cutouts.
 
 ```sh
 mise run art-showroom
 mise run capture-art
 ```
 
-Showrooms construct no authority and advance no match. They show assets near their game display sizes, anchors/bounds, a debug fallback and native nine-slices at the preview sizes with separate text. The showroom scrolls at smaller viewport sizes. Interactive tasks use normal audio; capture/check tasks own Xvfb and temporary audio settings.
+Showrooms construct no authority and advance no match. They show assets near their game display sizes, anchors/bounds and native nine-slices at the preview sizes with separate text. The showroom scrolls at smaller viewport sizes. Interactive tasks use normal audio; capture/check tasks own Xvfb and temporary audio settings.
 
-Art captures are real application frames under `artifacts/captures/godot/art/`: `settlement-debug.png`, `settlement-angled.png`, `settlement-sprites.png`, `combat-sprites.png`, `hud-plain.png`, `hud-illustrated.png`, `nine-slice-small.png`, `nine-slice-large.png`, `asset-showroom.png`. Small/large checks use 1280 × 720 and 1920 × 1080; showroom is 1280 × 1080. Scenario captures use legal replay, never fabricated match state.
+Art captures are twelve real application frames under `artifacts/captures/godot/art/`: `settlement-debug.png`, `settlement-angled.png`, `settlement-sprites.png`, `shrine-angled.png`, `shrine-anchors.png`, `shrine-topdown.png`, `combat-sprites.png`, `hud-plain.png`, `hud-illustrated.png`, `nine-slice-small.png`, `nine-slice-large.png`, `asset-showroom.png`. Small/large checks use 1280 × 720 and 1920 × 1080; showroom is 1280 × 1080. `sprite-settlement` builds Lumbermill/Barracks/Stonecutter, settles production, then pays for Arcanum on plot 5. Scenario captures use legal replay, never fabricated match state.
 
 ## Source limitations
 
@@ -86,6 +93,19 @@ Art captures are real application frames under `artifacts/captures/godot/art/`: 
 - Sheet 03 buttons have embedded labels; they were rejected in favor of the unlabelled sheet 04 button. The sheet 03 pointed tooltip was also bypassed in favor of the unlabelled rectangular parchment source. No painted gameplay text was copied into installed images.
 - Sheet 02's scene crops include scenery/labels, making it less suitable than the chosen cutouts. It is preserved unchanged for future manual selection.
 - The available enemy sword bearer is a green-skinned raider. It is a cosmetic stand-in for the authoritative enemy swordsman; faction and rules remain unchanged. No replacement art was created.
-- Only the requested three building types and two unit types are illustrated. Other buildings (including the legal scenario's Metal Mine), structures and future unit IDs visibly use debug shapes. Angled artwork is also shown as-is in topdown comparison mode.
+- Lumbermill, Farm, Barracks and prototype Arcanum are illustrated. Other buildings (including the legal scenarios' Metal Mine and Stonecutter), structures and future unit IDs visibly use debug shapes. Angled building/unit artwork is shown upright as-is in topdown comparison mode.
 - These are static illustrations. Animation is procedural motion of one PNG per unit. The repeated woodland tile and painted ground islands do not form a production seamless terrain set.
 - Current validation is Linux/Xvfb/Mesa. This change does not claim native Windows rendering or qualification of physical display/audio hardware. Platform publishing tasks and executable-relative asset layout are retained; release builds were not rerun for this artwork work.
+
+## Remaining production artwork
+
+The new shrine is explicitly a **prototype**, not a finished production asset. Its broad hex platform is masked out, but the cutout still has angular lower edges, small grass/ground fragments and no professionally painted contact shadow. It establishes scale, anchoring and a bright cyan fantasy direction in the actual game. The guardian was not substituted for a swordsman: it has a gray cutout remnant and a different silhouette/identity. Tree/waterfall cutouts have substantial diorama bases and no requested matching IDs, so they were not installed. No generation or download was used, consistent with repository instructions.
+
+| Requested ID | Current usable integration | Work still needed for a unified production set |
+| --- | --- | --- |
+| `building/arcanum` | New 512 × 512 masked prototype, 148 px | Artist cleanup or replacement, isolated roots/shadow, clean alpha edges |
+| `terrain/woodland_hex` | Existing 256 × 256 PNG with qualified top-surface UVs | Cleaner repeatable grassy surface; fewer large rocks and obvious repeated paths |
+| `building/lumbermill`, `building/barracks` | Existing 512 × 512 PNGs, 142/148 px, unchanged | Matching faceted fantasy style, upper-left light and ground-only contact shadows |
+| `unit/swordsman`, `unit/enemy_swordsman` | Existing 256 × 256 PNGs, 46 px, unchanged | Matching fantasy silhouettes/palette and faction identity at gameplay scale |
+
+Supply independent transparent PNGs, preserve one sprite per ID, and replace source/crop/anchor/display-size entries in `extraction.json`; regenerate, validate and install through the existing commands. For a replacement terrain surface, measure its six top-surface points instead of guessing from the full canvas. Original source sheets and existing installed production PNGs remain intact.

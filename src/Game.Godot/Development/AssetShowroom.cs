@@ -20,7 +20,7 @@ public partial class AssetShowroom : CanvasLayer
             label.AddThemeColorOverride("font_color", new Color(parchment ? "30251c" : "e7edf2")); content.AddChild(label);
         }
         LabelAt("ASSET SHOWROOM / GODOT — frozen presentation; pink = ground anchor; blue = canvas bounds", new(24, 16), new(1160, 40));
-        string[] ids = ["building/lumbermill", "building/farm", "building/barracks", "unit/swordsman", "unit/enemy_swordsman", "terrain/woodland_hex", "resource/gold", "resource/wood", "resource/stone"];
+        string[] ids = ["building/lumbermill", "building/farm", "building/barracks", "building/arcanum", "unit/swordsman", "unit/enemy_swordsman", "terrain/woodland_hex", "resource/gold", "resource/wood", "resource/stone"];
         for (int i = 0; i < ids.Length; i++)
         {
             string id = ids[i]; var meta = assets.Catalog.Metadata(id);
@@ -45,8 +45,6 @@ public partial class AssetShowroom : CanvasLayer
             content.AddChild(new ColorRect { Position = ground - new Vector2(1, 5), Size = new(2, 10), Color = new Color("ff82ce") });
             LabelAt(id, ground + new Vector2(-105, 16), new(220, 45));
         }
-        content.AddChild(new ColorRect { Position = new(1070, 342), Size = new(44, 35), Color = new Color("6385a1") });
-        LabelAt("Missing asset\nDebug fallback", new(1050, 405), new(160, 55));
         foreach (var (id, pos, size, label) in new (string, Vector2, Vector2, string)[]
         {
             ("hud/button",new(560,480),new(160,48),"Dynamic button"),

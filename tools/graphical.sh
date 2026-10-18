@@ -75,6 +75,9 @@ case "$operation" in
     capture_art settlement-debug settlement --world-art debug --hud-art plain --view topdown
     capture_art settlement-angled settlement --world-art debug --hud-art plain --view angled --debug-overlay on
     capture_art settlement-sprites settlement --world-art sprites --hud-art plain --view angled
+    capture_art shrine-angled sprite-settlement --world-art sprites --hud-art plain --view angled
+    capture_art shrine-anchors sprite-settlement --world-art sprites --hud-art plain --view angled --debug-overlay on
+    capture_art shrine-topdown sprite-settlement --world-art sprites --hud-art plain --view topdown
     capture_art combat-sprites combat --world-art sprites --hud-art illustrated --view angled
     capture_art hud-plain draft --world-art sprites --hud-art plain --view angled
     capture_art hud-illustrated draft --world-art sprites --hud-art illustrated --view angled

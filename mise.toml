@@ -55,7 +55,7 @@ raw_args = true
 [tasks.play-assets]
 description = "Play Godot with optional sprites and illustrated HUD, with plain/geometric fallback"
 depends = ["build"]
-run = "bash tools/client.sh --render-mode sprites --hud-art illustrated"
+run = "bash tools/client.sh --render-mode sprites --hud-art illustrated --view angled"
 raw_args = true
 
 [tasks.test-graphics]
@@ -163,7 +163,7 @@ raw_args = true
 [tasks.battle-assets]
 description = "Godot battle with the two existing static character PNGs"
 depends = ["build"]
-run = "bash tools/client.sh --battle swordsman --world-art sprites"
+run = "bash tools/client.sh --battle swordsman --world-art sprites --view angled"
 raw_args = true
 
 [tasks.capture-battle]
