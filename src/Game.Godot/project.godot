@@ -2,7 +2,7 @@ config_version=5
 
 [application]
 config/name="The Common Watch — Godot 2D"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://Scenes/Main.tscn"
 
 [display]
 window/size/viewport_width=1280
@@ -20,3 +20,6 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
 environment/defaults/default_clear_color=Color(0.045, 0.065, 0.09, 1)
+
+[audio]
+buses/default_bus_layout="res://Audio/default_bus_layout.tres"

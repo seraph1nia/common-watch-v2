@@ -1,8 +1,8 @@
 # Sessions, LAN and optional Steam
 
-The application starts at a main menu. Choose **Single player**, choose a doctrine, then **Start match**. Return to the main menu from preparation, combat or drafting to dispose that authority; the next game gets a fresh match identity. Music and local preferences belong to the application and survive session replacement.
+The application starts at a main menu. Choose **Single player**, choose a doctrine, then **Start match**. Return to the main menu from preparation, combat or drafting to dispose that authority; the next game gets a fresh match identity. Music and local preferences belong to AudioController and survive session replacement. Native Master/Music/SFX/UI buses and the text-authored settings scene retain the existing JSON preference path/format.
 
-Godot uses a session Node with ENet and reliable Godot RPCs. Game.Core is unchanged and owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
+`Application/SessionCoordinator` exclusively owns the active session Node with ENet and reliable Godot RPCs. Native Steam callbacks live in `Networking/Steam/SteamCoordinator`; UI confirmation and lobby Controls are separate. Game.Core is unchanged and owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
 
 ## Hosting and joining LAN games
 

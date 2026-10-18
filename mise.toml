@@ -39,7 +39,7 @@ run = ["dotnet restore tests/Game.Shared.Tests/Game.Shared.Tests.csproj --locked
 [tasks.test]
 description = "All Core, shared and actual graphical integration tests"
 depends = ["build"]
-run = [".venv-art/bin/python -m unittest discover -s tests/art -v", "dotnet test CommonWatch.slnx --no-build --no-restore --nologo"]
+run = [".venv-art/bin/python -m unittest discover -s tests/art -v", "dotnet test CommonWatch.slnx --no-build --no-restore --nologo", "bash tools/graphical.sh capture-battle --no-sequence"]
 
 [tasks.scenario]
 description = "Replay the authoritative first-wave scenario and write JSON checkpoints"

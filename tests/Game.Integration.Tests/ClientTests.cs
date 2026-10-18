@@ -62,10 +62,13 @@ public sealed class ClientTests
         Directory.CreateDirectory(logDirectory);
         await File.WriteAllTextAsync(Path.Combine(logDirectory, "godot-" + (illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
         Assert.True(process.ExitCode == 0, $"Godot actual-graphics check failed ({process.ExitCode}):\n{transcript}");
+        Assert.DoesNotContain("ERROR:", transcript);
+        Assert.DoesNotContain("Unhandled exception", transcript);
         Assert.Equal(2, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
         Assert.True(transcript.Split("GODOT_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
             "Both rendering modes must decode and start the bundled music, including settings checks.");
         Assert.Contains("settings=0/50/100 persisted=true", transcript);
+        Assert.Equal(2, transcript.Split("GODOT_CAMERA_PASS", StringSplitOptions.None).Length - 1);
         Assert.Contains("mode=Debug", transcript);
         Assert.Contains("mode=Sprites", transcript);
         if (illustrated)

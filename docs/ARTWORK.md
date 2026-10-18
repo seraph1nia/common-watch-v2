@@ -49,13 +49,13 @@ The application accepts `--world-art debug|sprites` (alias for the retained `--r
 
 The `play-assets` task enables both world sprites and the illustrated nine-slice HUD. Append `-- --hud-art plain` to the task for plain controls, or `-- --view angled` for the angled world view.
 
-Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Godot owns camera pan/zoom, native textures and combat presentation; detached metadata and logical projection remain engine independent. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
+Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Camera2D owns camera pan/zoom, AssetLoader caches native external PNG textures and BattlefieldView owns combat presentation; detached metadata and logical projection remain engine independent. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
 
 Combat retains the original authoritative movement interpolation. Godot samples idle, movement, five-stage melee, hit and death poses from playback timing. Native procedural shots, magic, statuses and structure effects accompany real events. No animation frames, rig or simulation writes were introduced. Debug figures receive equivalent transforms and effects. See [the combat animation experiment](COMBAT_ANIMATION.md) for actual captures, legal showcases and limitations.
 
 ## Nine-slice HUD
 
-Godot uses native `NinePatchRect` behind normal Controls. A non-Control parent keeps Container layout from resetting its scale. Native tooltip ownership supplies a skinned Control; labels, values, costs, reward descriptions and button interaction remain native UI.
+Godot uses native `NinePatchRect` behind normal Controls, with a shared `UI/WatchTheme.tres` theme and application-scoped PNG cache. A non-Control parent keeps Container layout from resetting its scale. Native tooltip ownership supplies a skinned Control; labels, values, costs, reward descriptions and button interaction remain native UI.
 
 The source margins are retained in the catalog:
 

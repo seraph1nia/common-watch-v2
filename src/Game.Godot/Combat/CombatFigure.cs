@@ -7,18 +7,30 @@ namespace Game.GodotClient;
 // One retained CanvasItem per visible actor; freed at lifecycle/reset boundaries.
 public partial class CombatFigure : Node2D
 {
-    public const string HitFlashCode = "shader_type canvas_item; uniform float flash : hint_range(0.0,1.0); void fragment(){ vec4 c=COLOR; COLOR=vec4(mix(c.rgb,vec3(1.0),flash),c.a); }";
     readonly ShaderMaterial flashMaterial = new();
+    readonly Sprite2D sprite = new() { Centered = false, UseParentMaterial = true };
+    public override void _Ready() => AddChild(sprite);
     Texture2D? texture;
     AssetMetadata meta = AssetMetadata.Default("unit/swordsman");
     UnitType type;
     Color color;
-    public void Present(Texture2D? image, AssetMetadata metadata, UnitType unitType, bool friendly, FigurePose pose, Vector2 ground, float zoom, bool shader, Shader hitShader)
+    public void Present(Texture2D? image, AssetMetadata metadata, UnitType unitType, bool friendly, FigurePose pose, Vector2 ground, bool shader, Shader hitShader)
     {
+        bool artworkChanged = texture != image || meta != metadata;
         texture = image; meta = metadata; type = unitType;
+        if (artworkChanged)
+        {
+            sprite.Texture = image;
+            if (image is not null)
+            {
+                sprite.Position = Bounds.Position;
+                sprite.Scale = Bounds.Size / image.GetSize();
+            }
+        }
+        sprite.Visible = image is not null;
         color = new Color(friendly ? "7baad0" : "bb7766");
-        Position = ground + new Vector2(pose.Offset.X, pose.Offset.Y) * zoom;
-        Rotation = pose.Rotation; Scale = Vector2.One * zoom * pose.Scale;
+        Position = ground + new Vector2(pose.Offset.X, pose.Offset.Y);
+        Rotation = pose.Rotation; Scale = Vector2.One * pose.Scale;
         Modulate = new Color(1, 1, 1, pose.Opacity);
         flashMaterial.Shader = hitShader;
         Material = shader ? flashMaterial : null;
@@ -37,13 +49,7 @@ public partial class CombatFigure : Node2D
     }
     public override void _Draw()
     {
-        if (texture is not null)
-        {
-            float factor = meta.DisplaySize * .86f / Math.Max(texture.GetWidth(), texture.GetHeight());
-            Vector2 size = new Vector2(texture.GetWidth(), texture.GetHeight()) * factor;
-            DrawTextureRect(texture, new Rect2(-size * new Vector2(meta.Anchor[0], meta.Anchor[1]) + new Vector2(meta.Offset[0], meta.Offset[1]), size), false);
-            return;
-        }
+        if (texture is not null) return;
         // A readable tabletop token, entirely geometric. It is never catalog artwork.
         DrawLine(new(-4, -9), new(-5, -1), new Color("b9b1a0"), 4, true);
         DrawLine(new(4, -9), new(6, -1), new Color("b9b1a0"), 4, true);

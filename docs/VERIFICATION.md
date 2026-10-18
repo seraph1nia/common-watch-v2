@@ -10,6 +10,16 @@ The removal baseline passed `mise run build` (zero warnings/errors), `test-core`
 
 `capture-art` passed all nine actual views; debug settlement and illustrated draft frames were inspected. `test-animation` passed eight pose/lifecycle contracts, 19 captured phases in each art mode and missing-art/angled camera shader fallback captures. `test-session` passed both graphical facts again with explicit `--steam` startup and `COMMON_WATCH_STEAM_DISABLED=1` (41s). The first capture attempt failed when its running shell script was edited; the complete restart passed. See [migration record](MIGRATION.md) for the intermediate baseline and refactor sequence.
 
+## Native refactor results
+
+- `mise run build`: locked restore and compilation, zero warnings/errors. Core, its original lock, surviving dependency locks and all installed art/music remain unchanged.
+- `mise run test-core`: 40 passed; `test-shared`: 44 passed.
+- `mise run test`: 113 .NET tests passed (40 Core, 44 Shared, 25 Godot logic/animation/Steam, four real-process integration tests), zero failures/skips; 14 Pillow tests passed. The same task now also checks 19 actual animation phases per art mode plus missing-art and angled camera/shader fallback frames. Final transcript: `artifacts/migration/final-test.log`.
+- Expanded native UI checks exercise Camera2D forward/inverse picking for nine plots at 1280×720 and 1920×1080, both projections and zoom 0.55/1/2.2 with pan. Viewport input activates world selection and the settings button, restores keyboard focus, captures modal clicks/reset shortcuts and scrolls the inspector without zooming. Missing/corrupt artwork and illustrated HUD fallback remain covered.
+- Actual 2–4 player LAN games and preparation/process-restart/combat/death/draft reconnect/fault checks pass after the final scene reorganization. Earlier focused coordinator checks also passed twice. No recurrence of the known native JIT crash was observed in these runs; the risk remains unresolved.
+- The native Steam ABI/API check passes with Steam disabled and no account initialization. An early-exit signal disconnect error found during this migration was corrected and the native check rerun cleanly. CI now checks this path and fails on engine errors as well as missing success receipts.
+- Native Sprite2D/shader animation gates passed after extraction. The nine-run profile passed at 30/60/120 target FPS and all supported speeds, with zero final effects and three surviving actors in every run. Fresh `capture-art` passed all nine views; `capture-battle` passed 19 named phases and 32 ordered frames in each art mode plus fallback/camera frames; `capture` passed all four debug checkpoints. Sprite battle and illustrated reward frames were inspected directly. Release results follow after execution.
+
 ## Qualification limits
 
 Native two-account Steam SDK initialization, invitations, overlay delivery, Steam gameplay, relay selection and authenticated reconnect remain **unexecuted**. Native library loading/ABI tests, mocked operation rules and LAN success do not qualify Steam end to end. [Sessions](SESSIONS.md#native-steam-verification-gate) documents explicitly gated account workers.

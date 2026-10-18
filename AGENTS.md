@@ -1,22 +1,35 @@
 # The Common Watch — Godot 2D
 
-Work in this repository. Use `mise run build`, `mise run test-core`, `mise run test-shared`, and the affected graphical checks. See README.md for setup and commands.
+Work in this repository. Ordinary development edits C#, text Godot scenes/resources and scripts, then runs mise. Opening the Godot editor is optional. [README.md](README.md) documents pinned setup and canonical commands.
 
-Platform release tasks are `build-linux` and `build-windows`. Their self-contained x64 outputs belong in gitignored `artifacts/builds/godot/<platform>/`. Include music/optional sprites and preserve executable-relative asset lookup. Runtime-specific NuGet locks are in `tools/nuget-locks`; do not regenerate the pinned upstream Core lockfile for publishing.
+## Ownership and navigation
 
-## Boundaries
+| Change | Owner | Focused verification |
+| --- | --- | --- |
+| Gameplay rules and Arch ECS | `src/Game.Core` is the unmodified pinned upstream import; do not edit it for presentation. See [provenance](docs/PROVENANCE.md). | `mise run test-core` |
+| Solo adapter, deterministic replay, bounded snapshots, private resume files, hex projection, asset metadata | `src/Game.Shared`; no Godot dependencies or transport framework | `mise run test-shared` |
+| Startup, active session lifetime, screen transitions and exit | `src/Game.Godot/Application`; `Scenes/Main.tscn` declares services and retained world views | `mise run test-session` |
+| ENet/RPC transport and reconnect | `src/Game.Godot/Networking/GodotSession.cs`; only `Application/SessionCoordinator.cs` creates/disposes sessions | `mise run test-multiplayer`, `test-reconnect` |
+| Steam callbacks, identity and operations | `src/Game.Godot/Networking/Steam`; confirmation Controls live in `UI` | `mise run test-steam`; live gate in [sessions](docs/SESSIONS.md#native-steam-verification-gate) |
+| Native HUD, inspectors, rewards, lobby and focus | `src/Game.Godot/UI`, `UI/WatchTheme.tres`, `Scenes/UI/SettingsPanel.tscn`; native layout containers and UI events | `mise run test-session`, `capture-art` |
+| Settlement and logical selection | `World/SettlementView.cs`; Camera2D pan/zoom and native canvas inversion in `World/WorldCamera.cs` | `mise run test-session` includes native picking/input at two sizes, both projections and three zooms |
+| Combat figures, deterministic effects and hit shader | `Combat/BattlefieldView.cs`, `CombatMotion.cs`, `CombatFigure.cs`, `HitFlash.gdshader` | `mise run test-animation`, `capture-battle`; `profile-animation` for repeated cleanup/performance |
+| Optional PNG cache and ground anchors | `Art/AssetLoader.cs`, `Art/WorldArt.cs`, `UI/HudSkin.cs`; textures are application owned | `mise run test-session`, `capture-art`; [artwork](docs/ARTWORK.md) |
+| Native audio buses and preferences | `Audio/AudioController.cs`, `Audio/default_bus_layout.tres`; retain the existing JSON settings format | `mise run test-session` checks WAV, loops, bus volume/mute and persistence |
+| CLI-only development probes, capture and showroom | `src/Game.Godot/Development`, `tools`; probes submit legal commands or observe detached state | Relevant mise capture/integration task; [verification](docs/VERIFICATION.md) |
 
-- `src/Game.Core` is an unmodified pinned upstream import; provenance is in `docs/PROVENANCE.md`. It owns all gameplay rules and Arch ECS. Do not edit it for presentation needs.
-- `src/Game.Shared` owns the minimal solo authority adapter, deterministic replay, projection and visual IDs. No graphical dependencies.
-- `src/Game.Godot` owns Godot 2D drawing and native Controls.
-- The client submits authoritative commands and read detached snapshots. Never write simulation state or duplicate rules.
+Paths without the `src/Game.Godot` prefix in the table are relative to that project. Keep application lifecycle partials scoped to coordination; put UI, drawing, transport and resources in their actual owners. Disconnect cross-owner events on exit. Session generations and old-session guards must survive refactors.
 
-## Workflow
+The application submits authoritative commands and reads detached snapshots. Never write simulation state or duplicate rules. Combat presentation samples Core playback; independent wall-clock Tweens/particles must not drive combat timing, damage or occupancy.
 
-Compile and run focused tests after coherent changes. Run the relevant actual graphical client when presentation changes; compilation alone is insufficient verification. Integration/capture tasks use an owned virtual display on Linux. Keep dependency versions and NuGet lockfiles pinned. Do not install system packages from tasks.
+## Workflow and constraints
 
-Default rendering is `--render-mode debug`: shapes and text, ignoring all sprite files. `--render-mode sprites` enables optional files with geometric fallbacks. Never create, generate or download game artwork. Technical font/shape rendering resources and actual application screenshots are allowed. Empty asset directories are intentional.
+After coherent code changes run `mise run build`, `mise run test-core`, `mise run test-shared` and the affected actual graphical checks above. `mise run test` includes Pillow, all .NET/process tests and animated frame checks. Compilation alone does not verify presentation. Use the legal scenario checkpoints for captures; never fabricate authoritative state. Native text scenes/resources are source files and require no editor import dialogs.
 
-Background music is the unchanged pinned upstream WAV in `assets/audio`; preserve its provenance and authored loop markers. Interactive launches must use normal audio output; silent drivers belong only in automated graphical checks. Settings are local presentation preferences, never simulation commands or state. Automated checks use temporary `--settings-path` files to preserve player preferences.
+Automated Linux checks own virtual displays and use temporary `--settings-path` files/private session directories. Preserve bounded process supervision and cleanup. Tasks must not install system packages. Interactive launches use normal audio; silent audio belongs only in automated checks.
 
-The shared scenario replays legal commands under normal rules. Use its checkpoints for tests and captures rather than fabricating authoritative state. Document unexecuted checks accurately. Preserve upstream GPL-3.0-only notices and license.
+Keep dependencies, tool versions and NuGet locks pinned. `build-linux` and `build-windows` produce self-contained x64 folders in gitignored `artifacts/builds/godot/<platform>/`, including music/optional sprites and executable-relative asset lookup. RID-specific locks are in `tools/nuget-locks`; never regenerate Core's pinned upstream lock for publishing.
+
+Debug/plain remains the default and ignores artwork. Preserve `--world-art debug|sprites`, `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off` and geometric/plain fallback. Never create, generate or download game artwork. Existing Pillow processing, technical font/shape resources and actual application screenshots are allowed.
+
+The pinned upstream WAV, authored loop markers, source artwork and provenance must remain intact. Preferences are local presentation data; private reconnect credentials must not enter ordinary settings, logs or snapshots. Preserve GPL-3.0-only notices and licenses. Record unexecuted checks accurately, including live Steam/native-platform gaps and the known intermittent native .NET/JIT crash risk.

@@ -52,13 +52,13 @@ Status particles are sampled only between authoritative application and expiry t
 
 ## Godot implementation and observations
 
-`CombatMotion.cs` owns the engine's pose curves. `CombatFigure.cs` retains one Node2D per visible actor, transforms it around the ground anchor, and draws its PNG or a geometric figure. A Main-owned CanvasItem shader and per-figure ShaderMaterials blend actual damaged figures toward white. Shader materials, nodes and the shared shader have explicit lifecycle cleanup. Tint modulation supplies the optional fallback.
+`Combat/CombatMotion.cs` owns pose curves. `Combat/CombatFigure.cs` retains one Node2D with a native Sprite2D per visible actor, transforms it around the ground anchor, and uses custom drawing for geometric fallback. `Combat/BattlefieldView.cs` owns actor/effect lifetimes and the reusable `Combat/HitFlash.gdshader` resource; per-figure ShaderMaterials blend damaged figures toward white. Shader materials, nodes and the shared shader have explicit lifecycle cleanup. Tint modulation supplies the optional fallback.
 
-Canvas drawing supplies shots, charge rings, impact arcs, particles and diagnostics. One retained foreground CanvasItem keeps health bars and event text above tall figures. Figures sort by projected ground depth. Angled view compresses the ground only; images keep their aspect ratio. Diagnostic bounds include the real image rectangle transformed by the sampled rotation/scale.
+Canvas drawing supplies shots, charge rings, impact arcs, particles and diagnostics. One retained foreground CanvasItem keeps health bars and event text above tall figures. Figures sort by projected logical ground depth. Native Camera2D transforms the world; ground projection remains independent. Angled view compresses the ground only; images keep their aspect ratio. Diagnostic bounds include the real image rectangle transformed by the sampled rotation/scale.
 
 Actual phase and sequence inspection found readable anticipation, impact and recovery at normal zoom. The initial flash was too white, and terrain competed with the figures; both were restrained. Close inspection exposes fixed knees, sword and shield. Multiple attackers still obscure portions of each other during the crowded opening. This remains an animated tabletop-figure style, rather than articulated character motion.
 
-Godot-specific work included retained CanvasItem ordering, explicit shader resource lifetime and delaying the reward overlay through the final body lifecycle. Event-driven combat does not rely on Tweens.
+Native work includes Sprite2D figures, Camera2D, CanvasItem ordering, explicit shader/cache lifetimes and delaying the reward overlay through the final body lifecycle. Sampled status/impact particles remain batched drawing because they are bounded, pause correctly and need no independent timers. AnimationPlayer/Tweens add no useful timing simplification here. Event-driven combat does not rely on Tweens.
 
 ## Artwork and verification limits
 

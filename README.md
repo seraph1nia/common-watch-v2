@@ -59,7 +59,7 @@ Combat poses, shots, statuses, hits and deaths follow authoritative playback. Sh
 mise run build
 mise run test-core
 mise run test-shared
-mise run test                       # Pillow + all .NET and actual-process tests
+mise run test                       # Pillow + .NET/process tests + animation captures
 mise run test-session
 mise run test-multiplayer
 mise run test-reconnect
@@ -99,5 +99,7 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 - `src/Game.Godot`: sole graphical application, native Controls/Node2D, ENet RPC sessions, GodotSteam, audio and presentation resources.
 - `tests`: headless rules, shared/session logic, artwork and actual Godot process checks.
 - `tools`: reproducible CLI launch, capture, scenario, profiling, artwork and release tasks.
+
+`Scenes/Main.tscn` declares the application, session owner, Camera2D, settlement/battlefield views and audio owner. `Application/GameApplication.cs` coordinates them; `UI` owns native screens, `Combat` owns sampled poses and Sprite2D figures, `Art` caches external PNGs, and `Networking/Steam` owns native callback lifetimes. `UI/WatchTheme.tres`, `Combat/HitFlash.gdshader` and `Audio/default_bus_layout.tres` centralize presentation resources. Small hex boards/effects retain efficient custom drawing; logical angled projection and deterministic playback remain independent of camera transforms.
 
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
