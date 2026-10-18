@@ -21,6 +21,16 @@ public partial class GameApplication
     private async Task RunDevelopmentActions()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        // Presentation-only comparison controls. No scenario or authoritative state edits.
+        if (Argument("--settlement-radius") is { } radius)
+        {
+            float value = float.Parse(radius, System.Globalization.CultureInfo.InvariantCulture);
+            if (!float.IsFinite(value) || value < 40 || value > 120) throw new ArgumentException("Settlement comparison radius must be 40..120.");
+            _settlementView.HexRadius = value;
+            RefreshWorld();
+        }
+        if (Argument("--settlement-zoom") is { } zoom)
+            _camera.SetPose(float.Parse(zoom, System.Globalization.CultureInfo.InvariantCulture), Vector2.Zero);
         if (Argument("--battle-capture") is { } battleOutput) { await CaptureBattle(battleOutput); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--gameplay-test")) { await GameplayUiChecks(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--smoke-test")) await SmokeIntegration();

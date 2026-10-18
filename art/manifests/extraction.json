@@ -1,19 +1,614 @@
 {
   "version": 1,
   "assets": [
-    {"id":"building/lumbermill","source":"art/source/01-world-sprites.png","crop":[10,55,520,506],"output":"sprites/buildings/lumbermill.png","anchor":[0.5,0.92],"display_size":142},
-    {"id":"building/farm","source":"art/source/01-world-sprites.png","crop":[530,78,1017,508],"output":"sprites/buildings/farm.png","anchor":[0.5,0.92],"display_size":142},
-    {"id":"building/barracks","source":"art/source/01-world-sprites.png","crop":[1025,45,1528,515],"output":"sprites/buildings/barracks.png","anchor":[0.5,0.92],"display_size":148},
-    {"id":"building/arcanum","source":"art/source/prototypes/crystal_shrine_prototype_asset.png","crop":[0,0,512,512],"output":"sprites/buildings/arcanum.png","anchor":[0.5,0.92],"display_size":148,"mask_feather":0.6,"mask_polygon":[[0,0],[512,0],[512,326],[470,326],[462,343],[445,345],[455,360],[474,372],[455,390],[423,383],[407,400],[371,388],[340,407],[302,409],[291,406],[225,406],[210,416],[177,399],[145,403],[134,390],[107,395],[91,379],[69,378],[75,363],[45,360],[40,345],[0,345]]},
-    {"id":"unit/swordsman","source":"art/source/03-angled-sprites-and-hud-sheet.png","crop":[48,420,159,552],"output":"sprites/units/swordsman.png","anchor":[0.5,0.92],"display_size":46},
-    {"id":"unit/enemy_swordsman","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1378,344,1521,508],"output":"sprites/units/enemy_swordsman.png","anchor":[0.5,0.92],"display_size":46},
-    {"id":"terrain/woodland_hex","source":"art/source/01-world-sprites.png","crop":[1050,560,1478,974],"output":"sprites/terrain/woodland_hex.png","anchor":[0.5,0.5],"display_size":116,"ground_polygon":[[384,114],[384,282],[207,378],[28,281],[30,112],[209,29]]},
-    {"id":"resource/gold","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[13,834,109,954],"output":"sprites/resources/gold.png","anchor":[0.5,0.5],"display_size":28},
-    {"id":"resource/wood","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[111,828,230,952],"output":"sprites/resources/wood.png","anchor":[0.5,0.5],"display_size":28},
-    {"id":"resource/stone","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[230,829,334,951],"output":"sprites/resources/stone.png","anchor":[0.5,0.5],"display_size":28},
-    {"id":"hud/panel","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[556,797,1044,987],"output":"hud/panel.png","slice":{"left":64,"top":64,"right":64,"bottom":64},"border_scale":0.42},
-    {"id":"hud/card_frame","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1317,764,1518,1015],"output":"hud/card_frame.png","slice":{"left":48,"top":48,"right":48,"bottom":48},"border_scale":0.75},
-    {"id":"hud/button","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1054,791,1305,895],"output":"hud/button.png","slice":{"left":32,"top":32,"right":32,"bottom":32},"border_scale":0.42},
-    {"id":"hud/tooltip","source":"art/source/04-expanded-art-and-hud-sheet.png","crop":[1050,891,1291,988],"output":"hud/tooltip.png","slice":{"left":30,"top":30,"right":30,"bottom":30},"border_scale":0.5}
+    {
+      "id": "building/lumbermill",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        10,
+        55,
+        520,
+        506
+      ],
+      "output": "sprites/buildings/lumbermill.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/farm",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        530,
+        78,
+        1017,
+        508
+      ],
+      "output": "sprites/buildings/farm.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/barracks",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        1025,
+        45,
+        1528,
+        515
+      ],
+      "output": "sprites/buildings/barracks.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 148
+    },
+    {
+      "id": "building/arcanum",
+      "source": "art/source/prototypes/crystal_shrine_prototype_asset.png",
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "output": "sprites/buildings/arcanum.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 148,
+      "mask_feather": 0.6,
+      "mask_polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          512,
+          0
+        ],
+        [
+          512,
+          326
+        ],
+        [
+          470,
+          326
+        ],
+        [
+          462,
+          343
+        ],
+        [
+          445,
+          345
+        ],
+        [
+          455,
+          360
+        ],
+        [
+          474,
+          372
+        ],
+        [
+          455,
+          390
+        ],
+        [
+          423,
+          383
+        ],
+        [
+          407,
+          400
+        ],
+        [
+          371,
+          388
+        ],
+        [
+          340,
+          407
+        ],
+        [
+          302,
+          409
+        ],
+        [
+          291,
+          406
+        ],
+        [
+          225,
+          406
+        ],
+        [
+          210,
+          416
+        ],
+        [
+          177,
+          399
+        ],
+        [
+          145,
+          403
+        ],
+        [
+          134,
+          390
+        ],
+        [
+          107,
+          395
+        ],
+        [
+          91,
+          379
+        ],
+        [
+          69,
+          378
+        ],
+        [
+          75,
+          363
+        ],
+        [
+          45,
+          360
+        ],
+        [
+          40,
+          345
+        ],
+        [
+          0,
+          345
+        ]
+      ]
+    },
+    {
+      "id": "unit/swordsman",
+      "source": "art/source/03-angled-sprites-and-hud-sheet.png",
+      "crop": [
+        48,
+        420,
+        159,
+        552
+      ],
+      "output": "sprites/units/swordsman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/enemy_swordsman",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1378,
+        344,
+        1521,
+        508
+      ],
+      "output": "sprites/units/enemy_swordsman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "terrain/woodland_hex",
+      "source": "art/source/01-world-sprites.png",
+      "crop": [
+        1050,
+        560,
+        1478,
+        974
+      ],
+      "output": "sprites/terrain/woodland_hex.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 116,
+      "ground_polygon": [
+        [
+          384,
+          114
+        ],
+        [
+          384,
+          282
+        ],
+        [
+          207,
+          378
+        ],
+        [
+          28,
+          281
+        ],
+        [
+          30,
+          112
+        ],
+        [
+          209,
+          29
+        ]
+      ]
+    },
+    {
+      "id": "resource/gold",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        13,
+        834,
+        109,
+        954
+      ],
+      "output": "sprites/resources/gold.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28
+    },
+    {
+      "id": "resource/wood",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        111,
+        828,
+        230,
+        952
+      ],
+      "output": "sprites/resources/wood.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28
+    },
+    {
+      "id": "resource/stone",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        230,
+        829,
+        334,
+        951
+      ],
+      "output": "sprites/resources/stone.png",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "display_size": 28
+    },
+    {
+      "id": "hud/panel",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        556,
+        797,
+        1044,
+        987
+      ],
+      "output": "hud/panel.png",
+      "slice": {
+        "left": 64,
+        "top": 64,
+        "right": 64,
+        "bottom": 64
+      },
+      "border_scale": 0.42
+    },
+    {
+      "id": "hud/card_frame",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1317,
+        764,
+        1518,
+        1015
+      ],
+      "output": "hud/card_frame.png",
+      "slice": {
+        "left": 48,
+        "top": 48,
+        "right": 48,
+        "bottom": 48
+      },
+      "border_scale": 0.75
+    },
+    {
+      "id": "hud/button",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1054,
+        791,
+        1305,
+        895
+      ],
+      "output": "hud/button.png",
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "border_scale": 0.42
+    },
+    {
+      "id": "hud/tooltip",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1050,
+        891,
+        1291,
+        988
+      ],
+      "output": "hud/tooltip.png",
+      "slice": {
+        "left": 30,
+        "top": 30,
+        "right": 30,
+        "bottom": 30
+      },
+      "border_scale": 0.5
+    },
+    {
+      "id": "building/mine",
+      "source": "art/source/detailed_forest_v2/buildings/mine.png",
+      "crop": [
+        0,
+        0,
+        326,
+        381
+      ],
+      "output": "sprites/buildings/mine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/metalmine",
+      "source": "art/source/detailed_forest_v2/buildings/metalmine.png",
+      "crop": [
+        0,
+        0,
+        305,
+        388
+      ],
+      "output": "sprites/buildings/metalmine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/archeryrange",
+      "source": "art/source/detailed_forest_v2/buildings/archeryrange.png",
+      "crop": [
+        0,
+        0,
+        275,
+        416
+      ],
+      "output": "sprites/buildings/archeryrange.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/researchtower",
+      "source": "art/source/detailed_forest_v2/buildings/researchtower.png",
+      "crop": [
+        0,
+        0,
+        245,
+        521
+      ],
+      "output": "sprites/buildings/researchtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/arrowtower",
+      "source": "art/source/detailed_forest_v2/buildings/arrowtower.png",
+      "crop": [
+        0,
+        0,
+        265,
+        455
+      ],
+      "output": "sprites/buildings/arrowtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/catapulttower",
+      "source": "art/source/detailed_forest_v2/buildings/catapulttower.png",
+      "crop": [
+        0,
+        0,
+        273,
+        418
+      ],
+      "output": "sprites/buildings/catapulttower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/stonecutter",
+      "source": "art/source/detailed_forest_v2/buildings/stonecutter.png",
+      "crop": [
+        0,
+        0,
+        295,
+        375
+      ],
+      "output": "sprites/buildings/stonecutter.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/weaver",
+      "source": "art/source/detailed_forest_v2/buildings/weaver.png",
+      "crop": [
+        0,
+        0,
+        291,
+        374
+      ],
+      "output": "sprites/buildings/weaver.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/market",
+      "source": "art/source/detailed_forest_v2/buildings/market.png",
+      "crop": [
+        0,
+        0,
+        285,
+        337
+      ],
+      "output": "sprites/buildings/market.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "building/townhall",
+      "source": "art/source/detailed_forest_v2/buildings/townhall.png",
+      "crop": [
+        0,
+        0,
+        303,
+        447
+      ],
+      "output": "sprites/buildings/townhall.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142
+    },
+    {
+      "id": "unit/berserker",
+      "source": "art/source/detailed_forest_v2/units/berserker.png",
+      "crop": [
+        0,
+        0,
+        537,
+        597
+      ],
+      "output": "sprites/units/berserker.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/crossbowman",
+      "source": "art/source/detailed_forest_v2/units/crossbowman.png",
+      "crop": [
+        0,
+        0,
+        468,
+        483
+      ],
+      "output": "sprites/units/crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/mage",
+      "source": "art/source/detailed_forest_v2/units/mage.png",
+      "crop": [
+        0,
+        0,
+        481,
+        581
+      ],
+      "output": "sprites/units/mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "source": "art/source/detailed_forest_v2/units/enemy_crossbowman.png",
+      "crop": [
+        0,
+        0,
+        544,
+        473
+      ],
+      "output": "sprites/units/enemy_crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    },
+    {
+      "id": "unit/enemy_mage",
+      "source": "art/source/detailed_forest_v2/units/enemy_mage.png",
+      "crop": [
+        0,
+        0,
+        525,
+        487
+      ],
+      "output": "sprites/units/enemy_mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46
+    }
   ]
 }

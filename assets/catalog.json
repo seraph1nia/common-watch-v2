@@ -1187,6 +1187,1146 @@
       ],
       "source_sha256": "66107cc4648506e0228e170cbf677303efb7076e691c4da6118410dcb5983cd5",
       "sha256": "9485fad0d8e8e15888201c8ca17d92d71edc58505959509f859030910b45e447"
+    },
+    {
+      "id": "building/mine",
+      "source": "art/source/detailed_forest_v2/buildings/mine.png",
+      "crop": [
+        0,
+        0,
+        326,
+        381
+      ],
+      "output": "sprites/buildings/mine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/mine.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          58,
+          8,
+          454,
+          471
+        ],
+        "transparent_pixels": 134121,
+        "opaque_pixels": 106519,
+        "partial_pixels": 21504
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          326,
+          381
+        ],
+        "transparent_pixels": 38420,
+        "opaque_pixels": 72986,
+        "partial_pixels": 12800
+      },
+      "content_bbox": [
+        0,
+        0,
+        326,
+        381
+      ],
+      "resize_scale": 1.2153280839895013,
+      "content_size": [
+        396,
+        463
+      ],
+      "content_offset": [
+        58,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        326,
+        381
+      ],
+      "source_sha256": "a7cc4caaaf018902cac039506941ec323da879116d08f21d7fc48b2c062f80da",
+      "sha256": "bfa91ea051eb0c10e9c9301657308fa87444bbecea3386fdd0a60fabc8fa910d"
+    },
+    {
+      "id": "building/metalmine",
+      "source": "art/source/detailed_forest_v2/buildings/metalmine.png",
+      "crop": [
+        0,
+        0,
+        305,
+        388
+      ],
+      "output": "sprites/buildings/metalmine.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/metalmine.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          74,
+          8,
+          438,
+          471
+        ],
+        "transparent_pixels": 134397,
+        "opaque_pixels": 106331,
+        "partial_pixels": 21416
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          305,
+          388
+        ],
+        "transparent_pixels": 29761,
+        "opaque_pixels": 75613,
+        "partial_pixels": 12966
+      },
+      "content_bbox": [
+        0,
+        0,
+        305,
+        388
+      ],
+      "resize_scale": 1.1934020618556702,
+      "content_size": [
+        364,
+        463
+      ],
+      "content_offset": [
+        74,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        305,
+        388
+      ],
+      "source_sha256": "3cc05db037d0a9d1ea905437ef4dbfe7880ec3c65c398dbeff6e172946a6271c",
+      "sha256": "622d0c45d1b0913fc62b6795f3e72b1cdec462612120f0992c1c546771928e0d"
+    },
+    {
+      "id": "building/archeryrange",
+      "source": "art/source/detailed_forest_v2/buildings/archeryrange.png",
+      "crop": [
+        0,
+        0,
+        275,
+        416
+      ],
+      "output": "sprites/buildings/archeryrange.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/archeryrange.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          103,
+          8,
+          409,
+          471
+        ],
+        "transparent_pixels": 160596,
+        "opaque_pixels": 66859,
+        "partial_pixels": 34689
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          275,
+          416
+        ],
+        "transparent_pixels": 33877,
+        "opaque_pixels": 55518,
+        "partial_pixels": 25005
+      },
+      "content_bbox": [
+        0,
+        0,
+        275,
+        416
+      ],
+      "resize_scale": 1.113076923076923,
+      "content_size": [
+        306,
+        463
+      ],
+      "content_offset": [
+        103,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        275,
+        416
+      ],
+      "source_sha256": "d813818db3037f11446eb252fde0dc6b85c050bfaffe8162d4aaa6019a801ed8",
+      "sha256": "d28c9e2080d26f0b625fa6434622a8cfea3616586dec54a374d823917ee78d6f"
+    },
+    {
+      "id": "building/researchtower",
+      "source": "art/source/detailed_forest_v2/buildings/researchtower.png",
+      "crop": [
+        0,
+        0,
+        245,
+        521
+      ],
+      "output": "sprites/buildings/researchtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/researchtower.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          147,
+          8,
+          365,
+          471
+        ],
+        "transparent_pixels": 188865,
+        "opaque_pixels": 44551,
+        "partial_pixels": 28728
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          245,
+          521
+        ],
+        "transparent_pixels": 36149,
+        "opaque_pixels": 57763,
+        "partial_pixels": 33733
+      },
+      "content_bbox": [
+        0,
+        0,
+        245,
+        521
+      ],
+      "resize_scale": 0.8887523992322457,
+      "content_size": [
+        218,
+        463
+      ],
+      "content_offset": [
+        147,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        245,
+        521
+      ],
+      "source_sha256": "b143b1192aae57985b0565dd5ee67ceefa8265a5bb3dc6fbcd40d519c25035f3",
+      "sha256": "2d7af14a5de7e20500ae93de77ae1a11c88f215ef9d658cf9f5329bbede854b9"
+    },
+    {
+      "id": "building/arrowtower",
+      "source": "art/source/detailed_forest_v2/buildings/arrowtower.png",
+      "crop": [
+        0,
+        0,
+        265,
+        455
+      ],
+      "output": "sprites/buildings/arrowtower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/arrowtower.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          121,
+          8,
+          391,
+          471
+        ],
+        "transparent_pixels": 178537,
+        "opaque_pixels": 51803,
+        "partial_pixels": 31804
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          265,
+          455
+        ],
+        "transparent_pixels": 41600,
+        "opaque_pixels": 51452,
+        "partial_pixels": 27523
+      },
+      "content_bbox": [
+        0,
+        0,
+        265,
+        455
+      ],
+      "resize_scale": 1.0176703296703298,
+      "content_size": [
+        270,
+        463
+      ],
+      "content_offset": [
+        121,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        265,
+        455
+      ],
+      "source_sha256": "3b85604324d290800f066b208c9db480d7eeaa812948fa1d3d429d9d5584b202",
+      "sha256": "648ae25435cee371e9aa37ded6c7c5373041842f9596afdc1cbbdf430096fc97"
+    },
+    {
+      "id": "building/catapulttower",
+      "source": "art/source/detailed_forest_v2/buildings/catapulttower.png",
+      "crop": [
+        0,
+        0,
+        273,
+        418
+      ],
+      "output": "sprites/buildings/catapulttower.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/catapulttower.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          105,
+          8,
+          407,
+          471
+        ],
+        "transparent_pixels": 162442,
+        "opaque_pixels": 78283,
+        "partial_pixels": 21419
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          273,
+          418
+        ],
+        "transparent_pixels": 34151,
+        "opaque_pixels": 65101,
+        "partial_pixels": 14862
+      },
+      "content_bbox": [
+        0,
+        0,
+        273,
+        418
+      ],
+      "resize_scale": 1.1077511961722488,
+      "content_size": [
+        302,
+        463
+      ],
+      "content_offset": [
+        105,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        273,
+        418
+      ],
+      "source_sha256": "f1fba4989cebb6f22af281254221f62505927a02f699422f4bde1187f2f71a12",
+      "sha256": "0d505f0cc336b7c5532b41de9c3571be6a993854d0a12a388b6f75e20dded4be"
+    },
+    {
+      "id": "building/stonecutter",
+      "source": "art/source/detailed_forest_v2/buildings/stonecutter.png",
+      "crop": [
+        0,
+        0,
+        295,
+        375
+      ],
+      "output": "sprites/buildings/stonecutter.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/stonecutter.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          74,
+          8,
+          438,
+          471
+        ],
+        "transparent_pixels": 132501,
+        "opaque_pixels": 103318,
+        "partial_pixels": 26325
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          295,
+          375
+        ],
+        "transparent_pixels": 26490,
+        "opaque_pixels": 68925,
+        "partial_pixels": 15210
+      },
+      "content_bbox": [
+        0,
+        0,
+        295,
+        375
+      ],
+      "resize_scale": 1.2347733333333333,
+      "content_size": [
+        364,
+        463
+      ],
+      "content_offset": [
+        74,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        295,
+        375
+      ],
+      "source_sha256": "1b41f4d6ac0b42af6caf83a80729fa6f4e7e75911ccae89bcc2dec5db84870b8",
+      "sha256": "33a35e8571e4ca093580ddcea8a025a584a901a1149d213734efb75ff5aaec87"
+    },
+    {
+      "id": "building/weaver",
+      "source": "art/source/detailed_forest_v2/buildings/weaver.png",
+      "crop": [
+        0,
+        0,
+        291,
+        374
+      ],
+      "output": "sprites/buildings/weaver.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/weaver.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          76,
+          8,
+          436,
+          471
+        ],
+        "transparent_pixels": 144296,
+        "opaque_pixels": 84554,
+        "partial_pixels": 33294
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          291,
+          374
+        ],
+        "transparent_pixels": 33111,
+        "opaque_pixels": 56428,
+        "partial_pixels": 19295
+      },
+      "content_bbox": [
+        0,
+        0,
+        291,
+        374
+      ],
+      "resize_scale": 1.2380748663101604,
+      "content_size": [
+        360,
+        463
+      ],
+      "content_offset": [
+        76,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        291,
+        374
+      ],
+      "source_sha256": "9f02460c8bde1bfc71480a9d050acd8bdff4770b5996d4b7dfac18e6b311fa84",
+      "sha256": "c517db2a78c012f00651ae07873c0db7f382246f6013fbe88e6322f07c052e48"
+    },
+    {
+      "id": "building/market",
+      "source": "art/source/detailed_forest_v2/buildings/market.png",
+      "crop": [
+        0,
+        0,
+        285,
+        337
+      ],
+      "output": "sprites/buildings/market.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/market.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          60,
+          8,
+          452,
+          471
+        ],
+        "transparent_pixels": 125638,
+        "opaque_pixels": 94515,
+        "partial_pixels": 41991
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          285,
+          337
+        ],
+        "transparent_pixels": 24839,
+        "opaque_pixels": 51043,
+        "partial_pixels": 20163
+      },
+      "content_bbox": [
+        0,
+        0,
+        285,
+        337
+      ],
+      "resize_scale": 1.3740059347181008,
+      "content_size": [
+        392,
+        463
+      ],
+      "content_offset": [
+        60,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        285,
+        337
+      ],
+      "source_sha256": "3f0940eb92c59c4d9dd7ff5ad5f34205c8f877ccecb3a2670f51c9f47d490744",
+      "sha256": "abbba425c5e6ce8cb481c5f249d7c31082d080c52fe21689d5576307e3e1cf12"
+    },
+    {
+      "id": "building/townhall",
+      "source": "art/source/detailed_forest_v2/buildings/townhall.png",
+      "crop": [
+        0,
+        0,
+        303,
+        447
+      ],
+      "output": "sprites/buildings/townhall.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 142,
+      "path": "sprites/buildings/townhall.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          99,
+          8,
+          413,
+          471
+        ],
+        "transparent_pixels": 152567,
+        "opaque_pixels": 77698,
+        "partial_pixels": 31879
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          303,
+          447
+        ],
+        "transparent_pixels": 34425,
+        "opaque_pixels": 73396,
+        "partial_pixels": 27620
+      },
+      "content_bbox": [
+        0,
+        0,
+        303,
+        447
+      ],
+      "resize_scale": 1.0358836689038031,
+      "content_size": [
+        314,
+        463
+      ],
+      "content_offset": [
+        99,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        303,
+        447
+      ],
+      "source_sha256": "768ef65359cbede7a8a8a8b488c23bae0dc8f9f92dfec1529167420952676a44",
+      "sha256": "3c581a0b70e060d098c25d64ba3778f8a33c06ef7421efa57d1c0b79c13d56cd"
+    },
+    {
+      "id": "unit/berserker",
+      "source": "art/source/detailed_forest_v2/units/berserker.png",
+      "crop": [
+        0,
+        0,
+        537,
+        597
+      ],
+      "output": "sprites/units/berserker.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/berserker.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          26,
+          8,
+          231,
+          236
+        ],
+        "transparent_pixels": 38192,
+        "opaque_pixels": 18366,
+        "partial_pixels": 8978
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          537,
+          597
+        ],
+        "transparent_pixels": 146212,
+        "opaque_pixels": 131980,
+        "partial_pixels": 42397
+      },
+      "content_bbox": [
+        0,
+        0,
+        537,
+        597
+      ],
+      "resize_scale": 0.381105527638191,
+      "content_size": [
+        205,
+        228
+      ],
+      "content_offset": [
+        26,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        537,
+        597
+      ],
+      "source_sha256": "d45d09b193150456d5aba14e67e616bc8e6c31e22b5edecff863ab9a40bfbe32",
+      "sha256": "3f918efbcb7419aa83828aec7b5aa8f72b15a8f276bf677842dc1b57856b8895"
+    },
+    {
+      "id": "unit/crossbowman",
+      "source": "art/source/detailed_forest_v2/units/crossbowman.png",
+      "crop": [
+        0,
+        0,
+        468,
+        483
+      ],
+      "output": "sprites/units/crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/crossbowman.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          18,
+          8,
+          238,
+          236
+        ],
+        "transparent_pixels": 34624,
+        "opaque_pixels": 19809,
+        "partial_pixels": 11103
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          468,
+          483
+        ],
+        "transparent_pixels": 95565,
+        "opaque_pixels": 93616,
+        "partial_pixels": 36863
+      },
+      "content_bbox": [
+        0,
+        0,
+        468,
+        483
+      ],
+      "resize_scale": 0.471055900621118,
+      "content_size": [
+        220,
+        228
+      ],
+      "content_offset": [
+        18,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        468,
+        483
+      ],
+      "source_sha256": "1b1f39dfe8e0e9364aca9e56b889a8718d00576bbc3b272f8e529aa1538183b4",
+      "sha256": "9a7ef1382bfbb55b4ab8e1d0b8a1e8c4731ad063eb2a9a7ab4ffa7b235fe151a"
+    },
+    {
+      "id": "unit/mage",
+      "source": "art/source/detailed_forest_v2/units/mage.png",
+      "crop": [
+        0,
+        0,
+        481,
+        581
+      ],
+      "output": "sprites/units/mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/mage.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          34,
+          8,
+          222,
+          236
+        ],
+        "transparent_pixels": 36117,
+        "opaque_pixels": 16735,
+        "partial_pixels": 12684
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          481,
+          581
+        ],
+        "transparent_pixels": 102464,
+        "opaque_pixels": 115003,
+        "partial_pixels": 61994
+      },
+      "content_bbox": [
+        0,
+        0,
+        481,
+        581
+      ],
+      "resize_scale": 0.3916006884681584,
+      "content_size": [
+        188,
+        228
+      ],
+      "content_offset": [
+        34,
+        8
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        481,
+        581
+      ],
+      "source_sha256": "eaa1b5f821aa0a2ebdd89e172b69c2af6dde6181b2c56b61bf4c67174f96a34e",
+      "sha256": "c6bab2e8bb6dd86a92aeac2fb470fd803e423735cc5eefb3711992f4d2fd039f"
+    },
+    {
+      "id": "unit/enemy_crossbowman",
+      "source": "art/source/detailed_forest_v2/units/enemy_crossbowman.png",
+      "crop": [
+        0,
+        0,
+        544,
+        473
+      ],
+      "output": "sprites/units/enemy_crossbowman.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/enemy_crossbowman.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          27,
+          248,
+          236
+        ],
+        "transparent_pixels": 37039,
+        "opaque_pixels": 16886,
+        "partial_pixels": 11611
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          544,
+          473
+        ],
+        "transparent_pixels": 123014,
+        "opaque_pixels": 92409,
+        "partial_pixels": 41889
+      },
+      "content_bbox": [
+        0,
+        0,
+        544,
+        473
+      ],
+      "resize_scale": 0.4411764705882353,
+      "content_size": [
+        240,
+        209
+      ],
+      "content_offset": [
+        8,
+        27
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        544,
+        473
+      ],
+      "source_sha256": "21b8f953d63b469fbf7d52fa867dd353e6f98ea43a5aa81b35611759672e1747",
+      "sha256": "ffe260a9ccc25ed2b79535f41938219715e8b566d6436d189481de1dd9c2c904"
+    },
+    {
+      "id": "unit/enemy_mage",
+      "source": "art/source/detailed_forest_v2/units/enemy_mage.png",
+      "crop": [
+        0,
+        0,
+        525,
+        487
+      ],
+      "output": "sprites/units/enemy_mage.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "path": "sprites/units/enemy_mage.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          8,
+          13,
+          248,
+          236
+        ],
+        "transparent_pixels": 27852,
+        "opaque_pixels": 21155,
+        "partial_pixels": 16529
+      },
+      "source_alpha": {
+        "extrema": [
+          0,
+          255
+        ],
+        "visible_bbox": [
+          0,
+          0,
+          525,
+          487
+        ],
+        "transparent_pixels": 89055,
+        "opaque_pixels": 107563,
+        "partial_pixels": 59057
+      },
+      "content_bbox": [
+        0,
+        0,
+        525,
+        487
+      ],
+      "resize_scale": 0.45714285714285713,
+      "content_size": [
+        240,
+        223
+      ],
+      "content_offset": [
+        8,
+        13
+      ],
+      "content_anchor": [
+        0.5,
+        1
+      ],
+      "source_size": [
+        525,
+        487
+      ],
+      "source_sha256": "1f47c5becd2da8850dd0963a69a86ff3c7a6e4d64d4286931f9627e31ebd046e",
+      "sha256": "88e81802b5af1270805ff5a240e18cee9e2e3223d8a5d11f96d0f888038639bf"
     }
   ]
 }

@@ -12,15 +12,17 @@ public partial class SettlementView : Node2D
     private WorldArt _art = null!;
     private AssetLoader _assets = null!;
     private static readonly Color _gold = new("efd478");
-    public HexProjection Projection { get; private set; } = new(65);
+    // Settlement spacing is independent of the combat board's radius.
+    public float HexRadius { get; set; } = 81.25f;
+    public HexProjection Projection { get; private set; } = new(81.25);
     private float _compression = 1;
-    private Vector2 Center => new(0, 65 * 1.5f * 3 * _compression);
+    private Vector2 Center => new(0, HexRadius * 1.5f * 3 * _compression);
     public void Initialize(AssetLoader assets) { _assets = assets; _art = new(assets); Hide(); }
     public void Present(GodotSession session, bool visible)
     {
         _session = session;
-        if (_compression != _assets.Options.GroundCompression)
-        { _compression = _assets.Options.GroundCompression; Projection = new(65, _compression); }
+        if (_compression != _assets.Options.GroundCompression || Projection.Radius != HexRadius)
+        { _compression = _assets.Options.GroundCompression; Projection = new(HexRadius, _compression); }
         Visible = visible; QueueRedraw();
     }
     private Vector2 LocalPosition(NumVector point) => new Vector2(point.X, point.Y) - Center;

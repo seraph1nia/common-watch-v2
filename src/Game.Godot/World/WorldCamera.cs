@@ -9,6 +9,7 @@ public partial class WorldCamera : Camera2D
     public Vector2 PanPixels { get; private set; }
     private Vector2 _origin;
     private bool _dragging;
+    private float _defaultMagnification = 1;
     public override void _Ready()
     {
         AnchorMode = AnchorModeEnum.FixedTopLeft;
@@ -30,7 +31,14 @@ public partial class WorldCamera : Camera2D
         PanPixels = pan;
         Layout(_origin);
     }
-    public void Reset() { StopDrag(); SetPose(1, Vector2.Zero); }
+    public void ConfigureDefault(float zoom)
+    {
+        if (_defaultMagnification == zoom) return;
+        bool atDefault = Magnification == _defaultMagnification && PanPixels == Vector2.Zero;
+        _defaultMagnification = zoom;
+        if (atDefault) Reset();
+    }
+    public void Reset() { StopDrag(); SetPose(_defaultMagnification, Vector2.Zero); }
     public void StopDrag() => _dragging = false;
     public void ZoomAt(Vector2 cursor, bool inward)
     {

@@ -45,7 +45,7 @@ public partial class GameApplication : Node
             if (Argument("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
             else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
             else if (_session is null) ReturnToMenu(); else RefreshUi(true);
-            if (_options.Showroom) { ReturnToMenu(); _sessionMenu.Visible = false; var showroom = new AssetShowroom(); AddChild(showroom); showroom.Initialize(_assets, _skin); }
+            if (_options.Showroom) { ReturnToMenu(); _sessionMenu.Visible = false; var showroom = new AssetShowroom(); AddChild(showroom); showroom.Initialize(_assets, _skin, int.Parse(Argument("--showroom-page") ?? "1") - 1); }
             if (_battle is not null) InitializeBattle();
             RefreshWorld();
             await RunDevelopmentActions();
@@ -149,6 +149,8 @@ public partial class GameApplication : Node
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
+        _camera.ConfigureDefault(_settlementView.Visible && _options.Mode == RenderMode.Sprites
+            && _options.View == ViewPreset.Angled ? 1.15f : 1);
     }
     public override void _Input(InputEvent input)
     {

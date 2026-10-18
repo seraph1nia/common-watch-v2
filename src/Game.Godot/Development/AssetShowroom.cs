@@ -5,7 +5,7 @@ namespace Game.GodotClient;
 
 public partial class AssetShowroom : CanvasLayer
 {
-    public void Initialize(AssetLoader assets, HudSkin skin)
+    public void Initialize(AssetLoader assets, HudSkin skin, int page = 0)
     {
         Layer = 8; var layer = this;
         var root = new Control { Theme = skin.Theme }; layer.AddChild(root);
@@ -20,26 +20,30 @@ public partial class AssetShowroom : CanvasLayer
             label.AddThemeColorOverride("font_color", new Color(parchment ? "30251c" : "e7edf2")); content.AddChild(label);
         }
         LabelAt("ASSET SHOWROOM / GODOT — frozen presentation; pink = ground anchor; blue = canvas bounds", new(24, 16), new(1160, 40));
-        string[] ids = ["building/lumbermill", "building/farm", "building/barracks", "building/arcanum", "unit/swordsman", "unit/enemy_swordsman", "terrain/woodland_hex", "resource/gold", "resource/wood", "resource/stone"];
+        var allIds = assets.Catalog.Entries.Keys.Where(id => !id.StartsWith("hud/", StringComparison.Ordinal)).Order().ToArray();
+        int pages = Math.Max(1, (allIds.Length + 9) / 10);
+        page = Math.Clamp(page, 0, pages - 1);
+        string[] ids = allIds.Skip(page * 10).Take(10).ToArray();
+        LabelAt($"Page {page + 1}/{pages} · --showroom-page 1..{pages} · buildings on settlement-size ground", new(24, 56), new(1160, 30));
         for (int i = 0; i < ids.Length; i++)
         {
             string id = ids[i]; var meta = assets.Catalog.Metadata(id);
             Vector2 ground = new(115 + (i % 5) * 235, 220 + (i / 5) * 205);
             float size = meta.DisplaySize;
             Vector2 anchor = new(meta.Anchor[0], meta.Anchor[1]);
-            if (assets.Load(id) is { } texture)
+            var preview = new Node2D { Position = ground }; content.AddChild(preview);
+            preview.Draw += () =>
             {
-                var art = new TextureRect
+                var art = new WorldArt(assets);
+                if (id.StartsWith("building/", StringComparison.Ordinal))
                 {
-                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                    Texture = texture,
-                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-                    Position = ground - anchor * size,
-                    Size = Vector2.One * size
-                };
-                content.AddChild(art);
-            }
-            else content.AddChild(new ColorRect { Position = ground - new Vector2(20, 40), Size = new(40, 40), Color = new Color("6385a1") });
+                    var projection = new HexProjection(new SettlementView().HexRadius, assets.Options.GroundCompression);
+                    var corners = projection.Corners(new(0, 0)).Select(p => new Vector2(p.X, p.Y)).ToArray();
+                    art.Ground(preview, "terrain/woodland_hex", corners);
+                    preview.DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("62796f"), 1, true);
+                }
+                art.Sprite(preview, id, Vector2.Zero, Vector2.One * size);
+            };
             var border = new ReferenceRect { Position = ground - anchor * size, Size = Vector2.One * size, EditorOnly = false, BorderColor = new Color("a9caed") }; content.AddChild(border);
             content.AddChild(new ColorRect { Position = ground - new Vector2(5, 1), Size = new(10, 2), Color = new Color("ff82ce") });
             content.AddChild(new ColorRect { Position = ground - new Vector2(1, 5), Size = new(2, 10), Color = new Color("ff82ce") });
