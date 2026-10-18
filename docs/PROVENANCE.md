@@ -13,3 +13,12 @@ Four user-supplied generated PNG source sheets were extracted unchanged from `co
 GodotSteam is copied unchanged from the original project's pinned `src/Game/addons/godotsteam` distribution: **v4.22.1-gde**, SDK **1.65**, upstream archive `godotsteam-4.22.1-gdextension-plugin-4.4.zip`. The retained manifest contains its URL, archive SHA-256 and individual library hashes; licenses/readme are retained under `src/Game.Godot/addons/godotsteam`.
 
 No artwork was created, imported or extracted for the session work. Lobby captures are actual application frames. The original repository was read only.
+
+## Gameplay interface parity
+
+`src/Game.Shared/Development/GameplayCampaignPolicy.cs` adapts the GPL-3.0-only
+ordinary-command verification policy in upstream `tools/DevRunner/CampaignStrategy.cs`
+at the same `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` revision. It is used only to
+earn deterministic development/test checkpoints. It is not a second simulation or
+player-facing rules engine. New native Godot gameplay components, adapters and tests
+are GPL-3.0-only. The original repository, Core, artwork and soundtrack are unchanged.

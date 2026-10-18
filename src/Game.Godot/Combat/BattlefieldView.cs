@@ -236,6 +236,20 @@ public partial class BattlefieldView : Node2D
         }
         _diagnostics.Text = $"sim {state.Tick}   presentation {tick:F2}   event {Playback.EventCursor}   effects {_motion.Events.Count}";
     }
+    public UnitState? PickUnit(Vector2 point)
+    {
+        Vector2 center = ArenaCenter();
+        return Playback.Units().Where(u => u.Health > 0 && u.Hex?.Lifecycle == UnitLifecycle.Alive)
+            .Select(u => (Unit: u, Position: CombatVisuals.Position(u, CombatState, AnimationTick)))
+            .Select(x => (x.Unit, Distance: (new Vector2(x.Position.X, x.Position.Y * _options.GroundCompression) - center - point).Length()))
+            .Where(x => x.Distance < 24).OrderBy(x => x.Distance).Select(x => x.Unit).FirstOrDefault();
+    }
+    public StructureState? PickStructure(Vector2 point)
+    {
+        Vector2 center = ArenaCenter();
+        return CombatState.Structures.FirstOrDefault(s => CombatState.Arena!.Board.Cells.FirstOrDefault(c => c.Id == s.Cell) is { } cell
+            && (V(_arena.Project(cell.Coordinate)) - center).DistanceTo(point) < 24);
+    }
     void DrawStatuses(UnitState unit, Vector2 p, double tick)
     {
         void Status(StatusEffect? effect, Color color, int index)

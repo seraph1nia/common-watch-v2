@@ -185,3 +185,13 @@ run = "bash tools/graphical.sh profile-battle"
 [tasks.review-battle]
 description = "Build the local HTML review from actual captured frames and profile receipts"
 run = "python3 tools/battle-review.py"
+
+[tasks.test-gameplay-ui]
+description = "Actual native gameplay controls over paid default-rule campaign scenarios"
+depends = ["build"]
+run = ["bash tools/graphical.sh test-gameplay", "bash tools/graphical.sh test-gameplay-network"]
+
+[tasks.capture-gameplay-ui]
+description = "Capture actual native gameplay panels and terminal states"
+depends = ["build"]
+run = ["bash tools/graphical.sh capture-gameplay", "bash tools/graphical.sh test-gameplay-network"]

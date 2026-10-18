@@ -26,7 +26,7 @@ mise run dev-multiplayer -- --players 4
 mise run play-steam                # optional; requires your authorized AppID
 ```
 
-Choose **Single player**, a doctrine and **Start match**, or **Host LAN** / **Join LAN**. Left-click selects logical settlement plots; middle/right drag pans, wheel zooms and **R** resets the camera. Controls display authoritative results and rejection messages. Ready advances preparation and settles real production. Combat plays automatically; choose a reward after winning. Main menu leaves the authority, and a fresh match gets a new identity.
+Choose **Single player**, a doctrine and **Start match**, or **Host LAN** / **Join LAN**. Left-click selects logical settlement plots; middle/right drag pans, wheel zooms and **R** resets the camera. Controls display authoritative results and rejection messages. The complete catalog, Army/squads, six army homes, Town Hall, Worldtree, battle forecast, unit/structure inspectors and run progression are available through native panels. The city selector inspects allies read-only; Ready/Unready, whole-match pause and host combat speed remain separate from local dialogs. See [gameplay controls](docs/gameplay/PLAYING.md) and the [parity audit](docs/gameplay/PARITY.md). Ready advances preparation and settles real production. Combat plays automatically; choose a reward after winning. Main menu leaves the authority, and a fresh match gets a new identity.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
@@ -61,6 +61,8 @@ mise run test-core
 mise run test-shared
 mise run test                       # Pillow + .NET/process tests + animation captures
 mise run test-session
+mise run test-gameplay-ui          # native gameplay + seven-wave host/guest replay
+mise run capture-gameplay-ui       # actual panels at 720p/1080p and allied inspection
 mise run test-multiplayer
 mise run test-reconnect
 mise run test-network-faults

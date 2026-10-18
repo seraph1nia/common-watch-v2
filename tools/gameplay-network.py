@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Two real Godot processes: complete intent arguments, exact retry and allied native inspection."""
+import json
+import os
+from pathlib import Path
+import signal
+import socket
+import subprocess
+import tempfile
+import time
+
+ROOT = Path(__file__).resolve().parent.parent
+processes, logs = [], []
+serial = 0
+signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
+with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
+    work = Path(temporary)
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.bind(('127.0.0.1', 0))
+        port = sock.getsockname()[1]
+    def launch(index):
+        directory = work / str(index)
+        directory.mkdir()
+        (directory / 'control').mkdir()
+        log = open(work / f'{index}.log', 'w+')
+        logs.append(log)
+        command = ['bash', 'tools/client.sh', '--settings-path', str(directory / 'settings.json'),
+                   '--data-path', str(directory), '--control-dir', str(directory / 'control'),
+                   '--test-fast-combat', 'yes', '--gameplay-stop-wave', '8',
+                   '--gameplay-family', 'research' if index == 0 else 'mixed']
+        command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
+        processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
+    def status(index):
+        path = work / str(index) / 'control/status.json'
+        return json.loads(path.read_text()) if path.exists() else None
+    def wait(predicate, message, seconds=45):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            result = predicate()
+            if result:
+                return result
+            if any(p.poll() not in (None, 0) for p in processes):
+                raise RuntimeError('Godot process failed: ' + message)
+            time.sleep(.06)
+        raise TimeoutError(message + ': ' + repr([status(i) and (status(i)['status'], status(i)['state']['Wave']) for i in range(2)]))
+    def control(index, kind, **values):
+        global serial
+        serial += 1
+        path = work / str(index) / 'control' / f'request-{serial:06}.json'
+        path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
+        path.with_suffix('.tmp').replace(path)
+    def send(index, action, accepted=True, **values):
+        old = status(index)['result']
+        sequence = old['Sequence'] if old else 0
+        control(index, 'send', action=action, **values)
+        def acknowledged():
+            current = status(index)
+            result = current['result']
+            return result if result and result['Sequence'] > sequence and not current['pending'] else None
+        result = wait(acknowledged, action)
+        assert result['Accepted'] == accepted, (action, result)
+        return result
+    def city(index):
+        current = status(index)
+        return next(p for p in current['state']['Players'] if p['Id'] == current['player'])
+    try:
+        launch(0)
+        wait(lambda: status(0) and status(0)['connected'], 'host')
+        launch(1)
+        wait(lambda: status(1) and status(1)['connected'], 'guest')
+        send(0, 'start')
+        wait(lambda: all(status(i)['state']['Phase'] == 'Building' for i in range(2)), 'start synchronized')
+        send(0, 'ready')
+        assert city(0)['Ready']
+        send(0, 'unready')
+        assert not city(0)['Ready']
+        send(1, 'speed-2x', accepted=False)
+        send(0, 'speed-1.5x')
+        send(1, 'pause')
+        send(1, 'build', accepted=False, slot=0, building='Farm')
+        send(0, 'resume')
+        for index in range(2):
+            control(index, 'policy', enabled='yes')
+        wait(lambda: all(status(i)['state']['Wave'] == 8 and status(i)['state']['Phase'] == 'Building' for i in range(2)), 'seven legal cooperative waves', seconds=100)
+        for index in range(2):
+            control(index, 'policy', enabled='no')
+        send(0, 'pause')
+        # Native city selector and open dialogs must keep authenticated command identity distinct.
+        for index in range(2):
+            owner = 2 if index == 0 else 1
+            control(index, 'inspect', owner=owner, tab=2)
+            wait(lambda: status(index)['viewed'] == owner and 'read-only' in status(index)['readOnly'], 'allied read-only Worldtree')
+            assert status(index)['disabledResearch']
+        capture = ROOT / 'artifacts/captures/gameplay/multiplayer-city-inspection.png'
+        capture.unlink(missing_ok=True)
+        control(1, 'capture', path=str(capture))
+        wait(lambda: capture.exists(), 'actual allied-city capture')
+        send(1, 'pause')  # Inspecting an ally does not change local command identity.
+        send(0, 'resume')
+        control(1, 'inspect', owner=2, tab=0)
+        wait(lambda: status(1)['viewed'] == 2, 'return to own city')
+        for index in range(2):
+            send(index, 'ready')
+        wait(lambda: all(status(i)['state']['Turn'] == 2 for i in range(2)), 'one earned production before trade')
+        # Trade arguments and exact duplicate spending over the real remote path.
+        market = next(i for i, s in enumerate(city(1)['Slots']) if s['Type'] == 'Market')
+        before = city(1)['Metal']
+        result = send(1, 'trade', slot=market, resource='Metal', bundles=2)
+        wait(lambda: city(1)['Metal'] == before - 10, 'remote trade snapshot')
+        control(1, 'retry')
+        wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] == result['Sequence'] and not status(1)['pending'], 'exact retry')
+        assert city(1)['Metal'] == before - 10
+        send(1, 'trade', accepted=False, slot=market, resource='Metal', bundles=0)
+        # Explicit squad and deployment-cell arguments on the remote client.
+        members = city(1)['Soldiers']
+        squad = next(u for u in members if u['Type'] == 'Swordsman')
+        home = squad['Assignment']['Tile']
+        sector = next(s for s in status(1)['state']['Arena']['Sectors'] if s['Owner'] == 2)
+        send(1, 'deploy-squad', squadId=squad['SquadId'], cell=sector['DeploymentCells'][home])
+        send(1, 'regroup-member', accepted=False, unitId=squad['Id'], squadId=99999)
+        send(1, 'research-tech', accepted=False, technology='FireMastery')
+        send(1, 'research-tech', technology='RangedFoundation')
+        trainer = next(i for i, s in enumerate(city(1)['Slots']) if s['Type'] == 'Barracks')
+        send(1, 'retire', unitId=squad['Id'])
+        wait(lambda: all(u['Id'] != squad['Id'] for u in city(1)['Soldiers']), 'remote retirement snapshot')
+        send(1, 'recruit', slot=trainer, soldierType='Swordsman', squadId=squad['SquadId'])
+        # A foreign ownership request remains rejected by authority, not just by the UI.
+        old = status(1)['result']['Sequence']
+        control(1, 'probe', action='ready', owner=1)
+        wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] > old, 'foreign ownership rejection')
+        assert not status(1)['result']['Accepted']
+        print('GODOT_GAMEPLAY_NETWORK_PASS hosted remote all-arguments seven-waves drafts ready/unready pause speed retry allied-read-only', flush=True)
+    finally:
+        for process in reversed(processes):
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGTERM)
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    os.killpg(process.pid, signal.SIGKILL)
+                    process.wait(timeout=5)
+        target = ROOT / 'artifacts/test-logs/gameplay-network.log'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open('w') as output:
+            for log in logs:
+                log.seek(0)
+                text = log.read()
+                output.write(text)
+                if 'ERROR:' in text or 'Exception' in text:
+                    print(text)
+                log.close()

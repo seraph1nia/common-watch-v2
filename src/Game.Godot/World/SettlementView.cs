@@ -35,7 +35,7 @@ public partial class SettlementView : Node2D
     {
         for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
         {
-            var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.City.Slots[i];
+            var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.ViewedCity.Slots[i];
             var center = LocalPosition(Projection.Project(coordinate));
             WorldArt.Hex(this, Projection.Corners(coordinate).Select(LocalPosition).ToArray(), slot.Purchased ? new Color("304a40") : new Color("252e34"), i == _session.SelectedSlot ? _gold : new Color("62796f"), i == _session.SelectedSlot ? 4 : 2);
             _art.Sprite(this, "terrain/woodland_hex", center, new Vector2(116, 116));
@@ -51,7 +51,7 @@ public partial class SettlementView : Node2D
                      .OrderBy(i => Projection.Project(SettlementLayout.Coordinates[i]).Y)
                      .ThenBy(i => Projection.Project(SettlementLayout.Coordinates[i]).X))
         {
-            var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.City.Slots[i];
+            var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.ViewedCity.Slots[i];
             var center = LocalPosition(Projection.Project(coordinate));
             if (slot.Type != Building.Empty)
             {
@@ -72,7 +72,7 @@ public partial class SettlementView : Node2D
         // Labels finish after every tall sprite so the next row cannot cover them.
         for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
         {
-            var slot = _session.City.Slots[i];
+            var slot = _session.ViewedCity.Slots[i];
             if (slot.Type == Building.Empty) continue;
             Vector2 center = LocalPosition(Projection.Project(SettlementLayout.Coordinates[i]));
             DrawRect(new Rect2(center + new Vector2(-50, 17), new Vector2(100, 35)), new Color(0.04f, .07f, .08f, .8f));

@@ -15,7 +15,13 @@ try
         return 0;
     }
     string checkpoint = args.FirstOrDefault() ?? "post-draft";
-    string json = ScenarioRunner.Record(checkpoint);
+    string json;
+    if (GameplayScenarios.Checkpoints.Contains(checkpoint))
+    {
+        using var solo = GameplayScenarios.CreateAt(checkpoint);
+        json = System.Text.Json.JsonSerializer.Serialize(new { checkpoint, state = solo.Snapshot }, Game.Core.WireJson.Options);
+    }
+    else json = ScenarioRunner.Record(checkpoint);
     if (args.Length > 1)
     {
         string path = Path.GetFullPath(args[1]);

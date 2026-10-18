@@ -30,18 +30,23 @@ public sealed class SoloSession : IDisposable
         if (slot is < -1 or >= 9) throw new ArgumentOutOfRangeException(nameof(slot));
         SelectedSlot = slot;
     }
+    public Command? LastCommand { get; private set; }
+    public CommandResult Submit(GameplayIntent intent) => Execute(intent.Capture(Snapshot, ++_sequence, PlayerId));
     public CommandResult Send(string action, int slot = -1, Building building = Building.Empty,
-        UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard, TechnologyId technology = TechnologyId.None)
+        UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard,
+        TechnologyId technology = TechnologyId.None, Resource resource = Resource.Wood, int bundles = 0,
+        int unitId = 0, int squadId = 0, int cell = 0)
+        => Execute(Command.FromSnapshot(Snapshot, ++_sequence, action, PlayerId, slot, building, soldierType,
+            technology, resource, bundles, payment, unitId, squadId, cell));
+    private CommandResult Execute(Command command)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        // Invalid selections reach authority validation without indexing the snapshot array.
-        Command command = slot is >= -1 and < ArmyConfiguration.TotalPlots
-            ? Command.FromSnapshot(Snapshot, ++_sequence, action, PlayerId, slot, building, soldierType, payment: payment, technology: technology)
-            : new(++_sequence, Snapshot.MatchId, Snapshot.Phase, Snapshot.TurnSerial, action, PlayerId, slot, building, soldierType, Payment: payment);
+        LastCommand = command;
         LastResult = _authority.ExecuteLocal(command);
         Refresh();
         return LastResult;
     }
+    public CommandResult? RetryLast() => LastCommand is { } command ? Execute(command) : null;
     public void Advance(double seconds)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);

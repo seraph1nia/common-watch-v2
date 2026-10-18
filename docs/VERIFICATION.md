@@ -1,5 +1,7 @@
 # Verification
 
+The completed gameplay/HUD parity work and its current test/export results are recorded in [gameplay verification](gameplay/VERIFICATION.md), with a [feature matrix](gameplay/PARITY.md) and [playing guide](gameplay/PLAYING.md). The migration history below is retained.
+
 The migration started at `4ffabb2e29cfb00b4aa44865abc0acd9835bb4ed` on Linux x86_64, using pinned .NET SDK 10.0.401 and Godot .NET 4.7.2. Before removal, the original solution build passed with zero warnings/errors, Core passed 40 tests and Shared passed 44 tests. The original Godot integration suite also passed all four tests (1m56s): native UI/art/fallback loops, 2–4 player LAN and reconnect/fault handling.
 
 Migration transcripts are kept in `/tmp/common-watch-migration/` during execution. Actual application diagnostics and capture receipts are under ignored `artifacts/`. No system packages or new game artwork are installed/generated. Core and the soundtrack remain byte-for-byte unchanged.

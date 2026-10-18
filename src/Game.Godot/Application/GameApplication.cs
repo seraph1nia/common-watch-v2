@@ -38,7 +38,7 @@ public partial class GameApplication : Node
             InitializeMusic();
             string? checkpoint = Argument("--checkpoint");
             if (Argument("--battle") is { } scenario) { _battle = new(scenario); checkpoint = "initial"; }
-            if (checkpoint is not null) WrapSolo(ScenarioRunner.CreateAt(checkpoint));
+            if (checkpoint is not null) WrapSolo(GameplayScenarios.Checkpoints.Contains(checkpoint) ? GameplayScenarios.CreateAt(checkpoint) : ScenarioRunner.CreateAt(checkpoint));
             _frozen = checkpoint is not null;
             CreateUi();
             CreateSessionMenu();
@@ -77,6 +77,7 @@ public partial class GameApplication : Node
         _gameUi.MenuRequested += ReturnToMenu;
         _gameUi.ReconnectRequested += ReconnectCurrent;
         _gameUi.CommandSubmitted += ResumeAfterCommand;
+        _gameUi.ArenaChanged += RefreshWorld;
         CreateAudioUi();
     }
     private void ResumeAfterCommand() { _frozen = false; RefreshUi(true); RefreshWorld(); }
@@ -117,6 +118,7 @@ public partial class GameApplication : Node
     private WorldCamera _camera = null!;
     private SettlementView _settlementView = null!;
     private BattlefieldView _battlefield = null!;
+    private ArenaPreview _arenaPreview = null!;
     private BattleShowcase? _battle;
     private bool CombatShader => _battlefield.ShaderEnabled;
     private Vector2 WorldOrigin => new((GetViewport().GetVisibleRect().Size.X - SideWidth) / 2, HeaderHeight + (GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 48) / 2);
@@ -124,6 +126,7 @@ public partial class GameApplication : Node
     {
         _camera = GetNode<WorldCamera>("World/Camera");
         _settlementView = GetNode<SettlementView>("World/Settlement"); _settlementView.Initialize(_assets);
+        _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview");
         _battlefield = GetNode<BattlefieldView>("World/Battlefield");
         _battlefield.ShaderEnabled = Argument("--combat-shader") != "off";
         _battlefield.Initialize(_assets); _battlefield.FramePresented += OnBattleFrame;
@@ -141,9 +144,11 @@ public partial class GameApplication : Node
     {
         if (_camera is null) return;
         _assets.Configure(_options); _camera.Layout(WorldOrigin);
-        if (_session is not { HasState: true }) { _settlementView.Hide(); _battlefield.Reset(); return; }
+        if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); return; }
         _battlefield.Present(_session, _battle);
-        _settlementView.Present(_session, !_battlefield.Active && _session.Snapshot.Phase != Phase.Lobby);
+        bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
+        _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
+        _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
     }
     public override void _Input(InputEvent input)
     {
@@ -155,7 +160,7 @@ public partial class GameApplication : Node
         if (_inviteConfirmation.Visible) return;
         if (input.IsActionPressed("ui_cancel"))
         {
-            if (_settings.Visible) _settings.Close(); else _settings.Open();
+            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else _settings.Open();
             GetViewport().SetInputAsHandled(); return;
         }
         if (_settings.Visible || _inviteConfirmation.Visible || GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
@@ -168,15 +173,26 @@ public partial class GameApplication : Node
                 && key.Keycode is Key.Backspace or Key.Tab or Key.V or Key.Key1 or Key.Key2 or Key.Key3 or Key.Key4 or Key.Key5 or Key.Key6)
             { HandleBattleKey(key.Keycode); GetViewport().SetInputAsHandled(); return; }
         }
-        if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.Draft.Visible) return;
+        if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
         var area = new Rect2(0, HeaderHeight, GetViewport().GetVisibleRect().Size.X - SideWidth, GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 52);
         _camera.Handle(input, area);
-        if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) && !_battlefield.Active)
+        if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
     private void SelectAt(Vector2 point)
     {
-        if (_settlementView.Pick(_camera.ToWorld(point)) is { } index) _session.SelectSlot(index);
+        Vector2 world = _camera.ToWorld(point);
+        if (_arenaPreview.Visible)
+        {
+            if (_arenaPreview.PickUnit(world) is { } unit) _gameUi.Inspect(unit, unit.Id < 0);
+            else if (_arenaPreview.PickStructure(world) is { } structure) _gameUi.Inspect(structure);
+        }
+        else if (_battlefield.Active)
+        {
+            if (_battlefield.PickUnit(world) is { } unit) _gameUi.Inspect(unit);
+            else if (_battlefield.PickStructure(world) is { } structure) _gameUi.Inspect(structure);
+        }
+        else if (_settlementView.Pick(world) is { } index) _session.SelectSlot(index);
         RefreshUi(true);
     }
 

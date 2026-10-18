@@ -33,6 +33,16 @@ public partial class GodotSession : Node, IDisposable
     public bool IsHost => _authority is not null || _solo is not null;
     public bool IsNetwork => _peer is not null;
     public int PlayerId { get; private set; }
+    public int ViewedPlayerId { get; private set; }
+    private ArmyConfiguration? _armyConfiguration;
+    internal ArmyConfiguration ArmyConfiguration => _armyConfiguration ??= new(Snapshot.Rules.Army,
+        new HexBoard(Snapshot.Arena!.Board), Snapshot.Rules.Arena.SquadCapacity);
+    public CityState ViewedCity => Snapshot.Players.FirstOrDefault(p => p.Id == ViewedPlayerId) ?? City;
+    public void ViewCity(int player)
+    {
+        if (!Snapshot.Players.Any(p => p.Id == player)) return;
+        ViewedPlayerId = player; SelectSlot(-1);
+    }
     public CityState City => Snapshot.Players.Single(p => p.Id == PlayerId);
     public int SelectedSlot { get; private set; } = -1;
     private readonly CombatPlayback _playback = new();
@@ -176,6 +186,7 @@ public partial class GodotSession : Node, IDisposable
         if (HasState && (Snapshot.MatchId != state.MatchId || state.Revision < Snapshot.Revision)) return;
         bool gap = HasState && state.OldestEventSequence > Snapshot.EventSequence + 1;
         Playback.Accept(state, baseline); Snapshot = state;
+        if (!state.Players.Any(p => p.Id == ViewedPlayerId)) ViewedPlayerId = PlayerId;
         if (gap) Status = "Recovered current combat baseline after history gap.";
     }
     internal void ProbeCommand(string action, int owner, bool duplicate = false)
@@ -196,7 +207,10 @@ public partial class GodotSession : Node, IDisposable
     public void RetryLast()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (!Connected || !HasState || IsHost || Pending || _resume?.Value?.LastCommand is not { } json) return;
+        if (!Connected || !HasState || Pending) return;
+        if (_solo is not null) { LastResult = _solo.RetryLast(); SetState(_solo.Snapshot); return; }
+        if (_authority is not null && _lastCommand is { } last) { LastResult = _authority.ExecuteLocal(last); SetState(_authority.Snapshot()); return; }
+        if (_resume?.Value?.LastCommand is not { } json) return;
         var command = JsonSerializer.Deserialize<Command>(json, WireJson.Options);
         if (command is null || command.MatchId != Snapshot.MatchId) return;
         LastResult = null;
@@ -205,14 +219,26 @@ public partial class GodotSession : Node, IDisposable
     public void Start() => Send("start");
     public void ChooseReward(string id) => Send("reward:" + id);
     public void SelectSlot(int slot) { if (slot is < -1 or >= 9) throw new ArgumentOutOfRangeException(nameof(slot)); SelectedSlot = slot; _solo?.SelectSlot(slot); }
-    public void Send(string action, int slot = -1, Building building = Building.Empty, UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard)
+    private Command? _lastCommand;
+    public void Submit(GameplayIntent intent) => Send(GameplayIntent.Name(intent.Action), intent.Slot, intent.Building,
+        intent.SoldierType, intent.Payment, intent.Technology, intent.Resource, intent.Bundles, intent.UnitId, intent.SquadId, intent.Cell);
+    public void Send(string action, int slot = -1, Building building = Building.Empty,
+        UnitType soldierType = UnitType.Swordsman, ConstructionPayment payment = ConstructionPayment.Standard,
+        TechnologyId technology = TechnologyId.None, Resource resource = Resource.Wood, int bundles = 0,
+        int unitId = 0, int squadId = 0, int cell = 0)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (!Connected || !HasState) return;
-        if (_solo is not null) { LastResult = _solo.Send(action, slot, building, soldierType, payment); SetState(_solo.Snapshot); return; }
+        if (!Connected || !HasState) { Status = "Disconnected: action unavailable."; return; }
+        if (_solo is not null)
+        {
+            LastResult = _solo.Send(action, slot, building, soldierType, payment, technology, resource, bundles, unitId, squadId, cell);
+            SetState(_solo.Snapshot); return;
+        }
         if (_pending.Count >= 16) { Status = "Waiting for authority acknowledgments."; return; }
         long sequence = _authority is null ? _resume!.Reserve() : ++_sequence;
-        var command = Command.FromSnapshot(Snapshot, sequence, action, PlayerId, slot, building, soldierType, payment: payment);
+        var command = Command.FromSnapshot(Snapshot, sequence, action, PlayerId, slot, building, soldierType,
+            technology, resource, bundles, payment, unitId, squadId, cell);
+        _lastCommand = command;
         if (_authority is not null) { LastResult = _authority.ExecuteLocal(command); SetState(_authority.Snapshot()); }
         else
         {

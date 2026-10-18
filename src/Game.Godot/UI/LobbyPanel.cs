@@ -36,7 +36,9 @@ public partial class LobbyPanel : PanelContainer
         foreach (var doctrine in RunCatalog.Doctrines)
         {
             string id = doctrine.Id;
-            Doctrines.AddChild(skin.Button(doctrine.Name, () => DoctrineSelected?.Invoke(id)));
+            var button = skin.Button(doctrine.Name, () => DoctrineSelected?.Invoke(id));
+            button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            Doctrines.AddChild(button);
         }
         StartButton = skin.Button("Start match", () => StartRequested?.Invoke()); Content.AddChild(StartButton);
         Content.AddChild(skin.Button("Return to main menu", () => MenuRequested?.Invoke()));
@@ -48,6 +50,17 @@ public partial class LobbyPanel : PanelContainer
         _fresh.Visible = SoloButton.Visible = _host.Visible = _join.Visible = Endpoint.Visible = session is null;
         Doctrines.Visible = session is { HasState: true, Connected: true };
         StartButton.Visible = session is { HasState: true, IsHost: true };
+        StartButton.Disabled = session is not { Connected: true, Pending: false };
+        if (session is { HasState: true })
+        {
+            var view = RunPresentation.Project(session.Snapshot, session.City, session.PlayerId, session.Connected && !session.Pending, true);
+            for (int i = 0; i < view.Cards.Length; i++)
+            {
+                var card = view.Cards[i]; var button = (Button)Doctrines.GetChild(i);
+                button.Text = (card.Selected ? "✓ " : "") + card.Title + " — " + card.Subtitle + "\n" + card.Description + "\n" + card.Footer;
+                button.Disabled = !card.Enabled;
+            }
+        }
         Roster.Text = session is null ? "Single player or LAN • 1–4 players" : !session.HasState ? session.Status :
             $"{session.Status} • {4 - session.Snapshot.Players.Length} slots\n" + string.Join("\n", session.Snapshot.Players.Select(p => $"Player {p.Id}{(p.Id == 1 ? " [host]" : "")}{(p.Id == session.PlayerId ? " [you]" : "")}: {RunCatalog.Doctrine(p.Run.Doctrine).Name} {(p.Connected ? "" : "offline")}"));
     }

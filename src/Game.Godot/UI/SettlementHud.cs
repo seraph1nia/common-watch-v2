@@ -6,80 +6,80 @@ namespace Game.GodotClient;
 
 public partial class SettlementHud : Control
 {
-    private HudSkin _skin = null!;
     private GodotSession _session = null!;
-    private Label _resources = null!, _phase = null!, _message = null!, _combatInfo = null!;
-    private Button _ready = null!;
+    private Label _phase = null!, _message = null!;
+    private ResourcePanel _economy = null!;
+    private CitySelector _cities = null!;
+    private MatchControls _controls = null!;
     private string _uiKey = "";
-    public const float SideWidth = 368, HeaderHeight = 120;
+    private int _viewed;
+    private Button _rewards = null!;
+    private Button _arena = null!;
+    public const float SideWidth = 368, HeaderHeight = 200;
     public BuildingInspector Inspector { get; private set; } = null!;
     public DraftPanel Draft { get; private set; } = null!;
-    public Label Resources => _resources;
+    public GameplayDialog Details { get; private set; } = null!;
+    public Label Resources => _economy.Summary;
     public Label Message => _message;
-    public Button ReadyButton => _ready;
-    public event Action? CommandSubmitted;
-    public event Action? CameraResetRequested;
-    public event Action? MenuRequested;
-    public event Action? ReconnectRequested;
-    public void Reset() => _uiKey = "";
+    public Button ReadyButton => _controls.ReadyButton;
+    internal CitySelector Cities => _cities;
+    public bool ShowArena { get; private set; }
+    internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
+    public bool BlocksWorld => Details.Visible || Draft.Visible;
+    public event Action? CommandSubmitted, CameraResetRequested, MenuRequested, ReconnectRequested, ArenaChanged;
+    public void Reset() { _uiKey = ""; _viewed = 0; ShowArena = false; Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(); } }
     private void Submitted() => CommandSubmitted?.Invoke();
-    private void Act(Action action) { action(); Submitted(); }
+    private GameplayContext Context => new(_session, Submitted);
     public void Initialize(HudSkin skin)
     {
-        _skin = skin;
-        var root = this; root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        root.MouseFilter = Control.MouseFilterEnum.Ignore;
-        root.Theme = _skin.Theme;
-        var header = new PanelContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
-        root.AddChild(header); header.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopWide); header.OffsetBottom = HeaderHeight;
-        _skin.Panel(header);
-        var top = new VBoxContainer(); header.AddChild(Margin(top, 18));
-        top.AddChild(new Label { Text = "THE COMMON WATCH  /  GODOT 2D" });
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Ignore; Theme = skin.Theme;
+        var header = new PanelContainer(); AddChild(header); header.SetAnchorsAndOffsetsPreset(LayoutPreset.TopWide); header.OffsetBottom = HeaderHeight; skin.Panel(header);
+        var top = new VBoxContainer(); header.AddChild(Margin(top, 10));
+        var nav = new HBoxContainer(); top.AddChild(nav); nav.CustomMinimumSize = new(0, 36);
+        nav.AddChild(new Label { Text = "THE COMMON WATCH" });
+        _cities = new CitySelector(); nav.AddChild(_cities); _cities.Initialize();
+        _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, false, true); };
+        _arena = skin.Button("Arena / settlement", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }); nav.AddChild(_arena);
+        foreach (var (name, tab) in new[] { ("Army", 0), ("Homes & towers", 1), ("Worldtree", 2), ("Battle", 3), ("Run", 4) })
+        {
+            Button button = skin.Button(name, () => { Details.Open(tab, Context); }); nav.AddChild(button);
+        }
+        _rewards = skin.Button("Rewards", () => { Draft.Open(); Refresh(_session, default!, false, true); }); nav.AddChild(_rewards);
         _phase = WrapLabel(); top.AddChild(_phase);
-        _resources = WrapLabel(); top.AddChild(_resources);
-        var side = new PanelContainer(); root.AddChild(side);
-        side.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.RightWide);
-        side.OffsetLeft = -SideWidth; side.OffsetTop = HeaderHeight + 8; side.OffsetBottom = -60; side.OffsetRight = -8;
-        _skin.Panel(side);
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; side.AddChild(Margin(scroll, 26));
-        var column = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; scroll.AddChild(column);
-        Inspector = new BuildingInspector(); column.AddChild(Inspector);
-        Inspector.Initialize(_skin, Submitted);
+        _economy = new ResourcePanel(); top.AddChild(_economy); _economy.Initialize();
+        var side = new PanelContainer(); AddChild(side); side.SetAnchorsAndOffsetsPreset(LayoutPreset.RightWide);
+        side.OffsetLeft = -SideWidth; side.OffsetTop = HeaderHeight + 8; side.OffsetBottom = -60; side.OffsetRight = -8; skin.Panel(side);
+        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; side.AddChild(Margin(scroll, 16));
+        var column = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; scroll.AddChild(column);
+        _controls = new MatchControls(); column.AddChild(_controls); _controls.Initialize(skin, Submitted);
         column.AddChild(new HSeparator());
-        _ready = _skin.Button("Advance preparation / Ready", () => Act(() => _session.Send("ready"))); column.AddChild(_ready);
-        _combatInfo = WrapLabel(); column.AddChild(_combatInfo);
-        column.AddChild(_skin.Button("Reset camera [R]", () => CameraResetRequested?.Invoke()));
-        column.AddChild(_skin.Button("Return to main menu", () => MenuRequested?.Invoke()));
-        column.AddChild(WrapLabel("Select: left click • Pan: middle/right drag\nZoom: wheel • Reset: R\nOpening: Farm, Barracks, Metal Mine.\nAt zero wood, use Lumbermill recovery.\nReady, recruit two Swordsmen; Ready, recruit two more; Ready to fight.\nReady settles real resource production."));
-        var footer = new PanelContainer(); root.AddChild(footer); footer.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.BottomWide); footer.OffsetTop = -52;
-        _skin.Panel(footer, "hud/tooltip");
-        _message = WrapLabel("Choose a settlement plot. All actions use the shared authoritative simulation."); var footerMargin = Margin(_message, 14); footerMargin.AddThemeConstantOverride("margin_left", 24); footer.AddChild(footerMargin);
-        Draft = new DraftPanel(); root.AddChild(Draft); Draft.Initialize(_skin, Submitted);
-        var menu = _skin.Button("Main menu", () => MenuRequested?.Invoke()); root.AddChild(menu);
-        menu.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopRight);
-        menu.OffsetLeft = -260; menu.OffsetRight = -140; menu.OffsetTop = 12; menu.OffsetBottom = 48;
-        column.AddChild(_skin.Button("Reconnect", () => ReconnectRequested?.Invoke()));
-
+        column.AddChild(skin.Button("Expand selected plot details", () => Details.Open(5, Context)));
+        Inspector = new BuildingInspector(); column.AddChild(Inspector); Inspector.Initialize(skin, Submitted);
+        column.AddChild(skin.Button("Reset camera [R]", () => CameraResetRequested?.Invoke()));
+        column.AddChild(skin.Button("Return to main menu", () => MenuRequested?.Invoke()));
+        column.AddChild(skin.Button("Reconnect to my city", () => ReconnectRequested?.Invoke()));
+        var footer = new PanelContainer(); AddChild(footer); footer.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide); footer.OffsetTop = -52; skin.Panel(footer, "hud/tooltip");
+        _message = WrapLabel("Select a plot. Actions are validated by the authority."); footer.AddChild(Margin(_message, 10));
+        Details = new GameplayDialog(); Details.Initialize(skin, Submitted); AddChild(Details);
+        Draft = new DraftPanel(); AddChild(Draft); Draft.Initialize(skin, Submitted);
     }
-
+    public void Inspect(UnitState unit, bool preview = false)
+    {
+        Details.Inspector.Select(unit, preview, _session.Snapshot.Phase); Details.Open(3, Context);
+    }
+    public void Inspect(StructureState structure) { Details.Inspector.Select(structure); Details.Open(3, Context); }
     public void Refresh(GodotSession session, RenderOptions options, bool finishingCombat, bool force = false)
     {
-        _session = session;
-        _message.Text = session.Pending ? "Waiting for authority…" : (!session.Connected ? session.Status : session.LastResult?.Message ?? session.Status);
-        var state = _session.Snapshot; var city = _session.City;
-        _phase.Text = $"Wave {state.Wave}/{state.TotalWaves}  •  {state.Phase}  •  preparation {state.Turn}  •  city HP {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}  •  {options.Mode}";
-        _resources.Text = $"Gold {city.Gold}   Wood {city.Wood}   Food {city.Food}   Stone {city.Stone}   Metal {city.Metal}   Cloth {city.Cloth}   •   Swordsmen {city.Soldiers.Count(u => u.Type == UnitType.Swordsman)}";
-        _ready.Visible = state.Phase != Phase.Combat;
-
-        _ready.Disabled = !_session.Connected || state.Phase is not (Phase.Building or Phase.Preparation);
-        _combatInfo.Text = state.Phase == Phase.Combat ? $"Automatic combat • tick {state.Tick}\nBlue: friendly  Red: enemy\nLiving friends: {city.Soldiers.Count(u => u.Health > 0)}  Enemies: {state.Enemies.Count(u => u.Health > 0)}"
-            + "\n\n" + string.Join("\n", city.Soldiers.Concat(state.Enemies).Where(u => u.Health > 0)
-                .Select(u => $"{(u.Faction == Faction.Adventurers ? "S" : "E")}{u.Id} {(u.Faction == Faction.Adventurers ? "" : "Enemy ")}{u.Type} HP: {HealthPoints.Format(u.Health)}/{HealthPoints.Format(u.Profile.Health)}"))
-            : state.Phase is Phase.Defeat or Phase.Victory ? $"{state.Phase}. Use New solo game to restart." : "Preparing for the next wave.";
-        string key = $"{state.MatchId}|{session.Connected}|{state.Phase}|{finishingCombat}|{_session.SelectedSlot}|{city.Resources}|{string.Join(',', city.Slots.Select(s => $"{s.Type}:{s.Level}:{s.Purchased}"))}|{string.Join(',', city.Run.Offers)}";
+        _session = session; var state = session.Snapshot; var city = session.ViewedCity;
+        if (_viewed != city.Id) { _viewed = city.Id; Details.ResetSelection(); }
+        _message.Text = !session.Connected ? "Disconnected — " + session.Status : session.Pending ? "Pending — waiting for remote authority acknowledgment…" : session.LastResult is { } result ? (result.Accepted ? "Accepted: " : "Rejected: ") + result.Message : session.Status;
+        _phase.Text = $"Wave {state.Wave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3 — Ready settles one production" : state.Phase.ToString())} · P{city.Id} Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth} · {session.Status}";
+        _rewards.Visible = state.Phase == Phase.RewardDraft && !session.City.Eliminated;
+        _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session);
+        _arena.Text = ShowArena ? "Show settlement" : "Show arena";
+        // Snapshot revisions drive ordinary panel updates; native controls retain identity/focus.
+        string key = $"{state.MatchId}:{state.Revision}:{session.Connected}:{session.Pending}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{finishingCombat}";
         if (!force && key == _uiKey) return; _uiKey = key;
-        Inspector.Refresh(_session);
-        Draft.Refresh(_session, finishingCombat);
+        Inspector.Refresh(session); Details.Refresh(Context); Draft.Refresh(session, finishingCombat);
     }
-
 }
