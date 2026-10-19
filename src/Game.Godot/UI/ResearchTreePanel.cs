@@ -14,12 +14,15 @@ public partial class ResearchTreePanel : Control
     private readonly Dictionary<string, Button> _sockets = [];
     private Control _canvas = null!, _info = null!;
     private TextureRect _background = null!;
+    private WorldtreeConnections _connections = null!;
     private TechnologyId _selected;
     public bool Illustrated => _skin.Worldtree is not null;
     public TechnologyId Selected => _selected;
+    public string DetailsText => _details.Text;
     public Rect2 DetailsArea => _info.GetGlobalRect();
     public IReadOnlyDictionary<string, Button> TechnologyButtons => Illustrated ? _sockets : _nodes.Buttons;
     public IReadOnlyDictionary<string, Button> PurchaseButtons => _purchase.Buttons;
+    public IReadOnlyList<(TechnologyId From, TechnologyId To)> PrerequisiteEdges => Illustrated ? _connections.Edges : [];
 
     public void Initialize(HudSkin skin)
     {
@@ -31,6 +34,7 @@ public partial class ResearchTreePanel : Control
             MouseFilter = MouseFilterEnum.Ignore;
             _canvas = new Control { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_canvas);
             _background = Decoration(art.Background); _canvas.AddChild(_background);
+            _connections = new WorldtreeConnections(); _connections.Initialize(art); _canvas.AddChild(_connections);
             _info = new Control { MouseFilter = MouseFilterEnum.Ignore }; _canvas.AddChild(_info);
             var backing = new Panel { MouseFilter = MouseFilterEnum.Ignore };
             backing.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("102a29ef"), CornerRadiusTopLeft = 36,
@@ -40,9 +44,10 @@ public partial class ResearchTreePanel : Control
             var frame = Decoration(art.Details); _info.AddChild(frame); frame.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
             var body = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
             _info.AddChild(body); body.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            body.AnchorLeft = .22f; body.AnchorRight = .82f; body.AnchorTop = .22f; body.AnchorBottom = .74f;
-            body.AddThemeConstantOverride("separation", 6);
-            _heading.AddThemeFontSizeOverride("font_size", 20); _summary.AddThemeFontSizeOverride("font_size", 14);
+            body.AnchorLeft = .19f; body.AnchorRight = .81f; body.AnchorTop = .19f; body.AnchorBottom = .80f;
+            body.AddThemeConstantOverride("separation", 8);
+            _heading.AddThemeFontSizeOverride("font_size", 28); _summary.AddThemeFontSizeOverride("font_size", 23);
+            _details.AddThemeFontSizeOverride("font_size", 24);
             body.AddChild(_heading); body.AddChild(_summary);
             var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
                 SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Stop };
@@ -69,11 +74,12 @@ public partial class ResearchTreePanel : Control
         if (_skin.Worldtree is not { } art) return;
         float scale = Math.Min(Size.X / art.ImageSize.X, Size.Y / art.ImageSize.Y);
         Vector2 imageSize = art.ImageSize * scale;
-        _canvas.Position = (Size - imageSize) / 2; _canvas.Size = imageSize; _background.Size = imageSize;
-        _info.Position = art.DetailsRect.Position * scale; _info.Size = art.DetailsRect.Size * scale;
+        _canvas.Position = (Size - imageSize) / 2; _canvas.Size = art.ImageSize; _canvas.Scale = Vector2.One * scale;
+        _background.Size = art.ImageSize; _connections.Size = art.ImageSize;
+        _info.Position = art.DetailsRect.Position; _info.Size = art.DetailsRect.Size;
         foreach (var socket in art.Sockets)
             if (_sockets.TryGetValue("Tech" + socket.Id, out var button))
-            { button.Size = Vector2.One * socket.Diameter * scale; button.Position = socket.Center * scale - button.Size / 2; }
+            { button.Size = Vector2.One * socket.Diameter; button.Position = socket.Center - button.Size / 2; }
     }
     public void ResetSelection()
     {
@@ -84,7 +90,8 @@ public partial class ResearchTreePanel : Control
         foreach (var button in _sockets.Values.Cast<WorldtreeNode>())
             button.Present(button.ResearchState, false, button.TooltipText);
     }
-    private const string Introduction = "Select a node to inspect its effect and requirements.\n\nI · Foundation\nII · Specialization\nIII · Mastery / production\n\nChoose one specialization per class.";
+    private string Introduction => "Select a technology to inspect. Only Research spends points.\n\nI · Foundation\nII · Specialization\nIII · Mastery / production\n\nChoose one specialization per class."
+        + (Illustrated ? "\n\nDashed arrows show actual prerequisites; painted branches are decoration." : "");
     public void Refresh(GameplayContext context)
     {
         _context = context; var city = context.City;
@@ -103,14 +110,18 @@ public partial class ResearchTreePanel : Control
                 {
                     var socket = art.Sockets.Single(s => s.Id == id);
                     var button = new WorldtreeNode { Name = "Tech" + id };
-                    button.Initialize(art, _skin.Icon(socket.Icon), node.Tier); button.Pressed += Select;
+                    button.Initialize(art, _skin.Icon(socket.Icon), node.Tier, socket.HitRadius); button.Pressed += Select;
                     _canvas.AddChild(button); _sockets.Add("Tech" + id, button); control = button;
                 }
                 ((WorldtreeNode)control).Present(owned ? "owned" : eligibility?.Available == true ? "idle" : "locked", _selected == id, text);
             }
             else _nodes.Item(_skin, "Tech" + id, text, Select);
         }
-        if (Illustrated) LayoutArt(); else _nodes.End();
+        if (Illustrated)
+        {
+            _connections.Present(context.State.TechnologyCatalog, city.Research, _selected); LayoutArt();
+        }
+        else _nodes.End();
         _purchase.Begin();
         if (context.State.TechnologyCatalog.FirstOrDefault(n => n.Id == _selected) is { } selected)
         {
@@ -135,8 +146,11 @@ public partial class ResearchTreePanel : Control
         }
         _purchase.End();
         if (Illustrated && _purchase.Buttons.TryGetValue("Purchase", out var action))
+        {
+            action.AddThemeFontSizeOverride("font_size", 24); action.CustomMinimumSize = new(0, 58);
             action.Visible = _selected != TechnologyId.None && !city.Research.Has(_selected)
                 && city.Technologies.Any(t => t.Id == _selected && t.Available);
+        }
         if (Illustrated) LinkFocus();
     }
     private void LinkFocus()

@@ -9,12 +9,14 @@ public partial class WorldtreeNode : Button
     private Texture2D? _icon;
     private string _tier = "";
     private bool _hovered;
+    private float _hitRadius;
+    private const float ApertureRatio = .28f;
     public string ResearchState { get; private set; } = "locked";
-    public string RingState => _hovered ? "hover" : ButtonPressed || HasFocus() ? "selected" : ResearchState;
+    public string RingState => _hovered ? "hover" : ButtonPressed ? "selected" : ResearchState;
     public bool Hovered => _hovered;
-    public void Initialize(WorldtreeArt art, Texture2D? icon, int tier)
+    public void Initialize(WorldtreeArt art, Texture2D? icon, int tier, float hitRadius)
     {
-        _art = art; _icon = icon; _tier = new string('I', tier);
+        _art = art; _icon = icon; _tier = new string('I', tier); _hitRadius = hitRadius;
         ToggleMode = true; FocusMode = FocusModeEnum.All; MouseDefaultCursorShape = CursorShape.PointingHand;
         MouseFilter = MouseFilterEnum.Stop;
         foreach (string state in new[] { "normal", "hover", "pressed", "hover_pressed", "focus" })
@@ -27,18 +29,19 @@ public partial class WorldtreeNode : Button
     {
         ResearchState = state; SetPressedNoSignal(selected); TooltipText = tooltip; QueueRedraw();
     }
-    public override bool _HasPoint(Vector2 point) => ((point - Size / 2) / (Size * .37f)).LengthSquared() <= 1;
+    public override bool _HasPoint(Vector2 point) => point.DistanceSquaredTo(Size / 2) <= _hitRadius * _hitRadius;
     public override void _Draw()
     {
         if (_art is null) return;
         var center = Size / 2;
-        DrawCircle(center, Size.X * .29f, new Color("142e2b"));
-        DrawTextureRect(_art.Rings[RingState], new Rect2(Vector2.Zero, Size), false);
-        if (ResearchState == "owned") DrawArc(center, Size.X * .28f, 0, Mathf.Tau, 48, new Color("f7d47b"), 2, true);
+        DrawCircle(center, Size.X * .30f, new Color("142e2b"));
+        var ring = _art.Rings[RingState];
+        DrawTextureRect(ring.Texture, ring.Destination(center, Size.X * ApertureRatio), false);
+        if (ResearchState == "owned") DrawArc(center, Size.X * .27f, 0, Mathf.Tau, 48, new Color("f7d47b"), 2, true);
         Color ink = RingState == "idle" ? new Color("234b3b") : new Color("f4deb1");
         if (_icon is not null)
         {
-            Vector2 iconSize = Vector2.One * Size.X * .25f;
+            Vector2 iconSize = Vector2.One * Size.X * .36f;
             DrawTextureRect(_icon, new Rect2(center - iconSize / 2 - new Vector2(0, Size.Y * .04f), iconSize), false, ink);
         }
         var font = GetThemeDefaultFont();
