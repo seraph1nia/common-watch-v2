@@ -3,22 +3,34 @@ using Godot;
 
 namespace Game.GodotClient;
 
-public partial class ResourcePanel : HBoxContainer
+public partial class ResourcePanel : GridContainer
 {
-    private readonly Dictionary<Resource, (Label Stock, Label Income)> _rows = [];
-    private Label _heading = null!;
+    private readonly Dictionary<Resource, Label> _rows = [];
     public Label Summary { get; private set; } = null!;
-    public void Initialize()
+    public Label CompactSummary { get; private set; } = null!;
+    public void Initialize(HudSkin skin, Action foodDetails)
     {
-        var grid = new GridContainer { Columns = 7, SizeFlagsHorizontal = SizeFlags.ExpandFill }; grid.AddThemeConstantOverride("h_separation", 12); AddChild(grid);
-        grid.AddChild(new Label { Text = "Resource" });
-        Resource[] order = [Resource.Gold, Resource.Food, Resource.Wood, Resource.Stone, Resource.Metal, Resource.Cloth];
-        foreach (var resource in order) grid.AddChild(new Label { Text = resource.ToString(), SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        grid.AddChild(new Label { Text = "Stock" });
-        foreach (var resource in order) { var label = new Label(); grid.AddChild(label); _rows[resource] = (label, new Label()); }
-        _heading = new Label { Text = "Income / production" }; grid.AddChild(_heading);
-        foreach (var resource in order) grid.AddChild(_rows[resource].Income);
-        Summary = WrapLabel(); Summary.CustomMinimumSize = new(350, 0); AddChild(Summary);
+        Columns = 6; SizeFlagsHorizontal = SizeFlags.ExpandFill; MouseFilter = MouseFilterEnum.Ignore;
+        foreach (var resource in new[] { Resource.Gold, Resource.Food, Resource.Wood, Resource.Stone, Resource.Metal, Resource.Cloth })
+        {
+            var chip = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore }; AddChild(chip);
+            if (skin.Icon(resource.ToString().ToLowerInvariant()) is { } icon)
+                chip.AddChild(new TextureRect { Texture = icon, CustomMinimumSize = new(26, 26), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore });
+            var label = new Label { MouseFilter = MouseFilterEnum.Ignore }; chip.AddChild(label); _rows.Add(resource, label);
+            if (resource == Resource.Food)
+            {
+                var food = skin.Button("?", foodDetails); food.TooltipText = "Food stock, forecast and actual upkeep receipts";
+                food.CustomMinimumSize = new(44, 44);
+                chip.AddChild(food);
+            }
+        }
+        Summary = WrapLabel(); CompactSummary = WrapLabel();
+    }
+    public void Reflow(float width)
+    {
+        float minimum = _rows.Values.Sum(label => label.GetCombinedMinimumSize().X) + 6 * 44 + 54;
+        Columns = minimum > width ? 3 : 6;
     }
     public void Refresh(GameplayContext context)
     {
@@ -26,21 +38,25 @@ public partial class ResourcePanel : HBoxContainer
         bool inactive = city.Eliminated || state.Phase is Phase.Victory or Phase.Defeat;
         foreach (var pair in _rows)
         {
-            pair.Value.Stock.Text = city.Resources.Amount(pair.Key).ToString();
             int? income = inactive ? 0 : city.ProductionIncome?.Amount(pair.Key);
-            pair.Value.Income.Text = income is null ? "Unavailable" : income > 0 ? $"+{income}" : "0";
+            string signed = income is null ? "?" : income.Value.ToString("+0;-0;+0");
+            pair.Value.Text = $"{pair.Key} {city.Resources.Amount(pair.Key)}\n{signed} / production";
         }
-        _heading.Text = state.Phase is Phase.Building or Phase.Preparation ? "Income / production" : "Next production";
         if (state.Phase is Phase.Building or Phase.Preparation)
         {
             var food = city.FoodForecast;
             Summary.Text = food is null ? "Next battle upkeep unavailable." :
-                $"Next battle: demand {food.Demand} Food; stock {city.Food}\n" +
-                (state.Phase == Phase.Preparation ? $"Final production +{city.ProductionIncome?.Food.ToString() ?? "?"} included; " : "") +
+                $"Next battle forecast: demand {food.Demand} Food; current stock {city.Food}\n" +
+                (state.Phase == Phase.Preparation ? $"Final production +{city.ProductionIncome?.Food.ToString() ?? "?"} included in forecast; " : "") +
                 $"pay {food.Paid}; left {food.Available - food.Paid}\nFunded field {food.Participating.Length}; unfunded {food.Unfed.Length}; " +
                 $"sit out {city.Soldiers.Count(u => u.Assignment is { Stored: false } && food.Unfed.Contains(u.Id))}; stored {city.Soldiers.Count(u => u.Assignment?.Stored == true)}";
+            CompactSummary.Text = food is null ? "Upkeep forecast unavailable" : $"Forecast: {food.Paid}/{food.Demand} Food · {food.Unfed.Length} unfunded";
         }
-        else Summary.Text = city.LastUpkeep is { } paid ? $"{(state.Phase == Phase.Combat ? "Paid this battle" : "Last battle")} W{paid.Wave}: {paid.Paid} Food\nFunded {paid.Funded.Length}; field {paid.Participating.Length}; unfunded {paid.Unfed.Length}" : "No battle upkeep paid yet.";
+        else
+        {
+            Summary.Text = city.LastUpkeep is { } paid ? $"{(state.Phase == Phase.Combat ? "Paid this battle" : "Last battle")} W{paid.Wave}: {paid.Paid} Food\nFunded {paid.Funded.Length}; field {paid.Participating.Length}; unfunded {paid.Unfed.Length}" : "No battle upkeep paid yet.";
+            CompactSummary.Text = city.LastUpkeep is { } receipt ? $"Paid W{receipt.Wave}: {receipt.Paid} Food · {receipt.Unfed.Length} unfunded" : "No upkeep paid yet";
+        }
         if (!context.Session.Connected) Summary.Text += "\nDisconnected — synchronized values are stale.";
     }
 }

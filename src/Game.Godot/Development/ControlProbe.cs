@@ -50,6 +50,8 @@ public partial class GameApplication
                     if (Number("tab", 0) == 2 && _gameUi.Details.Research.TechnologyButtons.Values.FirstOrDefault() is { } technology)
                         technology.EmitSignal(BaseButton.SignalName.Pressed);
                     break;
+                case "close-details": _gameUi.Details.Close(); _gameUi.Draft.Dismiss(); break;
+                case "resize": GetWindow().Size = new Vector2I(Number("width", 1280), Number("height", 720)); break;
                 case "capture": if (Text("path") is { Length: > 0 } capturePath) CaptureGameplayNetwork(capturePath); break;
                 case "probe" when _session is { HasState: true }:
                     _session.ProbeCommand(Text("action"), Number("owner", _session.PlayerId), Text("duplicate") == "yes"); break;
@@ -78,6 +80,7 @@ public partial class GameApplication
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
+            hudNotice = _gameUi.Message.Text, readyDisabled = _gameUi.ReadyButton.Disabled,
             pending = _session?.Pending ?? false, status = _session?.Status ?? "Main menu",
             animation = new { hits = _battlefield.Motion.ObservedHits, effects = _battlefield.Motion.Events.Count, generation = _session?.Playback.Generation, resets = _battlefield.Resets, dying = _session?.Playback.Units().Count(u => u.Hex?.Lifecycle == UnitLifecycle.Dying) },
             result = _session?.LastResult, state = _session is { HasState: true } ? _session.Snapshot : null };

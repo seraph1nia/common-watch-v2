@@ -28,6 +28,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
                    '--data-path', str(directory), '--control-dir', str(directory / 'control'),
                    '--test-fast-combat', 'yes', '--gameplay-stop-wave', '8',
                    '--gameplay-family', 'research' if index == 0 else 'mixed']
+        if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated':
+            command += ['--world-art', 'sprites', '--hud-art', 'illustrated', '--view', 'angled']
         command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
         processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
     def status(index):
@@ -60,6 +62,19 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         result = wait(acknowledged, action)
         assert result['Accepted'] == accepted, (action, result)
         return result
+    def capture_feedback(name, expected):
+        control(1, 'close-details')
+        wait(lambda: expected in status(1)['hudNotice'], name + ' native feedback')
+        assert status(1)['readyDisabled'] == (name != 'rejected')
+        for width, height in ((1280, 720), (1920, 1080)):
+            control(1, 'resize', width=width, height=height)
+            art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+            path = ROOT / f'artifacts/captures/gameplay/network-{art}/{name}-{width}.png'
+            path.unlink(missing_ok=True)
+            control(1, 'capture', path=str(path))
+            wait(lambda: path.exists(), name + ' capture')
+        control(1, 'resize', width=1280, height=720)
+
     def city(index):
         current = status(index)
         return next(p for p in current['state']['Players'] if p['Id'] == current['player'])
@@ -79,6 +94,18 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         send(1, 'pause')
         send(1, 'build', accepted=False, slot=0, building='Farm')
         send(0, 'resume')
+        # Hold the actual authority process briefly to observe an unacknowledged command.
+        os.killpg(processes[0].pid, signal.SIGSTOP)
+        try:
+            control(1, 'send', action='ready')
+            wait(lambda: status(1)['pending'], 'real pending acknowledgment')
+            capture_feedback('pending', 'Pending')
+        finally:
+            os.killpg(processes[0].pid, signal.SIGCONT)
+        wait(lambda: not status(1)['pending'] and city(1)['Ready'], 'ready acknowledged after authority resumes')
+        send(1, 'unready')
+        send(1, 'speed-2x', accepted=False)
+        capture_feedback('rejected', 'Rejected')
         for index in range(2):
             control(index, 'policy', enabled='yes')
         wait(lambda: all(status(i)['state']['Wave'] == 8 and status(i)['state']['Phase'] == 'Building' for i in range(2)), 'seven legal cooperative waves', seconds=100)
@@ -129,6 +156,9 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         control(1, 'probe', action='ready', owner=1)
         wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] > old, 'foreign ownership rejection')
         assert not status(1)['result']['Accepted']
+        control(0, 'leave')
+        wait(lambda: not status(1)['connected'], 'original host closed')
+        capture_feedback('disconnected', 'Disconnected')
         print('GODOT_GAMEPLAY_NETWORK_PASS hosted remote all-arguments seven-waves drafts ready/unready pause speed retry allied-read-only', flush=True)
     finally:
         for process in reversed(processes):

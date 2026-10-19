@@ -27,7 +27,7 @@ public partial class WorldCamera : Camera2D
     public Vector2 ToScreen(Vector2 world) => GetViewport().CanvasTransform * world;
     public void SetPose(float zoom, Vector2 pan)
     {
-        Magnification = Math.Clamp(zoom, .55f, 2.2f);
+        Magnification = Math.Clamp(zoom, .25f, 2.2f);
         PanPixels = pan;
         Layout(_origin);
     }
@@ -43,7 +43,7 @@ public partial class WorldCamera : Camera2D
     public void ZoomAt(Vector2 cursor, bool inward)
     {
         Vector2 before = ToWorld(cursor);
-        Magnification = Math.Clamp(Magnification * (inward ? 1.12f : 1 / 1.12f), .55f, 2.2f);
+        Magnification = Math.Clamp(Magnification * (inward ? 1.12f : 1 / 1.12f), .25f, 2.2f);
         PanPixels = cursor - _origin - before * Magnification;
         Layout(_origin);
     }

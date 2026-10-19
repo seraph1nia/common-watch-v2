@@ -42,11 +42,12 @@ public sealed class GameplayContext(GodotSession session, Action submitted)
 }
 
 /// <summary>Native buttons retained by stable action key. No simulation or dialog lifecycle here.</summary>
-public partial class ActionList : VBoxContainer
+public partial class ActionList : BoxContainer
 {
     private readonly Dictionary<string, Button> _buttons = [];
     private readonly HashSet<string> _used = [];
     public IReadOnlyDictionary<string, Button> Buttons => _buttons;
+    public ActionList() { Vertical = true; }
     public void Begin() => _used.Clear();
     public Button Item(HudSkin skin, string key, string text, Action action, string unavailable = "")
     {
@@ -54,7 +55,7 @@ public partial class ActionList : VBoxContainer
         if (!_buttons.TryGetValue(key, out var button))
         {
             button = skin.Button(text, action); button.Name = key;
-            button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            button.AutowrapMode = TextServer.AutowrapMode.WordSmart; button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             AddChild(button); _buttons.Add(key, button);
         }
         button.Visible = true; button.Text = text + (unavailable.Length > 0 ? "\n" + unavailable : "");

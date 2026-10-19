@@ -44,6 +44,7 @@ public static class NativeOptions
     public static int Squad(OptionButton control) => control.GetSelectedId() == int.MaxValue ? -1 : control.GetSelectedId();
     public static void Update(OptionButton control, IEnumerable<(int Id, string Text)> options)
     {
+        control.CustomMinimumSize = new(control.CustomMinimumSize.X, 44);
         var values = options.ToArray(); int selected = control.ItemCount > 0 ? control.GetSelectedId() : int.MinValue;
         if (values.Length == control.ItemCount && values.Select((v, i) => v.Id == control.GetItemId(i) && v.Text == control.GetItemText(i)).All(v => v)) return;
         control.Clear(); foreach (var value in values) control.AddItem(value.Text, value.Id);

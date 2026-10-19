@@ -1,0 +1,14 @@
+{
+  "repository": "seraph1nia/common-watch-v2",
+  "ref": "default branch at review",
+  "files": {
+    "README.md": "175575827692f5f8a58c4f901e987d524e59ec0c",
+    "docs/gameplay/PLAYING.md": "de29d2065c8efef90236b23368aa4b51377192f5",
+    "src/Game.Godot/UI/SettlementHud.cs": "f257d31c7816c0dd8986571e65d52c71cac0c99e",
+    "src/Game.Godot/UI/ResourcePanel.cs": "2c0dae081f2c23547cd4e7d0a0ca11ac25d00ce5",
+    "src/Game.Godot/UI/MatchControls.cs": "dc203fd12296b3c7cd7f38490d582bbcd89f4b14",
+    "src/Game.Godot/UI/GameplayDialog.cs": "12e338c871ca6e72557494b5e955621805b535dd",
+    "src/Game.Godot/UI/HudSkin.cs": "ce9224c01d95c87109802f899ff6cca16ecdb58a"
+  },
+  "note": "Blob hashes identify reviewed text, not a claim that the repository was modified or tested."
+}

@@ -25,11 +25,9 @@ public partial class GameApplication
         _settings = GD.Load<PackedScene>("res://Scenes/UI/SettingsPanel.tscn").Instantiate<SettingsPanel>();
         root.AddChild(_settings); _settings.Bind(_audio);
         _settings.Opened += StopCameraDrag;
-        _settingsButton = _skin.Button("Settings", _settings.Open);
-        root.AddChild(_settingsButton);
-        _settingsButton.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopRight);
-        _settingsButton.OffsetLeft = -130; _settingsButton.OffsetRight = -14;
-        _settingsButton.OffsetTop = 12; _settingsButton.OffsetBottom = 48;
+        _settingsButton = _gameUi.SettingsButton;
+        _gameUi.SettingsRequested += _settings.Open;
+        _settings.Theme = _skin.Theme; _skin.Panel(_settings.Panel, "modal");
         _settings.FallbackFocus = _settingsButton;
         root.MoveChild(_settings, -1);
     }

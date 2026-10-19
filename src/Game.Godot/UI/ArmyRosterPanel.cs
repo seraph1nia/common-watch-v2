@@ -17,10 +17,19 @@ public partial class ArmyRosterPanel : VBoxContainer
     private Label _squadDetails = null!;
     private TabContainer _sections = null!;
     public void ResetSelection() { if (_squads.ItemCount > 0) _squads.Select(0); _sections.CurrentTab = 0; }
+    public DeploymentPanel Deployment { get; private set; } = null!;
+    public void ShowManagementFor(int slot, GameplayContext context)
+    {
+        Refresh(context); bool hall = context.City.Slots[slot].Type == Building.TownHall;
+        var selector = hall ? _halls : _trainer;
+        int index = selector.GetItemIndex(slot); if (index >= 0) selector.Select(index);
+        _sections.CurrentTab = hall ? 2 : 1; Refresh(context);
+    }
+    public void ShowHomes() => _sections.CurrentTab = 3;
     public void ShowManagement() => _sections.CurrentTab = 2;
     public event Action<UnitState>? UnitSelected;
     public IReadOnlyDictionary<string, Button> MemberButtons => _members.Buttons;
-    public void Initialize(HudSkin skin)
+    public void Initialize(HudSkin skin, Action submitted)
     {
         _skin = skin; _summary = WrapLabel(); AddChild(_summary);
         _squads = new OptionButton(); AddChild(_squads); _squads.ItemSelected += _ => Refresh(_context);
@@ -37,10 +46,12 @@ public partial class ArmyRosterPanel : VBoxContainer
         halls.AddChild(WrapLabel("Town Halls — select a hall; choose a veteran in Roster to store or return."));
         _halls = new OptionButton(); halls.AddChild(_halls); _halls.ItemSelected += _ => Refresh(_context);
         _hall = new TownHallPanel(); halls.AddChild(_hall); _hall.Initialize(skin);
+        var homes = new ScrollContainer { Name = "Homes & towers", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
+        Deployment = new DeploymentPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill }; homes.AddChild(Deployment); Deployment.Initialize(skin, submitted);
     }
     public void Refresh(GameplayContext context)
     {
-        _context = context; var city = context.City;
+        _context = context; var city = context.City; Deployment.Refresh(context);
         _summary.Text = $"P{city.Id} ARMY — {city.Soldiers.Length} persistent members; {city.Army?.PurchasedHomes}/6 homes\n{context.EditReason}\nRecruit one soldier into a new or compatible squad. Select any roster member to inspect, regroup, store, return or retire.";
         NativeOptions.Update(_trainer, city.Slots.Select((slot, i) => (slot, i)).Where(x => context.State.BuildingCatalog.FirstOrDefault(b => b.Type == x.slot.Type)?.Recruits is not null)
             .Select(x => (x.i, $"Plot {x.i + 1} — {GameplayContext.BuildingName(x.slot.Type)} L{x.slot.Level}")));

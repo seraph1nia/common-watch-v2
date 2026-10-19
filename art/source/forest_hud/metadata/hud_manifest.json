@@ -1,0 +1,1460 @@
+{
+  "version": 1,
+  "name": "Common Watch \u2014 Moonleaf HUD",
+  "runtime_root": "res://UI/ForestHud",
+  "style": "Woodland branch frames, calm ink-green interiors, parchment lettering, restrained cyan magic",
+  "colors": {
+    "surface": "#102021",
+    "inset": "#0c1719",
+    "cream": "#f5ecd4",
+    "muted": "#b9c7b6",
+    "gold": "#d3ac63",
+    "cyan": "#6de8e2",
+    "green": "#80d7a0",
+    "violet": "#c59bff",
+    "danger": "#edb095"
+  },
+  "assets": [
+    {
+      "id": "frame_panel",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_panel.png",
+      "svg": "source/svg/textures/frame_panel.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "frame_inset",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_inset.png",
+      "svg": "source/svg/textures/frame_inset.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "frame_modal",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_modal.png",
+      "svg": "source/svg/textures/frame_modal.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "frame_tooltip",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_tooltip.png",
+      "svg": "source/svg/textures/frame_tooltip.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "frame_parchment",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_parchment.png",
+      "svg": "source/svg/textures/frame_parchment.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "frame_ribbon",
+      "role": "nine_slice_panel",
+      "path": "src/Game.Godot/UI/ForestHud/textures/frame_ribbon.png",
+      "svg": "source/svg/textures/frame_ribbon.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 22,
+        "top": 22,
+        "right": 22,
+        "bottom": 22
+      },
+      "minimum_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "id": "button_neutral_normal",
+      "role": "button_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_neutral_normal.png",
+      "svg": "source/svg/textures/button_neutral_normal.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_neutral_hover",
+      "role": "button_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_neutral_hover.png",
+      "svg": "source/svg/textures/button_neutral_hover.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_neutral_pressed",
+      "role": "button_pressed",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_neutral_pressed.png",
+      "svg": "source/svg/textures/button_neutral_pressed.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_neutral_disabled",
+      "role": "button_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_neutral_disabled.png",
+      "svg": "source/svg/textures/button_neutral_disabled.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_primary_normal",
+      "role": "button_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_primary_normal.png",
+      "svg": "source/svg/textures/button_primary_normal.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_primary_hover",
+      "role": "button_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_primary_hover.png",
+      "svg": "source/svg/textures/button_primary_hover.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_primary_pressed",
+      "role": "button_pressed",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_primary_pressed.png",
+      "svg": "source/svg/textures/button_primary_pressed.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_primary_disabled",
+      "role": "button_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_primary_disabled.png",
+      "svg": "source/svg/textures/button_primary_disabled.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_arcane_normal",
+      "role": "button_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_arcane_normal.png",
+      "svg": "source/svg/textures/button_arcane_normal.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_arcane_hover",
+      "role": "button_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_arcane_hover.png",
+      "svg": "source/svg/textures/button_arcane_hover.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_arcane_pressed",
+      "role": "button_pressed",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_arcane_pressed.png",
+      "svg": "source/svg/textures/button_arcane_pressed.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_arcane_disabled",
+      "role": "button_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_arcane_disabled.png",
+      "svg": "source/svg/textures/button_arcane_disabled.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_danger_normal",
+      "role": "button_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_danger_normal.png",
+      "svg": "source/svg/textures/button_danger_normal.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_danger_hover",
+      "role": "button_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_danger_hover.png",
+      "svg": "source/svg/textures/button_danger_hover.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_danger_pressed",
+      "role": "button_pressed",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_danger_pressed.png",
+      "svg": "source/svg/textures/button_danger_pressed.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "button_danger_disabled",
+      "role": "button_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/button_danger_disabled.png",
+      "svg": "source/svg/textures/button_danger_disabled.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 25,
+        "top": 12,
+        "right": 25,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "focus_ring",
+      "role": "independent_keyboard_focus",
+      "path": "src/Game.Godot/UI/ForestHud/textures/focus_ring.png",
+      "svg": "source/svg/textures/focus_ring.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 26,
+        "top": 22,
+        "right": 26,
+        "bottom": 22
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        52,
+        44
+      ]
+    },
+    {
+      "id": "card_normal",
+      "role": "card_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/card_normal.png",
+      "svg": "source/svg/textures/card_normal.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 20,
+        "right": 20,
+        "bottom": 20
+      },
+      "minimum_size": [
+        80,
+        80
+      ]
+    },
+    {
+      "id": "card_hover",
+      "role": "card_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/card_hover.png",
+      "svg": "source/svg/textures/card_hover.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 20,
+        "right": 20,
+        "bottom": 20
+      },
+      "minimum_size": [
+        80,
+        80
+      ]
+    },
+    {
+      "id": "card_selected",
+      "role": "card_selected",
+      "path": "src/Game.Godot/UI/ForestHud/textures/card_selected.png",
+      "svg": "source/svg/textures/card_selected.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 20,
+        "right": 20,
+        "bottom": 20
+      },
+      "minimum_size": [
+        80,
+        80
+      ]
+    },
+    {
+      "id": "card_disabled",
+      "role": "card_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/card_disabled.png",
+      "svg": "source/svg/textures/card_disabled.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 32,
+        "top": 32,
+        "right": 32,
+        "bottom": 32
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 20,
+        "right": 20,
+        "bottom": 20
+      },
+      "minimum_size": [
+        80,
+        80
+      ]
+    },
+    {
+      "id": "tab_normal",
+      "role": "tab_normal",
+      "path": "src/Game.Godot/UI/ForestHud/textures/tab_normal.png",
+      "svg": "source/svg/textures/tab_normal.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 12,
+        "right": 20,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "tab_hover",
+      "role": "tab_hover",
+      "path": "src/Game.Godot/UI/ForestHud/textures/tab_hover.png",
+      "svg": "source/svg/textures/tab_hover.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 12,
+        "right": 20,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "tab_selected",
+      "role": "tab_selected",
+      "path": "src/Game.Godot/UI/ForestHud/textures/tab_selected.png",
+      "svg": "source/svg/textures/tab_selected.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 12,
+        "right": 20,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "tab_disabled",
+      "role": "tab_disabled",
+      "path": "src/Game.Godot/UI/ForestHud/textures/tab_disabled.png",
+      "svg": "source/svg/textures/tab_disabled.svg",
+      "size": [
+        192,
+        56
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 24,
+        "top": 23,
+        "right": 24,
+        "bottom": 23
+      },
+      "content_padding": {
+        "left": 20,
+        "top": 12,
+        "right": 20,
+        "bottom": 12
+      },
+      "minimum_size": [
+        80,
+        48
+      ]
+    },
+    {
+      "id": "progress_track",
+      "role": "progress_segment",
+      "path": "src/Game.Godot/UI/ForestHud/textures/progress_track.png",
+      "svg": "source/svg/textures/progress_track.svg",
+      "size": [
+        96,
+        14
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 6,
+        "top": 6,
+        "right": 6,
+        "bottom": 6
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "progress_health",
+      "role": "progress_segment",
+      "path": "src/Game.Godot/UI/ForestHud/textures/progress_health.png",
+      "svg": "source/svg/textures/progress_health.svg",
+      "size": [
+        96,
+        14
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 6,
+        "top": 6,
+        "right": 6,
+        "bottom": 6
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "progress_magic",
+      "role": "progress_segment",
+      "path": "src/Game.Godot/UI/ForestHud/textures/progress_magic.png",
+      "svg": "source/svg/textures/progress_magic.svg",
+      "size": [
+        96,
+        14
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 6,
+        "top": 6,
+        "right": 6,
+        "bottom": 6
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "progress_warning",
+      "role": "progress_segment",
+      "path": "src/Game.Godot/UI/ForestHud/textures/progress_warning.png",
+      "svg": "source/svg/textures/progress_warning.svg",
+      "size": [
+        96,
+        14
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 6,
+        "top": 6,
+        "right": 6,
+        "bottom": 6
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "separator",
+      "role": "separator",
+      "path": "src/Game.Godot/UI/ForestHud/textures/separator.png",
+      "svg": "source/svg/textures/separator.svg",
+      "size": [
+        128,
+        12
+      ],
+      "alpha": true,
+      "slice": {
+        "left": 16,
+        "top": 0,
+        "right": 16,
+        "bottom": 0
+      },
+      "content_padding": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "minimum_size": [
+        32,
+        12
+      ]
+    },
+    {
+      "id": "badge_research",
+      "role": "textless_badge",
+      "path": "src/Game.Godot/UI/ForestHud/textures/badge_research.png",
+      "svg": "source/svg/textures/badge_research.svg",
+      "size": [
+        64,
+        64
+      ],
+      "alpha": true
+    },
+    {
+      "id": "badge_count",
+      "role": "textless_badge",
+      "path": "src/Game.Godot/UI/ForestHud/textures/badge_count.png",
+      "svg": "source/svg/textures/badge_count.svg",
+      "size": [
+        64,
+        64
+      ],
+      "alpha": true
+    },
+    {
+      "id": "badge_alert",
+      "role": "textless_badge",
+      "path": "src/Game.Godot/UI/ForestHud/textures/badge_alert.png",
+      "svg": "source/svg/textures/badge_alert.svg",
+      "size": [
+        64,
+        64
+      ],
+      "alpha": true
+    },
+    {
+      "id": "corner_tl",
+      "role": "fixed_scale_corner_decoration",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/corner_tl.png",
+      "svg": "source/svg/ornaments/corner_tl.svg",
+      "size": [
+        256,
+        192
+      ],
+      "alpha": true
+    },
+    {
+      "id": "corner_tr",
+      "role": "fixed_scale_corner_decoration",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/corner_tr.png",
+      "svg": "source/svg/ornaments/corner_tr.svg",
+      "size": [
+        256,
+        192
+      ],
+      "alpha": true
+    },
+    {
+      "id": "corner_bl",
+      "role": "fixed_scale_corner_decoration",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/corner_bl.png",
+      "svg": "source/svg/ornaments/corner_bl.svg",
+      "size": [
+        256,
+        192
+      ],
+      "alpha": true
+    },
+    {
+      "id": "corner_br",
+      "role": "fixed_scale_corner_decoration",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/corner_br.png",
+      "svg": "source/svg/ornaments/corner_br.svg",
+      "size": [
+        256,
+        192
+      ],
+      "alpha": true
+    },
+    {
+      "id": "branch_sprig",
+      "role": "fixed_scale_sprig",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/branch_sprig.png",
+      "svg": "source/svg/ornaments/branch_sprig.svg",
+      "size": [
+        256,
+        72
+      ],
+      "alpha": true
+    },
+    {
+      "id": "hanging_lantern",
+      "role": "fixed_scale_lantern",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/hanging_lantern.png",
+      "svg": "source/svg/ornaments/hanging_lantern.svg",
+      "size": [
+        84,
+        128
+      ],
+      "alpha": true
+    },
+    {
+      "id": "crystal_pair",
+      "role": "fixed_scale_crystals",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/crystal_pair.png",
+      "svg": "source/svg/ornaments/crystal_pair.svg",
+      "size": [
+        112,
+        112
+      ],
+      "alpha": true
+    },
+    {
+      "id": "mushroom_pair",
+      "role": "fixed_scale_mushrooms",
+      "path": "src/Game.Godot/UI/ForestHud/ornaments/mushroom_pair.png",
+      "svg": "source/svg/ornaments/mushroom_pair.svg",
+      "size": [
+        128,
+        128
+      ],
+      "alpha": true
+    },
+    {
+      "id": "gold",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/gold.png",
+      "svg": "source/svg/icons/gold.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "food",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/food.png",
+      "svg": "source/svg/icons/food.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "wood",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/wood.png",
+      "svg": "source/svg/icons/wood.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "stone",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/stone.png",
+      "svg": "source/svg/icons/stone.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "metal",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/metal.png",
+      "svg": "source/svg/icons/metal.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "cloth",
+      "role": "resource_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/cloth.png",
+      "svg": "source/svg/icons/cloth.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "build",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/build.png",
+      "svg": "source/svg/icons/build.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "army",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/army.png",
+      "svg": "source/svg/icons/army.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "defense",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/defense.png",
+      "svg": "source/svg/icons/defense.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "worldtree",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/worldtree.png",
+      "svg": "source/svg/icons/worldtree.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "run",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/run.png",
+      "svg": "source/svg/icons/run.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "forecast",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/forecast.png",
+      "svg": "source/svg/icons/forecast.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "settings",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/settings.png",
+      "svg": "source/svg/icons/settings.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "close",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/close.png",
+      "svg": "source/svg/icons/close.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "chevron_down",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/chevron_down.png",
+      "svg": "source/svg/icons/chevron_down.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "chevron_left",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/chevron_left.png",
+      "svg": "source/svg/icons/chevron_left.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "chevron_right",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/chevron_right.png",
+      "svg": "source/svg/icons/chevron_right.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "check",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/check.png",
+      "svg": "source/svg/icons/check.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "lock",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/lock.png",
+      "svg": "source/svg/icons/lock.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "pause",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/pause.png",
+      "svg": "source/svg/icons/pause.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "play",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/play.png",
+      "svg": "source/svg/icons/play.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "info",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/info.png",
+      "svg": "source/svg/icons/info.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "warning",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/warning.png",
+      "svg": "source/svg/icons/warning.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "sell",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/sell.png",
+      "svg": "source/svg/icons/sell.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "upgrade",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/upgrade.png",
+      "svg": "source/svg/icons/upgrade.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "recruit",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/recruit.png",
+      "svg": "source/svg/icons/recruit.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "reconnect",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/reconnect.png",
+      "svg": "source/svg/icons/reconnect.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "keep",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/keep.png",
+      "svg": "source/svg/icons/keep.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "city",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/city.png",
+      "svg": "source/svg/icons/city.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "leaf",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/leaf.png",
+      "svg": "source/svg/icons/leaf.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    },
+    {
+      "id": "spark",
+      "role": "interface_icon",
+      "path": "src/Game.Godot/UI/ForestHud/icons/spark.png",
+      "svg": "source/svg/icons/spark.svg",
+      "size": [
+        96,
+        96
+      ],
+      "alpha": true
+    }
+  ],
+  "notes": [
+    "Assets contain no baked text, counts, costs or gameplay values.",
+    "SVGs contain original vector geometry; PNGs are raster exports. No embedded raster data or fonts in SVGs.",
+    "Corners and ornaments are separate fixed-scale images, never nine-sliced.",
+    "Source atlas sizes are native pixels; texture slice and content padding are independent.",
+    "Preserve optional illustrated/plain HUD selection; do not read these resources in plain mode."
+  ]
+}

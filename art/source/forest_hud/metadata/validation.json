@@ -1,0 +1,25 @@
+{
+  "authoring_environment": {
+    "python": "3.13.5",
+    "Pillow": "12.3.0",
+    "CairoSVG": "2.8.2"
+  },
+  "checked": [
+    "78 SVGs parsed and rendered to RGBA PNGs",
+    "alpha extrema and dimensions",
+    "nine-slice center/minimum-size validity",
+    "Godot resource path and internal-reference integrity (static only)",
+    "all Python tools parsed",
+    "manual inspection of asset sheet, build mockup, narrow mockup and modal mockup",
+    "no font files or embedded bitmap SVGs"
+  ],
+  "body_foreground_surface_contrast_ratio": 13.91,
+  "not_executed": [
+    "Godot resource import",
+    "native Godot screenshots",
+    "input/focus/resize tests inside game",
+    "repository code integration",
+    "game builds and multiplayer checks"
+  ],
+  "mockup_status": "Composited reference layouts using illustrative data; not in-game captures."
+}

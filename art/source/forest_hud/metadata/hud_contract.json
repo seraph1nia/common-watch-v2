@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "theme": "res://UI/ForestHud/ForestTheme.tres",
+  "default_hud_layout": "resource ribbon + contextual dock + phase action block",
+  "native_type_variations": {
+    "ForestPrimaryButton": "Ready / acknowledge / confirm supported operation",
+    "ForestArcaneButton": "Pause / Resume whole match",
+    "ForestDangerButton": "Sell / retire only with existing confirmations",
+    "ForestCard": "Build and reward card state skin",
+    "ForestRibbon": "resource header",
+    "ForestModal": "one details dialog"
+  },
+  "interaction": {
+    "normal": "neutral/dormant",
+    "hover": "transient pointer state",
+    "pressed": "down or selected toggle",
+    "disabled": "authoritative denial + visible textual reason",
+    "focus": "independent cyan ring, retain with hover/selection",
+    "decorations_mouse_filter": "IGNORE",
+    "full_screen_hud_root_mouse_filter": "IGNORE",
+    "actual_controls_mouse_filter": "STOP",
+    "modal_scrim_mouse_filter": "STOP"
+  },
+  "layout": {
+    "reference_viewport": [
+      1920,
+      1080
+    ],
+    "minimum_test_viewport": [
+      1280,
+      720
+    ],
+    "top_ribbon_height_reference": 88,
+    "context_dock_height_expanded_reference": 214,
+    "context_dock_height_collapsed_reference": 108,
+    "min_control_height": 44,
+    "target_body_text_px": [
+      16,
+      18
+    ],
+    "minimum_body_text_px": 14,
+    "small_view_rule": "Reflow resources and scroll card row. Do not shrink all typography to fit.",
+    "world_view_rule": "Compute camera safe region from actual HUD rectangles. All nine map pads must remain accessible."
+  },
+  "resource_order": [
+    "Gold",
+    "Food",
+    "Wood",
+    "Stone",
+    "Metal",
+    "Cloth"
+  ],
+  "navigation": {
+    "Build": "selected settlement plot context; category menu for empty owned plot",
+    "Army": [
+      "roster",
+      "recruitment",
+      "six army homes and towers",
+      "Town Hall storage/recovery"
+    ],
+    "Worldtree": "18 current canonical technologies with accepted point balance",
+    "Run": [
+      "doctrine",
+      "acquired cards",
+      "statistics"
+    ]
+  },
+  "phase_action": {
+    "building_preparation": "Ready / Unready; adjacent production-stage consequence; your city even while inspecting an ally",
+    "combat": "No Ready; battle inspection and host-controlled 1x / 1.5x / 2x",
+    "reward": "Reopen current actual offers; choice occurs on reward confirmation, not opening",
+    "ended": "Result / existing return-to-menu action"
+  },
+  "nonnegotiables": [
+    "No UI economy calculation or authority writes",
+    "Food forecast and actual receipt are different",
+    "Shortage warns; does not disable readiness by itself",
+    "Opening local panels never pauses multiplayer",
+    "No fourth preparation stage",
+    "Nine settlement plots are not six army homes",
+    "Inspecting an ally never changes authenticated command owner",
+    "Disconnection and rejection must stay visible",
+    "No worker population mechanic inferred from the reference screenshot"
+  ]
+}

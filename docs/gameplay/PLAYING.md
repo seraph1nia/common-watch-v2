@@ -3,22 +3,28 @@
 The simulation and prices are the unchanged pinned Core. All controls submit
 commands; the accepted snapshot supplies stocks, soldiers, technologies and phase.
 
-- Select a settlement hex to inspect it. **Expand selected plot details** opens a
-  full-width, scrollable native panel. Empty purchased plots offer Production,
-  Military, Defense and Trade / utility categories. Locked plots show the current
-  land quote. Occupied plots expose recruitment, Market sales, independent Town
-  Hall tracks, tower branches, upgrades and actual refunds as applicable.
-- The resource table shows six accepted stocks and synchronized production. Ready
+- The compact ribbon selects the inspected city and shows Keep, six accepted
+  resource stocks with signed income per production, wave/preparation, Settings
+  and the arena/settlement switch. At 720p its resource row moves below navigation.
+- The bottom context dock has **Build**, **Army**, **Worldtree** and **Run**, plus
+  Collapse/Expand. Select one of the nine clearings to see its context. Empty
+  owned land offers categorized build cards: selecting a card spends nothing;
+  **Build selected** submits the actual construction. Locked land shows its current
+  purchase quote. Occupied plots offer upgrades, refunds and relevant management;
+  **More details** expands the same retained inspector. Recruitment and Town Hall
+  management also route directly into Army. Scrolling keeps longer controls usable.
+- The bottom-right action area separates Ready/Unready, its production consequence,
+  upkeep forecast/details, battle inspection and whole-match Pause/Resume. Ready
   settles one production at each of three preparations. The final forecast includes
   production 3 without adding it to stock early. Food shortages permit readiness:
   unfunded field members sit out. During and after combat, the table shows the
-  actual upkeep receipt.
+  actual upkeep receipt. Food's **?** button also opens the breakdown.
 - **Army** has a persistent roster, squad selector, and separate Recruitment and Town Halls
   sections. Choose a member to inspect HP, equipment, service XP, home/storage,
   funding and recovery eligibility. The same inspector handles transfer, storage,
   return and retirement. Recruitment chooses a trainer and an automatic, new or
   specific compatible squad; each click pays for one soldier.
-- **Homes & towers** shows the six stable numbered army homes. These are separate
+- Army's **Homes & towers** section shows the six stable numbered army homes. These are separate
   from the nine settlement plots. Select a squad and deploy it to a purchased,
   eligible home. Inspect a home to buy land or construct/upgrade/sell a tower.
   Squads and towers cannot share a home.
@@ -31,7 +37,8 @@ commands; the accepted snapshot supplies stocks, soldiers, technologies and phas
   Forecast markers never become combat actors. Stored/unfunded soldiers remain
   inspectable in lists without acquiring field bodies.
 - **Run** shows doctrine benefits/drawback, acquired card stacks/effects, research,
-  Keep and reward statistics. The pregame doctrine controls explain all six choices.
+  Keep and reward statistics, plus camera reset, return to menu, reconnect and the
+  recent session feedback history. The pregame doctrine controls explain all six choices.
   A successful nonfinal battle offers three actual cards with rarity, effect and
   stack limit. Close rewards to inspect your city/run before deciding; **Rewards** reopens the same offers without choosing. Independent player choices remain authoritative. Wave 20 goes to
   Victory; defeat offers no draft.
@@ -42,11 +49,13 @@ commands; the accepted snapshot supplies stocks, soldiers, technologies and phas
   fallen and disconnected cities remain read-only. The inspected player never
   replaces authenticated command identity.
 
-Esc closes details before opening settings. Modal shades block world input;
+Only one details or rewards surface opens at a time. Esc closes nested Settings,
+then details/rewards, restoring native keyboard focus; otherwise it opens Settings. Modal shades block world input;
 scrolling native panels does not zoom the board. Selection alone spends nothing.
 Disabled actions explain missing resources, producers or authoritative restrictions.
-The footer distinguishes acceptance, rejection, pending acknowledgment and lost
-connection. Reconnect preserves the existing private credential/session workflow.
+The persistent footer distinguishes acceptance, rejection, pending acknowledgment
+and lost connection, including while details/rewards are open. **History** opens
+recent feedback in Run. Reconnect preserves the existing private credential/session workflow.
 
 ## Development and verification
 

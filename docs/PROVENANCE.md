@@ -26,3 +26,20 @@ at the same `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` revision. It is used only
 earn deterministic development/test checkpoints. It is not a second simulation or
 player-facing rules engine. New native Godot gameplay components, adapters and tests
 are GPL-3.0-only. The original repository, Core, artwork and soundtrack are unchanged.
+
+## Forest HUD delivery
+
+The user supplied `common_watch_forest_hud.zip` on 2026-10-19 (SHA-256
+`6ae519625ec971801b6354943c18ec5bd920abf561df3bb3261a441149aadc4c`). Its 78
+transparent PNG parts, `ForestTheme.tres` and component preview are preserved under
+`src/Game.Godot/UI/ForestHud/`. The 78 editable SVG originals, README, HUD logic,
+provenance, metadata and original delivery checksum list are retained unchanged in
+[art/source/forest_hud](../art/source/forest_hud/). Runtime resources and SVGs are
+checked against that delivery checksum list by `test-art`.
+
+The checksum list also names archive previews and optional authoring scripts;
+those files are not runtime inputs and were not installed. No authoring/generation
+script was run and no game artwork was created or downloaded. The pack's mockups
+were layout references only. Its supplied provenance makes no new third-party
+asset or font license grant; existing GPL-3.0-only code notices, map, sprites and
+soundtrack provenance remain intact. [Integration and verification](FOREST_HUD.md).

@@ -71,3 +71,46 @@ An intermittent native .NET tiered-JIT crash was observed in a previous Godot mu
 Linux Xvfb/Mesa checks qualify that automated environment. Native Windows/macOS execution, physical GPU/display/input and real audio hardware qualification are separate, unexecuted platform checks. Cross-builds alone do not qualify native execution. Existing automated audio checks decode the actual WAV, verify loop markers and exercise volume/mute/persistence with a silent driver.
 
 Only supplied static Swordsman and Raider character artwork exists; ranged/magic units and missing buildings use geometry. Painted ground islands, fixed limbs, crowd overlap and stretched parchment centers retain the documented artwork limitations. No captures fabricate authoritative state.
+
+## Forest HUD integration — 2026-10-19
+
+The forest HUD uses the supplied native theme and transparent PNG parts. Its
+[implementation and actual capture index](FOREST_HUD.md) describe the new ribbon,
+context dock, action area and retained panels. Core, Shared, installed world/map
+art, soundtrack and pinned tool/dependency locks compare unchanged to the starting
+checkout. No generation scripts, system package installs, commits or pushes were
+performed.
+
+Validation transcripts are retained under `artifacts/test-logs/forest-hud/`.
+Final executed gates and qualification limits are listed below.
+
+| Gate | Result |
+| --- | --- |
+| `mise run build` | Passed; zero warnings/errors, locked restore |
+| `mise run test-core` | 40 passed |
+| `mise run test-shared` | 66 passed |
+| `mise run test-art` | 19 passed; includes supplied PNG/SVG hashes, alpha, dimensions, slices and native theme resource references |
+| `mise run test-session` | Both graphical integration facts passed; native lifecycle, commands, installed/empty/corrupt world art, both HUD modes, settings/audio, input and focus |
+| `mise run test-gameplay-ui` | Native paid scenarios and seven-wave real host/guest checks passed, including actual pending/rejected/disconnected feedback |
+| `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` | Passed; actual forest states at 720p/1080p, independent selected/hover/focus states, nested Esc, allied inspection and network feedback |
+| `mise run capture-art` | Passed; actual plain/illustrated, settlement/combat/reward, nine-slice and showroom views |
+| `mise run capture-settlement` and illustrated variant | Passed; all nine pad clicks/hover, native pan/zoom, purchases/construction, both projections, three zooms and both viewport sizes |
+| `mise run test-multiplayer` | Passed; real 2–4 player LAN loops through combat/drafting |
+| `mise run test-reconnect` | Passed; existing real-process reconnect/fault checks |
+| Missing forest theme (temporary negative check, original restored) | Both debug/sprite native smoke loops passed using plain fallback |
+| Shell/Python syntax, source/asset/pin comparison, `git diff --check` | Passed |
+
+Native regression checks caught and corrected focus loss from briefly hiding the
+construction panel on refresh. They also verify a focused card scrolls completely
+into view, independently of a different hovered card. The action area reserves the
+expanded dock's height, so selecting a clearing does not move its map pad out from
+under the cursor. Real hover/click assertions remain intact.
+
+Not run for this integration: the aggregate `mise run test`, standalone animation
+contracts/battle sequences/performance profiling, release exports and exported
+runtime checks, remote CI, native Windows/macOS, physical GPU/input/audio hardware,
+and live two-account Steam SDK/invite/relay/reconnect qualification. Pathological
+long-label/large-number manual stress was not performed; the layout supports
+resource reflow and scrolling and was checked with legal scenario values. The
+known intermittent native .NET/JIT crash risk remains unresolved; these successful
+runs do not qualify it away.

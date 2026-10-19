@@ -109,3 +109,10 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
 
 The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies picking after pan/zoom and captures empty, hovered, selected and built states at 720p/1080p.
+
+The optional [forest HUD](docs/FOREST_HUD.md) uses the supplied native Theme and PNG
+parts. Its ribbon, collapsible context dock and action area also work in plain mode.
+Army contains recruitment, squads, Town Hall management and the six homes/towers.
+Selecting a construction card spends nothing; **Build selected** confirms it.
+`COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` captures the
+actual forest HUD at 720p/1080p, including network feedback states.

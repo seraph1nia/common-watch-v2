@@ -26,16 +26,21 @@ case "$operation" in
     done
     ;;
   test-gameplay-network)
-    timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1280x720x24' python3 tools/gameplay-network.py
+    timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/gameplay-network.py
     ;;
   test-gameplay|capture-gameplay)
     client_timeout=180
     output="$(pwd)/artifacts/captures/gameplay"
     capture_options=()
+    presentation_options=(--world-art debug --hud-art plain)
+    if [[ ${COMMON_WATCH_GAMEPLAY_ART:-} == illustrated ]]; then
+      output="$output/forest"
+      presentation_options=(--world-art sprites --hud-art illustrated --view angled)
+    fi
     if [[ "$operation" == capture-gameplay ]]; then capture_options+=(--gameplay-captures "$output"); fi
-    run_client --world-art debug --hud-art plain --gameplay-test "${capture_options[@]}" "$@"
+    run_client "${presentation_options[@]}" --gameplay-test "${capture_options[@]}" "$@"
     if [[ "$operation" == capture-gameplay ]]; then
-      run_client --world-art debug --hud-art plain --gameplay-test --gameplay-captures "$output/1920" --width 1920 --height 1080 "$@"
+      run_client "${presentation_options[@]}" --gameplay-test --gameplay-captures "$output/1920" --width 1920 --height 1080 "$@"
     fi
     ;;
   capture)

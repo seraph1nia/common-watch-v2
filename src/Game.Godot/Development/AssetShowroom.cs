@@ -17,7 +17,7 @@ public partial class AssetShowroom : CanvasLayer
         void LabelAt(string text, Vector2 at, Vector2 size, bool parchment = false)
         {
             var label = new Label { Text = text, Position = at, Size = size, AutowrapMode = TextServer.AutowrapMode.WordSmart };
-            label.AddThemeColorOverride("font_color", new Color(parchment ? "30251c" : "e7edf2")); content.AddChild(label);
+            label.AddThemeColorOverride("font_color", new Color("e7edf2")); content.AddChild(label);
         }
         LabelAt("ASSET SHOWROOM / GODOT — frozen presentation; pink = ground anchor; blue = canvas bounds", new(24, 16), new(1160, 40));
         var allIds = assets.Catalog.Entries.Select(e => e.Id).Where(id => !id.StartsWith("hud/", StringComparison.Ordinal)).Order().ToArray();
@@ -60,7 +60,7 @@ public partial class AssetShowroom : CanvasLayer
         {
             var panel = new PanelContainer { Position = pos, Size = size }; content.AddChild(panel); skin.Panel(panel, id);
             var text = new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-            text.AddThemeColorOverride("font_color", new Color(id == "hud/button" ? "e7edf2" : "30251c")); panel.AddChild(Margin(text, id == "hud/button" ? 12 : 36));
+            text.AddThemeColorOverride("font_color", new Color(skin.Illustrated ? "f5ecd4" : "e7edf2")); panel.AddChild(Margin(text, id == "hud/button" ? 12 : 36));
         }
         content.CustomMinimumSize = new(1220, 1080);
         GD.Print($"GODOT_SHOWROOM assets={assets.Catalog.Entries.Count} nine-patches={skin.NinePatches} authority=none");

@@ -1,0 +1,790 @@
+{
+  "status": "passed",
+  "svg_png_pairs_checked": 78,
+  "native_resource_paths_checked": 40,
+  "no_bundled_fonts": true,
+  "godot_runtime_tested": false,
+  "errors": [],
+  "assets": [
+    {
+      "id": "frame_panel",
+      "png_sha256": "6a207715f612de0408529b0f7ff7360f99c355de29d96a39fe48b32d1468a366",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "frame_inset",
+      "png_sha256": "5512be8e27cf900bd4f2d00c0746697640d6c22ea6136e0c7ad1439f0fc5e7cc",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "frame_modal",
+      "png_sha256": "f67a2cb47d175c04e0d07adf7a7bcfc17ee2f6f4bbe45ec04a135dc0c4580dac",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "frame_tooltip",
+      "png_sha256": "4648fa85815918b11fbf4f469c09478e9b3ff6c47e85984a00c721ab4c0543ef",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "frame_parchment",
+      "png_sha256": "d80190ff2888a87630c146652875dca359c627e2a9def82d1bfa8ff586e90e9c",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "frame_ribbon",
+      "png_sha256": "35ca443e0623e62376a4e6a07b2345674a5ba4fd955ebc6669c5cee622d6b041",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "button_neutral_normal",
+      "png_sha256": "a2bf1ad5c13cbf5a4b979d4e17de5d1c8cb2dff280e92e467fda0d3ac4be8eb6",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_neutral_hover",
+      "png_sha256": "086fd6898619f4d4e84aaa45f912e4e943f436b254eb574d1f7ecd93e935ae73",
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        56
+      ]
+    },
+    {
+      "id": "button_neutral_pressed",
+      "png_sha256": "deb35d8e0d17f51cdb91b15dbbb0fa9ea16e9c2008df39948dfd821c459751e7",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_neutral_disabled",
+      "png_sha256": "280117eab8f829edcb8ecca7dd82cc5da247be2963806094e8b0aaf9ee09f8a1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_primary_normal",
+      "png_sha256": "18dc7319adb925fb097f5dad840b63b74596baf3f4ff27e74e3cfc6f6642c203",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_primary_hover",
+      "png_sha256": "ef33d3195ac77311ba46f4c2f837ff5fbbf7199d0165eab5ca3a37aa257c789a",
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        56
+      ]
+    },
+    {
+      "id": "button_primary_pressed",
+      "png_sha256": "99ebb3b3391adf763e1bec1bb77b2934a0a25acaf65d21e84acf2352b6e0fafd",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_primary_disabled",
+      "png_sha256": "280117eab8f829edcb8ecca7dd82cc5da247be2963806094e8b0aaf9ee09f8a1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_arcane_normal",
+      "png_sha256": "0eac48324d948dfd026bdac645c8cbd78e72c8872d0f1726bcc4245414156d21",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_arcane_hover",
+      "png_sha256": "147a3af8872c80eff7fede374743dbec7cede990b55ca5d0c3b4634611f6c075",
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        56
+      ]
+    },
+    {
+      "id": "button_arcane_pressed",
+      "png_sha256": "69a9bbf3e5f083b6df0e266ef2e47152ba5362551be95e4986320b6bb2a2669f",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_arcane_disabled",
+      "png_sha256": "280117eab8f829edcb8ecca7dd82cc5da247be2963806094e8b0aaf9ee09f8a1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_danger_normal",
+      "png_sha256": "081213c714f3f6214abe219913869f18062cb1895c8d2e243d566de77e57e2f1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_danger_hover",
+      "png_sha256": "d170235d1b972395464b98b2411e60a92e112d48be0f289eff1eb66bdfb6119f",
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        56
+      ]
+    },
+    {
+      "id": "button_danger_pressed",
+      "png_sha256": "a310505c0f5a9f72a797ef43968aec987e64be05ab5398afe838c9a651b653a2",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "button_danger_disabled",
+      "png_sha256": "280117eab8f829edcb8ecca7dd82cc5da247be2963806094e8b0aaf9ee09f8a1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "focus_ring",
+      "png_sha256": "bca8ab822c18f94a617a7618cf22682be7cccd8c8a412848effbe356507b25b9",
+      "alpha_bbox": [
+        0,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "id": "card_normal",
+      "png_sha256": "5512be8e27cf900bd4f2d00c0746697640d6c22ea6136e0c7ad1439f0fc5e7cc",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "card_hover",
+      "png_sha256": "c956f799bc81c186b8267dabfa838a2e8dbb86582c58b8992a27b80a642c13d9",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "card_selected",
+      "png_sha256": "e441759e78d602c14da21658a3295b64bdf6c3791fb0701adfb01348019d9ad0",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "card_disabled",
+      "png_sha256": "cd8000f1ecc3faa9dc9cff1c230993abe062e29165e0b506ef301afff4c68e1d",
+      "alpha_bbox": [
+        2,
+        1,
+        126,
+        126
+      ]
+    },
+    {
+      "id": "tab_normal",
+      "png_sha256": "a2bf1ad5c13cbf5a4b979d4e17de5d1c8cb2dff280e92e467fda0d3ac4be8eb6",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "tab_hover",
+      "png_sha256": "086fd6898619f4d4e84aaa45f912e4e943f436b254eb574d1f7ecd93e935ae73",
+      "alpha_bbox": [
+        0,
+        0,
+        192,
+        56
+      ]
+    },
+    {
+      "id": "tab_selected",
+      "png_sha256": "fd238c93435d2f6b396793d548f7fe81718220586de9e296caac142526512bd0",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "tab_disabled",
+      "png_sha256": "280117eab8f829edcb8ecca7dd82cc5da247be2963806094e8b0aaf9ee09f8a1",
+      "alpha_bbox": [
+        2,
+        0,
+        190,
+        54
+      ]
+    },
+    {
+      "id": "progress_track",
+      "png_sha256": "9c44a8dee026154d30803d7da1d83df0081fcd7502ae79fd2a853ac26a7c76a6",
+      "alpha_bbox": [
+        0,
+        0,
+        96,
+        14
+      ]
+    },
+    {
+      "id": "progress_health",
+      "png_sha256": "19c223ae3455156b9210e5b7cbf7f397244f0382816edffa2e7a3ccc95ad705e",
+      "alpha_bbox": [
+        0,
+        0,
+        96,
+        14
+      ]
+    },
+    {
+      "id": "progress_magic",
+      "png_sha256": "7ae5ee4ceb836711a77853388b5797a5b05d653715a6bfb379507ae0247ef1d5",
+      "alpha_bbox": [
+        0,
+        0,
+        96,
+        14
+      ]
+    },
+    {
+      "id": "progress_warning",
+      "png_sha256": "e7ae59a7e5a6ab8d5d91c091dfb7f260a5269e038b69d0f758b4f4326f476e00",
+      "alpha_bbox": [
+        0,
+        0,
+        96,
+        14
+      ]
+    },
+    {
+      "id": "separator",
+      "png_sha256": "6a21926384ac7102f0080fed817b2b4e79895d7dda19dbb4bd6f7aba0ee0bf8c",
+      "alpha_bbox": [
+        0,
+        2,
+        128,
+        10
+      ]
+    },
+    {
+      "id": "badge_research",
+      "png_sha256": "a72f84e884e654fe7f658825d1086f14f301ce3f255eee7325624f3e96f6dea2",
+      "alpha_bbox": [
+        4,
+        5,
+        60,
+        61
+      ]
+    },
+    {
+      "id": "badge_count",
+      "png_sha256": "cf76b2c73096e31b072bce2854499e853ee1e2dc244debd64771d1f250018c3e",
+      "alpha_bbox": [
+        4,
+        5,
+        60,
+        61
+      ]
+    },
+    {
+      "id": "badge_alert",
+      "png_sha256": "1259ee99d4a5c3c39ebf793e3b0021744b9715dcf78653f98e0d053067decf47",
+      "alpha_bbox": [
+        4,
+        5,
+        60,
+        61
+      ]
+    },
+    {
+      "id": "corner_tl",
+      "png_sha256": "7cccb8836847f1df7f2a65a54e62001cb30031d431bbc012964f731f6d660072",
+      "alpha_bbox": [
+        0,
+        0,
+        237,
+        181
+      ]
+    },
+    {
+      "id": "corner_tr",
+      "png_sha256": "27a3125d3b970efa95e46bfb2b449cbe7d8ab2a258f2271e008e12de826be73d",
+      "alpha_bbox": [
+        13,
+        0,
+        256,
+        186
+      ]
+    },
+    {
+      "id": "corner_bl",
+      "png_sha256": "25f4c9bb367a0f102be25f420da2efa62641851b0b8d88290b3d827261f30714",
+      "alpha_bbox": [
+        0,
+        0,
+        237,
+        181
+      ]
+    },
+    {
+      "id": "corner_br",
+      "png_sha256": "a1088930296380cc361f64983e56fff105175dfd3a021bbddf7c13bfebbcf50c",
+      "alpha_bbox": [
+        16,
+        0,
+        256,
+        189
+      ]
+    },
+    {
+      "id": "branch_sprig",
+      "png_sha256": "0345468886a23b2c299eb70ecded6ba9fb8d01162099cef45cef4e3100e4b0b6",
+      "alpha_bbox": [
+        8,
+        0,
+        240,
+        54
+      ]
+    },
+    {
+      "id": "hanging_lantern",
+      "png_sha256": "1bbcb2e920be8c1289a16bf5ee655298f80eaad2f11296777d6dd319de175be6",
+      "alpha_bbox": [
+        0,
+        6,
+        84,
+        128
+      ]
+    },
+    {
+      "id": "crystal_pair",
+      "png_sha256": "5eb055c4f8fb7e16c8a735f9cd8a55b5170c9c8bbbfda56fe946e7a8a45babce",
+      "alpha_bbox": [
+        8,
+        2,
+        102,
+        112
+      ]
+    },
+    {
+      "id": "mushroom_pair",
+      "png_sha256": "8689aee9d92ea0272a02fb79e0e94c91fa4c168293e6ac92f908f47ac5b64ef1",
+      "alpha_bbox": [
+        0,
+        22,
+        106,
+        116
+      ]
+    },
+    {
+      "id": "gold",
+      "png_sha256": "e2af02d5090d562ff8e10af909030af3247c282bab59a502fef09c319f84a3c9",
+      "alpha_bbox": [
+        16,
+        13,
+        84,
+        86
+      ]
+    },
+    {
+      "id": "food",
+      "png_sha256": "cf4ad7fe1efbce3ce8db16e8ce3fb8abd78b328c3eb9ae8c07db24c81b92ca77",
+      "alpha_bbox": [
+        5,
+        23,
+        94,
+        92
+      ]
+    },
+    {
+      "id": "wood",
+      "png_sha256": "7509bbba1242db3cc40199a1b58c5645cfc4b0bf8dab971a230dcb69a8aaccc2",
+      "alpha_bbox": [
+        8,
+        15,
+        88,
+        86
+      ]
+    },
+    {
+      "id": "stone",
+      "png_sha256": "fc1a5a9e37838b6e833e4c5392c7b95af96a3ba5de621f22626e63a822c66192",
+      "alpha_bbox": [
+        15,
+        17,
+        81,
+        83
+      ]
+    },
+    {
+      "id": "metal",
+      "png_sha256": "82d6731e525eb85c5055b9b14e50bef85930103a54c4a7932b495a4d413a16ad",
+      "alpha_bbox": [
+        5,
+        3,
+        96,
+        96
+      ]
+    },
+    {
+      "id": "cloth",
+      "png_sha256": "b8cab42eb8400c99e7edaa0b12d8bf2c17257cf208c2849278c6334356789fb0",
+      "alpha_bbox": [
+        18,
+        16,
+        75,
+        78
+      ]
+    },
+    {
+      "id": "build",
+      "png_sha256": "b3ba571c78fba9a114d453a70097427b0689aea2221f0705a968808e3c1a9918",
+      "alpha_bbox": [
+        13,
+        15,
+        83,
+        81
+      ]
+    },
+    {
+      "id": "army",
+      "png_sha256": "7aafae3ae373233d633e844ef4c849052e52342ef7860d56bc156cce26094a77",
+      "alpha_bbox": [
+        25,
+        15,
+        75,
+        85
+      ]
+    },
+    {
+      "id": "defense",
+      "png_sha256": "6a8f3716daa48c50b8bff06c9e9831cafcc806d788b69673ae48f7ca3bb4e855",
+      "alpha_bbox": [
+        25,
+        20,
+        71,
+        85
+      ]
+    },
+    {
+      "id": "worldtree",
+      "png_sha256": "87c9129d50b24935dca0fab6206f474dce487d9ae00a3b030f00942e0e6a122d",
+      "alpha_bbox": [
+        0,
+        0,
+        96,
+        87
+      ]
+    },
+    {
+      "id": "run",
+      "png_sha256": "b6332e4590f243b2a88e8f27c3b39cafab3dc68a47f52731d139d6c8202b168b",
+      "alpha_bbox": [
+        16,
+        21,
+        92,
+        80
+      ]
+    },
+    {
+      "id": "forecast",
+      "png_sha256": "d5375ea070cd007a6cff28705f66aab6d3734cff4899d2e6dc98af9ff831b186",
+      "alpha_bbox": [
+        14,
+        21,
+        82,
+        69
+      ]
+    },
+    {
+      "id": "settings",
+      "png_sha256": "dbc789887eed07af26ab4194c72c40eb6b025a64e4f9781ff49cd40e7e807f1b",
+      "alpha_bbox": [
+        14,
+        14,
+        82,
+        82
+      ]
+    },
+    {
+      "id": "close",
+      "png_sha256": "26ad6b068bf7a45136221c5eafe2e987e21f3ca7fd7699af2ba2349cbe6a2144",
+      "alpha_bbox": [
+        26,
+        26,
+        70,
+        70
+      ]
+    },
+    {
+      "id": "chevron_down",
+      "png_sha256": "a24de55c6bfb8a1fcd2035a3ed2cc238304de93ab4328aea86626158634fadcf",
+      "alpha_bbox": [
+        23,
+        33,
+        73,
+        62
+      ]
+    },
+    {
+      "id": "chevron_left",
+      "png_sha256": "dad8b2dc3dc5d77661c99f357d2b1a946312cd5d8b4a929c2ca32810bffa5003",
+      "alpha_bbox": [
+        33,
+        23,
+        61,
+        73
+      ]
+    },
+    {
+      "id": "chevron_right",
+      "png_sha256": "64c5f051331787a86907e518213404479410812796528aba7ae906a749b70283",
+      "alpha_bbox": [
+        35,
+        23,
+        63,
+        73
+      ]
+    },
+    {
+      "id": "check",
+      "png_sha256": "1a903727b7867ea37cada9129f0a17e760d63f9f58537391113b1293d0a9a7d2",
+      "alpha_bbox": [
+        18,
+        23,
+        79,
+        70
+      ]
+    },
+    {
+      "id": "lock",
+      "png_sha256": "bd953a8854aa8241d520fb65e11e8e04d4fb784022b6734f55aac3a7918bfe7d",
+      "alpha_bbox": [
+        20,
+        12,
+        76,
+        81
+      ]
+    },
+    {
+      "id": "pause",
+      "png_sha256": "ed44882d855f6eab7e17ce17a0e5ea05c2b8badf36346a0193baf7d08c227ef8",
+      "alpha_bbox": [
+        25,
+        20,
+        70,
+        76
+      ]
+    },
+    {
+      "id": "play",
+      "png_sha256": "5f3ad1133b81a29542d8573f4d10e69670470092c594a7377bb0a835b0beea50",
+      "alpha_bbox": [
+        29,
+        18,
+        77,
+        78
+      ]
+    },
+    {
+      "id": "info",
+      "png_sha256": "16ddab4b909fb4da1c262fb8a8894e99d4a965210a449b14e133c23ebdfb2da7",
+      "alpha_bbox": [
+        16,
+        16,
+        80,
+        80
+      ]
+    },
+    {
+      "id": "warning",
+      "png_sha256": "bebb5de7ba3a4c10ae8e77b758d0090f59c3078ef3a95612bf3705cb67a51ea5",
+      "alpha_bbox": [
+        12,
+        13,
+        86,
+        83
+      ]
+    },
+    {
+      "id": "sell",
+      "png_sha256": "e9debf4925250cd85187e7ec715d066d67059a8046b91bc3d71c8673f7a9a8b5",
+      "alpha_bbox": [
+        14,
+        19,
+        87,
+        78
+      ]
+    },
+    {
+      "id": "upgrade",
+      "png_sha256": "72a7b2d150b22de07cb7f6ff1fd7a4fad5234ca135e4fbd730ea6a938b71b828",
+      "alpha_bbox": [
+        15,
+        17,
+        81,
+        79
+      ]
+    },
+    {
+      "id": "recruit",
+      "png_sha256": "01be8c6cce4313271270a70e291bb8748c1f14a086f2def48609b3fcb33a09d4",
+      "alpha_bbox": [
+        12,
+        16,
+        88,
+        81
+      ]
+    },
+    {
+      "id": "reconnect",
+      "png_sha256": "0e4089e76ca9d68d435298a59edf0981bcf7e9588655a7ca15a0e6e6f4f70842",
+      "alpha_bbox": [
+        17,
+        18,
+        80,
+        77
+      ]
+    },
+    {
+      "id": "keep",
+      "png_sha256": "8904cf23b6b9ab034f41d2e22bc7ded3ba2f3bd01fefe22c374b03afa5452657",
+      "alpha_bbox": [
+        25,
+        20,
+        71,
+        85
+      ]
+    },
+    {
+      "id": "city",
+      "png_sha256": "34946adc7029cd320380083a1d33b1d9d6132deb1ee6147e7fe226eeddf3d2f0",
+      "alpha_bbox": [
+        13,
+        15,
+        84,
+        81
+      ]
+    },
+    {
+      "id": "leaf",
+      "png_sha256": "35fd35f9dffaa53a5003bda1c0a6b62dd552ba30ff018deb8d46d5ac43b7e2ff",
+      "alpha_bbox": [
+        33,
+        10,
+        77,
+        92
+      ]
+    },
+    {
+      "id": "spark",
+      "png_sha256": "f70d7569cf5f5f9e372d5ed347a33d59c67e8e5442dc351d40f1c450ef4afeb7",
+      "alpha_bbox": [
+        16,
+        5,
+        79,
+        96
+      ]
+    }
+  ]
+}

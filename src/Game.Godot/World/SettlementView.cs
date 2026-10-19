@@ -25,8 +25,8 @@ public partial class SettlementView : Node2D
     public static float DefaultMagnification(Vector2 available) => Math.Clamp(
         1.15f * Math.Min(available.X / 912, available.Y / 472), .55f, 2.2f);
     public float Framing(Vector2 available) => _map is { } map
-        ? Math.Clamp(Math.Min(available.X / map.Layout.Frame.Size.X, available.Y / map.Layout.Frame.Size.Y), .55f, 2.2f)
-        : _assets.Options.Mode == RenderMode.Sprites && _assets.Options.View == ViewPreset.Angled ? DefaultMagnification(available) : 1;
+        ? Math.Clamp(Math.Min(available.X / map.Layout.Frame.Size.X, available.Y / map.Layout.Frame.Size.Y), .25f, 2.2f)
+        : _assets.Options.Mode == RenderMode.Sprites && _assets.Options.View == ViewPreset.Angled ? DefaultMagnification(available) : Math.Clamp(Math.Min(1, available.Y / 472), .25f, 1);
     private float _compression = 1;
     private Vector2 Center => new(HexRadius * Mathf.Sqrt(3) / 4, HexRadius * 1.5f * 3 * _compression);
     public void Initialize(AssetLoader assets) { _assets = assets; _art = new(assets); Hide(); }

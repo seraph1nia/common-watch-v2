@@ -17,7 +17,7 @@ public partial class GameApplication
         var layer = new CanvasLayer(); _battleLayer = layer; AddChild(layer);
         var panel = new PanelContainer { Theme = _skin.Theme }; layer.AddChild(panel);
         panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.RightWide);
-        panel.OffsetLeft = -SideWidth + 8; panel.OffsetRight = -8; panel.OffsetTop = 112; panel.OffsetBottom = -12;
+        panel.OffsetLeft = -360; panel.OffsetRight = -8; panel.OffsetTop = 112; panel.OffsetBottom = -12;
         var column = new VBoxContainer();
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; panel.AddChild(scroll); scroll.AddChild(Margin(column, 20));
         column.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;

@@ -53,7 +53,7 @@ public partial class GameApplication
         _options = originalOptions; GetWindow().Size = originalSize;
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         RefreshWorld(); _camera.Reset();
-        float expectedDefault = _settlementView.Framing(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 52));
+        float expectedDefault = _settlementView.Framing(WorldArea.Size);
         Require(_camera.Magnification == expectedDefault && _camera.PanPixels == Vector2.Zero, "camera reset restores settlement framing");
         Vector2 target = _camera.ToScreen(_settlementView.PlotPosition(4));
         GetViewport().GuiReleaseFocus();
@@ -62,8 +62,8 @@ public partial class GameApplication
         Require(_session.SelectedSlot == 4, "native mouse event selects a logical settlement slot");
         int selected = _session.SelectedSlot;
         float before = _camera.Magnification;
-        GetViewport().PushInput(new InputEventMouseButton { Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 80, 260), ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
-        GetViewport().PushInput(new InputEventMouseButton { Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 80, 260), ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
+        GetViewport().PushInput(new InputEventMouseButton { Position = _gameUi.Inspector.GetGlobalRect().GetCenter(), ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
+        GetViewport().PushInput(new InputEventMouseButton { Position = _gameUi.Inspector.GetGlobalRect().GetCenter(), ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_camera.Magnification == before, "scrolling native inspector does not zoom world");
         _camera.SetPose(1.3f, new Vector2(7, -9)); before = _camera.Magnification;

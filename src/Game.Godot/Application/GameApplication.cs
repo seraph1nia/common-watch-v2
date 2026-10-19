@@ -13,7 +13,6 @@ public partial class GameApplication : Node
     private AssetLoader _assets = null!;
     private HudSkin _skin = null!;
     private bool _frozen;
-    private const float SideWidth = SettlementHud.SideWidth, HeaderHeight = SettlementHud.HeaderHeight;
     private string[] _args = [];
 
     public override async void _Ready()
@@ -121,7 +120,7 @@ public partial class GameApplication : Node
     private ArenaPreview _arenaPreview = null!;
     private BattleShowcase? _battle;
     private bool CombatShader => _battlefield.ShaderEnabled;
-    private Vector2 WorldOrigin => new((GetViewport().GetVisibleRect().Size.X - SideWidth) / 2, HeaderHeight + (GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 48) / 2);
+    private Vector2 WorldOrigin => WorldArea.GetCenter();
     private void CreateWorld()
     {
         _camera = GetNode<WorldCamera>("World/Camera");
@@ -150,7 +149,7 @@ public partial class GameApplication : Node
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
         _camera.ConfigureDefault(_settlementView.Visible
-            ? _settlementView.Framing(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 52)) : 1);
+            ? _settlementView.Framing(WorldArea.Size) : 1);
         Vector2 mouse = GetViewport().GetMousePosition();
         _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && WorldArea.HasPoint(mouse)
             ? _camera.ToWorld(mouse) : null);
@@ -165,7 +164,7 @@ public partial class GameApplication : Node
         if (_inviteConfirmation.Visible) return;
         if (input.IsActionPressed("ui_cancel"))
         {
-            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else _settings.Open();
+            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else if (_gameUi.Draft.Visible) _gameUi.Draft.Dismiss(); else _settings.Open();
             GetViewport().SetInputAsHandled(); return;
         }
         if (_settings.Visible || _inviteConfirmation.Visible || GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
@@ -184,8 +183,7 @@ public partial class GameApplication : Node
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
-    private Rect2 WorldArea => new(0, HeaderHeight, GetViewport().GetVisibleRect().Size.X - SideWidth,
-        GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 52);
+    private Rect2 WorldArea => _gameUi is not null ? _gameUi.WorldArea : new Rect2(8, 120, GetViewport().GetVisibleRect().Size - new Vector2(16, 380));
     private void SelectAt(Vector2 point)
     {
         Vector2 world = _camera.ToWorld(point);
@@ -209,7 +207,7 @@ public partial class GameApplication : Node
         _sessions.Changed -= OnSessionChanged;
         if (_battlefield is not null) _battlefield.FramePresented -= OnBattleFrame;
         if (_closeSubscribed) GetWindow().CloseRequested -= RequestQuit;
-        if (_settings is not null) _settings.Opened -= StopCameraDrag;
+        if (_settings is not null) { _settings.Opened -= StopCameraDrag; _gameUi.SettingsRequested -= _settings.Open; }
         _audio?.Stop();
         _sessions.Close();
         _steam?.Shutdown();

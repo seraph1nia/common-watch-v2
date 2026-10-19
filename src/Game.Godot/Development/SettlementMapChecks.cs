@@ -54,6 +54,7 @@ public partial class GameApplication
         Press(_gameUi.Inspector.Actions["Buy"]);
         Require(_session.LastResult?.Accepted == true && _session.City.Slots[7].Purchased, "painted locked pad buys authoritative land");
         Press(_gameUi.Inspector.BuildButtons[Building.Farm]);
+        Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.LastResult?.Accepted == true && _session.City.Slots[7].Type == Building.Farm, "construction on purchased upper-right pad");
         MoveMouse(new Vector2(10, 10)); await CaptureMap("purchased-building");
         ReplaceSession(ScenarioRunner.CreateAt("sprite-settlement")); _frozen = true; RefreshWorld();

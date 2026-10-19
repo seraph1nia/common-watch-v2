@@ -11,12 +11,27 @@ public partial class GameApplication
     {
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
+        _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
+        _session.SelectSlot(0); RefreshUi(true); await GameplayCapture("hud-build");
+        _session.SelectSlot(7); RefreshUi(true); await GameplayCapture("hud-locked");
         _session.SelectSlot(0); RefreshUi(true);
         Require(_gameUi.Inspector.BuildButtons.Count == _session.Snapshot.BuildingCatalog.Length, "complete construction catalog");
         foreach (var definition in _session.Snapshot.BuildingCatalog)
             Require(_gameUi.Inspector.BuildButtons.ContainsKey(definition.Type), "catalog entry " + definition.Type);
+        long beforeSelection = _session.Snapshot.Revision;
         Press(_gameUi.Inspector.BuildButtons[Building.Lumbermill]);
+        Require(_session.Snapshot.Revision == beforeSelection, "selecting a build card spends nothing");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        var selectedCard = _gameUi.Inspector.BuildButtons[Building.Lumbermill]; selectedCard.GrabFocus();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        MoveMouse(_gameUi.Inspector.BuildButtons[Building.Farm].GetGlobalRect().GetCenter());
+        await GameplayCapture("hud-build-focus-hover");
+        Require(selectedCard.HasFocus() && selectedCard.ButtonPressed, $"keyboard focus remains independent of pointer hover and card selection: focus={selectedCard.HasFocus()}, selected={selectedCard.ButtonPressed}, owner={GetViewport().GuiGetFocusOwner()?.Name}");
+        Require(_gameUi.Inspector.Construction.CardArea.Encloses(selectedCard.GetGlobalRect()), $"keyboard focus scrolls the complete selected card into view: area={_gameUi.Inspector.Construction.CardArea}, card={selectedCard.GetGlobalRect()}");
+        Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.City.Slots[0].Type == Building.Lumbermill, "native paid construction");
+        await GameplayCapture("hud-occupied");
         var button = _gameUi.Inspector.Actions["Sell"]; button.GrabFocus();
         RefreshUi(true); Require(button == _gameUi.Inspector.Actions["Sell"] && button.HasFocus(), "native control identity and keyboard focus survive snapshot refresh");
         Press(button); Require(_session.City.Slots[0].Type == Building.Empty, "native sale");
@@ -91,6 +106,8 @@ public partial class GameApplication
         Require(_session.City.Slots[7].Type == Building.BombardTower, "native structure inspection and authoritative tower branch");
         await GameplayCapture("defense-tower");
 
+        ReplaceSession(ScenarioRunner.CreateAt("combat")); _frozen = true; RefreshUi(true);
+        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness"); await GameplayCapture("hud-combat");
         ReplaceSession(GameplayScenarios.CreateAt("reward")); _frozen = true; RefreshUi(true);
         Require(_gameUi.Draft.RewardButtons.Count == 3, "actual three-card draft");
         long draftRevision = _session.Snapshot.Revision;
@@ -128,8 +145,16 @@ public partial class GameApplication
             Require(_camera.Magnification == zoom && _session.SelectedSlot == selection && _session.Snapshot.Revision == revision, "native modal blocks world input and never pauses authority");
             Require(GetViewport().GetVisibleRect().Encloses(_gameUi.Details.GetGlobalRect()), "details fits " + size);
             await GameplayCapture("worldtree-" + size.X);
-            _gameUi.Details.Close();
+            _settings.Open();
+            CancelUi(); Require(!_settings.Visible && _gameUi.Details.Visible, "Esc closes nested settings before details");
+            CancelUi(); Require(!_gameUi.Details.Visible, "Esc closes details");
+            Require(GetViewport().GuiGetFocusOwner() is { } restored && restored.IsVisibleInTree(), "details restores a visible native focus target");
         }
+    }
+    private void CancelUi()
+    {
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = true }, true);
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = false }, true);
     }
     private async Task GameplayCapture(string name)
     {
