@@ -70,6 +70,7 @@ mise run test-steam                 # offline rules/state tests
 mise run test-steam-native -- host FRIEND_STEAM_ID  # explicitly gated
 mise run capture
 mise run capture-art
+mise run capture-settlement        # nine-pad map picking, purchase and actual screenshots
 mise run capture-lobby
 ```
 
@@ -106,3 +107,5 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 `Scenes/Main.tscn` declares the application, session owner, Camera2D, settlement/battlefield views and audio owner. `Application/GameApplication.cs` coordinates them; `UI` owns native screens, `Combat` owns sampled poses and Sprite2D figures, `Art` caches external PNGs, and `Networking/Steam` owns native callback lifetimes. `UI/WatchTheme.tres`, `Combat/HitFlash.gdshader` and `Audio/default_bus_layout.tres` centralize presentation resources. Small hex boards/effects retain efficient custom drawing; logical angled projection and deterministic playback remain independent of camera transforms.
 
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
+
+The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies picking after pan/zoom and captures empty, hovered, selected and built states at 720p/1080p.

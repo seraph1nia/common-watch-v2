@@ -1,5 +1,7 @@
 # Pillow to Godot 2D
 
+The current sprite settlement uses the [single illustrated forest map](SETTLEMENT_MAP.md), with nine measured elliptical pads and no world text labels. The earlier tiled-settlement sections below document the retained cutout pipeline and historical comparisons; terrain tiles still belong to combat/showrooms. Debug settlement uses its native grid fallback.
+
 The supplied archive was inspected for absolute paths, traversal and symlinks, then its four PNGs were extracted once into `art/source/`, retaining filenames and bytes. `art/manifests/provenance.json` records the archive hash, source hashes, RGBA modes and dimensions (all 1536 × 1024). The archive's README is retained unchanged. The archive is no longer an input: no archive discovery, extraction script, configuration or mise task exists.
 
 The separately supplied `~/Downloads/common_watch_cutout_prototype.zip` was inspected and safely extracted to a temporary directory for the tilted-view work. It contains four prepared transparent cutouts, four rough versions and an opaque scale preview. Only the unchanged 512 × 512 shrine source is retained under `art/source/prototypes/`. [Prototype provenance](../art/manifests/prototype-provenance.json) records the archive hash, every inspected image's hash/dimensions/alpha and the reuse decisions. Builds and processing never read Downloads.

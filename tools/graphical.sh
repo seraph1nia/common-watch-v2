@@ -16,6 +16,9 @@ run_client() {
   timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
+  capture-settlement)
+    run_client --checkpoint initial --world-art sprites --hud-art plain --view angled --settlement-captures "$(pwd)/artifacts/captures/godot/settlement-map" "$@"
+    ;;
   test)
     # --smoke-test runs actual native controls, commands, playback, resize and draft checks.
     for mode in debug sprites; do

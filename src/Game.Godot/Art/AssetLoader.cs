@@ -13,6 +13,26 @@ public sealed class AssetLoader : IDisposable
     public int WorldTextureCount => WorldTextures.Values.Count(t => t is not null);
     public int HudTextureCount => HudTextures.Values.Count(t => t is not null);
     public int DecodeAttempts { get; private set; }
+    private bool _mapChecked;
+    private SettlementMapLayout? _mapLayout;
+
+    public (Texture2D Texture, SettlementMapLayout Layout)? SettlementMap()
+    {
+        if (Options.Mode != RenderMode.Sprites) return null;
+        if (!_mapChecked)
+        {
+            _mapChecked = true;
+            try
+            {
+                string path = System.IO.Path.Combine(Options.AssetsRoot, "terrain", "settlement_map.json");
+                if (System.IO.File.Exists(path)) _mapLayout = SettlementMapLayout.Read(path);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+            { GD.PushWarning($"Optional settlement map: {e.Message}. Using debug grid."); }
+        }
+        if (_mapLayout is not { } layout || Load("terrain/settlement_map") is not { } texture) return null;
+        return texture.GetWidth() == layout.Width && texture.GetHeight() == layout.Height ? (texture, layout) : null;
+    }
 
     public AssetLoader(RenderOptions options)
     {

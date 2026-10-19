@@ -1,5 +1,20 @@
 # Verification
 
+## Illustrated forest settlement (2026-10-18)
+
+[Implementation, file inventory and reproduction commands](SETTLEMENT_MAP.md). The unchanged supplied nine-pad PNG is repository-local. Core, gameplay rules, transport, combat code, existing cutouts/catalog, soundtrack and dependency locks are unchanged.
+
+- `mise run build`: passed, zero warnings/errors.
+- `mise run test-core`: 40 passed; `mise run test-shared`: 66 passed, including measured ellipse/scenery exclusion and invalid-layout rejection.
+- `mise run test-session`: both real-process tests passed, covering native lifecycle/actions, empty/corrupt art and missing illustrated HUD fallback, both projections, two sizes, pan, three zooms and modal/input focus isolation. Log: `artifacts/settlement-session.log`.
+- `mise run capture-art`: all 14 actual application frames passed. Log: `artifacts/settlement-art.log`.
+- `mise run capture-settlement`: passed; 11 actual frames in `artifacts/captures/godot/settlement-map/`. Native clicks and hover exercise all nine pads at 720p/1080p, real middle-drag/wheel/click input, locked-plot purchase and Farm construction via existing controls. Picking checks cover twelve inset ellipse boundary points per pad, rejected bounding-box corners, both projections, two sizes and three zooms with pan. Log: `artifacts/settlement-map-check.log`. An initial probe checked hover one frame before the OS mouse warp settled; allowing a second process frame corrected the probe, and subsequent runs passed.
+- `mise run test-multiplayer`: real 2/3/4-player LAN sessions passed through paid opening, combat and individual drafting into wave two. Log: `artifacts/settlement-multiplayer.log`.
+- `mise run test-animation`: eight tests passed; 19 actual phases verified per art mode, plus missing-sprite and angled camera/shader fallback frames. Log: `artifacts/settlement-animation.log`.
+- Source/runtime map SHA-256s match; shell syntax and `git diff --check` pass. Screenshots of empty, hovered, selected, placed and purchased-building states were inspected directly.
+
+Not run for this change: full aggregate `mise run test`, Pillow pipeline tasks, campaign UI suite, reconnect/fault suites, animation profiling, Steam gates, exports and remote CI. Native Windows/macOS, physical display/audio and live Steam remain unqualified. No native .NET/JIT crash occurred during these completed runs; the documented intermittent risk remains.
+
 The completed gameplay/HUD parity work and its current test/export results are recorded in [gameplay verification](gameplay/VERIFICATION.md), with a [feature matrix](gameplay/PARITY.md) and [playing guide](gameplay/PLAYING.md). The migration history below is retained.
 
 ## Tilted ground and supplied shrine prototype (2026-10-18)

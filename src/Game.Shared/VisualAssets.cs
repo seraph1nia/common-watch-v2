@@ -50,7 +50,7 @@ public static class VisualAssets
     private static readonly HashSet<string> Known = Enum.GetValues<Building>().Select(BuildingId)
         .Concat(Enum.GetValues<UnitType>().Select(t => "unit/" + t.ToString().ToLowerInvariant()))
         .Concat(Enum.GetValues<UnitType>().Select(t => "unit/enemy_" + t.ToString().ToLowerInvariant()))
-        .Concat(new[] { "terrain/hex", "terrain/woodland_hex", "resource/gold", "resource/wood", "resource/stone", "hud/panel", "hud/card_frame", "hud/button", "hud/tooltip" }).ToHashSet(StringComparer.Ordinal);
+        .Concat(new[] { "terrain/hex", "terrain/woodland_hex", "terrain/settlement_map", "resource/gold", "resource/wood", "resource/stone", "hud/panel", "hud/card_frame", "hud/button", "hud/tooltip" }).ToHashSet(StringComparer.Ordinal);
     public static string BuildingId(Building type) => "building/" + type.ToString().ToLowerInvariant();
     public static string UnitId(UnitState unit) => "unit/" + (unit.Faction == Faction.Skeletons ? "enemy_" : "") + unit.Type.ToString().ToLowerInvariant();
     public static string RelativePath(string identifier)

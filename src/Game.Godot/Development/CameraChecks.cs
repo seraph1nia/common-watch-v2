@@ -25,12 +25,26 @@ public partial class GameApplication
                     {
                         Vector2 point = _camera.ToScreen(_settlementView.PlotPosition(plot));
                         Require(_settlementView.Pick(_camera.ToWorld(point)) == plot, $"native camera logical picking {view} zoom={zoom} size={size} plot={plot}");
-                        foreach (var corner in _settlementView.Projection.Corners(SettlementLayout.Coordinates[plot]))
+                        IEnumerable<Vector2> edges;
+                        if (_settlementView.MapLayout is { } map)
+                        {
+                            var spot = map.Spots[plot];
+                            edges = Enumerable.Range(0, 12).Select(i =>
+                                _settlementView.PlotPosition(plot) + new Vector2(Mathf.Cos(i * Mathf.Tau / 12) * spot.Radii.X,
+                                    Mathf.Sin(i * Mathf.Tau / 12) * spot.Radii.Y) * .98f);
+                            Vector2 outside = _settlementView.PlotPosition(plot) + new Vector2(spot.Radii.X, spot.Radii.Y) * .9f;
+                            Require(_settlementView.Pick(_camera.ToWorld(_camera.ToScreen(outside))) != plot,
+                                "ellipse corners are outside the painted pad");
+                        }
+                        else edges = _settlementView.Projection.Corners(SettlementLayout.Coordinates[plot]).Select(corner =>
                         {
                             var logicalCenter = _settlementView.Projection.Project(SettlementLayout.Coordinates[plot]);
-                            var inside = _settlementView.PlotPosition(plot) + new Vector2(corner.X - logicalCenter.X, corner.Y - logicalCenter.Y) * .85f;
+                            return _settlementView.PlotPosition(plot) + new Vector2(corner.X - logicalCenter.X, corner.Y - logicalCenter.Y) * .85f;
+                        });
+                        foreach (var inside in edges)
+                        {
                             Require(_settlementView.Pick(_camera.ToWorld(_camera.ToScreen(inside))) == plot,
-                                $"native picking near projected hex edges {view} zoom={zoom} size={size} plot={plot}");
+                                $"native picking near plot edges {view} zoom={zoom} size={size} plot={plot}");
                         }
                     }
                 }
@@ -39,14 +53,13 @@ public partial class GameApplication
         _options = originalOptions; GetWindow().Size = originalSize;
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         RefreshWorld(); _camera.Reset();
-        float expectedDefault = _options.Mode == RenderMode.Sprites && _options.View == ViewPreset.Angled
-            ? SettlementView.DefaultMagnification(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 48)) : 1;
+        float expectedDefault = _settlementView.Framing(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 52));
         Require(_camera.Magnification == expectedDefault && _camera.PanPixels == Vector2.Zero, "camera reset restores settlement framing");
         Vector2 target = _camera.ToScreen(_settlementView.PlotPosition(4));
         GetViewport().GuiReleaseFocus();
         Click(target);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(_session.SelectedSlot == 4, "native mouse event selects a logical world hex");
+        Require(_session.SelectedSlot == 4, "native mouse event selects a logical settlement slot");
         int selected = _session.SelectedSlot;
         float before = _camera.Magnification;
         GetViewport().PushInput(new InputEventMouseButton { Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 80, 260), ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
@@ -58,7 +71,8 @@ public partial class GameApplication
         Click(_settingsButton.GetGlobalRect().GetCenter());
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_settings.Visible && _settings.Slider.HasFocus(), $"mouse opens native modal with keyboard focus (visible={_settings.Visible}, focus={GetViewport().GuiGetFocusOwner()?.Name}, button={_settingsButton.GetGlobalRect()})");
-        Vector2 coveredPlot = _camera.ToScreen(_settlementView.PlotPosition(0));
+        Vector2 coveredPlot = Enumerable.Range(0, 9).Select(i => _camera.ToScreen(_settlementView.PlotPosition(i)))
+            .First(p => !_settings.Panel.GetGlobalRect().HasPoint(p));
         Require(!_settings.Panel.GetGlobalRect().HasPoint(coveredPlot), "modal capture probe avoids its interactive controls");
         Click(coveredPlot);
         Require(_settings.Visible, "clicking modal shade keeps settings open");

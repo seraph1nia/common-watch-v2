@@ -154,6 +154,11 @@ description = "Capture nine actual Godot artwork verification views on an owned 
 depends = ["build"]
 run = "bash tools/graphical.sh capture-art"
 
+[tasks.capture-settlement]
+description = "Verify nine painted pads, native picking/purchase and capture the actual settlement map"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-settlement"
+
 [tasks.battle]
 description = "Animated tabletop battle showcase, native Godot controls, default debug art"
 depends = ["build"]

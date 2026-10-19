@@ -149,9 +149,11 @@ public partial class GameApplication : Node
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
-        _camera.ConfigureDefault(_settlementView.Visible && _options.Mode == RenderMode.Sprites
-            && _options.View == ViewPreset.Angled
-            ? SettlementView.DefaultMagnification(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 48)) : 1);
+        _camera.ConfigureDefault(_settlementView.Visible
+            ? _settlementView.Framing(GetViewport().GetVisibleRect().Size - new Vector2(SideWidth, HeaderHeight + 52)) : 1);
+        Vector2 mouse = GetViewport().GetMousePosition();
+        _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && WorldArea.HasPoint(mouse)
+            ? _camera.ToWorld(mouse) : null);
     }
     public override void _Input(InputEvent input)
     {
@@ -177,11 +179,13 @@ public partial class GameApplication : Node
             { HandleBattleKey(key.Keycode); GetViewport().SetInputAsHandled(); return; }
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
-        var area = new Rect2(0, HeaderHeight, GetViewport().GetVisibleRect().Size.X - SideWidth, GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 52);
+        var area = WorldArea;
         _camera.Handle(input, area);
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
+    private Rect2 WorldArea => new(0, HeaderHeight, GetViewport().GetVisibleRect().Size.X - SideWidth,
+        GetViewport().GetVisibleRect().Size.Y - HeaderHeight - 52);
     private void SelectAt(Vector2 point)
     {
         Vector2 world = _camera.ToWorld(point);

@@ -1,5 +1,7 @@
 # Source provenance
 
+The user-supplied nine-clearing `Enchanted Forest Settlement Map.png` is retained unchanged as `assets/sprites/terrain/settlement_map.png` (1672 × 941, SHA-256 `f72bb78e769ee7c3fb97d111f00ae27d595ee1652d64d47cd7e140e3ed1ccdc5`). Its adjacent JSON records measured presentation coordinates. No artwork was generated, downloaded or repainted; no separate artwork license was supplied. See [settlement map](SETTLEMENT_MAP.md).
+
 `src/Game.Core` is imported byte-for-byte from https://github.com/seraph1nia/odot-game at revision `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` (2026-10-18 import). Copyright (c) 2026 Odot contributors; GPL-3.0-only; see root LICENSE. No original repository files were modified. New slice code is distributed under GPL-3.0-only.
 
 Four user-supplied generated PNG source sheets were extracted unchanged from `common-watch-v2-art-source-sheets.zip` on 2026-10-18. No replacement artwork was generated or downloaded. Original filenames, sheet dimensions and archive/source SHA-256s are recorded in [art provenance](../art/manifests/provenance.json); the accompanying [archive README](../art/source/ARCHIVE-README.md) is retained unchanged. Thirteen cropped/processed PNGs are installed under `assets/sprites` and `assets/hud`; their source crop and output hashes are in `assets/catalog.json`. See [processing and limitations](ARTWORK.md). The archive did not supply a separate artwork license; the code's GPL notice is not asserted as a grant for these supplied images.

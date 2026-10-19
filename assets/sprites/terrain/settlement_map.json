@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "width": 1672,
+  "height": 941,
+  "frame": { "center": { "x": 836, "y": 390 }, "size": { "x": 1450, "y": 760 } },
+  "spots": [
+    { "slot": 0, "center": { "x": 695, "y": 380 }, "radii": { "x": 76, "y": 42 }, "buildingAnchor": { "x": 695, "y": 380 }, "labelPosition": { "x": 695, "y": 429 }, "buildingSize": 210 },
+    { "slot": 1, "center": { "x": 645, "y": 484 }, "radii": { "x": 82, "y": 43 }, "buildingAnchor": { "x": 645, "y": 484 }, "labelPosition": { "x": 645, "y": 535 }, "buildingSize": 210 },
+    { "slot": 2, "center": { "x": 847, "y": 447 }, "radii": { "x": 78, "y": 41 }, "buildingAnchor": { "x": 847, "y": 447 }, "labelPosition": { "x": 847, "y": 495 }, "buildingSize": 210 },
+    { "slot": 3, "center": { "x": 992, "y": 501 }, "radii": { "x": 80, "y": 43 }, "buildingAnchor": { "x": 992, "y": 501 }, "labelPosition": { "x": 992, "y": 552 }, "buildingSize": 210 },
+    { "slot": 4, "center": { "x": 811, "y": 545 }, "radii": { "x": 77, "y": 41 }, "buildingAnchor": { "x": 811, "y": 545 }, "labelPosition": { "x": 811, "y": 593 }, "buildingSize": 210 },
+    { "slot": 5, "center": { "x": 627, "y": 588 }, "radii": { "x": 77, "y": 40 }, "buildingAnchor": { "x": 627, "y": 588 }, "labelPosition": { "x": 627, "y": 636 }, "buildingSize": 210 },
+    { "slot": 6, "center": { "x": 791, "y": 644 }, "radii": { "x": 80, "y": 40 }, "buildingAnchor": { "x": 791, "y": 644 }, "labelPosition": { "x": 791, "y": 692 }, "buildingSize": 210 },
+    { "slot": 7, "center": { "x": 1166, "y": 151 }, "radii": { "x": 85, "y": 41 }, "buildingAnchor": { "x": 1166, "y": 151 }, "labelPosition": { "x": 1166, "y": 200 }, "buildingSize": 180 },
+    { "slot": 8, "center": { "x": 1385, "y": 692 }, "radii": { "x": 91, "y": 45 }, "buildingAnchor": { "x": 1385, "y": 692 }, "labelPosition": { "x": 1385, "y": 745 }, "buildingSize": 210 }
+  ]
+}
