@@ -1,0 +1,26 @@
+{
+  "width": 1672,
+  "height": 941,
+  "details": [1128, 60, 530, 865],
+  "note": "Measured centers of the 14 painted sockets. The supplied background has 14, not 18; four supplemental controls use the supplied rings on lower-tree positions. Painted branches are decorative; canonical prerequisites are shown in details.",
+  "nodes": [
+    {"id":"MeleeFoundation", "x":614, "y":489, "diameter":128, "icon":"army"},
+    {"id":"Guardian", "x":364, "y":436, "diameter":128, "icon":"defense"},
+    {"id":"GuardianMastery", "x":247, "y":503, "diameter":128, "icon":"defense"},
+    {"id":"Stonecraft", "x":164, "y":603, "diameter":128, "icon":"stone"},
+    {"id":"Assault", "x":858, "y":436, "diameter":128, "icon":"recruit"},
+    {"id":"AssaultMastery", "x":977, "y":503, "diameter":128, "icon":"recruit"},
+    {"id":"RangedFoundation", "x":614, "y":352, "diameter":128, "icon":"forecast"},
+    {"id":"Venom", "x":368, "y":305, "diameter":128, "icon":"leaf"},
+    {"id":"VenomMastery", "x":290, "y":194, "diameter":128, "icon":"leaf"},
+    {"id":"Precision", "x":855, "y":305, "diameter":128, "icon":"forecast"},
+    {"id":"PrecisionMastery", "x":934, "y":194, "diameter":128, "icon":"forecast"},
+    {"id":"ManagedForestry", "x":900, "y":730, "diameter":128, "icon":"wood", "supplemental":true},
+    {"id":"MagicFoundation", "x":614, "y":229, "diameter":128, "icon":"worldtree"},
+    {"id":"Fire", "x":614, "y":102, "diameter":128, "icon":"spark"},
+    {"id":"FireMastery", "x":340, "y":730, "diameter":128, "icon":"spark", "supplemental":true},
+    {"id":"Frost", "x":1057, "y":603, "diameter":128, "icon":"spark"},
+    {"id":"FrostMastery", "x":735, "y":800, "diameter":128, "icon":"spark", "supplemental":true},
+    {"id":"Irrigation", "x":490, "y":800, "diameter":128, "icon":"food", "supplemental":true}
+  ]
+}

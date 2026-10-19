@@ -200,3 +200,9 @@ run = ["bash tools/graphical.sh test-gameplay", "bash tools/graphical.sh test-ga
 description = "Capture actual native gameplay panels and terminal states"
 depends = ["build"]
 run = ["bash tools/graphical.sh capture-gameplay", "bash tools/graphical.sh test-gameplay-network"]
+
+[tasks.capture-worldtree]
+description = "Verify native illustrated Worldtree input/purchases and capture five states at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-worldtree"
+raw_args = true

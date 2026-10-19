@@ -8,11 +8,13 @@ public sealed class HudSkin : IDisposable
 {
     public Theme Theme { get; }
     public bool Illustrated { get; }
+    public WorldtreeArt? Worldtree { get; }
     public int NinePatches { get; private set; }
     public HudSkin(AssetLoader assets)
     {
         var plain = GD.Load<Theme>("res://UI/WatchTheme.tres");
         Theme = (Theme)plain.Duplicate();
+        Worldtree = WorldtreeArt.Load(assets);
         if (assets.Options.Hud != HudArt.Illustrated) return;
         const string path = "res://UI/ForestHud/ForestTheme.tres";
         if (!ResourceLoader.Exists(path)) return;

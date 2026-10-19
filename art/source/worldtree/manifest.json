@@ -1,0 +1,20 @@
+{
+  "name": "Common Watch Worldtree UI Pack",
+  "version": "1.0",
+  "files": {
+    "background": "assets/worldtree_background.png",
+    "node_idle": "assets/worldtree_node_idle.png",
+    "node_hover": "assets/worldtree_node_hover.png",
+    "node_selected": "assets/worldtree_node_selected.png",
+    "node_owned": "assets/worldtree_node_owned.png",
+    "node_locked": "assets/worldtree_node_locked.png",
+    "details_panel": "assets/worldtree_details_panel.png",
+    "readme": "docs/README.txt",
+    "implementation_prompt": "docs/IMPLEMENTATION_PROMPT.txt"
+  },
+  "notes": [
+    "Background contains 18 painted node sockets.",
+    "Interactive nodes should be overlaid and aligned to the painted sockets.",
+    "Existing research logic should be preserved."
+  ]
+}

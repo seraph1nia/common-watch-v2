@@ -16,6 +16,33 @@ public sealed class AssetLoader : IDisposable
     private bool _mapChecked;
     private SettlementMapLayout? _mapLayout;
 
+    // Supplied static UI artwork is external like the sprite pack, including in exports.
+    // Keep textures in the application cache so retained dialogs never own/dispose them.
+    public Texture2D? LoadWorldtreePng(string name)
+    {
+        if (Options.Hud != HudArt.Illustrated) return null;
+        string key = "worldtree/" + name;
+        if (HudTextures.TryGetValue(key, out var cached)) return cached;
+        Texture2D? texture = null;
+        string path = System.IO.Path.Combine(Options.AssetsRoot, "..", "hud", "worldtree", "worldtree_" + name + ".png");
+        try
+        {
+            if (System.IO.File.Exists(path))
+            {
+                using var source = System.IO.File.OpenRead(path);
+                Span<byte> signature = stackalloc byte[8];
+                if (source.Read(signature) != 8 || !signature.SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }))
+                    throw new InvalidDataException("Invalid PNG header");
+                using var image = new Image();
+                if (image.Load(path) == Error.Ok && !image.IsEmpty()) texture = ImageTexture.CreateFromImage(image);
+            }
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidDataException)
+        { GD.PushWarning("Optional Worldtree texture: " + e.Message); }
+        HudTextures[key] = texture;
+        return texture;
+    }
+
     public (Texture2D Texture, SettlementMapLayout Layout)? SettlementMap()
     {
         if (Options.Mode != RenderMode.Sprites) return null;

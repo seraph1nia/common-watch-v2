@@ -16,5 +16,11 @@ public static class InputActions
             InputMap.AddAction(name);
             InputMap.ActionAddEvent(name, new InputEventKey { PhysicalKeycode = key });
         }
+        // Keep native keyboard defaults; supply controller activation/cancel explicitly.
+        foreach (var (name, button) in new[] { ("ui_accept", JoyButton.A), ("ui_cancel", JoyButton.B) })
+        {
+            var input = new InputEventJoypadButton { ButtonIndex = button, Device = -1 };
+            if (!InputMap.ActionHasEvent(name, input)) InputMap.ActionAddEvent(name, input);
+        }
     }
 }

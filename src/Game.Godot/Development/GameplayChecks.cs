@@ -122,6 +122,7 @@ public partial class GameApplication
         Require(!_gameUi.Draft.Visible && _session.Snapshot.Wave == 20, "wave twenty terminal without new draft"); await GameplayCapture("victory");
         ReplaceSession(GameplayScenarios.CreateAt("defeat")); _frozen = true; RefreshUi(true); OpenDetails(4); await GameplayCapture("defeat");
         await CheckGameplayInput();
+        await CheckWorldtreePresentation();
         GD.Print("GODOT_GAMEPLAY_PASS catalog economy trades four-classes squads homes townhall research forecast inspector rewards victory defeat native-focus modal-scroll");
     }
     private void OpenDetails(int tab) => _gameUi.Details.Open(tab, new GameplayContext(_session, ResumeAfterCommand));

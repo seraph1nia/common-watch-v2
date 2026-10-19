@@ -43,3 +43,15 @@ script was run and no game artwork was created or downloaded. The pack's mockups
 were layout references only. Its supplied provenance makes no new third-party
 asset or font license grant; existing GPL-3.0-only code notices, map, sprites and
 soundtrack provenance remain intact. [Integration and verification](FOREST_HUD.md).
+
+## Worldtree UI delivery
+
+The user supplied `common_watch_worldtree_ui_pack.zip` on 2026-10-19. All seven PNGs
+are installed unchanged in `assets/hud/worldtree/`; the archive and installed-file
+SHA-256s are recorded in [Worldtree provenance](../art/manifests/worldtree-provenance.json).
+The delivery README and manifest are retained in `art/source/worldtree/`. No image
+generation, repainting or downloading was performed. The pack supplies no separate
+artwork license; existing code GPL-3.0-only notices and upstream provenance remain
+intact. The image has fourteen painted sockets despite the delivery's claim of
+eighteen; the presentation adds four controls using its supplied ring textures.
+See [layout, fallback and verification](WORLDTREE.md).

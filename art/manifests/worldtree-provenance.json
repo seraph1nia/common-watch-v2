@@ -1,0 +1,43 @@
+{
+  "archive": "common_watch_worldtree_ui_pack.zip",
+  "archive_sha256": "cc2fd7588a45ec3dd53662efedafddfdd7cc09c42ebe34f7e2427d65136f1e5b",
+  "supplied": "2026-10-19",
+  "processing": "None. All seven PNGs are byte-identical to the user-supplied archive.",
+  "files": [
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_background.png",
+      "installed": "assets/hud/worldtree/worldtree_background.png",
+      "sha256": "11e4283a7a7fc5598c1fe83871fdd2ac9d613c9c5d39d52fafa3d66789f3f3aa"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_details_panel.png",
+      "installed": "assets/hud/worldtree/worldtree_details_panel.png",
+      "sha256": "7df575503d6b84bc57b54bb8abdf2fcbdf1afb8e0b7636ad5a1d95cb934be939"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_node_hover.png",
+      "installed": "assets/hud/worldtree/worldtree_node_hover.png",
+      "sha256": "2c437ee69e21e4715267c3e9d6336d4e3bf386073f38a53436f4e4a9b00b32bf"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_node_idle.png",
+      "installed": "assets/hud/worldtree/worldtree_node_idle.png",
+      "sha256": "323a50468d8d7e58b2a7aac4ef807d643a3a870c3c24975d36d8cff6459bdb93"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_node_locked.png",
+      "installed": "assets/hud/worldtree/worldtree_node_locked.png",
+      "sha256": "782fc4591563c83f63167802922e3930d30fc0d6fc2b6ba5c4f0f68cc83fd84f"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_node_owned.png",
+      "installed": "assets/hud/worldtree/worldtree_node_owned.png",
+      "sha256": "78583b782fd89ea374b258e2bf0d60ccbef2c5f2a156381a1cbca3f281c532dd"
+    },
+    {
+      "source": "common_watch_worldtree_ui_pack/assets/worldtree_node_selected.png",
+      "installed": "assets/hud/worldtree/worldtree_node_selected.png",
+      "sha256": "3380f16ee829f30c00bfa29c147c1dca9ba8ab0f9f8d15db835226027fd58ce7"
+    }
+  ]
+}

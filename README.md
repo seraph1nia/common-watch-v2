@@ -116,3 +116,8 @@ Army contains recruitment, squads, Town Hall management and the six homes/towers
 Selecting a construction card spends nothing; **Build selected** confirms it.
 `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` captures the
 actual forest HUD at 720p/1080p, including network feedback states.
+
+The illustrated [Worldtree](docs/WORLDTREE.md) uses the supplied static shrine scene,
+18 circular research controls and framed canonical details. `mise run capture-worldtree`
+verifies native input and captures empty, hovered, locked, available and acquired
+states at 720p/1080p. Plain mode and missing artwork retain the text tree.

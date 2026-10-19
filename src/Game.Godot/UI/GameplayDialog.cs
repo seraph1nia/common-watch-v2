@@ -20,6 +20,12 @@ public partial class GameplayDialog : Control
     public Control? FallbackFocus { get; set; }
     public event Action? Closed;
     private Button _close = null!;
+    private Button _worldtreeClose = null!;
+    private PanelContainer _panel = null!;
+    private MarginContainer _bodyMargin = null!;
+    private StyleBox _panelStyle = null!, _tabStyle = null!;
+    private readonly StyleBoxEmpty _emptyStyle = new();
+    private bool _worldtreeMode;
     public BuildingInspector Building => _building;
     private BuildingInspector _building = null!;
     public UnitInspector Inspector { get; private set; } = null!;
@@ -27,14 +33,16 @@ public partial class GameplayDialog : Control
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Stop;
         var shade = new ColorRect { Color = new Color(0, 0, 0, .65f), MouseFilter = MouseFilterEnum.Stop }; AddChild(shade); shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        var panel = new PanelContainer(); AddChild(panel); panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); panel.OffsetLeft = 30; panel.OffsetRight = -30; panel.OffsetTop = 18; panel.OffsetBottom = -82; skin.Panel(panel, "modal");
-        var body = new VBoxContainer(); panel.AddChild(Margin(body, 16));
+        var panel = new PanelContainer(); _panel = panel; AddChild(panel); panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); panel.OffsetLeft = 30; panel.OffsetRight = -30; panel.OffsetTop = 18; panel.OffsetBottom = -82; skin.Panel(panel, "modal");
+        _panelStyle = panel.GetThemeStylebox("panel");
+        var body = new VBoxContainer(); _bodyMargin = Margin(body, 16); panel.AddChild(_bodyMargin);
         _close = skin.Button("Close details [Esc] — match continues", Close); body.AddChild(_close);
         var row = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; body.AddChild(row);
         _tabs = new TabContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddChild(_tabs);
+        _tabStyle = _tabs.GetThemeStylebox("panel");
         Army = new ArmyRosterPanel(); Tab("Army", Army); Army.Initialize(skin, submitted);
         Deployment = Army.Deployment;
-        Research = new ResearchTreePanel(); Tab("Worldtree", Research); Research.Initialize(skin);
+        Research = new ResearchTreePanel { Name = "Worldtree" }; _tabs.AddChild(Research); Research.Initialize(skin);
         Battle = new BattleInspectionPanel(); Tab("Battle forecast", Battle); Battle.Initialize(skin);
         Run = new RunProgressionPanel(); Tab("Run", Run); Run.Initialize();
         _building = building; _buildingHome = building.GetParent();
@@ -47,6 +55,10 @@ public partial class GameplayDialog : Control
         Inspector.PlotRequested += slot => { _plotOverride = slot; _tabs.CurrentTab = 4; Refresh(_context); };
         Battle.StructureSelected += structure => { Inspector.Select(structure); Inspector.Refresh(_context); };
         _tabs.TabChanged += _ => { if (_context is not null) Refresh(_context); };
+        _worldtreeClose = skin.Button("Close [Esc]", Close); AddChild(_worldtreeClose);
+        _worldtreeClose.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight);
+        _worldtreeClose.OffsetLeft = -190; _worldtreeClose.OffsetRight = -12; _worldtreeClose.OffsetTop = 4; _worldtreeClose.OffsetBottom = 48;
+        _worldtreeClose.Hide();
         Hide();
     }
     private void Tab(string title, Control content)
@@ -80,6 +92,16 @@ public partial class GameplayDialog : Control
     public void Refresh(GameplayContext context)
     {
         _context = context; if (!Visible) return;
+        bool worldtree = _tabs.CurrentTab == 1 && Research.Illustrated;
+        if (worldtree != _worldtreeMode)
+        {
+            _worldtreeMode = worldtree;
+            _close.Visible = !worldtree; _worldtreeClose.Visible = worldtree;
+            _panel.OffsetLeft = worldtree ? 8 : 30; _panel.OffsetRight = worldtree ? -8 : -30; _panel.OffsetTop = worldtree ? 4 : 18;
+            _panel.AddThemeStyleboxOverride("panel", worldtree ? _emptyStyle : _panelStyle);
+            _tabs.AddThemeStyleboxOverride("panel", worldtree ? _emptyStyle : _tabStyle);
+            foreach (string side in new[] { "left", "right", "top", "bottom" }) _bodyMargin.AddThemeConstantOverride("margin_" + side, worldtree ? 0 : 16);
+        }
         _building.Compact = false;
         _unitPane.Visible = _tabs.CurrentTab is 0 or 2;
         var target = _tabs.CurrentTab == 4 ? (Node)_buildingTab : _buildingHome;
