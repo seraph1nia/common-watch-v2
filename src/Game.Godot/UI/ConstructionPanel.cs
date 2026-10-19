@@ -24,7 +24,7 @@ public partial class ConstructionPanel : HBoxContainer
     {
         _skin = skin;
         _category = new OptionButton { CustomMinimumSize = new(170, 44), SizeFlagsVertical = SizeFlags.ShrinkBegin }; foreach (string name in new[] { "Production", "Military", "Defense", "Trade / utility" }) _category.AddItem(name);
-        var choice = new VBoxContainer { CustomMinimumSize = new(180, 0) }; AddChild(choice);
+        var choice = new VBoxContainer { CustomMinimumSize = new(220, 0) }; AddChild(choice);
         choice.AddChild(_category); _category.ItemSelected += _ => { _selected = null; Refresh(_context, _slot); };
         _confirm = skin.Button("Select a building", () =>
         {
@@ -46,7 +46,7 @@ public partial class ConstructionPanel : HBoxContainer
             int category = definition.Produces is not null ? 0 : definition.Recruits is not null ? 1 : ArmyConfiguration.IsTower(type) ? 2 : 3;
             bool wrongPlot = ArmyConfiguration.IsArmyPlot(slot) && !ArmyConfiguration.IsTower(type);
             var button = _actions.Item(_skin, "Build" + type,
-                $"{GameplayContext.BuildingName(type)} — {GameplayContext.Cost(definition.Construction)}\n{Function(definition)}",
+                $"{(_selected == type ? "✓ " : "")}{GameplayContext.BuildingName(type)} — {GameplayContext.Cost(definition.Construction)}\n{Function(definition)}",
                 () => { _selected = type; Refresh(_context, _slot); },
                 context.Block(definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""));
             button.ToggleMode = true; button.SetPressedNoSignal(_selected == type); button.CustomMinimumSize = new(240, 100); button.ThemeTypeVariation = _skin.Illustrated ? "ForestCard" : "";
@@ -60,7 +60,8 @@ public partial class ConstructionPanel : HBoxContainer
         var selected = context.State.BuildingCatalog.FirstOrDefault(definition => definition.Type == _selected);
         string blocked = selected is null ? "Select a card." : context.Block(selected.Construction,
             ArmyConfiguration.IsArmyPlot(slot) && !ArmyConfiguration.IsTower(selected.Type) ? "Army homes accept defense towers only." : "");
-        _confirm.Text = "Build selected"; _confirm.Visible = selected is not null;
+        _confirm.Text = selected is null ? "Build selected" : $"Build {GameplayContext.BuildingName(selected.Type)}\n{GameplayContext.Cost(selected.Construction)}";
+        _confirm.Visible = selected is not null;
         _confirm.TooltipText = selected is null ? "" : $"Build {GameplayContext.BuildingName(selected.Type)} — {GameplayContext.Cost(selected.Construction)}";
         _confirm.Disabled = selected is null || blocked.Length > 0; _reason.Text = blocked; _reason.TooltipText = blocked; _reason.Visible = blocked.Length > 0;
         _actions.End();

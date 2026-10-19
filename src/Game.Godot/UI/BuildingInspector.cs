@@ -26,6 +26,7 @@ public partial class BuildingInspector : VBoxContainer
     public IReadOnlyDictionary<Building, Button> BuildButtons => _construction.BuildButtons;
     public IReadOnlyDictionary<string, Button> Actions => _actions.Buttons;
     public ConstructionPanel Construction => _construction;
+    internal Button ArmyButton => _army;
     public MarketPanel Market => _market;
     public RecruitmentPanel Recruitment => _recruitment;
     public Button? RecruitButton => _recruitment.Visible ? _recruitment.Buttons.GetValueOrDefault("RecruitSwordsman") : null;
@@ -34,8 +35,8 @@ public partial class BuildingInspector : VBoxContainer
         _skin = skin; _submitted = submitted;
         _heading = new HBoxContainer(); AddChild(_heading);
         _text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _heading.AddChild(_text);
-        _selection = WrapLabel(); _text.AddChild(_selection); _details = WrapLabel(); _text.AddChild(_details);
-        _actions = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _heading.AddChild(_actions);
+        _selection = WrapLabel(); _selection.AddThemeFontSizeOverride("font_size", 18); _text.AddChild(_selection); _details = WrapLabel(); _text.AddChild(_details);
+        _actions = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkBegin }; _heading.AddChild(_actions);
         _expand = skin.Button("More details", () => ExpandRequested?.Invoke()); _text.AddChild(_expand);
         _army = skin.Button("Manage in Army", () => ArmyRequested?.Invoke()); _text.AddChild(_army);
         _construction = new ConstructionPanel(); AddChild(_construction); _construction.Initialize(skin);
@@ -49,7 +50,8 @@ public partial class BuildingInspector : VBoxContainer
         _context = context; _slot = slotIndex;
         _actions.Vertical = !Compact; _actions.Visible = true;
         _expand.Visible = Compact && _slot >= 0;
-        _details.MaxLinesVisible = Compact ? 3 : -1;
+        _text.AddThemeConstantOverride("separation", Compact ? 4 : 10);
+        _details.MaxLinesVisible = Compact ? 2 : -1;
         _details.Visible = true;
         _actions.Begin();
         SlotState? slot = ArmyConfiguration.IsArmyPlot(_slot) ? context.City.Army?.Homes.FirstOrDefault(h => h.PlotId == _slot)?.Plot
@@ -60,7 +62,7 @@ public partial class BuildingInspector : VBoxContainer
         _market.Visible = slot?.Type == Building.Market;
         _hall.Visible = !Compact && slot?.Type == Building.TownHall;
         _army.Visible = Compact && slot is not null && (slot.Type == Building.TownHall || context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type)?.Recruits is not null);
-        string? compactOutput = null;
+        string? compactSummary = null;
         _details.Text = context.EditReason;
         if (slot is null) { _selection.Text = EmptyHint; _details.Hide(); _expand.Hide(); _actions.End(); return; }
         _selection.Text = $"{(ArmyConfiguration.IsArmyPlot(_slot) ? "ARMY HOME " + (_slot - 8) : "PLOT " + (_slot + 1))} · {(!slot.Purchased ? "Unpurchased land" : GameplayContext.BuildingName(slot.Type))}";
@@ -80,6 +82,8 @@ public partial class BuildingInspector : VBoxContainer
         else
         {
             var definition = context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type);
+            if (definition?.Recruits is { } recruits) compactSummary = $"Level {slot.Level} · Trains {string.Join(", ", recruits)}.";
+            else if (slot.Type == Building.TownHall) compactSummary = $"Level {slot.Level} · Veteran storage & recovery.";
             _details.Text += (context.EditReason.Length > 0 ? "\n" : "") + $"Level {slot.Level} / {definition?.MaximumLevel.ToString() ?? "2"}\n" + (definition is null ? "Arrow Tower branch." : ConstructionPanel.Function(definition));
             if (definition?.Produces is { } resource)
             {
@@ -87,7 +91,7 @@ public partial class BuildingInspector : VBoxContainer
                     + (RunEffects.ProducerCard(definition.Type) is { } card ? RunCatalog.Amount(context.City.Run, card) : 0);
                 string output = $"Current output {Output(slot.Level)} {resource}/production";
                 if (slot.UpgradeQuote is not null) output += $" → {Output(slot.Level + 1)} after upgrade";
-                _details.Text += "\n" + output; compactOutput = $"Level {slot.Level} · {output}";
+                _details.Text += "\n" + output; compactSummary = $"Level {slot.Level} · {output}";
                 int doctrineBonus = RunCatalog.Doctrine(context.City.Run.Doctrine).ProductionBonus(context.City.Slots).Amount(resource);
                 if (doctrineBonus > 0) _details.Text += $"\nCity-wide doctrine bonus +{doctrineBonus} {resource}/production (once per city; included in resource table).";
             }
@@ -115,8 +119,8 @@ public partial class BuildingInspector : VBoxContainer
             if (slot.Type == Building.TownHall) { _hall.Visible = !Compact; _hall.Refresh(context, _slot); _army.Visible = Compact; }
         }
         _details.TooltipText = _details.Text;
-        if (Compact && compactOutput is not null)
-            _details.Text = compactOutput + (context.EditReason.Length > 0 ? "\n" + context.EditReason : "");
+        if (Compact && compactSummary is not null)
+            _details.Text = compactSummary + (context.EditReason.Length > 0 ? "\n" + context.EditReason : "");
         _actions.End();
     }
 }

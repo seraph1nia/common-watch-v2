@@ -29,6 +29,7 @@ public partial class SettlementHud : Control
     public Label Message => _message;
     public Button ReadyButton => _controls.ReadyButton;
     internal CitySelector Cities => _cities;
+    internal Rect2 ContextArea => _contextBody.GetGlobalRect();
     public bool ShowArena { get; private set; }
     internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
     public bool BlocksWorld => Details.Visible || Draft.Visible;

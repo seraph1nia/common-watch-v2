@@ -5,7 +5,7 @@ namespace Game.GodotClient;
 
 public partial class ResourcePanel : GridContainer
 {
-    private readonly Dictionary<Resource, Label> _rows = [];
+    private readonly Dictionary<Resource, (Label Stock, Label Income)> _rows = [];
     public Label Summary { get; private set; } = null!;
     public Label CompactSummary { get; private set; } = null!;
     public void Initialize(HudSkin skin, Action foodDetails)
@@ -17,7 +17,12 @@ public partial class ResourcePanel : GridContainer
             if (skin.Icon(resource.ToString().ToLowerInvariant()) is { } icon)
                 chip.AddChild(new TextureRect { Texture = icon, CustomMinimumSize = new(26, 26), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                     StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore });
-            var label = new Label { MouseFilter = MouseFilterEnum.Ignore }; chip.AddChild(label); _rows.Add(resource, label);
+            var values = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; chip.AddChild(values);
+            values.AddThemeConstantOverride("separation", 0);
+            var stock = new Label { MouseFilter = MouseFilterEnum.Ignore };
+            stock.AddThemeFontSizeOverride("font_size", 18);
+            var income = new Label { MouseFilter = MouseFilterEnum.Ignore };
+            values.AddChild(stock); values.AddChild(income); _rows.Add(resource, (stock, income));
             if (resource == Resource.Food)
             {
                 var food = skin.Button("?", foodDetails); food.TooltipText = "Food stock, forecast and actual upkeep receipts";
@@ -29,7 +34,9 @@ public partial class ResourcePanel : GridContainer
     }
     public void Reflow(float width)
     {
-        float minimum = _rows.Values.Sum(label => label.GetCombinedMinimumSize().X) + 6 * 44 + 54;
+        // Measure the complete chips: icons, the Food button, current stock text and theme gaps.
+        float minimum = GetChildren().OfType<Control>().Sum(chip => chip.GetCombinedMinimumSize().X)
+            + (GetChildCount() - 1) * GetThemeConstant("h_separation");
         Columns = minimum > width ? 3 : 6;
     }
     public void Refresh(GameplayContext context)
@@ -40,7 +47,8 @@ public partial class ResourcePanel : GridContainer
         {
             int? income = inactive ? 0 : city.ProductionIncome?.Amount(pair.Key);
             string signed = income is null ? "?" : income.Value.ToString("+0;-0;+0");
-            pair.Value.Text = $"{pair.Key} {city.Resources.Amount(pair.Key)}\n{signed} / production";
+            pair.Value.Stock.Text = $"{pair.Key} {city.Resources.Amount(pair.Key)}";
+            pair.Value.Income.Text = $"{signed} / production";
         }
         if (state.Phase is Phase.Building or Phase.Preparation)
         {

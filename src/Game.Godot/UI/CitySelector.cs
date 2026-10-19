@@ -11,7 +11,7 @@ public partial class CitySelector : OptionButton
     {
         _session = session;
         NativeOptions.Update(this, session.Snapshot.Players.Select(p => (p.Id,
-            $"P{p.Id} {(p.Id == session.PlayerId ? "Your city" : "Ally (read-only)")}{(p.Eliminated ? " · fallen" : "")}{(!p.Connected ? " · away" : "")}{(p.Ready ? " · ready" : "")}")));
+            $"P{p.Id} {(p.Id == session.PlayerId ? "Your city" : "Ally · read-only")}{(p.Eliminated ? " · fallen" : "")}{(!p.Connected ? " · away" : "")}{(p.Ready ? " · ready" : "")}")));
         int index = GetItemIndex(session.ViewedCity.Id); if (index >= 0) { Select(index); TooltipText = GetItemText(index); }
     }
 }

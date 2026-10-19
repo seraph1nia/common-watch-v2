@@ -82,3 +82,76 @@ mise exec -- bash tools/graphical.sh capture-settlement --hud-art illustrated
 
 Validation results and platform limits are recorded in
 [verification](VERIFICATION.md#forest-hud-integration-2026-10-19).
+
+## Continuity audit and minimal refinements (2026-10-19)
+
+The supplied `CommonWatch_V2_Forest_Continuity_GapPack.zip` was checked for
+absolute/traversal paths and symlinks before temporary extraction; every supplied
+checksum passed. Archive SHA-256:
+`ffb245be312dafe1061bc1899120163f02d13db3c516940e8e6e4a5082cc5f7d`.
+The [reference contact sheet](../artifacts/forest-continuity/reference-contact-sheet.png)
+uses the actual ten approved source buildings, five approved source units and
+installed settlement painting. The [candidate contact sheet](../artifacts/forest-continuity/candidate-contact-sheet.png)
+compares the four incumbent buildings with the supplied alternatives.
+
+The following decisions were reported before code changes:
+
+| Unchanged reference | Gap / candidate | Decision | Risk / evidence |
+| --- | --- | --- | --- |
+| Settlement PNG/JSON, ten detailed buildings, five detailed units, Worldtree, ForestHud | Approved visual family | Preserve | Verify original bytes; retain geometry, anchors and theme. |
+| Farm, Lumbermill, Barracks | Four-pack alternatives | Reject replacements | Older medieval incumbents remain mismatched, but the candidates' darker, finer rendering and dense ground islands do not clearly fit the bright faceted reference better. |
+| Prototype Arcanum | Four-pack Arcanum | Reject replacement | The alternative loses the incumbent's readable cyan crystal silhouette at small game scale. The incumbent's angular ground remnants remain a known limitation. |
+| Swordsman, Enemy Swordsman, missing Enemy Berserker | No matching sprites supplied | Defer | Separate approved unit paintings required; keep existing sprites and geometric fallback. |
+| Existing Army presentation and world effects | Four class symbols, shadow and glints | Defer | No demonstrated benefit sufficient to add assets or effects. |
+| Existing ribbon, context dock and action area | Local sizing, selection, cost and emphasis fixes | Accept | Retain native input, focus, scrolling, information and authoritative commands. |
+
+Review-only candidates were processed into an ignored, separate asset root with
+foundation pivots behind the foreground steps/garden. Real Godot captures compare
+`settlement` (Farm, Barracks, Lumbermill) and `sprite-settlement` (Lumbermill,
+Barracks, Stonecutter, Arcanum) at **1280×720 and 1920×1080**, using identical
+legal states, original map layout, display sizes and production canvas anchors.
+See `artifacts/forest-continuity/{incumbent,candidate}-{checkpoint}-{width}.png`
+and `candidate-review-pivots.json`. No candidate was installed or registered in
+the production manifest; `art-process`/`art-validate`/`art-install` were therefore
+not needed. The existing pipeline and all production artwork remain unchanged.
+
+Targeted native-control changes:
+
+- Resource stocks use 18px type; signed per-production values stay at 16px.
+  Reflow measures whole chips, including icons, Food's 44px details button and
+  theme spacing, rather than estimating widths from labels alone.
+- The selected plot heading uses 18px type. A selected construction card also
+  carries a check mark; its existing primary confirmation names the building and
+  real quoted cost. Its existing choice column grows from 180px to 220px to keep
+  the Lumbermill confirmation inside the 720p dock. Selecting still spends nothing.
+- Compact inspector text spacing is 4px, with up to two summary lines and full details
+  in the existing tooltip/details inspector. Action rows keep their natural height,
+  leaving More details and Manage in Army accessible in the same dock.
+- Ready retains the existing primary forest variation; Unready and Pause/Resume
+  use the existing neutral variation. Consequences, funding, permissions, rewards
+  and persistent session feedback are unchanged. The city selector explicitly
+  labels an inspected ally `Ally · read-only`.
+
+Before captures are retained under `artifacts/forest-continuity/before/`;
+the canonical capture folders above contain the final frames. The local
+`.lavish/forest-continuity/index.html` review compares real before/after frames,
+candidate trials and the approved reference sheet, with native-pixel viewing.
+No performance changes were made; no profiling claim is attached to this work.
+
+Final executed checks: `build` (zero warnings/errors), `test-core` (40 passed),
+`test-shared` (66 passed), `test-art` (19 passed), `test-session` (two actual-process
+tests passed), illustrated `test-gameplay-ui` and `capture-gameplay-ui` (including
+the seven-wave host/guest worker), illustrated `capture-settlement`,
+`capture-worldtree` and `capture-art` (14 frames). Transcripts are under
+`artifacts/forest-continuity/<task>.log`. Native assertions additionally verify the
+selected construction quote and confirmation bounds, retained card scroll after
+refresh, and the complete compact Arcanum Army button at both capture sizes.
+Settlement verification retains all nine pads, native pan/zoom, both projections,
+zoom 0.55/1/2.2, modal mouse capture and focus restoration. Actual 720p/1080p frames
+were inspected for empty/selected pads, all four incumbent/candidate buildings,
+Army, Worldtree, combat, rewards and pending/rejected/disconnected feedback.
+All 410 recorded production-art, source-art, manifest, ForestHud, Core and Shared
+files retain their original hashes (`preservation-receipt.json`). No native crash
+occurred in the completed runs; the known intermittent native .NET/JIT crash risk
+remains. These are Linux/Xvfb/Mesa checks; live Steam, native Windows/macOS and
+physical GPU/audio hardware were not tested.

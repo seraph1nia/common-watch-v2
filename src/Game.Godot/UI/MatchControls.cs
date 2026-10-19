@@ -10,16 +10,18 @@ public partial class MatchControls : VBoxContainer
     private Button _pause = null!;
     private HBoxContainer _speeds = null!;
     private readonly Dictionary<CombatSpeed, Button> _speedButtons = [];
+    private bool _illustrated;
     public Button ReadyButton { get; private set; } = null!;
     public void Initialize(HudSkin skin, Action submitted)
     {
+        _illustrated = skin.Illustrated;
         void Send(string action) { _session.Send(action); submitted(); }
         var ready = new HBoxContainer(); AddChild(ready);
         ReadyButton = skin.Button("Ready", () => Send(_session.City.Ready ? "unready" : "ready"), "ForestPrimaryButton");
         ReadyButton.CustomMinimumSize = new(110, 48); ready.AddChild(ReadyButton);
         _consequence = WrapLabel(); ready.AddChild(_consequence);
         var pace = new HBoxContainer(); AddChild(pace);
-        _pause = skin.Button("Pause match", () => Send(_session.Snapshot.Paused ? "resume" : "pause"), "ForestArcaneButton"); pace.AddChild(_pause);
+        _pause = skin.Button("Pause match", () => Send(_session.Snapshot.Paused ? "resume" : "pause")); pace.AddChild(_pause);
         _speeds = new HBoxContainer(); pace.AddChild(_speeds);
         foreach (CombatSpeed speed in Enum.GetValues<CombatSpeed>())
         {
@@ -35,6 +37,7 @@ public partial class MatchControls : VBoxContainer
         bool preparing = !finishingCombat && state.Phase is Phase.Building or Phase.Preparation;
         ReadyButton.Visible = preparing; _speeds.Visible = combat;
         ReadyButton.Text = session.City.Ready ? "Unready" : "Ready";
+        ReadyButton.ThemeTypeVariation = _illustrated && !session.City.Ready ? "ForestPrimaryButton" : "";
         _consequence.Text = preparing ? $"Your city P{session.PlayerId} · settles production {state.Turn}/3" +
             (state.Phase == Phase.Preparation ? ", then battle." : ".") : ended ? state.Phase.ToString() : combat ? "Battle inspection available below." : "Choose a real reward to continue.";
         ReadyButton.Disabled = !session.Connected || session.Pending || state.Paused || session.City.Eliminated;

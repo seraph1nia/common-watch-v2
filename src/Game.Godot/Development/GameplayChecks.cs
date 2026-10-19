@@ -29,6 +29,16 @@ public partial class GameApplication
         await GameplayCapture("hud-build-focus-hover");
         Require(selectedCard.HasFocus() && selectedCard.ButtonPressed, $"keyboard focus remains independent of pointer hover and card selection: focus={selectedCard.HasFocus()}, selected={selectedCard.ButtonPressed}, owner={GetViewport().GuiGetFocusOwner()?.Name}");
         Require(_gameUi.Inspector.Construction.CardArea.Encloses(selectedCard.GetGlobalRect()), $"keyboard focus scrolls the complete selected card into view: area={_gameUi.Inspector.Construction.CardArea}, card={selectedCard.GetGlobalRect()}");
+        var confirm = _gameUi.Inspector.Construction.ConfirmButton;
+        var quote = _session.Snapshot.BuildingCatalog.Single(b => b.Type == Building.Lumbermill).Construction;
+        Require(confirm.Text.Contains("Lumbermill") && confirm.Text.Contains(GameplayContext.Cost(quote)), "selection and real cost visible on construction confirmation");
+        Require(_gameUi.ContextArea.Encloses(confirm.GetGlobalRect()), "construction confirmation fits the compact native dock");
+        var cards = (ScrollContainer)selectedCard.GetParent().GetParent();
+        int cardScroll = cards.ScrollHorizontal;
+        RefreshUi(true);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(cards.ScrollHorizontal == cardScroll, "selected card scroll retained on snapshot refresh");
         Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.City.Slots[0].Type == Building.Lumbermill, "native paid construction");
         await GameplayCapture("hud-occupied");
@@ -36,6 +46,12 @@ public partial class GameApplication
         RefreshUi(true); Require(button == _gameUi.Inspector.Actions["Sell"] && button.HasFocus(), "native control identity and keyboard focus survive snapshot refresh");
         Press(button); Require(_session.City.Slots[0].Type == Building.Empty, "native sale");
         OpenDetails(5); await GameplayCapture("settlement-full-catalog"); _gameUi.Details.Close();
+
+        ReplaceSession(ScenarioRunner.CreateAt("sprite-settlement")); _frozen = true; RefreshUi(true);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await GameplayCapture("hud-military");
+        Require(_gameUi.ContextArea.Encloses(_gameUi.Inspector.ArmyButton.GetGlobalRect()), "compact Arcanum exposes the full Army management target");
 
         ReplaceSession(GameplayScenarios.CreateAt("economy")); _frozen = true; _session.SelectSlot(0); RefreshUi(true);
         await GameplayCapture("resources-and-upkeep");
