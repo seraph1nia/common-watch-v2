@@ -40,14 +40,16 @@ public partial class GameApplication
                         payment: Enum.Parse<ConstructionPayment>(Text("payment", "Standard")),
                         technology: Enum.Parse<TechnologyId>(Text("technology", "None")), resource: Enum.Parse<Resource>(Text("resource", "Wood")),
                         bundles: Number("bundles", 0), unitId: Number("unitId", 0), squadId: Number("squadId", 0), cell: Number("cell", 0)); break;
+                case "choose-doctrine" when _session is { HasState: true } && _session.Snapshot.Phase == Phase.Lobby:
+                    ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
                 case "inspect" when _session is { HasState: true }:
                     _gameUi.Cities.Select(_gameUi.Cities.GetItemIndex(Number("owner")));
                     _gameUi.Cities.EmitSignal(OptionButton.SignalName.ItemSelected, (long)_gameUi.Cities.Selected);
                     if (Number("slot") >= 0) _session.SelectSlot(Number("slot"));
                     RefreshUi(true);
-                    _gameUi.Details.Open(Number("tab", 0), new GameplayContext(_session, ResumeAfterCommand));
-                    if (Number("tab", 0) == 2 && _gameUi.Details.Research.TechnologyButtons.Values.FirstOrDefault() is { } technology)
+                    _gameUi.Details.Open(Enum.Parse<DetailsPage>(Text("page", "Army")), new GameplayContext(_session, ResumeAfterCommand));
+                    if (Text("page") == "Worldtree" && _gameUi.Details.Research.TechnologyButtons.Values.FirstOrDefault() is { } technology)
                         technology.EmitSignal(BaseButton.SignalName.Pressed);
                     break;
                 case "close-details": _gameUi.Details.Close(); _gameUi.Draft.Dismiss(); break;
@@ -77,10 +79,11 @@ public partial class GameApplication
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
         var status = new { connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
+            doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
-            hudNotice = _gameUi.Message.Text, readyDisabled = _gameUi.ReadyButton.Disabled,
+            hudNotice = _gameUi.SessionFeedback, readyDisabled = _gameUi.ReadyButton.Disabled,
             pending = _session?.Pending ?? false, status = _session?.Status ?? "Main menu",
             animation = new { hits = _battlefield.Motion.ObservedHits, effects = _battlefield.Motion.Events.Count, generation = _session?.Playback.Generation, resets = _battlefield.Resets, dying = _session?.Playback.Units().Count(u => u.Hex?.Lifecycle == UnitLifecycle.Dying) },
             result = _session?.LastResult, state = _session is { HasState: true } ? _session.Snapshot : null };

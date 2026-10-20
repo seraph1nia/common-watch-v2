@@ -15,7 +15,7 @@ mise run profile-animation
 mise run review-battle
 ```
 
-Showcases start playing with debug shapes by default. The assets tasks enable the current catalog. Controls are native Godot Controls: scenario, play/pause, restart, speed, art, overlay and projection. Keyboard shortcuts: **1–6** select a scene, **Space** pauses/resumes, **Backspace** restarts, **Tab** cycles the three supported speeds, **T** changes art, **O** toggles diagnostics, **V** changes projection. Existing pan/zoom/reset controls remain available. Interactive tasks retain normal audio output.
+Showcases start playing with debug shapes by default. The assets tasks enable the current catalog. Controls are native Godot Controls: scenario, play/pause, restart, speed, art, overlay and projection. Keyboard shortcuts: **1–6** select a scene, **Space** pauses/resumes, **Backspace** restarts, **Tab** cycles the three supported speeds, **T** changes art, **O** toggles diagnostics, **V** changes projection. The complete arena frames automatically as resolution/projection changes. Interactive tasks retain normal audio output.
 
 Raw options include `--battle swordsman|ranged|status|burn|chill|structures`, `--battle-tick <tick>` (seek and pause), `--battle-zoom <factor>`, `--battle-pan-x <pixels>`, `--battle-pan-y <pixels>`, and `--combat-shader off`. Existing `--world-art`, `--render-mode`, `--view`, `--assets-root` and `--debug-overlay` options remain supported. Replacement PNGs use catalog anchors and dimensions; no animation code depends on painted limbs or silhouette.
 

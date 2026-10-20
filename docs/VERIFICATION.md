@@ -1,5 +1,54 @@
 # Verification
 
+## Menu, HUD, doctrine and arena cleanup (2026-10-20)
+
+Implemented the four-button main menu and separate LAN/Steam submenu; three personal doctrine cards with explicit selection; a fixed map beneath floating HUD controls; five construction tabs; contextual troop/home management; and the requested removal of Run, forecast, selected-plot, upkeep, collapse and history/footer presentation. Recruitment, trading, upgrades, sales, rewards, pause and host combat speed retain authoritative commands. Army-home tower inspection routes into Homes management rather than adding a settlement plot.
+
+Architecture and compatibility:
+
+- `Game.Shared/DoctrineOffers.cs` ranks eligible canonical `RunPresentation` cards using a versioned SHA-256 key from match identity, player identity and doctrine identity. It consumes no gameplay RNG. A new interactive match has a new GUID; refresh, settings, resize and reconnect preserve offers. The UI tracks explicit selection separately from Core's default Warden. A client process restart asks for explicit selection again while retaining the same offers.
+- `GodotSession` observes newly accepted doctrine commands into a bounded host-local choice set. The host UI waits for every connected player's explicit choice; reconnect preserves that evidence. Cached command replies cannot establish new choice evidence. This presentation gate does not change Core's ordinary development command API or the existing disconnected-player fallback.
+- Settlement framing uses proportional cover over the full viewport, protected clearing bounds and native canvas inversion. Extreme aspect ratios cap the foreground scale and fill decorative outer edges with a subdued cover of the same approved map. Combat and preview share rendered bounds, figure/effect margins, a uniform 80% fit and approved artwork/primitives beneath the playable layer.
+- Core changes are confined to six-column topology and compatibility versions: board **2**, combat rules **8**, wire protocol **17**. Sectors retain nine rows, six army homes, nine settlement tower footprints, Keep and Watchpost. One through six players now produce 54–324 cells. Damage, squad capacity, unit counts and prices were not changed. Changed routing can change battle outcomes; old seven-column snapshots/sessions are rejected rather than migrated.
+- SessionCoordinator ownership, session generations, `/root/CommonWatch/Session`, private credentials, settings/audio persistence, supported art/view flags and fallback behavior remain. Native doctrine resize subscriptions disconnect on exit. No artwork, soundtrack, dependency pin or lock was replaced or generated.
+
+Completed verification (Linux/Xvfb/Mesa, disposable settings and private session directories):
+
+| Check | Result |
+| --- | --- |
+| `mise run build` | Passed, zero warnings/errors, locked dependencies |
+| `mise run test-core` | 46 passed, including all six roster widths, footprints, deployment and floor connectivity |
+| `mise run test-shared` | 74 passed, including stable personal offers, old-board rejection and deterministic replay |
+| `mise run test-session` | Both graphical process facts passed; includes menu routes, explicit choice/highlight/start, resize 720p → 1080p → 720p, audio/preferences, fallback, picking and modal/focus behavior |
+| `mise run test-gameplay-ui` | Passed native legal gameplay and seven-wave host/guest replay, personal offers, host choice gate and lobby reconnect |
+| `mise run test-animation` | Eight animation logic tests and 19 captured phases per world rendering mode passed |
+| `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` | Passed actual menus, doctrines, HUD, construction, army/home tower sale, research, combat, rewards and terminal states at 720p/1080p, plus host/guest replay |
+| `mise run capture-settlement -- --hud-art illustrated` | Passed all nine native plot clicks/hover, ignored drag/wheel, purchase/construction and map bounds at 1280×720, 1920×1080, 1280×800, 1600×1000 and 2560×1080 |
+| `mise run capture-battle -- --width 1920 --height 1080 --hud-art illustrated` | Passed both rendering modes: 19 phases and 22 ordered frames each, plus missing-art and angled/shader fallback captures |
+| `mise run test-multiplayer` / `mise run test-reconnect` | Passed all six roster sizes and reconnect through building, preparation, combat, rewards and subsequent building |
+| `mise run test` | Isolated retry passed: 151 .NET/process tests, 19 Pillow tests and both animation phase/fallback capture checks |
+| Source review | `git diff --check` passed; actual menu/doctrine/settlement/construction/combat PNGs inspected at both target sizes |
+
+The complete suite initially encountered an intermittent native SIGSEGV in the missing-sprite capture. `coredumpctl` identifies `libclrjit.so` on the `.NET BGC` thread, consistent with the documented native .NET/JIT risk. The isolated retry exited 0. The risk remains unresolved; diagnostics are retained in `artifacts/test-logs/ui-cleanup-native-crash.log` and `ui-cleanup-native-coredump.txt`. Completed task transcripts are `artifacts/test-logs/ui-cleanup-*.log`.
+
+Actual illustrated captures:
+
+| View | 1280×720 | 1920×1080 |
+| --- | --- | --- |
+| Main menu | [PNG](../artifacts/captures/gameplay/forest/main-menu.png) | [PNG](../artifacts/captures/gameplay/forest/1920/main-menu.png) |
+| Multiplayer | [PNG](../artifacts/captures/gameplay/forest/multiplayer-menu.png) | [PNG](../artifacts/captures/gameplay/forest/1920/multiplayer-menu.png) |
+| Doctrine offers | [PNG](../artifacts/captures/gameplay/forest/doctrine-offers.png) | [PNG](../artifacts/captures/gameplay/forest/1920/doctrine-offers.png) |
+| Selected doctrine | [PNG](../artifacts/captures/gameplay/forest/doctrine-selected.png) | [PNG](../artifacts/captures/gameplay/forest/1920/doctrine-selected.png) |
+| Settlement / construction tabs | [PNG](../artifacts/captures/gameplay/forest/hud-build.png) | [PNG](../artifacts/captures/gameplay/forest/1920/hud-build.png) |
+| Selected construction / confirmation | [PNG](../artifacts/captures/gameplay/forest/hud-build-focus-hover.png) | [PNG](../artifacts/captures/gameplay/forest/1920/hud-build-focus-hover.png) |
+| Combat | [PNG](../artifacts/captures/gameplay/forest/hud-combat.png) | [PNG](../artifacts/captures/gameplay/forest/1920/hud-combat.png) |
+
+The full 1080p combat phase/sequence captures are preserved separately under `artifacts/captures/godot/battle-1080/`; ordinary animation task output remains under `battle/`. Map interaction captures are under `artifacts/captures/godot/settlement-map/`. These are actual application frames from legal commands.
+
+Important source owners: `UI/LobbyPanel.cs`, `UI/DoctrineCard.cs`, `Game.Shared/DoctrineOffers.cs`, `Application/SessionScreens.cs`, `Application/SteamScreens.cs`, `Networking/GodotSession.cs`, `UI/SettlementHud.cs`, `UI/ConstructionPanel.cs`, `UI/GameplayDialog.cs`, `UI/BuildingInspector.cs`, `UI/DeploymentPanel.cs`, `World/SettlementView.cs`, `World/WorldCamera.cs`, `Application/GameApplication.cs`, `Combat/BattlefieldView.cs`, `Combat/ArenaPresentation.cs`, `World/ArenaPreview.cs` and `Game.Core/Combat/SharedArena.cs`. Paths without a project prefix are within `src/Game.Godot`. Obsolete `BattleInspectionPanel` and `RunProgressionPanel` Controls were removed.
+
+Live Steam with real accounts, native Windows/macOS execution, physical GPU/audio hardware and performance profiling were not run. No new platform or performance qualification is claimed. The existing native Steam verification gate remains in [sessions](SESSIONS.md#native-steam-verification-gate).
+
 ## Six-player sessions and development defaults (2026-10-20)
 
 Gameplay supports one through six total players. Core admission, arena topology

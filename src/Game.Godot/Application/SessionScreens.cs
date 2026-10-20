@@ -21,10 +21,11 @@ public partial class GameApplication
             BeginJoin(endpoint);
         };
         _sessionMenu.DoctrineSelected += id => { _session.Send("doctrine:" + id); RefreshUi(true); };
-        _sessionMenu.StartRequested += () => Act(() => _session.Start());
+        _sessionMenu.StartRequested += () => { if (_session.AllDoctrinesChosen) Act(() => _session.Start()); };
         _sessionMenu.MenuRequested += ReturnToMenu;
         _sessionMenu.QuitRequested += RequestQuit;
-        CreateSteamMenu(_sessionMenu.Content);
+        _sessionMenu.SettingsRequested += _settings.Open;
+        CreateSteamMenu(_sessionMenu.MultiplayerContent);
     }
     private void BeginSolo()
     {
@@ -37,7 +38,7 @@ public partial class GameApplication
         _battlefield.Reset();
         _sessions.Close(); _steam?.Leave();
         _gameUi.Reset(); _camera.StopDrag();
-        _gameUi.Visible = false; _sessionMenu.Visible = true;
+        _gameUi.Visible = false; _sessionMenu.Visible = true; _sessionMenu.ShowMain();
         RefreshSessionMenu(); RefreshWorld();
     }
     private void RefreshSessionMenu()
@@ -51,7 +52,7 @@ public partial class GameApplication
     {
         ReturnToMenu();
         try { _sessions.Open(session => session.Host(port)); _frozen = false; RefreshUi(true); }
-        catch (Exception e) { ReturnToMenu(); _sessionMenu.Roster.Text = e.Message; }
+        catch (Exception e) { ReturnToMenu(); _sessionMenu.ShowError(e.Message); }
     }
     private void BeginJoin(string endpoint)
     {
@@ -62,7 +63,7 @@ public partial class GameApplication
             _sessions.Open(session => session.Join(parts[0], parts.Length == 2 ? int.Parse(parts[1]) : 27025, SessionDataPath, int.Parse(Argument("--core-version") ?? WireJson.ProtocolVersion.ToString())));
             _frozen = false; RefreshSessionMenu();
         }
-        catch (Exception e) { ReturnToMenu(); _sessionMenu.Roster.Text = e.Message; }
+        catch (Exception e) { ReturnToMenu(); _sessionMenu.ShowError(e.Message); }
     }
     private void ReconnectCurrent()
     {

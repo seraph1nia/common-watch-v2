@@ -71,6 +71,7 @@ public partial class BattlefieldView : Node2D
     }
     private bool CombatShader => ShaderEnabled;
     private static Vector2 V(System.Numerics.Vector2 value) => new(value.X, value.Y);
+    public Rect2 RenderBounds => CombatState.Arena is { } arena ? ArenaPresentation.RenderBounds(arena, _arena) : new Rect2(-200, -200, 400, 400);
     private Vector2 ArenaCenter()
     {
         var coordinates = CombatState.Arena?.Board.Cells.Select(c => V(_arena.Project(c.Coordinate))).ToArray() ?? [];
@@ -106,17 +107,18 @@ public partial class BattlefieldView : Node2D
         Vector2 Project(System.Numerics.Vector2 p) => new Vector2(p.X, p.Y * _options.GroundCompression) - center;
         Vector2 Ground(UnitState u) => Project(CombatVisuals.Position(u, state, tick));
         Vector2 Cell(int cell) => arena.Board.Cells.FirstOrDefault(c => c.Id == cell) is { } c ? V(_arena.Project(c.Coordinate)) - center : Vector2.Zero;
+        ArenaPresentation.Draw(this, _assets, arena, _arena);
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
-            DrawColoredPolygon(corners, new Color("23343d"));
-            _art.Ground(this, "terrain/woodland_hex", corners, new Color(.52f, .61f, .55f));
+            DrawColoredPolygon(corners, new Color("45553b"));
+            _art.Ground(this, "terrain/woodland_hex", corners, new Color(.78f, .83f, .68f));
         }
         // Borders finish after all terrain so opaque texture edges cannot hide neighboring outlines.
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
-            DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("3b4d50"), 1, true);
+            DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("6d7955"), 1, true);
         }
         foreach (var structure in Playback.Structures())
         {

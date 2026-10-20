@@ -13,7 +13,8 @@ export COMMON_WATCH_TEST_AUDIO=dummy COMMON_WATCH_STEAM_DISABLED=1
 settings_directory=$(mktemp -d)
 trap 'rm -rf "$settings_directory"' EXIT
 run_client() {
-  timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 1920x1080x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
+  # The settlement probe includes a 2560-wide window and native pointer warps.
+  timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 2560x1440x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
   capture-worldtree)

@@ -1,61 +1,17 @@
 # Playing the complete Godot interface
 
-The simulation and prices are the unchanged pinned Core. All controls submit
-commands; the accepted snapshot supplies stocks, soldiers, technologies and phase.
+Commands and detached authoritative snapshots still own prices, soldiers, technologies and phase. The explicitly changed combat topology uses six columns per player, up to six players; damage and unit counts are unchanged.
 
-- The compact ribbon selects the inspected city and shows Keep, six accepted
-  resource stocks with signed income per production, wave/preparation, Settings
-  and the arena/settlement switch. At 720p its resource row moves below navigation.
-- The bottom context dock has **Build**, **Army**, **Worldtree** and **Run**, plus
-  Collapse/Expand. Select one of the nine clearings to see its context. Empty
-  owned land offers categorized build cards: selecting a card spends nothing;
-  **Build selected** submits the actual construction. Locked land shows its current
-  purchase quote. Occupied plots offer upgrades, refunds and relevant management;
-  **More details** expands the same retained inspector. Recruitment and Town Hall
-  management also route directly into Army. Scrolling keeps longer controls usable.
-- The bottom-right action area separates Ready/Unready, its production consequence,
-  upkeep forecast/details, battle inspection and whole-match Pause/Resume. Ready
-  settles one production at each of three preparations. The final forecast includes
-  production 3 without adding it to stock early. Food shortages permit readiness:
-  unfunded field members sit out. During and after combat, the table shows the
-  actual upkeep receipt. Food's **?** button also opens the breakdown.
-- **Army** has a persistent roster, squad selector, and separate Recruitment and Town Halls
-  sections. Choose a member to inspect HP, equipment, service XP, home/storage,
-  funding and recovery eligibility. The same inspector handles transfer, storage,
-  return and retirement. Recruitment chooses a trainer and an automatic, new or
-  specific compatible squad; each click pays for one soldier.
-- Army's **Homes & towers** section shows the six stable numbered army homes. These are separate
-  from the nine settlement plots. Select a squad and deploy it to a purchased,
-  eligible home. Inspect a home to buy land or construct/upgrade/sell a tower.
-  Squads and towers cannot share a home.
-- **Worldtree** shows all 18 canonical technologies, their prerequisites, exclusive
-  branches, costs, acquired state and effects. Select a node to inspect/purchase.
-  The panel stays open and synchronized after a purchase.
-- **Show arena** presents the forthcoming field army, funded participants, next-wave
-  enemies and structures as a read-only diagram. Click a figure/structure or use
-  **Battle** lists to open the same inspector. Combat figures also support picking.
-  Forecast markers never become combat actors. Stored/unfunded soldiers remain
-  inspectable in lists without acquiring field bodies.
-- **Run** shows doctrine benefits/drawback, acquired card stacks/effects, research,
-  Keep and reward statistics, plus camera reset, return to menu, reconnect and the
-  recent session feedback history. The pregame doctrine controls explain all six choices.
-  A successful nonfinal battle offers three actual cards with rarity, effect and
-  stack limit. Close rewards to inspect your city/run before deciding; **Rewards** reopens the same offers without choosing. Independent player choices remain authoritative. Wave 20 goes to
-  Victory; defeat offers no draft.
-- Ready/Unready affects your city, including while inspecting an ally. Pause/Resume
-  affects the whole match. Only the original playing host controls 1x/1.5x/2x speed.
-  Opening a local details panel never pauses cooperative play.
-- The city selector inspects allies' economy, buildings, roster and research. Allied,
-  fallen and disconnected cities remain read-only. The inspected player never
-  replaces authenticated command identity.
+- **Single Player** opens three distinct random doctrine cards. Select one, then press **Start Match**. Offers stay stable through settings, resizing and reconnection; a new match identity creates new offers. **Multiplayer** holds LAN, reconnect and Steam operations, with personal doctrine selection and host-only start after every connected player chooses. **Settings** preserves audio preferences. **Exit Game** follows normal shutdown.
+- The ribbon shows the inspected city, Keep, six resource stocks, wave/preparation, Settings and the arena switch. Resource tooltips show production income. The illustrated settlement fills the viewport proportionally; wheel, drag and reset do not move it.
+- **Build** and **Worldtree** are the floating construction panel's navigation. Select any clearing. Empty owned land offers **Production**, **Military**, **Defense**, **Trade** and **Utility** tabs. Selecting a card spends nothing; confirmation pays the quoted construction cost. Lumbermill's **4 Gold recovery** card also requires confirmation. Locked land shows its purchase quote. Occupied plots provide upgrades, sale, recruitment, trading and relevant management controls.
+- **Manage troops & homes** on selected military buildings, Town Halls or plots with a surviving army opens contextual management. Its roster and recruitment/hall sections retain squad selection, persistent HP, equipment, XP, storage, return and retirement. **Homes & towers** retains all six army homes, paid home purchases, deployment and tower management. These homes are separate from the nine settlement plots. Squads and towers cannot share a home.
+- **Worldtree** retains all 18 technologies, prerequisites, exclusive branches, costs and acquired effects. Select a node, then purchase. Allied, fallen and disconnected cities remain read-only; inspecting another city never changes authenticated command identity.
+- **Ready/Unready** settles each of three preparations. Food shortages permit readiness; unfunded field members sit out. **Pause/Resume** affects the whole match; only the original host controls combat speed. Local dialogs never pause cooperative play.
+- **Show arena** previews the forthcoming field army, enemies and structures. Click a combatant or structure to inspect it; active combat supports the same picking. The complete battlefield frames automatically to 80% of the viewport bounds with uniform scaling, reserved figure/effect margins and an optional illustrated forest frame/background.
+- Successful nonfinal combat offers three authoritative rewards. Dismissing rewards chooses nothing; **Rewards** reopens the same offers. Wave 20 ends in Victory; defeat offers no draft. Menu/reconnect controls live beside the match actions. There is no Army navigation button, Run/forecast/selected-plot/upkeep tab, collapse control or history/feedback footer.
 
-Only one details or rewards surface opens at a time. Esc closes nested Settings,
-then details/rewards, restoring native keyboard focus; otherwise it opens Settings. Modal shades block world input;
-scrolling native panels does not zoom the board. Selection alone spends nothing.
-Disabled actions explain missing resources, producers or authoritative restrictions.
-The persistent footer distinguishes acceptance, rejection, pending acknowledgment
-and lost connection, including while details/rewards are open. **History** opens
-recent feedback in Run. Reconnect preserves the existing private credential/session workflow.
+Only one details or rewards surface opens at a time. Esc closes nested Settings, then details/rewards, restoring native keyboard focus; otherwise it opens Settings. Modal shades and native panels consume their input. Disabled actions explain their resource or authority restrictions. Command results remain internal for debugging and automated checks. Reconnect retains the private credential/session workflow.
 
 ## Development and verification
 

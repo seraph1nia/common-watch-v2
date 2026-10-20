@@ -18,8 +18,8 @@ public partial class BuildingInspector : VBoxContainer
     private int _slot;
     private HBoxContainer _heading = null!;
     private VBoxContainer _text = null!;
-    private Button _expand = null!, _army = null!;
-    public event Action? ExpandRequested, ArmyRequested;
+    private Button _army = null!;
+    public event Action? ArmyRequested;
     public bool Compact { get; set; }
     public string EmptyHint { get; set; } = "Select a clearing to build or manage your settlement.";
 
@@ -37,8 +37,7 @@ public partial class BuildingInspector : VBoxContainer
         _text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _heading.AddChild(_text);
         _selection = WrapLabel(); _selection.AddThemeFontSizeOverride("font_size", 18); _text.AddChild(_selection); _details = WrapLabel(); _text.AddChild(_details);
         _actions = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkBegin }; _heading.AddChild(_actions);
-        _expand = skin.Button("More details", () => ExpandRequested?.Invoke()); _text.AddChild(_expand);
-        _army = skin.Button("Manage in Army", () => ArmyRequested?.Invoke()); _text.AddChild(_army);
+        _army = skin.Button("Manage troops & homes", () => ArmyRequested?.Invoke()); _text.AddChild(_army);
         _construction = new ConstructionPanel(); AddChild(_construction); _construction.Initialize(skin);
         _recruitment = new RecruitmentPanel(); AddChild(_recruitment); _recruitment.Initialize(skin);
         _market = new MarketPanel(); AddChild(_market); _market.Initialize(skin);
@@ -49,7 +48,6 @@ public partial class BuildingInspector : VBoxContainer
     {
         _context = context; _slot = slotIndex;
         _actions.Vertical = !Compact; _actions.Visible = true;
-        _expand.Visible = Compact && _slot >= 0;
         _text.AddThemeConstantOverride("separation", Compact ? 4 : 10);
         _details.MaxLinesVisible = Compact ? 2 : -1;
         _details.Visible = true;
@@ -58,13 +56,13 @@ public partial class BuildingInspector : VBoxContainer
             : _slot is >= 0 and < 9 ? context.City.Slots[_slot] : null;
         bool occupiedHome = ArmyConfiguration.IsArmyPlot(_slot) && context.City.Army!.Homes.Single(h => h.PlotId == _slot).Used > 0;
         _construction.Visible = slot is { Purchased: true, Type: Building.Empty } && !occupiedHome;
-        _recruitment.Visible = !Compact && slot is not null && context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type)?.Recruits is not null;
+        _recruitment.Visible = slot is not null && context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type)?.Recruits is not null;
         _market.Visible = slot?.Type == Building.Market;
-        _hall.Visible = !Compact && slot?.Type == Building.TownHall;
+        _hall.Visible = slot?.Type == Building.TownHall;
         _army.Visible = Compact && slot is not null && (slot.Type == Building.TownHall || context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type)?.Recruits is not null);
         string? compactSummary = null;
         _details.Text = context.EditReason;
-        if (slot is null) { _selection.Text = EmptyHint; _details.Hide(); _expand.Hide(); _actions.End(); return; }
+        if (slot is null) { _selection.Text = EmptyHint; _details.Hide(); _actions.End(); return; }
         _selection.Text = $"{(ArmyConfiguration.IsArmyPlot(_slot) ? "ARMY HOME " + (_slot - 8) : "PLOT " + (_slot + 1))} · {(!slot.Purchased ? "Unpurchased land" : GameplayContext.BuildingName(slot.Type))}";
         if (!slot.Purchased)
         {
@@ -77,7 +75,7 @@ public partial class BuildingInspector : VBoxContainer
         else if (slot.Type == Building.Empty)
         {
             if (ArmyConfiguration.IsArmyPlot(_slot) && context.City.Army!.Homes.Single(h => h.PlotId == _slot).Used > 0) _details.Text += "\nSquad occupies this home. Move or store its members before building a tower.";
-            else { _construction.Show(); _construction.Refresh(context, _slot); if (Compact) { _details.Visible = context.EditReason.Length > 0; _expand.Hide(); _actions.Hide(); } }
+            else { _construction.Show(); _construction.Refresh(context, _slot); if (Compact) { _details.Visible = context.EditReason.Length > 0; _actions.Hide(); } }
         }
         else
         {
@@ -114,13 +112,14 @@ public partial class BuildingInspector : VBoxContainer
             bool stored = context.City.Soldiers.Any(u => u.Assignment is { Stored: true } a && a.HallSlot == _slot && a.HallGeneration == slot.Generation);
             _actions.Item(_skin, "Sell", "Sell — refund " + GameplayContext.Cost(slot.Refund),
                 () => _context.Submit(new(GameplayAction.Sell, _slot)), context.Block(reason: stored ? "Return or retire stored veterans first." : ""));
-            if (definition?.Recruits is not null) { _recruitment.Visible = !Compact; _recruitment.Refresh(context, _slot); _army.Visible = Compact; }
+            if (definition?.Recruits is not null) { _recruitment.Visible = true; _recruitment.Refresh(context, _slot); _army.Visible = Compact; }
             if (slot.Type == Building.Market) { _market.Show(); _market.Refresh(context, _slot); }
-            if (slot.Type == Building.TownHall) { _hall.Visible = !Compact; _hall.Refresh(context, _slot); _army.Visible = Compact; }
+            if (slot.Type == Building.TownHall) { _hall.Visible = true; _hall.Refresh(context, _slot); _army.Visible = Compact; }
         }
         _details.TooltipText = _details.Text;
         if (Compact && compactSummary is not null)
             _details.Text = compactSummary + (context.EditReason.Length > 0 ? "\n" + context.EditReason : "");
+        _army.Visible |= Compact && slot is not null && context.City.Soldiers.Length > 0;
         _actions.End();
     }
 }

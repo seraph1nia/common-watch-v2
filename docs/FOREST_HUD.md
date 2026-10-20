@@ -4,47 +4,17 @@ The user-supplied forest HUD replaces the illustrated parchment skin through
 `HudSkin`. Debug/plain remains the default. The supplied 78 transparent PNGs,
 `ForestTheme.tres`, SVG originals and delivery metadata are preserved; preview
 mockups are not runtime assets. See [provenance](PROVENANCE.md#forest-hud-delivery).
-No Core, shared simulation/adapter, world asset catalog, map coordinates, building
-anchors, soundtrack, dependency pins or locks were changed.
+The supplied assets, map coordinates, building anchors, soundtrack, dependency pins
+and locks remain unchanged. The requested six-column Core topology change is
+recorded separately in [provenance](PROVENANCE.md).
 
 ## Interface
 
-- The ribbon contains the inspected city, Keep, six accepted resource stocks and
-  signed income per production, wave/preparation, Settings and arena switch. At
-  720p resources move below navigation; larger values can reflow into three columns.
-- The collapsible context dock contains Build, Army, Worldtree and Run. Empty land
-  offers categorized cards with real quotes/effects/denials. Card selection spends
-  nothing; Build selected submits the existing authoritative construction intent.
-  The existing explicit Gold-recovery action remains available. Locked land uses
-  the actual land quote; occupied land offers the supported management actions.
-- One retained building inspector moves between the dock and details dialog.
-  Recruitment, squads, Town Hall management and the six homes/towers are grouped
-  under Army. Worldtree retains all canonical technologies; Run retains doctrine,
-  cards and statistics and also offers camera reset, menu, reconnect and history.
-- Bottom-right controls separate Ready/Unready and its production consequence from
-  whole-match Pause/Resume. Upkeep details distinguish forecast from payment;
-  shortage does not block Ready. Combat/playback completion uses battle controls
-  and host speed permissions. Rewards remain the three real authoritative offers.
-- Only one details/rewards surface opens at a time. Closing/reopening rewards makes
-  no choice. The feedback notice stays above those surfaces, with 24 recent notices
-  available in History. City inspection does not change authenticated identity;
-  allied editing remains blocked. Local dialogs submit no pause commands.
+The current interface uses a slim resource ribbon, floating **Build / Worldtree** context and Ready/Pause/menu controls. It has no Army/Run navigation, collapse control, upkeep/forecast/selected-plot tabs or history footer. Recruitment and troop/home management open contextually from selected buildings or plots with surviving troops. Five compact horizontal construction categories fit the 720p panel; card selection and Gold recovery require explicit confirmation. See [playing](gameplay/PLAYING.md) for the current paths.
 
-Native style boxes provide nine-slice frames and all button states, with an
-independent focus ring. The old parchment Label colors, separate button backgrounds
-and hover tint handlers are removed. Fixed-size ornaments and the full-screen HUD
-root ignore pointer input; actual panels/controls and modal shades consume it.
-Native controls retain identity, selection and scroll state; card scrolling follows
-keyboard focus. Main controls have a 44px minimum height and body text stays 16px. Context refresh avoids
-hiding controls that remain active, preserving keyboard focus. Nested Settings/Esc
-and dialog focus restoration are exercised by native input checks.
+Three personal doctrine cards use the existing framed reward-card language and canonical run descriptions. Native style boxes retain pressed, hover, disabled and keyboard focus states. Settings, details and reward modal shades consume world input and restore focus on close. The map fills the viewport beneath the HUD, with fixed native camera inversion and protected clearing bounds. Combat uses separate proportional framing and approved forest textures with a sliced decorative rail. Plain/debug and missing-art fallbacks remain functional.
 
-Camera framing uses actual ribbon/dock/action rectangles. The minimum camera zoom
-is 0.25 so the unchanged nine-pad map fits the smaller safe region at 720p. Manual
-pan, wheel zoom, reset and canvas inversion remain native Camera2D behavior. CLI
-presentation options and geometric/plain fallback remain available. Native PNG
-imports run automatically through the bounded prepare step when needed; a missing
-forest theme dependency falls back to the plain theme.
+The historical receipts below describe the previous HUD iteration; the current cleanup and topology verification is recorded at the top of [verification](VERIFICATION.md).
 
 ## Actual captures
 
@@ -67,7 +37,7 @@ values in the pack are not gameplay fixtures. Captures are ignored local artifac
 | Disconnected | [PNG](../artifacts/captures/gameplay/network-forest/disconnected-1280.png) | [PNG](../artifacts/captures/gameplay/network-forest/disconnected-1920.png) |
 
 The same folders also contain actual Market, Town Hall, six-home deployment,
-shortage/forecast, unit, tower, Run, victory and defeat views. Allied read-only
+shortage, unit, tower, clean-settlement, victory and defeat views. Allied read-only
 Worldtree inspection is captured by the real host/guest worker in
 [its multiplayer frame](../artifacts/captures/gameplay/multiplayer-city-inspection.png).
 Network pending captures briefly suspend the actual host process, then resume it

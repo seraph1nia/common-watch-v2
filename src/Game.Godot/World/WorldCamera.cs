@@ -5,6 +5,7 @@ namespace Game.GodotClient;
 /// <summary>Camera transforms only. Logical angled hex projection remains independent.</summary>
 public partial class WorldCamera : Camera2D
 {
+    public bool Fixed { get; set; }
     public float Magnification { get; private set; } = 1;
     public Vector2 PanPixels { get; private set; }
     private Vector2 _origin;
@@ -31,14 +32,11 @@ public partial class WorldCamera : Camera2D
         PanPixels = pan;
         Layout(_origin);
     }
-    public void ConfigureDefault(float zoom)
+    public void Frame(Vector2 origin, float zoom)
     {
-        if (_defaultMagnification == zoom) return;
-        bool atDefault = Magnification == _defaultMagnification && PanPixels == Vector2.Zero;
-        _defaultMagnification = zoom;
-        if (atDefault) Reset();
+        Fixed = true; _defaultMagnification = zoom; Magnification = zoom; PanPixels = Vector2.Zero; StopDrag(); Layout(origin);
     }
-    public void Reset() { StopDrag(); SetPose(_defaultMagnification, Vector2.Zero); }
+    public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; Layout(_origin); }
     public void StopDrag() => _dragging = false;
     public void ZoomAt(Vector2 cursor, bool inward)
     {
@@ -49,6 +47,7 @@ public partial class WorldCamera : Camera2D
     }
     public void Handle(InputEvent input, Rect2 worldArea)
     {
+        if (Fixed) { StopDrag(); return; }
         if (input.IsActionPressed("camera_reset")) { Reset(); return; }
         if (input is InputEventMouseButton mouse)
         {

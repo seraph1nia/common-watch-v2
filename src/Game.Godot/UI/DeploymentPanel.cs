@@ -13,6 +13,16 @@ public partial class DeploymentPanel : VBoxContainer
     private ActionList _homes = null!;
     private BuildingInspector _inspector = null!;
     private int _selected = -1;
+    public int SelectedPlot => _selected;
+    public BuildingInspector Inspector => _inspector;
+    public void InspectHome(int slot, GameplayContext context)
+    {
+        if (!ArmyConfiguration.IsArmyPlot(slot)) return;
+        _selected = slot; Refresh(context);
+        var action = _inspector.Actions.Values.FirstOrDefault(button => button.Visible && !button.Disabled)
+            ?? _inspector.BuildButtons.Values.FirstOrDefault(button => button.Visible && !button.Disabled);
+        action?.CallDeferred(Control.MethodName.GrabFocus);
+    }
     public IReadOnlyDictionary<string, Button> HomeButtons => _homes.Buttons;
     public void Initialize(HudSkin skin, Action submitted)
     {

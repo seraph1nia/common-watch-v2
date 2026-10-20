@@ -20,13 +20,23 @@ public partial class SettlementView : Node2D
     public const float DefaultHexRadius = 81.25f;
     public float HexRadius { get; set; } = DefaultHexRadius;
     public HexProjection Projection { get; private set; } = new(DefaultHexRadius);
-    // Keep the tested 720p composition as the window grows; camera controls remain relative
-    // to world pixels, and combat retains its own framing.
-    public static float DefaultMagnification(Vector2 available) => Math.Clamp(
-        1.15f * Math.Min(available.X / 912, available.Y / 472), .55f, 2.2f);
     public float Framing(Vector2 available) => _map is { } map
-        ? Math.Clamp(Math.Min(available.X / map.Layout.Frame.Size.X, available.Y / map.Layout.Frame.Size.Y), .25f, 2.2f)
-        : _assets.Options.Mode == RenderMode.Sprites && _assets.Options.View == ViewPreset.Angled ? DefaultMagnification(available) : Math.Clamp(Math.Min(1, available.Y / 472), .25f, 1);
+        ? Math.Min(Math.Max(available.X / map.Layout.Width, available.Y / map.Layout.Height),
+            Math.Min((available.X - 40) / PlotBounds(map.Layout).Size.X, (available.Y - 100) / PlotBounds(map.Layout).Size.Y))
+        : Math.Min(available.X / 900, available.Y / 720);
+    private static Rect2 PlotBounds(SettlementMapLayout layout)
+    {
+        var min = new Vector2(layout.Spots.Min(s => s.Center.X - s.Radii.X), layout.Spots.Min(s => s.Center.Y - s.Radii.Y));
+        var max = new Vector2(layout.Spots.Max(s => s.Center.X + s.Radii.X), layout.Spots.Max(s => s.Center.Y + s.Radii.Y));
+        return new Rect2(min - new Vector2(layout.Width, layout.Height) / 2, max - min);
+    }
+    public Vector2 ScreenOrigin(Vector2 available)
+    {
+        if (_map is not { } map) return available * new Vector2(.56f, .5f);
+        var plots = PlotBounds(map.Layout); float zoom = Framing(available);
+        return new Vector2(Mathf.Clamp(available.X / 2, 20 - plots.Position.X * zoom, available.X - 20 - plots.End.X * zoom),
+            Mathf.Clamp(available.Y / 2, 80 - plots.Position.Y * zoom, available.Y - 20 - plots.End.Y * zoom));
+    }
     private float _compression = 1;
     private Vector2 Center => new(HexRadius * Mathf.Sqrt(3) / 4, HexRadius * 1.5f * 3 * _compression);
     public void Initialize(AssetLoader assets) { _assets = assets; _art = new(assets); Hide(); }
@@ -39,7 +49,7 @@ public partial class SettlementView : Node2D
         Visible = visible; QueueRedraw();
     }
     private Vector2 LocalPosition(NumVector point) => new Vector2(point.X, point.Y) - Center;
-    private Vector2 MapPosition(MapPoint point) => new(point.X - _map!.Value.Layout.Frame.Center.X, point.Y - _map.Value.Layout.Frame.Center.Y);
+    private Vector2 MapPosition(MapPoint point) => new(point.X - _map!.Value.Layout.Width / 2f, point.Y - _map.Value.Layout.Height / 2f);
     public Vector2 PlotPosition(int index) => _map is { } map ? MapPosition(map.Layout.Spots[index].BuildingAnchor)
         : LocalPosition(Projection.Project(SettlementLayout.Coordinates[index]));
     public void HoverAt(Vector2? world)
@@ -52,7 +62,7 @@ public partial class SettlementView : Node2D
     {
         world = ToLocal(world);
         if (_map is { } map)
-            return map.Layout.Pick(new NumVector(world.X + map.Layout.Frame.Center.X, world.Y + map.Layout.Frame.Center.Y));
+            return map.Layout.Pick(new NumVector(world.X + map.Layout.Width / 2f, world.Y + map.Layout.Height / 2f));
         var p = world + Center;
         var hex = Projection.HitTest(new NumVector(p.X, p.Y), SettlementLayout.Coordinates);
         return hex is null ? null : SettlementLayout.Coordinates.ToList().IndexOf(hex.Value);
@@ -88,7 +98,18 @@ public partial class SettlementView : Node2D
     {
         // The source already contains perspective. Image, rings and upright sprites share
         // uncompressed image pixels and the native Camera2D transform.
-        DrawTextureRect(texture, new Rect2(MapPosition(new MapPoint(0, 0)), new Vector2(layout.Width, layout.Height)), false);
+        var imageRect = new Rect2(MapPosition(new MapPoint(0, 0)), new Vector2(layout.Width, layout.Height));
+        var viewport = GetViewport().GetVisibleRect(); var inverse = GetViewport().CanvasTransform.AffineInverse();
+        var worldRect = new Rect2(inverse * viewport.Position, viewport.Size / GetViewport().CanvasTransform.Scale);
+        if (!imageRect.Encloses(worldRect))
+        {
+            // Extreme aspect ratios cap the foreground scale to protect every clearing.
+            // A subdued cover of the same approved forest fills decorative outer edges.
+            float cover = Mathf.Max(worldRect.Size.X / layout.Width, worldRect.Size.Y / layout.Height);
+            Vector2 crop = worldRect.Size / cover;
+            DrawTextureRectRegion(texture, worldRect, new Rect2((new Vector2(layout.Width, layout.Height) - crop) / 2, crop), new Color(.55f, .62f, .52f));
+        }
+        DrawTextureRect(texture, imageRect, false);
         foreach (var spot in layout.Spots)
         {
             bool selected = spot.Slot == _session.SelectedSlot, hovered = spot.Slot == HoveredSlot;

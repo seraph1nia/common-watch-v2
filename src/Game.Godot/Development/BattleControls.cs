@@ -34,10 +34,8 @@ public partial class GameApplication
         column.AddChild(_skin.Button("Topdown / angled  [V]", ToggleBattleView));
         _battleInfo = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; column.AddChild(_battleInfo);
         column.AddChild(_skin.Button("Main menu", ReturnToMenu));
-        column.AddChild(new Label { Text = "One image per character.\nDefault rules; paid campaign replay.\nRight drag: pan · Wheel: zoom\nR: reset · 1–6: scenario", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        column.AddChild(new Label { Text = "One image per character.\nDefault rules; paid campaign replay.\nResponsive camera framing\n1–6: scenario", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         if (Argument("--battle-tick") is { } tick) SeekBattle(double.Parse(tick, System.Globalization.CultureInfo.InvariantCulture));
-        float zoom = float.Parse(Argument("--battle-zoom") ?? "1", System.Globalization.CultureInfo.InvariantCulture);
-        _camera.SetPose(zoom, new Vector2(float.Parse(Argument("--battle-pan-x") ?? "0", System.Globalization.CultureInfo.InvariantCulture), float.Parse(Argument("--battle-pan-y") ?? "0", System.Globalization.CultureInfo.InvariantCulture)));
         if (Argument("--battle-profile") is { } profile)
         {
             _animationProfile = new(profile); Engine.MaxFps = _animationProfile.Fps;

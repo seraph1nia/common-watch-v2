@@ -21,7 +21,7 @@ public partial class GameApplication
         foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080) })
         {
             ReplaceSession(GameplayScenarios.CreateAt("research")); _frozen = true;
-            GetWindow().Size = size; RefreshUi(true); OpenDetails(2);
+            GetWindow().Size = size; RefreshUi(true); OpenDetails(DetailsPage.Worldtree);
             Require(!_session.Snapshot.Paused, "opening Worldtree does not pause the match");
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

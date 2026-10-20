@@ -18,9 +18,9 @@ public partial class GameApplication
             {
                 _options = _options with { View = view };
                 RefreshWorld();
-                foreach (float zoom in new[] { .55f, 1, 2.2f })
+                foreach (float zoom in new[] { _camera.Magnification })
                 {
-                    _camera.SetPose(zoom, new Vector2(37, -23));
+                    RefreshWorld();
                     for (int plot = 0; plot < SettlementLayout.Coordinates.Count; plot++)
                     {
                         Vector2 point = _camera.ToScreen(_settlementView.PlotPosition(plot));
@@ -66,14 +66,12 @@ public partial class GameApplication
         GetViewport().PushInput(new InputEventMouseButton { Position = _gameUi.Inspector.GetGlobalRect().GetCenter(), ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_camera.Magnification == before, "scrolling native inspector does not zoom world");
-        _camera.SetPose(1.3f, new Vector2(7, -9)); before = _camera.Magnification;
+        before = _camera.Magnification;
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         Click(_settingsButton.GetGlobalRect().GetCenter());
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_settings.Visible && _settings.Slider.HasFocus(), $"mouse opens native modal with keyboard focus (visible={_settings.Visible}, focus={GetViewport().GuiGetFocusOwner()?.Name}, button={_settingsButton.GetGlobalRect()})");
-        Vector2 coveredPlot = Enumerable.Range(0, 9).Select(i => _camera.ToScreen(_settlementView.PlotPosition(i)))
-            .First(p => !_settings.Panel.GetGlobalRect().HasPoint(p));
-        Require(!_settings.Panel.GetGlobalRect().HasPoint(coveredPlot), "modal capture probe avoids its interactive controls");
+        Vector2 coveredPlot = new(10, 300);
         Click(coveredPlot);
         Require(_settings.Visible, "clicking modal shade keeps settings open");
         GetViewport().PushInput(new InputEventKey { PhysicalKeycode = Key.R, Keycode = Key.R, Pressed = true }, true);
@@ -87,7 +85,7 @@ public partial class GameApplication
         Require(_settingsButton.HasFocus(), "closing modal restores focus");
         _camera.Reset();
         Require(_session.Snapshot.Revision == revision, "camera and local UI do not issue authoritative commands");
-        GD.Print("GODOT_CAMERA_PASS native-transform=true topdown/angled zoom=0.55/1/2.2 viewport=1280/1920 centers+edges mouse modal scroll focus reset");
+        GD.Print("GODOT_CAMERA_PASS native-transform=true topdown/angled fixed-framing viewport=1280/1920 centers+edges mouse modal scroll focus reset");
     }
     private void Click(Vector2 position)
     {

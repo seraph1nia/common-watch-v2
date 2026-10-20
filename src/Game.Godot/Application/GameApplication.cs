@@ -72,7 +72,6 @@ public partial class GameApplication : Node
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore, Theme = _skin.Theme };
         layer.AddChild(root); root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _gameUi = new SettlementHud(); root.AddChild(_gameUi); _gameUi.Initialize(_skin);
-        _gameUi.CameraResetRequested += ResetCamera;
         _gameUi.MenuRequested += ReturnToMenu;
         _gameUi.ReconnectRequested += ReconnectCurrent;
         _gameUi.CommandSubmitted += ResumeAfterCommand;
@@ -87,7 +86,7 @@ public partial class GameApplication : Node
     }
     private GodotSession WrapSolo(SoloSession solo) => _sessions.Open(session => session.Solo(solo));
     private void OnSessionChanged() { _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
-    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; if (_gameUi is not null) _gameUi.Message.Text = "Select a plot to inspect its authoritative actions."; _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
+    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
     private void ResetCamera() => _camera?.Reset();
 
     public override void _Process(double delta)
@@ -125,7 +124,7 @@ public partial class GameApplication : Node
     {
         _camera = GetNode<WorldCamera>("World/Camera");
         _settlementView = GetNode<SettlementView>("World/Settlement"); _settlementView.Initialize(_assets);
-        _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview");
+        _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview"); _arenaPreview.Initialize(_assets);
         _battlefield = GetNode<BattlefieldView>("World/Battlefield");
         _battlefield.ShaderEnabled = Argument("--combat-shader") != "off";
         _battlefield.Initialize(_assets); _battlefield.FramePresented += OnBattleFrame;
@@ -148,8 +147,9 @@ public partial class GameApplication : Node
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
-        _camera.ConfigureDefault(_settlementView.Visible
-            ? _settlementView.Framing(WorldArea.Size) : 1);
+        if (_settlementView.Visible) _camera.Frame(_settlementView.ScreenOrigin(WorldArea.Size), _settlementView.Framing(WorldArea.Size));
+        else if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
+        else if (preview) FrameArena(_arenaPreview.RenderBounds);
         Vector2 mouse = GetViewport().GetMousePosition();
         _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && WorldArea.HasPoint(mouse)
             ? _camera.ToWorld(mouse) : null);
@@ -179,11 +179,17 @@ public partial class GameApplication : Node
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
         var area = WorldArea;
-        _camera.Handle(input, area);
+        if (!_settlementView.Visible) _camera.Handle(input, area);
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
-    private Rect2 WorldArea => _gameUi is not null ? _gameUi.WorldArea : new Rect2(8, 120, GetViewport().GetVisibleRect().Size - new Vector2(16, 380));
+    private Rect2 WorldArea => GetViewport().GetVisibleRect();
+    private void FrameArena(Rect2 bounds)
+    {
+        Vector2 size = WorldArea.Size;
+        float zoom = Mathf.Min(size.X * .8f / bounds.Size.X, size.Y * .8f / bounds.Size.Y);
+        _camera.Frame(size / 2 - bounds.GetCenter() * zoom, zoom);
+    }
     private void SelectAt(Vector2 point)
     {
         Vector2 world = _camera.ToWorld(point);
@@ -207,6 +213,7 @@ public partial class GameApplication : Node
         _sessions.Changed -= OnSessionChanged;
         if (_battlefield is not null) _battlefield.FramePresented -= OnBattleFrame;
         if (_closeSubscribed) GetWindow().CloseRequested -= RequestQuit;
+        if (_sessionMenu is not null) _sessionMenu.SettingsRequested -= _settings.Open;
         if (_settings is not null) { _settings.Opened -= StopCameraDrag; _gameUi.SettingsRequested -= _settings.Open; }
         _audio?.Stop();
         _sessions.Close();

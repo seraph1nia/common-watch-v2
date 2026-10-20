@@ -10,9 +10,9 @@ public partial class GameApplication
     {
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true; RefreshWorld();
         Require(_settlementView.HasMap, "repository-local settlement map loaded");
-        foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080) })
+        foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080), new Vector2I(1280, 800), new Vector2I(1600, 1000), new Vector2I(2560, 1080) })
         {
-            GetWindow().Size = size;
+            GetWindow().Size = size; GetWindow().Position = Vector2I.Zero;
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             RefreshWorld(); _camera.Reset();
             _session.SelectSlot(-1); MoveMouse(new Vector2(10, 10));
@@ -42,11 +42,11 @@ public partial class GameApplication
             GetViewport().PushInput(new InputEventMouseMotion { Position = drag + new Vector2(37, -23), Relative = new Vector2(37, -23), ButtonMask = MouseButtonMask.Middle }, true);
             GetViewport().PushInput(new InputEventMouseButton { Position = drag + new Vector2(37, -23), ButtonIndex = MouseButton.Middle, Pressed = false }, true);
             GetViewport().PushInput(new InputEventMouseButton { Position = drag, ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
-            Require(_camera.PanPixels != Vector2.Zero && _camera.Magnification > beforeZoom, "native pan and wheel change camera pose");
+            Require(_camera.PanPixels == Vector2.Zero && _camera.Magnification == beforeZoom, "native pan and wheel leave fixed settlement unchanged");
             Click(_camera.ToScreen(_settlementView.PlotPosition(2)));
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Require(_session.SelectedSlot == 2, "native painted-pad selection after pan and zoom");
-            await CaptureMap("pan-zoom"); _camera.Reset();
+            Require(_session.SelectedSlot == 2, "native painted-pad selection after attempted pan and zoom");
+            await CaptureMap("fixed-camera"); _camera.Reset();
         }
         // Paid scenarios, and a real locked-plot purchase through the existing native button.
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true; RefreshWorld();
@@ -63,7 +63,7 @@ public partial class GameApplication
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); RefreshWorld(); _camera.Reset();
         await CaptureMap("buildings");
         await SmokeCameraAndInput();
-        GD.Print("GODOT_SETTLEMENT_MAP_PASS nine-pads ellipses native-hover selection pan zoom resize purchase construction depth-sort");
+        GD.Print("GODOT_SETTLEMENT_MAP_PASS nine-pads ellipses native-hover selection fixed-pan fixed-zoom resize cover purchase construction depth-sort");
 
         async Task CaptureMap(string name)
         {
@@ -71,7 +71,7 @@ public partial class GameApplication
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             System.IO.Directory.CreateDirectory(directory);
-            string path = System.IO.Path.Combine(directory, name + "-" + GetWindow().Size.X + ".png");
+            string path = System.IO.Path.Combine(directory, name + "-" + GetWindow().Size.X + (GetWindow().Size.Y == GetWindow().Size.X * 9 / 16 ? "" : "-" + GetWindow().Size.Y) + ".png");
             using var image = GetViewport().GetTexture().GetImage();
             Require(image.SavePng(path) == Error.Ok, "settlement capture " + path);
             GD.Print("GODOT_SETTLEMENT_CAPTURE " + path);

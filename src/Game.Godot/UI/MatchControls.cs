@@ -6,7 +6,7 @@ namespace Game.GodotClient;
 public partial class MatchControls : VBoxContainer
 {
     private GodotSession _session = null!;
-    private Label _status = null!, _consequence = null!;
+    private Label _status = null!;
     private Button _pause = null!;
     private HBoxContainer _speeds = null!;
     private readonly Dictionary<CombatSpeed, Button> _speedButtons = [];
@@ -19,10 +19,8 @@ public partial class MatchControls : VBoxContainer
         var ready = new HBoxContainer(); AddChild(ready);
         ReadyButton = skin.Button("Ready", () => Send(_session.City.Ready ? "unready" : "ready"), "ForestPrimaryButton");
         ReadyButton.CustomMinimumSize = new(110, 48); ready.AddChild(ReadyButton);
-        _consequence = WrapLabel(); ready.AddChild(_consequence);
-        var pace = new HBoxContainer(); AddChild(pace);
-        _pause = skin.Button("Pause match", () => Send(_session.Snapshot.Paused ? "resume" : "pause")); pace.AddChild(_pause);
-        _speeds = new HBoxContainer(); pace.AddChild(_speeds);
+        _pause = skin.Button("Pause match", () => Send(_session.Snapshot.Paused ? "resume" : "pause")); ready.AddChild(_pause);
+        _speeds = new HBoxContainer(); AddChild(_speeds);
         foreach (CombatSpeed speed in Enum.GetValues<CombatSpeed>())
         {
             var button = skin.Button(CombatSpeedRates.Label(speed), () => Send(CombatSpeedRates.Action(speed))); _speeds.AddChild(button); _speedButtons.Add(speed, button);
@@ -38,8 +36,6 @@ public partial class MatchControls : VBoxContainer
         ReadyButton.Visible = preparing; _speeds.Visible = combat;
         ReadyButton.Text = session.City.Ready ? "Unready" : "Ready";
         ReadyButton.ThemeTypeVariation = _illustrated && !session.City.Ready ? "ForestPrimaryButton" : "";
-        _consequence.Text = preparing ? $"Your city P{session.PlayerId} · settles production {state.Turn}/3" +
-            (state.Phase == Phase.Preparation ? ", then battle." : ".") : ended ? state.Phase.ToString() : combat ? "Battle inspection available below." : "Choose a real reward to continue.";
         ReadyButton.Disabled = !session.Connected || session.Pending || state.Paused || session.City.Eliminated;
         _pause.Text = state.Paused ? "Resume match" : "Pause match";
         _pause.Disabled = !session.Connected || session.Pending || ended;
@@ -53,6 +49,6 @@ public partial class MatchControls : VBoxContainer
             (ended ? $"{state.Phase} · {(state.Phase == Phase.Defeat ? PresentationLimits.DefeatText(state.DefeatReason) : "All waves held")}" :
             "Waiting: " + string.Join(", ", state.Players.Where(p => p.Connected && !p.Eliminated && !p.Ready).Select(p => $"P{p.Id}")));
         _status.Visible = state.Paused || ended;
-        ReadyButton.TooltipText = "Ready settles one production. Food shortage permits readiness; unfunded field soldiers sit out.";
+        ReadyButton.TooltipText = $"Ready settles production {state.Turn}/3. Food shortage permits readiness; unfunded field soldiers sit out.";
     }
 }

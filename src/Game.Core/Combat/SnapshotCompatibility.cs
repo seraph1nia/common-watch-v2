@@ -4,7 +4,7 @@ namespace Game.Core;
 // fields. Reconnect credentials are separate; this validates combat projections.
 public static class SnapshotCompatibility
 {
-    public const int CurrentSquadRulesVersion = 7;
+    public const int CurrentSquadRulesVersion = 8;
     public static void RequireSharedArena(MatchSnapshot state)
     {
         ArgumentNullException.ThrowIfNull(state);

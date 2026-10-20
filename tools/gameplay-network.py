@@ -45,10 +45,10 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
                 raise RuntimeError('Godot process failed: ' + message)
             time.sleep(.06)
         raise TimeoutError(message + ': ' + repr([status(i) and (status(i)['status'], status(i)['state']['Wave']) for i in range(2)]))
-    def control(index, kind, **values):
+    def control(client_index, kind, **values):
         global serial
         serial += 1
-        path = work / str(index) / 'control' / f'request-{serial:06}.json'
+        path = work / str(client_index) / 'control' / f'request-{serial:06}.json'
         path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
         path.with_suffix('.tmp').replace(path)
     def send(index, action, accepted=True, **values):
@@ -83,6 +83,27 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         wait(lambda: status(0) and status(0)['connected'], 'host')
         launch(1)
         wait(lambda: status(1) and status(1)['connected'], 'guest')
+        wait(lambda: all(len(status(i)['doctrineOffers']) == 3 for i in range(2)), 'personal doctrine offers')
+        offers = [status(i)['doctrineOffers'] for i in range(2)]
+        assert all(len(set(personal)) == 3 for personal in offers)
+        assert status(0)['doctrineStartDisabled'] and not status(1)['doctrineStartVisible']
+        control(0, 'choose-doctrine', index=0)
+        wait(lambda: city(0)['Run']['Doctrine'] == offers[0][0], 'host explicit doctrine')
+        assert status(0)['doctrineStartDisabled'], 'host waits for guest choice'
+        control(1, 'resize', width=1920, height=1080)
+        control(1, 'choose-doctrine', index=1)
+        wait(lambda: not status(0)['doctrineStartDisabled'] and not status(1)['pending'] and city(1)['Run']['Doctrine'] == offers[1][1], 'all connected players explicitly selected')
+        assert status(1)['doctrineOffers'] == offers[1]
+        assert city(1)['Run']['Doctrine'] == offers[1][1]
+        lobby_revision = status(1)['state']['Revision']
+        control(1, 'reconnect')
+        wait(lambda: status(1)['connected'] and status(1)['state']['Revision'] > lobby_revision, 'lobby reconnect')
+        assert status(1)['doctrineOffers'] == offers[1]
+        assert city(1)['Run']['Doctrine'] == offers[1][1]
+        wait(lambda: not status(0)['doctrineStartDisabled'], 'explicit choices survive lobby reconnect')
+        # The existing paid seven-wave fixture deliberately starts from Warden's known economy.
+        send(0, 'doctrine:warden')
+        send(1, 'doctrine:warden')
         send(0, 'start')
         wait(lambda: all(status(i)['state']['Phase'] == 'Building' for i in range(2)), 'start synchronized')
         send(0, 'ready')
@@ -115,7 +136,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         # Native city selector and open dialogs must keep authenticated command identity distinct.
         for index in range(2):
             owner = 2 if index == 0 else 1
-            control(index, 'inspect', owner=owner, tab=2)
+            control(index, 'inspect', owner=owner, page="Worldtree")
             wait(lambda: status(index)['viewed'] == owner and 'read-only' in status(index)['readOnly'], 'allied read-only Worldtree')
             assert status(index)['disabledResearch']
         capture = ROOT / 'artifacts/captures/gameplay/multiplayer-city-inspection.png'
@@ -124,7 +145,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         wait(lambda: capture.exists(), 'actual allied-city capture')
         send(1, 'pause')  # Inspecting an ally does not change local command identity.
         send(0, 'resume')
-        control(1, 'inspect', owner=2, tab=0)
+        control(1, 'inspect', owner=2, page="Army")
         wait(lambda: status(1)['viewed'] == 2, 'return to own city')
         for index in range(2):
             send(index, 'ready')

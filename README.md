@@ -26,7 +26,11 @@ mise run dev-multiplayer -- --players 6
 mise run play-steam                # optional; development Steam App ID is hardcoded to 480
 ```
 
-Choose **Single player**, a doctrine and **Start match**, or **Host LAN** / **Join LAN**. Left-click selects logical settlement plots; middle/right drag pans, wheel zooms and **R** resets the camera. Controls display authoritative results and rejection messages. The complete catalog, Army/squads, six army homes, Town Hall, Worldtree, battle forecast, unit/structure inspectors and run progression are available through native panels. The city selector inspects allies read-only; Ready/Unready, whole-match pause and host combat speed remain separate from local dialogs. See [gameplay controls](docs/gameplay/PLAYING.md) and the [parity audit](docs/gameplay/PARITY.md). Ready advances preparation and settles real production. Combat plays automatically; choose a reward after winning. Main menu leaves the authority, and a fresh match gets a new identity.
+The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
+
+Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Manage troops & homes** opens contextual roster, squad, veteran and six-home management. **Worldtree** opens research. The city selector inspects allies read-only. Ready/Unready, whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with proportional automatic framing and an optional illustrated forest backdrop/frame. Successful nonfinal combat opens three reward cards. There is no persistent feedback/history bar, Run dialog or manual dock collapse. See [gameplay controls](docs/gameplay/PLAYING.md).
+
+Main menu leaves the authority; a fresh match gets a new identity and personal doctrine offers. Offers derive from match/player identity independently of simulation RNG, remain stable through resize/settings/reconnect, and require a fresh explicit selection after restarting the client. The seven-column board is incompatible with this topology: board version **2**, combat rules **8**, wire protocol **17** reject older sessions/snapshots rather than migrating combat positions.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
@@ -108,11 +112,11 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
 
-The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies picking after pan/zoom and captures empty, hovered, selected and built states at 720p/1080p.
+The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
 
 The optional [forest HUD](docs/FOREST_HUD.md) uses the supplied native Theme and PNG
-parts. Its ribbon, collapsible context dock and action area also work in plain mode.
-Army contains recruitment, squads, Town Hall management and the six homes/towers.
+parts. Its ribbon, floating build context and action area also work in plain mode.
+Selected buildings expose recruitment, squads, Town Hall management and the six homes/towers.
 Selecting a construction card spends nothing; **Build selected** confirms it.
 `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` captures the
 actual forest HUD at 720p/1080p, including network feedback states.

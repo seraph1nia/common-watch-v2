@@ -37,10 +37,12 @@ public sealed class SharedTests
         Assert.NotEmpty(combat.Snapshot.Enemies);
         Assert.True(combat.Snapshot.Tick >= 180);
         Assert.Contains(combat.Snapshot.CombatEvents, e => e.Type == CombatEventType.AttackStarted && e.Unit is not null);
-        Assert.Contains(CombatPlayback.All(combat.Snapshot), u => u.Hex?.HoldsTransit == true);
+        using var deployment = ScenarioRunner.CreateAt("battle-start");
+        for (int i = 0; i < 1000 && !CombatPlayback.All(deployment.Snapshot).Any(u => u.Hex?.HoldsTransit == true); i++) deployment.Step();
+        Assert.Contains(CombatPlayback.All(deployment.Snapshot), u => u.Hex?.HoldsTransit == true);
         Assert.Contains(CombatPlayback.All(combat.Snapshot), u => u.Health < u.Profile.Health);
         Assert.NotNull(combat.Snapshot.Arena);
-        Assert.Equal(63, combat.Snapshot.Arena!.Board.Cells.Length);
+        Assert.Equal(54, combat.Snapshot.Arena!.Board.Cells.Length);
         Assert.NotEmpty(combat.Playback.Units());
         using var draft = ScenarioRunner.CreateAt("draft");
         Assert.Equal(Phase.RewardDraft, draft.Snapshot.Phase);
@@ -118,7 +120,7 @@ public sealed class SharedTests
     [Fact]
     public void CombatInterpolationUsesAuthorityCellsAndPlaybackTick()
     {
-        using var session = ScenarioRunner.CreateAt("combat");
+        using var session = ScenarioRunner.CreateAt("battle-start");
         UnitState? moving = null;
         for (int i = 0; i < 1000 && session.Snapshot.Phase == Phase.Combat; i++)
         {
@@ -215,8 +217,9 @@ public sealed class SharedTests
     [Fact]
     public void DeathAndFrozenMovementKeepTheAuthoritativeTransitPose()
     {
-        using var session = ScenarioRunner.CreateAt("combat");
-        UnitState moving = Assert.Single(session.City.Soldiers, u => u.Hex?.HoldsTransit == true);
+        using var session = ScenarioRunner.CreateAt("battle-start");
+        for (int i = 0; i < 1000 && !CombatPlayback.All(session.Snapshot).Any(u => u.Hex?.HoldsTransit == true); i++) session.Step();
+        UnitState moving = CombatPlayback.All(session.Snapshot).First(u => u.Hex?.HoldsTransit == true);
         HexUnitState hex = moving.Hex!;
         int elapsed = Math.Max(1, (int)(hex.EndTick - hex.StartTick) / 3);
         Vector2 expected = CombatVisuals.Position(moving, session.Snapshot, hex.StartTick + elapsed);

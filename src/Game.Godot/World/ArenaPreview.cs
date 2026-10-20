@@ -7,7 +7,10 @@ namespace Game.GodotClient;
 /// <summary>Read-only preparation diagram from accepted arena, homes, funding and NextWave.</summary>
 public partial class ArenaPreview : Node2D
 {
+    private AssetLoader _assets = null!;
+    public void Initialize(AssetLoader assets) => _assets = assets;
     private MatchSnapshot? _state;
+    public Rect2 RenderBounds => ArenaPresentation.RenderBounds(_state!.Arena!, _projection);
     private HexProjection _projection = new(30);
     private readonly Dictionary<int, Vector2> _units = [];
     private readonly Dictionary<(int, ArenaStructureKind, int), Vector2> _structures = [];
@@ -47,10 +50,11 @@ public partial class ArenaPreview : Node2D
     public override void _Draw()
     {
         if (_state?.Arena is not { } arena) return;
+        ArenaPresentation.Draw(this, _assets, arena, _projection);
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _projection.Corners(cell.Coordinate).Select(p => new Vector2(p.X, p.Y) - _center).ToArray();
-            WorldArt.Hex(this, corners, new Color("23343d"), new Color("3b4d50"), 1);
+            WorldArt.Hex(this, corners, new Color("45553b"), new Color("6d7955"), 1);
         }
         foreach (var sector in arena.Sectors)
         {
@@ -70,6 +74,5 @@ public partial class ArenaPreview : Node2D
             DrawCircle(pair.Value, unit.IsBoss ? 9 : 6, new Color(unit.Faction == Faction.Adventurers ? "80bbab" : "efd478"));
             WorldArt.Text(this, $"{unit.Type.ToString()[0]}{unit.Level}", pair.Value - new Vector2(0, 10), 9);
         }
-        WorldArt.Text(this, "NEXT WAVE — read-only forecast · click a unit or structure", new Vector2(0, -220), 14);
     }
 }

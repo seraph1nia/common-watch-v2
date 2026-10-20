@@ -9,18 +9,18 @@ public sealed class HexBoardTests
     public void DefaultBoardMatchesTheOddRowTerrainLatticeAndKeepsNinePlotsSeparate()
     {
         var board = new HexBoard(HexBoardDefinition.Default());
-        Assert.Equal(63, board.Cells.Count); Assert.Equal(1, board.Capacity);
+        Assert.Equal(54, board.Cells.Count); Assert.Equal(1, board.Capacity);
         Assert.All(board.Cells, c =>
         {
-            Assert.InRange(c.Coordinate.Column, 0, 6); Assert.InRange(c.Coordinate.R, 0, 8);
+            Assert.InRange(c.Coordinate.Column, 0, 5); Assert.InRange(c.Coordinate.R, 0, 8);
             Assert.Equal(c.Coordinate, HexCoordinate.FromOffset(c.Coordinate.Column, c.Coordinate.R));
             Assert.Equal(c.Neighbors.Order(), c.Neighbors);
             foreach (HexCell other in board.Cells) Assert.Equal(c.Coordinate.Distance(other.Coordinate), board.Distance(c.Id, other.Id));
         });
         int Center(int row) => board.Cells.Single(c => c.Coordinate.Column == 3 && c.Coordinate.R == row).Id;
         Assert.Equal(8, board.Distance(Center(0), Center(8)));
-        Assert.Equal(Enumerable.Range(0, 7), board.Rear(Faction.Adventurers).Select(id => board.Cell(id).Coordinate.Column));
-        Assert.Equal(Enumerable.Range(0, 7), board.Rear(Faction.Skeletons).Select(id => board.Cell(id).Coordinate.Column));
+        Assert.Equal(Enumerable.Range(0, 6), board.Rear(Faction.Adventurers).Select(id => board.Cell(id).Coordinate.Column));
+        Assert.Equal(Enumerable.Range(0, 6), board.Rear(Faction.Skeletons).Select(id => board.Cell(id).Coordinate.Column));
         using var match = new Match(combatSeed: 1);
         Assert.Equal(9, match.Join()!.Slots.Length);
         Assert.All(board.Cells, c => Assert.Single(board.Anchors));
@@ -35,7 +35,7 @@ public sealed class HexBoardTests
             Assert.Equal(DeploymentAffinity.Neutral, board.Cell(id).Affinity);
         }
         HexCell[] siege = board.SiegeCells.Select(board.Cell).OrderBy(c => c.Coordinate.Column).ToArray();
-        Assert.Equal(6, board.Distance(siege[0].Id, siege[^1].Id));
+        Assert.Equal(5, board.Distance(siege[0].Id, siege[^1].Id));
         Assert.DoesNotContain(board.Cells, c => c.Id == 0);
         foreach (Faction faction in Enum.GetValues<Faction>())
             foreach (int rear in board.Rear(faction))

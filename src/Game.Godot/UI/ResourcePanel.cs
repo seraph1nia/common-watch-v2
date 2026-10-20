@@ -5,10 +5,8 @@ namespace Game.GodotClient;
 
 public partial class ResourcePanel : GridContainer
 {
-    private readonly Dictionary<Resource, (Label Stock, Label Income)> _rows = [];
-    public Label Summary { get; private set; } = null!;
-    public Label CompactSummary { get; private set; } = null!;
-    public void Initialize(HudSkin skin, Action foodDetails)
+    private readonly Dictionary<Resource, Label> _rows = [];
+    public void Initialize(HudSkin skin)
     {
         Columns = 6; SizeFlagsHorizontal = SizeFlags.ExpandFill; MouseFilter = MouseFilterEnum.Ignore;
         foreach (var resource in new[] { Resource.Gold, Resource.Food, Resource.Wood, Resource.Stone, Resource.Metal, Resource.Cloth })
@@ -20,24 +18,9 @@ public partial class ResourcePanel : GridContainer
             var values = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; chip.AddChild(values);
             values.AddThemeConstantOverride("separation", 0);
             var stock = new Label { MouseFilter = MouseFilterEnum.Ignore };
-            stock.AddThemeFontSizeOverride("font_size", 18);
-            var income = new Label { MouseFilter = MouseFilterEnum.Ignore };
-            values.AddChild(stock); values.AddChild(income); _rows.Add(resource, (stock, income));
-            if (resource == Resource.Food)
-            {
-                var food = skin.Button("?", foodDetails); food.TooltipText = "Food stock, forecast and actual upkeep receipts";
-                food.CustomMinimumSize = new(44, 44);
-                chip.AddChild(food);
-            }
+            stock.AddThemeFontSizeOverride("font_size", 14);
+            values.AddChild(stock); _rows.Add(resource, stock);
         }
-        Summary = WrapLabel(); CompactSummary = WrapLabel();
-    }
-    public void Reflow(float width)
-    {
-        // Measure the complete chips: icons, the Food button, current stock text and theme gaps.
-        float minimum = GetChildren().OfType<Control>().Sum(chip => chip.GetCombinedMinimumSize().X)
-            + (GetChildCount() - 1) * GetThemeConstant("h_separation");
-        Columns = minimum > width ? 3 : 6;
     }
     public void Refresh(GameplayContext context)
     {
@@ -47,24 +30,8 @@ public partial class ResourcePanel : GridContainer
         {
             int? income = inactive ? 0 : city.ProductionIncome?.Amount(pair.Key);
             string signed = income is null ? "?" : income.Value.ToString("+0;-0;+0");
-            pair.Value.Stock.Text = $"{pair.Key} {city.Resources.Amount(pair.Key)}";
-            pair.Value.Income.Text = $"{signed} / production";
+            pair.Value.Text = $"{pair.Key} {city.Resources.Amount(pair.Key)}";
+            pair.Value.TooltipText = $"{signed} / production";
         }
-        if (state.Phase is Phase.Building or Phase.Preparation)
-        {
-            var food = city.FoodForecast;
-            Summary.Text = food is null ? "Next battle upkeep unavailable." :
-                $"Next battle forecast: demand {food.Demand} Food; current stock {city.Food}\n" +
-                (state.Phase == Phase.Preparation ? $"Final production +{city.ProductionIncome?.Food.ToString() ?? "?"} included in forecast; " : "") +
-                $"pay {food.Paid}; left {food.Available - food.Paid}\nFunded field {food.Participating.Length}; unfunded {food.Unfed.Length}; " +
-                $"sit out {city.Soldiers.Count(u => u.Assignment is { Stored: false } && food.Unfed.Contains(u.Id))}; stored {city.Soldiers.Count(u => u.Assignment?.Stored == true)}";
-            CompactSummary.Text = food is null ? "Upkeep forecast unavailable" : $"Forecast: {food.Paid}/{food.Demand} Food · {food.Unfed.Length} unfunded";
-        }
-        else
-        {
-            Summary.Text = city.LastUpkeep is { } paid ? $"{(state.Phase == Phase.Combat ? "Paid this battle" : "Last battle")} W{paid.Wave}: {paid.Paid} Food\nFunded {paid.Funded.Length}; field {paid.Participating.Length}; unfunded {paid.Unfed.Length}" : "No battle upkeep paid yet.";
-            CompactSummary.Text = city.LastUpkeep is { } receipt ? $"Paid W{receipt.Wave}: {receipt.Paid} Food · {receipt.Unfed.Length} unfunded" : "No upkeep paid yet";
-        }
-        if (!context.Session.Connected) Summary.Text += "\nDisconnected — synchronized values are stale.";
     }
 }

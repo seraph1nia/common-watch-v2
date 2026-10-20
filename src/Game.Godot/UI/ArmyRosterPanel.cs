@@ -46,7 +46,7 @@ public partial class ArmyRosterPanel : VBoxContainer
         halls.AddChild(WrapLabel("Town Halls — select a hall; choose a veteran in Roster to store or return."));
         _halls = new OptionButton(); halls.AddChild(_halls); _halls.ItemSelected += _ => Refresh(_context);
         _hall = new TownHallPanel(); halls.AddChild(_hall); _hall.Initialize(skin);
-        var homes = new ScrollContainer { Name = "Homes & towers", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
+        var homes = new ScrollContainer { Name = "Homes & towers", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
         Deployment = new DeploymentPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill }; homes.AddChild(Deployment); Deployment.Initialize(skin, submitted);
     }
     public void Refresh(GameplayContext context)

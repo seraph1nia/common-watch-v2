@@ -8,7 +8,7 @@ license recorded at the repository root:
 - `tests/Game.Core.Tests/HexBoardTests.cs`
 - `tests/Game.Core.Tests/CampaignFixture.cs`
 
-The local `AuthoritySessionTests.cs` capacity case now expects six players and rejects a seventh; other copied cases remain unchanged.
+The local `AuthoritySessionTests.cs` capacity case now expects six players and rejects a seventh; the local `HexBoardTests.cs` geometry expectations now describe the explicitly requested six-column, 54-cell default board. Other copied cases remain unchanged.
 
 They exercise the authoritative Core independently of either client. New
 slice-specific authority tests live one directory above.

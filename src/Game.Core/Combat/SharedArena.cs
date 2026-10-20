@@ -31,7 +31,7 @@ public sealed record ArenaState(HexBoardDefinition Board, ArenaSector[] Sectors,
 // battlefield cells. Sectors define legal preparation, never combat barriers.
 public sealed class SharedArena
 {
-    public const int SectorWidth = 7, Depth = 9;
+    public const int SectorWidth = 6, Depth = 9;
     // One cached topology per supported roster size. Full snapshot identity
     // validation and approach bounds reuse the largest roster's routing.
     // Owner IDs, footprints, claims and mutable projections remain per arena,
@@ -53,7 +53,7 @@ public sealed class SharedArena
         Board = Boards[roster.Length - 1].Value;
         var sectors = new List<ArenaSector>();
         var footprints = new List<ArenaFootprint>();
-        (int Column, int Row)[] towerCells = [(0, 5), (6, 5), (0, 6), (6, 6), (0, 7), (6, 7), (1, 8), (5, 8), (3, 7)];
+        (int Column, int Row)[] towerCells = [(0, 5), (5, 5), (0, 6), (5, 6), (0, 7), (5, 7), (1, 8), (4, 8), (2, 7)];
         for (int index = 0; index < roster.Length; index++)
         {
             int owner = roster[index], start = index * SectorWidth;
@@ -86,7 +86,7 @@ public sealed class SharedArena
         HexCellDefinition[] graph = cells.Select(c => c with
         { Neighbors = cells.Where(n => n.Id != c.Id && c.Coordinate.Distance(n.Coordinate) == 1).Select(n => n.Id).ToArray() }).ToArray();
         int[] Row(int row) => graph.Where(c => c.Coordinate.R == row).Select(c => c.Id).ToArray();
-        return new(new("shared-watch-arena", 1, 1, graph, [new(1, 0, 0)],
+        return new(new("shared-watch-arena", 2, 1, graph, [new(1, 0, 0)],
             [new(Faction.Adventurers, Row(8), Row(7)), new(Faction.Skeletons, Row(0), Row(1))], Row(7)));
     }
 

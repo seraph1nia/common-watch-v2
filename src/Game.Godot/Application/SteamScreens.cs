@@ -22,7 +22,10 @@ public partial class GameApplication
     private void SteamChanged() => RefreshUi(true);
     private void RefreshSteamMenu()
     {
+        var target = _session is { HasState: true } ? _sessionMenu.LobbyActions : _sessionMenu.MultiplayerContent;
+        if (_steamPanel.GetParent() != target) _steamPanel.Reparent(target);
         _steamPanel.Refresh(_session is null, _steam.Lobby != 0 && _session is { IsHost: true });
+        _sessionMenu.MultiplayerStatus.Text = _steam.Feedback;
         if (_steam.Feedback.Length > 0) _sessionMenu.Roster.Text += "\n" + _steam.Feedback;
     }
 }

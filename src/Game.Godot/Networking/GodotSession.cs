@@ -16,6 +16,16 @@ public partial class GodotSession : Node, IDisposable
     private SessionFile? _resume;
     private readonly string _attempt = Guid.NewGuid().ToString("N");
     private readonly HashSet<int> _admitted = [];
+    // Host-local lobby acknowledgment, separate from simulation state and private resume data.
+    // Survives peer reconnects for the lifetime of this authority; never infers choice from default Warden.
+    private readonly HashSet<int> _doctrineChoices = [];
+    public bool AllDoctrinesChosen => HasState && IsHost && (_authority?.Snapshot() ?? Snapshot).Players
+        .Where(p => p.Connected).All(p => _doctrineChoices.Contains(p.Id));
+    private void ObserveDoctrineChoice(Command? command, CommandResult? result)
+    {
+        if (result is { Accepted: true } && command is { ExpectedPhase: Phase.Lobby, City: > 0 } && command.Action.StartsWith("doctrine:", StringComparison.Ordinal))
+            _doctrineChoices.Add(command.City);
+    }
     private readonly Dictionary<int, (long Revision, ulong Sent)> _inFlight = [];
     private readonly Dictionary<long, (string Json, ulong Sent)> _pending = [];
     private long _sequence;
@@ -147,8 +157,13 @@ public partial class GodotSession : Node, IDisposable
     {
         if (_disposed || _authority is null || json is null) return;
         int peer = Multiplayer.GetRemoteSenderId();
+        long before = _authority.Revision;
         if (_authority.Request(peer, json, Time.GetTicksMsec()) is { } result)
+        {
+            // Only a newly applied command is evidence; a cached ledger reply may have a different payload.
+            if (result.Accepted && _authority.Revision > before) ObserveDoctrineChoice(JsonSerializer.Deserialize<Command>(json, WireJson.Options), result);
             RpcId(peer, MethodName.Acknowledgment, _authority.MatchId, JsonSerializer.Serialize(result, WireJson.Options));
+        }
     }
     [Rpc(TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void Acknowledgment(string match, string json)
@@ -232,6 +247,7 @@ public partial class GodotSession : Node, IDisposable
         if (_solo is not null)
         {
             LastResult = _solo.Send(action, slot, building, soldierType, payment, technology, resource, bundles, unitId, squadId, cell);
+            ObserveDoctrineChoice(_solo.LastCommand, LastResult);
             SetState(_solo.Snapshot); return;
         }
         if (_pending.Count >= 16) { Status = "Waiting for authority acknowledgments."; return; }
@@ -239,7 +255,7 @@ public partial class GodotSession : Node, IDisposable
         var command = Command.FromSnapshot(Snapshot, sequence, action, PlayerId, slot, building, soldierType,
             technology, resource, bundles, payment, unitId, squadId, cell);
         _lastCommand = command;
-        if (_authority is not null) { LastResult = _authority.ExecuteLocal(command); SetState(_authority.Snapshot()); }
+        if (_authority is not null) { LastResult = _authority.ExecuteLocal(command); ObserveDoctrineChoice(command, LastResult); SetState(_authority.Snapshot()); }
         else
         {
             string json = JsonSerializer.Serialize(command, WireJson.Options);

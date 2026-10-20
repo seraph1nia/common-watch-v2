@@ -22,7 +22,7 @@ public partial class GameApplication
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         _gameUi.ReadyButton.EmitSignal(BaseButton.SignalName.Pressed);
         Require(_session.LastResult?.Accepted == true, "ready button");
-        OpenDetails(5);
+        RefreshUi(true);
         Require(_gameUi.Inspector.RecruitButton is not null, "recruitment UI");
         int roster = _session.City.Soldiers.Length;
         _gameUi.Inspector.RecruitButton!.EmitSignal(BaseButton.SignalName.Pressed);
