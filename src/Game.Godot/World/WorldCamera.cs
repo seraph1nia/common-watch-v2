@@ -39,10 +39,22 @@ public partial class WorldCamera : Camera2D
     }
     public void FrameArena(Rect2 bounds, Vector2 viewport, Vector2? focus = null, float? sectorPitch = null)
     {
+        bool local = focus is not null && sectorPitch is not null;
         var frame = focus is { } center && sectorPitch is { } pitch
-            ? new Rect2(new Vector2(center.X - pitch * .85f, bounds.Position.Y), new Vector2(pitch * 1.7f, bounds.Size.Y)) : bounds;
+            ? new Rect2(new Vector2(center.X - pitch * .85f, bounds.Position.Y + pitch * .10f), new Vector2(pitch * 1.7f, bounds.Size.Y)) : bounds;
         float zoom = Mathf.Min(viewport.X * .8f / frame.Size.X, viewport.Y * .8f / frame.Size.Y);
-        Frame(viewport / 2 - frame.GetCenter() * zoom, zoom); Fixed = false;
+        if (local)
+        {
+            zoom *= 1.25f;
+            Frame(viewport / 2 - frame.GetCenter() * zoom, zoom);
+        }
+        else
+        {
+            // Overview is a temporary pose. Reset always returns to the local default.
+            Magnification = zoom; PanPixels = Vector2.Zero; StopDrag();
+            Layout(viewport / 2 - frame.GetCenter() * zoom);
+        }
+        Fixed = false;
     }
     public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; Layout(_defaultOrigin); }
     public void StopDrag() => _dragging = false;

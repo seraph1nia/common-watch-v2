@@ -7,6 +7,7 @@ namespace Game.GodotClient;
 public partial class BattlefieldView : Node2D
 {
     CombatOverlay? _combatOverlay;
+    private readonly ArenaScenery _scenery = new();
     readonly Shader _hitShader = GD.Load<Shader>("res://Combat/HitFlash.gdshader");
     readonly Dictionary<int, CombatFigure> _figures = [];
     readonly Dictionary<(int Owner, ArenaStructureKind Kind, int Slot), CombatStructure> _structures = [];
@@ -33,6 +34,7 @@ public partial class BattlefieldView : Node2D
     public void Initialize(AssetLoader assets)
     {
         _assets = assets; _art = new(assets);
+        AddChild(_scenery);
         var layer = new CanvasLayer { Layer = 1 }; AddChild(layer);
         _diagnostics = new Label { Position = new Vector2(22, 130), MouseFilter = Control.MouseFilterEnum.Ignore }; layer.AddChild(_diagnostics);
         Hide();
@@ -43,6 +45,7 @@ public partial class BattlefieldView : Node2D
         if (_compression != _options.GroundCompression)
         { _compression = _options.GroundCompression; _arena = new(30, _compression); }
         ObserveCombat(); Visible = Active;
+        _scenery.Present(_assets, Active ? CombatState.Arena : null, _arena);
         _diagnostics.Visible = Active && _options.DebugOverlay;
         if (!Active) { foreach (var figure in _figures.Values) figure.Hide(); foreach (var structure in _structures.Values) structure.Hide(); if (_combatOverlay is not null) _combatOverlay.Hide(); }
         QueueRedraw();
@@ -110,7 +113,8 @@ public partial class BattlefieldView : Node2D
         Vector2 Project(System.Numerics.Vector2 p) => new Vector2(p.X, p.Y * _options.GroundCompression) - center;
         Vector2 Ground(UnitState u) => Project(CombatVisuals.Position(u, state, tick));
         Vector2 Cell(int cell) => arena.Board.Cells.FirstOrDefault(c => c.Id == cell) is { } c ? V(_arena.Project(c.Coordinate)) - center : Vector2.Zero;
-        bool modular = ArenaPresentation.Draw(this, _assets, arena, _arena);
+        bool modular = _scenery.Available;
+        if (!modular) ArenaPresentation.Draw(this, _assets, arena, _arena);
         Rect2 visibleArea = WorldArt.VisibleArea(this);
         var units = Playback.Units().Where(u => u.Hex?.Lifecycle is UnitLifecycle.Alive or UnitLifecycle.Dying).OrderBy(u => Ground(u).Y).ThenBy(u => u.Id).ToArray();
         var positions = units.ToDictionary(u => u.Id, Ground);

@@ -8,7 +8,8 @@ namespace Game.GodotClient;
 public partial class ArenaPreview : Node2D
 {
     private AssetLoader _assets = null!;
-    public void Initialize(AssetLoader assets) => _assets = assets;
+    private readonly ArenaScenery _scenery = new();
+    public void Initialize(AssetLoader assets) { _assets = assets; AddChild(_scenery); }
     private MatchSnapshot? _state;
     public Rect2 RenderBounds => ArenaPresentation.RenderBounds(_state!.Arena!, _projection, _assets.Options.Mode == RenderMode.Sprites);
     private HexProjection _projection = new(30);
@@ -18,6 +19,7 @@ public partial class ArenaPreview : Node2D
     public void Present(MatchSnapshot state, bool visible, float compression)
     {
         Visible = visible; _state = state; _projection = new(30, compression);
+        _scenery.Present(_assets, visible ? state.Arena : null, _projection);
         if (!visible || state.Arena is not { } arena) return;
         var points = arena.Board.Cells.Select(c => _projection.Project(c.Coordinate)).ToArray();
         _center = new((points.Min(p => p.X) + points.Max(p => p.X)) / 2, (points.Min(p => p.Y) + points.Max(p => p.Y)) / 2);
@@ -50,7 +52,8 @@ public partial class ArenaPreview : Node2D
     public override void _Draw()
     {
         if (_state?.Arena is not { } arena) return;
-        bool modular = ArenaPresentation.Draw(this, _assets, arena, _projection);
+        bool modular = _scenery.Available;
+        if (!modular) ArenaPresentation.Draw(this, _assets, arena, _projection);
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _projection.Corners(cell.Coordinate).Select(p => new Vector2(p.X, p.Y) - _center).ToArray();

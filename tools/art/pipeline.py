@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 import shutil
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[2]
 STAGE = ROOT / 'art/processed'
@@ -166,7 +166,17 @@ def process():
     for e in entries:
         source_path = bounded_path(ROOT, e['source'])
         with Image.open(source_path) as source:
-            if e.get('preserve_png'):
+            if e.get('preblurred_atmosphere'):
+                if e['id'] != 'arena/atmosphere' or hashlib.sha256(source_path.read_bytes()).hexdigest() != e['source_sha256']:
+                    raise ValueError('Atmosphere requires the qualified arena scenery source')
+                # Supplied scenery only: no plates, cell outlines, units or keep cutouts.
+                image = Image.new('RGBA', source.size, '#171b23')
+                image.alpha_composite(source.convert('RGBA'))
+                image = image.convert('RGB').filter(ImageFilter.GaussianBlur(36))
+                image = ImageEnhance.Contrast(image).enhance(.65)
+                image = ImageEnhance.Brightness(image).enhance(.78).convert('RGBA')
+                info = {'source_size': source.size, 'blur_radius': 36, 'contrast': .65, 'brightness': .78}
+            elif e.get('preserve_png'):
                 if e['id'].split('/')[0] != 'arena' or hashlib.sha256(source_path.read_bytes()).hexdigest() != e['source_sha256']:
                     raise ValueError('Supplied arena PNG hash differs from manifest')
                 image, info = source.copy(), {'source_size': source.size}

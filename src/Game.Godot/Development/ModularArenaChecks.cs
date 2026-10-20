@@ -12,6 +12,7 @@ public partial class GameApplication
         directory = System.IO.Path.GetFullPath(directory); System.IO.Directory.CreateDirectory(directory);
         _frozen = true; _gameUi.Hide(); if (_battleLayer is not null) _battleLayer.Hide();
         var receipts = new List<object>();
+        var localZooms = new Dictionary<(ViewPreset, int), float>();
         for (int players = 1; players <= 6; players++)
         {
             _battle = new("arena", players) { Paused = true };
@@ -31,6 +32,13 @@ public partial class GameApplication
                 _arenaCameraKey = ""; SeekBattle(74); RefreshWorld();
                 var projection = new HexProjection(30, _options.GroundCompression);
                 var layout = new ArenaLayout(arena, projection);
+                float localZoom = _camera.Magnification;
+                Vector2 localOrigin = _camera.ToScreen(Vector2.Zero);
+                var renderBounds = _battlefield.RenderBounds;
+                float priorZoom = Mathf.Min(size.X * .8f / (layout.Pitch * 1.7f), size.Y * .8f / renderBounds.Size.Y);
+                Require(Mathf.IsEqualApprox(localZoom, priorZoom * 1.25f), "local default is 25 percent closer");
+                if (players == 1) localZooms[(view, size.X)] = localZoom;
+                else Require(Mathf.IsEqualApprox(localZoom, localZooms[(view, size.X)]), "more sectors never zoom out the local default");
                 string prefix = $"{players}-sectors-{view.ToString().ToLowerInvariant()}-{size.X}";
                 // Exercise native input and ensure RefreshWorld never snaps pan/zoom back.
                 var at = WorldArea.GetCenter(); float before = _camera.Magnification;
@@ -58,6 +66,26 @@ public partial class GameApplication
                     Require(projection.HitTest(new System.Numerics.Vector2(roundtrip.X, roundtrip.Y) + layout.Center, cells.Values.Select(c => c.Coordinate)) == cell.Coordinate, "all authoritative cells pick through native camera");
                 }
                 await Capture("overview");
+                // Native reset must restore local framing even after overview changed the origin.
+                GetViewport().PushInput(new InputEventKey { Keycode = Key.R, PhysicalKeycode = Key.R, Pressed = true }, true);
+                GetViewport().PushInput(new InputEventKey { Keycode = Key.R, PhysicalKeycode = Key.R, Pressed = false }, true);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                Require(Mathf.IsEqualApprox(_camera.Magnification, localZoom) && _camera.ToScreen(Vector2.Zero).IsEqualApprox(localOrigin), "native reset restores the closer local pose after overview");
+                if (players is 1 or 6)
+                {
+                    // Both poses place all scenery offscreen: only the fixed backdrop remains.
+                    _camera.SetPose(.25f, new Vector2(20000, 20000));
+                    await Capture("backdrop-pan");
+                    using var first = GetViewport().GetTexture().GetImage();
+                    Require(_arenaBackdrop.Visible, "screen backdrop stays visible outside arena bounds");
+                    _camera.SetPose(2.2f, new Vector2(-20000, -20000));
+                    await Capture("backdrop-zoom");
+                    using var second = GetViewport().GetTexture().GetImage();
+                    Require(first.GetData().SequenceEqual(second.GetData()), "backdrop pixels are independent of camera pan and zoom");
+                    Require(first.GetPixel(0, 0).A == 1 && first.GetPixel(size.X - 1, size.Y - 1).A == 1
+                        && first.GetPixel(0, 0) != first.GetPixel(size.X - 1, size.Y - 1), "atmosphere covers viewport corners without empty borders");
+                }
+                OverviewArena();
                 SeekBattle(hit.Tick + 2); CheckPicking(); await Capture("structure-hit");
                 SeekBattle(destroyed.Tick + 8); CheckPicking(); await Capture("structure-destroyed");
                 if (crossing is not null)
@@ -65,7 +93,8 @@ public partial class GameApplication
                     SeekBattle(crossing.Tick + .5); CheckPicking(); await Capture("crossing");
                 }
                 receipts.Add(new { players, columns = layout.Columns, cells = cells.Count, view = view.ToString(), width = size.X, height = size.Y,
-                    hitTick = hit.Tick, destroyedTick = destroyed.Tick, crossingTick = crossing?.Tick, nativePanZoom = true, picking = true });
+                    hitTick = hit.Tick, destroyedTick = destroyed.Tick, crossingTick = crossing?.Tick, nativePanZoom = true, picking = true,
+                    localZoom, zoomIncrease = 1.25f, resetAfterOverview = true, fixedBackdrop = players is 1 or 6 });
                 GD.Print($"GODOT_MODULAR_ARENA_PASS players={players} cells={cells.Count} view={view} size={size} cross={crossing?.Tick}");
 
                 void CheckPicking()

@@ -118,12 +118,14 @@ public partial class GameApplication : Node
     private SettlementView _settlementView = null!;
     private BattlefieldView _battlefield = null!;
     private ArenaPreview _arenaPreview = null!;
+    private ArenaBackdrop _arenaBackdrop = null!;
     private BattleShowcase? _battle;
     private bool CombatShader => _battlefield.ShaderEnabled;
     private Vector2 WorldOrigin => WorldArea.GetCenter();
     private void CreateWorld()
     {
         _camera = GetNode<WorldCamera>("World/Camera");
+        _arenaBackdrop = GetNode<ArenaBackdrop>("ArenaBackdrop");
         _settlementView = GetNode<SettlementView>("World/Settlement"); _settlementView.Initialize(_assets);
         _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview"); _arenaPreview.Initialize(_assets);
         _battlefield = GetNode<BattlefieldView>("World/Battlefield");
@@ -143,10 +145,11 @@ public partial class GameApplication : Node
     {
         if (_camera is null) return;
         _assets.Configure(_options);
-        if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); return; }
+        if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); _arenaBackdrop.Hide(); return; }
         _battlefield.Present(_session, _battle);
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
+        _arenaBackdrop.Present(_assets, _battlefield.Active || preview);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
         if (_settlementView.Visible) _camera.Frame(_settlementView.ScreenOrigin(WorldArea.Size), _settlementView.Framing(WorldArea.Size));
         else if (_battlefield.Active || preview)

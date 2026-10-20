@@ -25,9 +25,8 @@ public static class ArenaPresentation
         var bounds = GridBounds(arena, projection);
         return new Rect2(-bounds.Size / 2, bounds.Size).Grow(50);
     }
-    public static bool Draw(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection)
+    public static void Draw(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection)
     {
-        if (assets.Options.Mode == RenderMode.Sprites && DrawModular(canvas, assets, arena, projection)) return true;
         Rect2 grid = GridBounds(arena, projection);
         grid.Position = -grid.Size / 2;
         Rect2 rail = grid.Grow(24);
@@ -68,12 +67,9 @@ public static class ArenaPresentation
             canvas.DrawArc(corner, 13, 0, Mathf.Tau, 24, new Color("c1ae72"), 2, true);
             canvas.DrawLine(corner - new Vector2(16, 0), corner + new Vector2(16, 0), new Color("b4a06b"), 2, true);
         }
-        return false;
     }
-    static bool DrawModular(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection)
+    internal static void DrawModular(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection)
     {
-        // Probe one ground tile: absent/corrupt packs retain the complete geometric renderer.
-        if (assets.Load("arena/ground_repeat_01") is null) return false;
         var layout = new ArenaLayout(arena, projection);
         var art = new WorldArt(assets);
         Vector2 start = new(layout.Position.X, layout.Position.Y);
@@ -82,7 +78,6 @@ public static class ArenaPresentation
         int[] variants = [1, 2, 3, 2, 1, 3];
         float capWidth = pitch * 352 / 1024;
         var paintedBounds = new Rect2(start.X - capWidth, start.Y - pitch * .30f, layout.Size.X + capWidth * 2, height + pitch * .6125f);
-        canvas.DrawRect(WorldArt.VisibleArea(canvas), new Color("171b23"));
         // Continue a full tile beneath BOTH transparent caps and the final odd-row half-cell.
         // The repeat pitch excludes the half-column stagger in the whole board's bounds.
         for (int i = -1; i <= count; i++)
@@ -99,9 +94,8 @@ public static class ArenaPresentation
             art.Texture(canvas, "arena/rain_repeat", new Rect2(x, start.Y, pitch, height), new Color(1, 1, 1, .16f), paintedBounds);
         }
         // Caps are strictly outside the outermost playable corners, never at sector joins.
-        art.Texture(canvas, "arena/arena_left_cap", new Rect2(start.X - capWidth, start.Y - pitch * .12f, capWidth, pitch * 1.25f));
-        art.Texture(canvas, "arena/arena_right_cap", new Rect2(-start.X, start.Y - pitch * .12f, capWidth, pitch * 1.25f));
-        return true;
+        art.Texture(canvas, "arena/arena_left_cap", new Rect2(start.X - capWidth, start.Y - pitch * .12f, capWidth, pitch * 1.25f), clip: paintedBounds);
+        art.Texture(canvas, "arena/arena_right_cap", new Rect2(-start.X, start.Y - pitch * .12f, capWidth, pitch * 1.25f), clip: paintedBounds);
     }
     private static void DrawCover(Node2D canvas, Texture2D texture, Rect2 target, Color tint)
     {

@@ -10,7 +10,7 @@ public static class ArenaAssets
         "ground_repeat_01", "ground_repeat_02", "ground_repeat_03",
         "backdrop_repeat_01", "backdrop_repeat_02", "backdrop_repeat_03",
         "foreground_repeat", "arena_left_cap", "arena_right_cap", "keep", "defense_tower",
-        "rain_repeat", "embers_repeat", "smoke_repeat", "fire_glow", "crystal_glow"
+        "rain_repeat", "embers_repeat", "smoke_repeat", "fire_glow", "crystal_glow", "atmosphere"
     });
 }
 

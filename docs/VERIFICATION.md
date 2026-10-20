@@ -273,3 +273,48 @@ long-label/large-number manual stress was not performed; the layout supports
 resource reflow and scrolling and was checked with legal scenario values. The
 known intermittent native .NET/JIT crash risk remains unresolved; these successful
 runs do not qualify it away.
+
+## Arena backdrop and closer camera — 2026-10-21
+
+The optional sprite arena now has a fixed viewport backdrop processed by Pillow
+from the supplied forest scenery. It covers at the original aspect ratio, ignores
+mouse input and uses no fullscreen blur. A scenery-only alpha material feathers
+the complete board's outer decorative margins; playable cells and sector joins
+remain opaque. Local framing is 25% closer and biased toward the keep, with the
+same magnification for every roster size. F/Field overview remains available;
+R restores the closer local framing after overview or manual pan/zoom.
+
+Executed on Linux Xvfb/Mesa with private settings and automated Dummy audio:
+
+- `mise run build`: passed, zero warnings/errors, locked restore.
+- `mise run test-core`: 46 passed; `mise run test-shared`: 88 passed.
+- `mise run art-process`, `art-validate`, `art-install`, `test-art`: passed;
+  19 Pillow tests. Existing supplied component/source PNGs are unchanged.
+- `mise run capture-arena`: all 24 cases passed (1–6 sectors, both projections,
+  1280×720 and 1920×1080). Native wheel/drag persistence, all-cell inverse picking,
+  moving actor/structure picking, overview fit and native R reset passed.
+  Magnification is exactly 1.25 times the previous local default and identical
+  across roster sizes. One/six-sector off-arena captures at zoom .25 and 2.2 have
+  identical backdrop pixels and filled viewport corners. All 132 PNGs are actual
+  legal scenario captures under `artifacts/captures/godot/modular-arena/`;
+  `verification.json` records the poses and assertions. The one/six-sector local
+  views at both sizes/projections and the six-sector overview were inspected.
+- `mise run test-session`: both real-process graphical tests passed, including
+  debug/plain, installed/empty/corrupt sprite packs, illustrated HUD, lifecycle,
+  picking/input/focus and audio preferences. The first invocation caught the old
+  45-asset smoke assertion; it was updated for the added derivative and the full
+  task rerun successfully.
+- `mise run test-animation`: eight contracts and actual phase/fallback captures
+  passed. `mise run capture-battle`: named phases, ordered frame checks and
+  missing-art/camera fallback captures passed. `mise run capture-art`: passed.
+- `git diff --check`: passed. Gameplay/Core, transport, source artwork, music and
+  dependency/tool locks are unchanged. No commit or push was performed.
+
+The screenshot review is `artifacts/arena-background-review/index.html`, using
+WatchTheme colors and original PNG links. Task transcripts are retained under
+`artifacts/test-logs/arena-background/`.
+
+Not rerun: aggregate `mise run test`, multiplayer/reconnect/network-fault suites,
+performance profiling, release exports, remote CI, live two-account Steam and
+native Windows/macOS or physical GPU/input/audio checks. The known intermittent
+native .NET/JIT crash risk remains unresolved; these passing runs do not remove it.

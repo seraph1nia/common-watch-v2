@@ -26,6 +26,18 @@ rain overlay is cosmetic. Assembled plates are retained only in the source pack,
 never installed or layered over these components. Smoke, embers and glow are
 installed but not decoded by normal arena rendering.
 
+A separate viewport CanvasLayer places a heavily pre-blurred, low-contrast,
+slightly darkened copy of the supplied `backdrop_repeat_01` behind the sharp
+arena. Pillow processes this scenery offline into `arena/atmosphere`; no units,
+keep cutouts, hex outlines or UI are composited into it. The TextureRect preserves
+aspect ratio with cover cropping, ignores mouse input and follows viewport size,
+independently of camera pose and arena bounds. It uses no fullscreen blur pass.
+The sharp scenery alone has a lightweight alpha shader: it stays fully opaque
+over the entire playable bounding rectangle and feathers through the outer
+decorative margins. There are no fades at sector joins, and actors, effects and
+hex outlines do not inherit the material. Debug and missing-pack fallback remain
+geometric and artwork independent.
+
 ## Structures and camera
 
 The supplied keep and ArrowTower use the catalog ground anchor
@@ -36,8 +48,10 @@ ground-depth ordering; sampled bounce does not change that order. Health bars,
 owner/kind labels, inspection, hit flashes and destruction fades follow playback
 state and events. There are no independent damage or animation clocks.
 
-Entering the arena focuses the local player's sector. Middle/right drag pans;
-the wheel zooms; R resets the current camera framing. **Field overview** or F fits
+Entering the arena focuses the local player's sector with 25% more magnification
+than the previous local framing, shifted slightly toward the keep. This default
+does not zoom out as sectors are added. Middle/right drag pans; the wheel zooms;
+R restores the closer local pose, including after **Field overview** or F fits
 the whole field. Routine snapshot refreshes preserve the camera pose. Changing
 projection, resolution or entering a new arena establishes fresh local framing.
 Settlement retains its fixed framing and disabled pan/zoom.
@@ -58,11 +72,14 @@ previews, source images and optional offline tools, remains unchanged under
 `art/source/modular_battle_arena/`. Archive provenance is recorded in
 `art/manifests/modular-arena-provenance.json`.
 
-Sixteen component PNGs have explicit `arena/*` IDs in the existing extraction
+Sixteen supplied component PNGs and one processed atmosphere have explicit
+`arena/*` IDs in the existing extraction
 manifest and `assets/catalog.json`. The pack's `metadata/assets.json` does not
 replace that catalog. The pipeline's scoped `preserve_png` option copies these
 supplied files byte-for-byte and verifies their source hashes. Existing crop
 processing remains in use for the other 29 sprites.
+The atmosphere entry records its scenery source hash and Pillow processing
+parameters; the source pack and existing installed component PNGs stay intact.
 
 ```sh
 mise run art-process
@@ -87,7 +104,11 @@ For each roster it captures topdown/angled at 1280×720 and 1920×1080: initial
 local framing, whole-field overview, real structure hit/destruction and (for
 2–6 sectors) an actual interpolated move across a sector boundary. It checks all
 cell centers through the native camera inverse, actor/structure picking, native
-wheel zoom and drag persistence, and the F overview action. There are 116 actual
+wheel zoom and drag persistence, the F overview action and native R reset back to
+the local default. It asserts the 25% zoom increase and identical magnification
+across roster sizes. For one/six sectors it additionally captures both extreme
+pan/zoom poses and compares backdrop pixels, including filled viewport corners.
+There are 132 actual
 viewport PNGs and 24 result records in
 `artifacts/captures/godot/modular-arena/verification.json`.
 
