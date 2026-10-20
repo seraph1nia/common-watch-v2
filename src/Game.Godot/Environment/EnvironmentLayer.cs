@@ -16,20 +16,23 @@ public partial class EnvironmentLayer : Node2D
     public Rect2 Bounds { get; set; }
     public float Time { get; private set; }
     private Rect2 _visible;
+    private readonly EnvironmentMotion _motion = new();
+    public Vector2 MotionOffset => _motion.Offset;
     public ShaderMaterial EffectMaterial { get; private set; } = null!;
     public void Initialize(Shader shader)
     {
         EffectMaterial = new ShaderMaterial { Shader = shader };
         Material = EffectMaterial;
     }
-    public void UpdateLayer(float time)
+    public void UpdateLayer(float time, bool sampled = false)
     {
         Time = time;
+        _motion.Update(time, Velocity * SpeedScale, sampled);
         _visible = Bounds.Intersection(WorldArt.VisibleArea(this));
         Visible = Enabled && Opacity > .001f && _visible.HasArea();
         if (!Visible) return;
         EffectMaterial.SetShaderParameter("visual_time", time);
-        EffectMaterial.SetShaderParameter("velocity", Velocity * SpeedScale);
+        EffectMaterial.SetShaderParameter("motion_offset", MotionOffset);
         EffectMaterial.SetShaderParameter("texture_scale", TextureScale);
         EffectMaterial.SetShaderParameter("opacity", Opacity * Strength);
         EffectMaterial.SetShaderParameter("tint", Tint);

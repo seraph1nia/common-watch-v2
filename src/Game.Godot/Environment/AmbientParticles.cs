@@ -6,7 +6,17 @@ namespace Game.GodotClient;
 public partial class AmbientParticles : Node2D
 {
     public Rect2 Bounds { get; set; }
-    public float Time { get; set; }
+    public float Time { get; private set; }
+    private readonly EnvironmentMotion _motion = new(), _snowMotion = new();
+    public Vector2 MotionOffset => _motion.Offset;
+    public float SnowOffset => _snowMotion.Offset.Y;
+    public void UpdateMotion(float time, bool sampled = false)
+    {
+        Time = time;
+        bool rain = Rain > .01f, snow = !rain && Snow > .01f;
+        _motion.Update(time, new Vector2(Wind, rain ? 185 : snow ? 17 : -4), sampled);
+        _snowMotion.Update(time, new Vector2(0, snow ? 20 : 0), sampled);
+    }
     public float Amount { get; set; }
     public float Snow { get; set; }
     public float Rain { get; set; }
@@ -31,9 +41,8 @@ public partial class AmbientParticles : Node2D
             int id = x * 977 + y * 131;
             float r = Random(id, Seed), phase = Random(id + 41, Seed);
             if (r > Quality * Math.Max(Amount, Math.Max(Snow, Math.Max(Rain, Embers)))) continue;
-            float fall = Snow > .01f || Rain > .01f ? 1 : -1;
-            Vector2 p = new((x + Mathf.PosMod(phase + Time * Wind / cell + MathF.Sin(Time * .27f + id) * .06f, 1)) * cell,
-                (y + Mathf.PosMod(r + Time * (Rain > .01f ? 185 : Snow > .01f ? 17 + r * 20 : 4) * fall / cell, 1)) * cell);
+            Vector2 p = new((x + Mathf.PosMod(phase + MotionOffset.X / cell + MathF.Sin(Time * .27f + id) * .06f, 1)) * cell,
+                (y + Mathf.PosMod(r + (MotionOffset.Y + r * SnowOffset) / cell, 1)) * cell);
             if (!visible.HasPoint(p)) continue;
             float alpha = .2f + .35f * MathF.Pow(MathF.Sin(Time * .8f + id), 2);
             if (Rain > .01f)

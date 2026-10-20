@@ -14,6 +14,7 @@ public partial class GameApplication
         var receipts = new List<object>();
         _frozen = true;
         if (_battleLayer is not null) _battleLayer.Hide();
+        await CheckEnvironmentRegressions(directory);
         foreach (int players in new[] { 1, 6 })
         foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080) })
         foreach (var view in new[] { ViewPreset.Topdown, ViewPreset.Angled })
@@ -85,11 +86,11 @@ public partial class GameApplication
         foreach (var layer in composition.Layers) layer.Enabled = true;
         composition.ParticlesEnabled = true; composition.EmittersEnabled = true; composition.LightingEnabled = true;
         _environment.SetPreset(AtmospherePreset.Ember, immediate: true);
-        composition.UpdateEnvironment(2, 0);
+        composition.UpdateEnvironment(2, 0, sampled: true);
         var nearRain = composition.Layers.Single(l => l.Name == "NearRain");
         float oldRain = nearRain.Opacity;
         _environment.SetPreset(AtmospherePreset.Night);
-        composition.UpdateEnvironment(2, .1f);
+        composition.UpdateEnvironment(2, .1f, sampled: true);
         Require(nearRain.Opacity > 0 && nearRain.Opacity < oldRain, "preset blending approaches the new weather smoothly");
         _environment.SetPreset(AtmospherePreset.Ember, immediate: true);
         // Technical shader swatches use an existing texture, not fabricated gameplay/water regions.

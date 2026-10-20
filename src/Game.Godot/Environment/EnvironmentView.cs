@@ -28,6 +28,7 @@ public partial class EnvironmentView : Node2D
         _bounds.HasArea() && (_scene == EnvironmentScene.Menu || _assets.Options.Mode == RenderMode.Sprites);
     public int ActiveLayerCount => _layers.Values.Count(l => l.IsVisibleInTree());
     public int EmitterCount => _emitters.Count;
+    internal AmbientParticles Particles => _particles;
     public IEnumerable<EnvironmentLayer> Layers => _layers.Values;
     public void Initialize(EnvironmentController controller, AssetLoader assets, EnvironmentScene scene)
     {
@@ -92,7 +93,7 @@ public partial class EnvironmentView : Node2D
         AddLayer("NearRain", "ScrollingTexture", near + (_scene == EnvironmentScene.Menu ? 0 : 1), "arena/rain_repeat");
         _particles = new AmbientParticles { ZIndex = _scene == EnvironmentScene.Menu ? 0 : 2502, Seed = _controller.Settings.Seed }; AddChild(_particles);
     }
-    public void UpdateEnvironment(float time, float delta)
+    public void UpdateEnvironment(float time, float delta, bool sampled = false)
     {
         Visible = CanPresent && _controller.Settings.Quality != EnvironmentQuality.Off;
         if (!Visible) return;
@@ -113,20 +114,15 @@ public partial class EnvironmentView : Node2D
         embers.Velocity = new(a.Wind.X, -19); embers.TextureScale = new(410, 410);
         var rain = _layers["DistantRain"]; rain.Bounds = _bounds; rain.Opacity = a.Rain * .45f * quality * calm;
         rain.Velocity = new(a.Wind.X, 170); rain.TextureScale = new(400, 400);
-        var near = _layers["NearRain"]; near.Bounds = _bounds; near.Opacity = a.Rain * .5f * calm;
+        var near = _layers["NearRain"]; near.Bounds = _bounds; near.Opacity = quality < 1 ? 0 : a.Rain * .5f * calm;
         near.Velocity = new(a.Wind.X * 1.5f, 285); near.TextureScale = new(660, 660);
-        near.Visible = false;
-        // Near layer is genuinely omitted in Subtle; user Enabled remains an independent switch.
-        foreach (var layer in _layers.Values)
-        {
-            if (layer == near && quality < 1) { layer.Hide(); continue; }
-            layer.UpdateLayer(time);
-        }
+        foreach (var layer in _layers.Values) layer.UpdateLayer(time, sampled);
         _particles.Visible = ParticlesEnabled;
-        _particles.Bounds = _bounds; _particles.Time = time; _particles.Quality = quality * calm;
+        _particles.Bounds = _bounds; _particles.Quality = quality * calm;
         _particles.Amount = a.Motes; _particles.Snow = a.Snow; _particles.Embers = a.Embers;
         _particles.Rain = a.Rain; _particles.Splashes = _scene == EnvironmentScene.Arena;
-        _particles.Wind = a.Wind.X; _particles.Tint = a.ParticleTint; _particles.QueueRedraw();
+        _particles.Wind = a.Wind.X; _particles.UpdateMotion(time, sampled);
+        _particles.Tint = a.ParticleTint; _particles.QueueRedraw();
         foreach (var emitter in _emitters) { emitter.Wind = a.Wind; emitter.UpdateEmitter(time, EmittersEnabled ? a.Glow * quality : 0); }
         QueueRedraw();
     }

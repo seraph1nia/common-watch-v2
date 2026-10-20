@@ -1,5 +1,36 @@
 # Verification
 
+## Dynamic environment review regressions
+
+Focused review verification passed with scoped `DOTNET_TieredCompilation=0`
+and `MSBUILDDISABLENODEREUSE=1`:
+
+```sh
+mise exec -- bash -c 'dotnet restore src/Game.Godot/Game.Godot.csproj --locked-mode && dotnet build src/Game.Godot/Game.Godot.csproj --no-restore --nologo && bash tools/graphical.sh capture-environment'
+```
+
+The project build had zero warnings/errors. Godot 4.7.2 ran the actual OpenGL
+Compatibility capture workflow on an owned Xvfb/Mesa llvmpipe display with Dummy
+audio and disposable preferences. `GODOT_ENVIRONMENT_REGRESSION_PASS` confirms
+live `Sample(null)` showcase play/pause/unpause, integrated two-axis layer and
+particle motion at 600 seconds through rain/snow/clear transitions and signed
+speed changes, deterministic explicit samples/live handover, and six graphical
+neutral-shader identity comparisons using supplied translucent fire/crystal
+textures with vertex colors, modulation and self-modulation. Each identity
+comparison allows at most one 8-bit rounding step per channel.
+
+All 16 arena combinations (1/6 players, local/overview, topdown/angled,
+720p/1080p), quality/Off restoration, repeated sampled frames, unchanged combat
+tick, settlement presets/picking, menu/lifecycle, steady texture cache and
+missing/debug fallback captures also passed with no shader errors.
+Evidence is in `artifacts/test-logs/environment.log` and
+`artifacts/captures/godot/environment/`, including `identity-*-reference.png`,
+`identity-*-shader.png` and `performance.json`.
+
+This review round did not run the complete suite or qualify native Windows,
+live Steam or physical GPUs. The known intermittent native .NET/JIT risk remains;
+the scoped environment variables do not change repository defaults or fix it.
+
 ## Modular battle arena — 2026-10-20
 
 Implemented the supplied Rain / Ember pack; see the

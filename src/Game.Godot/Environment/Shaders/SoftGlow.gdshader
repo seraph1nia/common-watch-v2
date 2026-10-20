@@ -7,5 +7,5 @@ varying float phase;
 void vertex() { phase = VERTEX.x * 0.019 + VERTEX.y * 0.013; }
 void fragment() {
     float pulse = 1.0 + pulse_amplitude * (sin(visual_time * pulse_frequency + phase) + 0.3 * sin(visual_time * 3.17 + phase));
-    COLOR = texture(TEXTURE, UV) * COLOR * vec4(vec3(pulse), 1.0);
+    COLOR *= vec4(vec3(pulse), 1.0);
 }

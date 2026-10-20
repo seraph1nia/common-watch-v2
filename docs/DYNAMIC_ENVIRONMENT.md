@@ -95,7 +95,8 @@ the map; this is restrained haze, not inferred painting depth or whole-map blur.
 Ambient time advances only when an enabled composition is visible, the window has
 focus and the application has not suspended presentation. It freezes with match
 pause, showcase pause, frozen scenario checkpoints and disconnection with retained
-state. Focus loss freezes wind/preset transitions too. Hiding a scene stops redraws
+state. A playing showcase uses its own pause state, not the frozen checkpoint
+backing it. Focus loss freezes wind/preset transitions too. Hiding a scene stops redraws
 and parameter updates. A single clock continues across scene transitions; retained
 hidden scenes neither spawn particles nor accumulate simulation effects.
 
@@ -106,7 +107,12 @@ No extra character idle transform is layered over combat poses.
 `--environment-seed 417` selects deterministic particle distribution.
 `--environment-time 8` fixes the visual sample in seconds (0–86400), including
 while paused or unfocused. Captures can call `controller.Sample(seconds)`; calling
-`Sample(null)` resumes local time. Shaders use `visual_time`, never Godot `TIME`.
+`Sample(null)` resumes local time. Layer displacement and particle wind/fall integrate
+velocity over live visual-time increments, so changing wind or `SpeedScale` never
+rebases earlier motion. Explicit samples instead compute displacement from the
+sampled time and current velocity, independently of previous frames; returning to
+live time retains that phase. Shaders use controller-supplied time/displacement,
+never Godot `TIME`.
 Layers/emitters release their private materials on tree exit, compositions unregister
 from the controller, and the controller releases cached shader/preset resources.
 External PNG lifetime remains exclusively with `AssetLoader`. A shared 256×128 seamless Godot NoiseTexture2D supplies fog/shadow noise; it is generated once and disposed with the controller.
@@ -117,7 +123,7 @@ Off hides compositions immediately and performs no ambient redraw/animation.
 Subtle scales opacity/particle budgets to 45%, omits near rain and restrains tint.
 Full enables both rain depths and the full authored budget. Menu intensity is
 further reduced. The Ember preset omits cloud shadows over its burning sky; Clear/Rain retain them. Zero-density layers are hidden instead of submitting transparent
-fullscreen passes. There are no SubViewports, screen-reading shaders, generated
+fullscreen passes. Production compositions use no SubViewports, screen-reading shaders, generated
 textures per frame, per-particle nodes or new dependencies.
 
 Particle drawing examines at most 21 × 16 visible grid cells and coarsens the grid
@@ -140,7 +146,7 @@ All shaders are Compatibility `canvas_item` resources in `Environment/Shaders`.
 
 | Shader | Key parameters and intended use |
 | --- | --- |
-| `ScrollingTexture` | `visual_time`, `velocity`, `texture_scale`, `opacity`, `tint`, `repeat_texture`, `textured`, `band_fade`; rain/smoke/embers with procedural fallback |
+| `ScrollingTexture` | `motion_offset` (integrated world displacement), `texture_scale`, `opacity`, `tint`, `repeat_texture`, `textured`, `band_fade`; rain/smoke/embers with procedural fallback |
 | `AtmosphericHaze` | Common world parameters plus `height_fade`, `cloud_shadow`; soft noise haze, drift and shadows |
 | `SoftGlow` | `visual_time`, `pulse_frequency`, `pulse_amplitude`; restrained additive overlays |
 | `WindSway` | `visual_time`, `strength`, `frequency`, `phase_offset`, `anchor_stiffness`, `wind_direction`, `banner`; anchored isolated foliage/fabric only |
@@ -222,7 +228,15 @@ sampling atmosphere at 2/8 seconds, all qualities, 1/6-player local/overview, bo
 projections and resolutions. It asserts changed pixels across time, exact repeated
 samples, exact restoration after Off, unchanged combat tick, all nine settlement
 picks, independently animated shader layers, scene transition cleanup and zero
-steady decoding. It captures all seven settlement presets at 2/12 seconds, menu
+steady decoding. Regressions also exercise a playing showcase with `Sample(null)`,
+pause/unpause, two-axis integrated layer motion and particle wind through late-time
+rain/snow/clear transitions, fall/rise reversals and speed changes, and deterministic
+sample/live handover.
+Compatibility-rendered neutral SoftGlow, WaterRipple and DistanceBlur swatches in
+a temporary isolated test viewport compare supplied translucent fire/crystal
+textures against native rendering (additive for glow), with vertex colors and
+both modulation levels; channels must agree within one 8-bit rounding step.
+It captures all seven settlement presets at 2/12 seconds, menu
 motion, technical shader swatches, missing artwork and debug fallback. Original
 camera/purchase/native picking suites remain the stronger interaction checks.
 Inspect PNGs in `artifacts/captures/godot/environment/`; passing compilation alone

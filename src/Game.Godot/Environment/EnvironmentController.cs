@@ -74,7 +74,7 @@ public partial class EnvironmentController : Node
         // Captures sample explicit time. Hidden/inactive/unfocused scenes do no animation work.
         bool paused = Suspended || !GetWindow().HasFocus();
         if (HasVisibleEffects && !paused && Settings.SampleTime is null) _seconds += Math.Min(delta, .1);
-        foreach (var view in _views) view.UpdateEnvironment((float)VisualTime, paused ? 0 : (float)delta);
+        foreach (var view in _views) view.UpdateEnvironment((float)VisualTime, paused ? 0 : (float)delta, Settings.SampleTime is not null);
     }
     public override void _ExitTree()
     {

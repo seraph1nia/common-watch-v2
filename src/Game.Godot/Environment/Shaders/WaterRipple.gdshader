@@ -9,6 +9,8 @@ uniform float highlight_strength = 0.025;
 uniform vec4 water_tint : source_color = vec4(1.0);
 uniform sampler2D surface_mask : filter_linear;
 uniform bool use_mask = false;
+varying vec4 vertex_color;
+void vertex() { vertex_color = COLOR; }
 void fragment() {
     float mask = use_mask ? texture(surface_mask, UV).r : 1.0;
     // Flow moves wave phase, keeping an isolated reflection inside its source image.
@@ -18,5 +20,5 @@ void fragment() {
     uv += vec2(wave, sin(phase_uv.x * wave_frequency * 0.7 - visual_time * ripple_speed)) * ripple_strength * mask;
     vec4 surface = texture(TEXTURE, clamp(uv, vec2(0.001), vec2(0.999)));
     surface.rgb += pow(max(wave, 0.0), 8.0) * highlight_strength * mask;
-    COLOR = surface * water_tint * COLOR;
+    COLOR = surface * water_tint * vertex_color;
 }

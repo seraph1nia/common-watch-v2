@@ -1,5 +1,5 @@
 uniform float visual_time = 0.0;
-uniform vec2 velocity = vec2(7.0, 0.0);
+uniform vec2 motion_offset = vec2(0.0);
 uniform vec2 texture_scale = vec2(512.0);
 uniform float opacity = 0.1;
 uniform vec4 tint : source_color = vec4(0.7, 0.8, 0.85, 1.0);
