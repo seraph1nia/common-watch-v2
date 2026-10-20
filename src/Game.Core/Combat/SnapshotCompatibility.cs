@@ -18,7 +18,7 @@ public static class SnapshotCompatibility
             || state.Rules.Combat.RulesVersion != state.CombatRulesVersion || state.Rules.Combat.Board is not { Capacity: 1, Id: "shared-watch-arena" }
             || state.Arena is null || state.Arena.Board is not { Capacity: 1 } || state.Squads is null || state.Structures is null)
             throw new ArgumentException("Legacy combat snapshot refused: this client requires shared arena squad rules. Rejoin a compatible authority or start a fresh match.", nameof(state));
-        if (state.Players is null || state.Enemies is null || state.DyingBodies is null || state.Players.Length > 4
+        if (state.Players is null || state.Enemies is null || state.DyingBodies is null || state.Players.Length > Match.MaximumPlayers
             || state.Players.Any(p => p is null || p.Soldiers is null) || state.Enemies.Any(m => m is null)
             || state.Players.SelectMany(p => p.Soldiers).Any(m => m is null)
             || state.DyingBodies.Any(m => m is null) || state.Structures.Any(s => s is null)

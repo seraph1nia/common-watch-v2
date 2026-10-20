@@ -61,7 +61,7 @@ public partial class LobbyPanel : PanelContainer
                 button.Disabled = !card.Enabled;
             }
         }
-        Roster.Text = session is null ? "Single player or LAN • 1–4 players" : !session.HasState ? session.Status :
-            $"{session.Status} • {4 - session.Snapshot.Players.Length} slots\n" + string.Join("\n", session.Snapshot.Players.Select(p => $"Player {p.Id}{(p.Id == 1 ? " [host]" : "")}{(p.Id == session.PlayerId ? " [you]" : "")}: {RunCatalog.Doctrine(p.Run.Doctrine).Name} {(p.Connected ? "" : "offline")}"));
+        Roster.Text = session is null ? $"Single player, LAN or Steam • 1–{Match.MaximumPlayers} players" : !session.HasState ? session.Status :
+            $"{session.Status} • {(session.IsNetwork ? Match.MaximumPlayers : 1) - session.Snapshot.Players.Length} slots\n" + string.Join("\n", session.Snapshot.Players.Select(p => $"Player {p.Id}{(p.Id == 1 ? " [host]" : "")}{(p.Id == session.PlayerId ? " [you]" : "")}: {RunCatalog.Doctrine(p.Run.Doctrine).Name} {(p.Connected ? "" : "offline")}"));
     }
 }

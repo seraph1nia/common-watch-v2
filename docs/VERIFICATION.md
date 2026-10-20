@@ -1,5 +1,49 @@
 # Verification
 
+## Six-player sessions and development defaults (2026-10-20)
+
+Gameplay supports one through six total players. Core admission, arena topology
+(63–378 cells), wave power, snapshot validation and combat safety bounds share
+`Match.MaximumPlayers`. Steam lobbies use that limit and the hardcoded development
+App ID **480**. Fresh or invalid audio preferences default to **30%** music volume;
+valid saved volume and mute settings retain their values. The local Core changes
+are listed in [provenance](PROVENANCE.md).
+
+Completed checks:
+
+- `mise run build`: passed with zero warnings/errors and locked dependencies.
+- `mise run test-core`: 40 passed; `mise run test-shared`: 72 passed, including
+  all six roster sizes, scaled forecasts, snapshot round-trips and audio defaults.
+- `mise run test-steam`: 26 passed, including authenticated six-player capacity,
+  seventh-player refusal and credential/identity checks for the sixth player's resume.
+- `mise run test-session`: both actual graphical process tests passed, including
+  native audio buses/preferences, lifecycle, controls and artwork fallback.
+- `mise run test-multiplayer`: all six player counts passed paid construction,
+  all-player readiness, combat and individual drafting into identical wave-two
+  snapshots. The final invocation exited cleanly. Actual `lobby-{1,2,3,4,5,6}p.png`
+  captures are under `artifacts/captures/godot/`; the one- and six-player captures
+  were inspected, including the full roster and remaining slot count.
+- `mise run test-reconnect`: passed protocol/ownership/duplicate/credential checks,
+  preparation/combat/draft/process-restart resume, six-player admission,
+  seventh-player refusal, retained lobby cities and host shutdown.
+- `mise run capture-art`: all 14 actual application frames passed.
+- Shell/Python supervisor syntax and `git diff --check`: passed.
+
+Logs use the `artifacts/test-logs/six-player-` prefix. The final multiplayer and
+reconnect logs end in `-retry.log`. Initial failures exposed the old 256-cell
+board bound, which was corrected before the passing checks. One shared-test
+invocation exited before reporting tests; an unchanged rerun passed. An initial
+multiplayer run completed every gameplay exercise but its outer task received
+SIGTERM during cleanup; the serial rerun exited normally. An initial reconnect
+run detected a host process abort (exit signal 6) during shutdown without a native
+stack trace; its process logs are preserved in `six-player-reconnect-initial/`.
+The unchanged reconnect rerun passed. The cause of that abort is unconfirmed and
+the known intermittent native .NET/JIT crash risk remains unresolved.
+
+Not run for this change: aggregate `mise run test`, live Steam/account/overlay
+verification, native Windows/macOS runtime, physical display/audio, exports or
+remote CI. Offline Steam logic and LAN checks do not qualify live Steam transport.
+
 ## CI native extension startup (2026-10-20)
 
 GitHub run `39290970449` failed the native Steam ABI check because its fresh

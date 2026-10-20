@@ -58,7 +58,7 @@ public partial class SteamCoordinator : Node
         if (_steamOperations.BeginCreate(_sessionGeneration, Time.GetTicksMsec(), _steam.LoggedIn))
         {
             _steamFeedback = "Creating private lobby…";
-            try { _steam.Api.Call("createLobby", 0, 4); }
+            try { _steam.Api.Call("createLobby", 0, Match.MaximumPlayers); }
             catch (Exception) { _steamOperations.CreateFailed(); _steamFeedback = "Steam lobby request failed. Try again."; }
         }
         Changed?.Invoke();

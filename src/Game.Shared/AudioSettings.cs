@@ -6,7 +6,7 @@ namespace Game.Shared;
 /// <summary>Local presentation preferences, independent of authoritative gameplay.</summary>
 public sealed class AudioSettings
 {
-    public const float DefaultMusicVolume = .5f;
+    public const float DefaultMusicVolume = .3f;
     private readonly string _path;
     private float _musicVolume = DefaultMusicVolume;
 

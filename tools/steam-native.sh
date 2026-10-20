@@ -5,10 +5,6 @@ if [[ ${COMMON_WATCH_STEAM_NATIVE_AUTHORIZED:-} != 1 ]]; then
   echo 'Native Steam verification is unexecuted: set COMMON_WATCH_STEAM_NATIVE_AUTHORIZED=1 only when authorized to use the logged-in eligible account. See docs/SESSIONS.md.' >&2
   exit 2
 fi
-if [[ ! ${COMMON_WATCH_STEAM_APP_ID:-} =~ ^[1-9][0-9]*$ ]]; then
-  echo 'Set COMMON_WATCH_STEAM_APP_ID to an authorized AppID; no development AppID is assumed.' >&2
-  exit 2
-fi
 role=${1:?Use host FRIEND_STEAM_ID, or guest LOBBY_ID}; shift
 case "$role" in
   host) role_args=(--steam-host --steam-invite "${1:?Steam friend ID to invite}"); shift ;;

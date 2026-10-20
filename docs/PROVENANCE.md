@@ -2,7 +2,7 @@
 
 The user-supplied nine-clearing `Enchanted Forest Settlement Map.png` is retained unchanged as `assets/sprites/terrain/settlement_map.png` (1672 × 941, SHA-256 `f72bb78e769ee7c3fb97d111f00ae27d595ee1652d64d47cd7e140e3ed1ccdc5`). Its adjacent JSON records measured presentation coordinates. No artwork was generated, downloaded or repainted; no separate artwork license was supplied. See [settlement map](SETTLEMENT_MAP.md).
 
-`src/Game.Core` is imported byte-for-byte from https://github.com/seraph1nia/odot-game at revision `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` (2026-10-18 import). Copyright (c) 2026 Odot contributors; GPL-3.0-only; see root LICENSE. No original repository files were modified. New slice code is distributed under GPL-3.0-only.
+`src/Game.Core` was imported byte-for-byte from https://github.com/seraph1nia/odot-game at revision `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` (2026-10-18 import). Copyright (c) 2026 Odot contributors; GPL-3.0-only; see root LICENSE. The local six-player extension adds `Match.MaximumPlayers` and updates admission, wave power, shared arena topology, snapshot validation and combat overflow/approach bounds in `World.cs`, `WavePower.cs`, `Combat/SharedArena.cs`, `Combat/HexBoard.cs` (bounded to 378 cells), `Combat/SnapshotCompatibility.cs` and `Combat/CombatConfiguration.cs`. Dependencies and the original repository remain unchanged. New slice code is distributed under GPL-3.0-only.
 
 Four user-supplied generated PNG source sheets were extracted unchanged from `common-watch-v2-art-source-sheets.zip` on 2026-10-18. No replacement artwork was generated or downloaded. Original filenames, sheet dimensions and archive/source SHA-256s are recorded in [art provenance](../art/manifests/provenance.json); the accompanying [archive README](../art/source/ARCHIVE-README.md) is retained unchanged. Thirteen cropped/processed PNGs are installed under `assets/sprites` and `assets/hud`; their source crop and output hashes are in `assets/catalog.json`. See [processing and limitations](ARTWORK.md). The archive did not supply a separate artwork license; the code's GPL notice is not asserted as a grant for these supplied images.
 
@@ -12,7 +12,7 @@ The later user-supplied `common_watch_cutout_prototype.zip` contributes one addi
 
 ## Session work
 
-`src/Game.Shared/SnapshotPayload.cs` and `SessionFile.cs` adapt the original project's proven codec and private credential file behavior. `tests/Game.Godot.Session.Tests/SteamOperationStateTests.cs` adapts its callback-state regression tests. The authority remains the unchanged pinned import. Original lifecycle/RPC scene-reset infrastructure was not copied. New session implementations and tests are GPL-3.0-only.
+`src/Game.Shared/SnapshotPayload.cs` and `SessionFile.cs` adapt the original project's proven codec and private credential file behavior. `tests/Game.Godot.Session.Tests/SteamOperationStateTests.cs` adapts its callback-state regression tests. The authority uses the pinned import plus the six-player extension documented above. Original lifecycle/RPC scene-reset infrastructure was not copied. New session implementations and tests are GPL-3.0-only.
 
 GodotSteam is copied unchanged from the original project's pinned `src/Game/addons/godotsteam` distribution: **v4.22.1-gde**, SDK **1.65**, upstream archive `godotsteam-4.22.1-gdextension-plugin-4.4.zip`. The retained manifest contains its URL, archive SHA-256 and individual library hashes; licenses/readme are retained under `src/Game.Godot/addons/godotsteam`.
 
@@ -25,7 +25,7 @@ ordinary-command verification policy in upstream `tools/DevRunner/CampaignStrate
 at the same `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` revision. It is used only to
 earn deterministic development/test checkpoints. It is not a second simulation or
 player-facing rules engine. New native Godot gameplay components, adapters and tests
-are GPL-3.0-only. The original repository, Core, artwork and soundtrack are unchanged.
+are GPL-3.0-only. The original repository, artwork and soundtrack are unchanged; local Core changes are documented above.
 
 ## Forest HUD delivery
 

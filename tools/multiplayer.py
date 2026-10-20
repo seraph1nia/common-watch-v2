@@ -18,7 +18,7 @@ signal.signal(signal.SIGTERM, terminate)
 ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser()
 parser.add_argument('operation', choices=['test', 'dev'])
-parser.add_argument('--players', type=int, choices=[1, 2, 3, 4], default=2)
+parser.add_argument('--players', type=int, choices=range(1, 7), default=2)
 args = parser.parse_args()
 processes = []
 logs = []

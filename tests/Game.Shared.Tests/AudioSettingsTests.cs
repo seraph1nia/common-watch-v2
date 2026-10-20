@@ -9,10 +9,10 @@ public sealed class AudioSettingsTests : IDisposable
     private string SettingsPath => Path.Combine(_directory, "settings.json");
 
     [Fact]
-    public void MissingSettingsUseHalfVolumeWithoutCreatingFiles()
+    public void MissingSettingsUseThirtyPercentVolumeWithoutCreatingFiles()
     {
         AudioSettings settings = AudioSettings.Load(SettingsPath);
-        Assert.Equal(.5f, settings.MusicVolume);
+        Assert.Equal(.3f, settings.MusicVolume);
         Assert.False(File.Exists(SettingsPath));
     }
 
@@ -20,9 +20,9 @@ public sealed class AudioSettingsTests : IDisposable
     [InlineData(-1f, 0f)]
     [InlineData(2f, 1f)]
     [InlineData(.25f, .25f)]
-    [InlineData(float.NaN, .5f)]
-    [InlineData(float.PositiveInfinity, .5f)]
-    [InlineData(float.NegativeInfinity, .5f)]
+    [InlineData(float.NaN, .3f)]
+    [InlineData(float.PositiveInfinity, .3f)]
+    [InlineData(float.NegativeInfinity, .3f)]
     public void VolumeAlwaysHasAFiniteUsableValue(float supplied, float expected)
     {
         AudioSettings settings = AudioSettings.Load(SettingsPath);
@@ -43,10 +43,10 @@ public sealed class AudioSettingsTests : IDisposable
     }
 
     [Theory]
-    [InlineData("not JSON", .5f)]
-    [InlineData("null", .5f)]
-    [InlineData("{}", .5f)]
-    [InlineData("{\"MusicVolume\":\"loud\"}", .5f)]
+    [InlineData("not JSON", .3f)]
+    [InlineData("null", .3f)]
+    [InlineData("{}", .3f)]
+    [InlineData("{\"MusicVolume\":\"loud\"}", .3f)]
     [InlineData("{\"MusicVolume\":-10}", 0f)]
     [InlineData("{\"MusicVolume\":10}", 1f)]
     public void CorruptOrOutOfRangeStoredPreferencesRemainUsable(string json, float expected)
@@ -66,7 +66,7 @@ public sealed class AudioSettingsTests : IDisposable
         Directory.CreateDirectory(_directory);
         // A directory cannot be read or overwritten as a JSON settings file.
         AudioSettings settings = AudioSettings.Load(_directory);
-        Assert.Equal(.5f, settings.MusicVolume);
+        Assert.Equal(.3f, settings.MusicVolume);
         settings.MusicVolume = .3f;
         Assert.False(settings.Save());
         Assert.Equal(.3f, settings.MusicVolume);

@@ -1,6 +1,6 @@
 # The Common Watch — Godot 2D
 
-A code-first C# game with a pure C# authoritative simulation and one Godot 2D application. Solo and host-authoritative 1–4 player sessions cover lobby/doctrine selection, settlement, shared automatic combat, individual reward drafting and wave progression. Optional GodotSteam integration remains unqualified with live accounts. The complete game defaults to shapes and readable text; artwork is optional.
+A code-first C# game with a pure C# authoritative simulation and one Godot 2D application. Solo and host-authoritative 1–6 player sessions cover lobby/doctrine selection, settlement, shared automatic combat, individual reward drafting and wave progression. Optional GodotSteam integration remains unqualified with live accounts. The complete game defaults to shapes and readable text; artwork is optional.
 
 ## Setup
 
@@ -22,15 +22,15 @@ Interactive play requires a display and OpenGL 3.3 driver. Linux automated check
 mise run play                      # artwork-independent debug/plain defaults
 mise run play-assets               # optional sprites and illustrated HUD
 mise run dev-multiplayer           # supervised LAN host and guest
-mise run dev-multiplayer -- --players 4
-mise run play-steam                # optional; requires your authorized AppID
+mise run dev-multiplayer -- --players 6
+mise run play-steam                # optional; development Steam App ID is hardcoded to 480
 ```
 
 Choose **Single player**, a doctrine and **Start match**, or **Host LAN** / **Join LAN**. Left-click selects logical settlement plots; middle/right drag pans, wheel zooms and **R** resets the camera. Controls display authoritative results and rejection messages. The complete catalog, Army/squads, six army homes, Town Hall, Worldtree, battle forecast, unit/structure inspectors and run progression are available through native panels. The city selector inspects allies read-only; Ready/Unready, whole-match pause and host combat speed remain separate from local dialogs. See [gameplay controls](docs/gameplay/PLAYING.md) and the [parity audit](docs/gameplay/PARITY.md). Ready advances preparation and settles real production. Combat plays automatically; choose a reward after winning. Main menu leaves the authority, and a fresh match gets a new identity.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
-Settings controls music volume, with zero muting. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
+Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
 
 Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. `play-assets` prefers the angled view; `-- --view topdown` overrides it. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
@@ -74,7 +74,7 @@ mise run capture-settlement        # nine-pad map picking, purchase and actual s
 mise run capture-lobby
 ```
 
-[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the unchanged rules, with seed `20261018`.
+[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the authoritative rules, with seed `20261018`.
 
 ```sh
 mise run capture -- --width 1920 --height 1080
@@ -98,7 +98,7 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 
 ## Ownership
 
-- `src/Game.Core`: unchanged pinned upstream gameplay and Arch ECS, independently buildable/testable.
+- `src/Game.Core`: pinned upstream gameplay and Arch ECS with the documented six-player extension, independently buildable/testable.
 - `src/Game.Shared`: solo adapter, deterministic scenarios/playback helpers, bounded snapshot codec, private resume files, logical projection and asset metadata; no graphical dependencies or transport framework.
 - `src/Game.Godot`: sole graphical application, native Controls/Node2D, ENet RPC sessions, GodotSteam, audio and presentation resources.
 - `tests`: headless rules, shared/session logic, artwork and actual Godot process checks.

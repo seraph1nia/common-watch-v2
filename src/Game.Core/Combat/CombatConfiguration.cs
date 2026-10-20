@@ -148,11 +148,11 @@ public sealed class CombatConfiguration
             p => new DefenseProfile(p.Damage, p.WindupTicks, checked(p.CadenceTicks - p.WindupTicks)));
         // Reject values that could overflow the shared same-tick accumulator
         // even if every deployed member plus all city/army defenses hit one victim.
-        int maxActors = checked(SharedArena.SectorWidth * SharedArena.Depth * 4 * Arena.SquadCapacity + 4 * (ArmyConfiguration.TotalPlots + 1));
+        int maxActors = checked(SharedArena.SectorWidth * SharedArena.Depth * Match.MaximumPlayers * Arena.SquadCapacity + Match.MaximumPlayers * (ArmyConfiguration.TotalPlots + 1));
         if (Units.Any(p => p.Researched(2).Damage > int.MaxValue / maxActors)
             || Towers.Any(p => Math.Max(p.Damage, p.SecondaryDamage) > int.MaxValue / maxActors) || DefenderDamage > int.MaxValue / maxActors)
             throw new ArgumentException("Damage could overflow a simultaneous accumulator.", nameof(rules));
-        long approachAllowance = (long)new SharedArena(Enumerable.Range(1, 4)).Board.Diameter * StatusPolicy.Duration(Units.Max(p => p.MoveTicks), 50)
+        long approachAllowance = (long)new SharedArena(Enumerable.Range(1, Match.MaximumPlayers)).Board.Diameter * StatusPolicy.Duration(Units.Max(p => p.MoveTicks), 50)
             + Units.Max(p => (long)StatusPolicy.Duration(p.WindupTicks, 50) + StatusPolicy.Duration(p.RecoveryTicks, 50))
             + Units.Max(p => p.DeathTicks) + RetryTicks;
         if (NoHealthProgressTicks < approachAllowance)
@@ -203,7 +203,7 @@ public sealed class CombatConfiguration
                 SecondaryDamage = EnemyScale(resolved.SecondaryDamage),
                 StructureDamage = EnemyScale(resolved.StructureDamage)
             };
-        int maximumActors = checked(SharedArena.SectorWidth * SharedArena.Depth * 4 * Arena.SquadCapacity + 4 * (ArmyConfiguration.TotalPlots + 1));
+        int maximumActors = checked(SharedArena.SectorWidth * SharedArena.Depth * Match.MaximumPlayers * Arena.SquadCapacity + Match.MaximumPlayers * (ArmyConfiguration.TotalPlots + 1));
         if (UnitCapabilities.Scale(UnitCapabilities.Scale(Math.Max(Math.Max(resolved.Damage, resolved.SecondaryDamage), resolved.StructureDamage), 10), 20) > int.MaxValue / maximumActors) throw new ArgumentException("Leveled damage could overflow the simultaneous accumulator.", nameof(level));
         _resolved.Add(key, resolved); return resolved;
     }

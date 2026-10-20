@@ -6,7 +6,7 @@ Work in this repository. Ordinary development edits C#, text Godot scenes/resour
 
 | Change | Owner | Focused verification |
 | --- | --- | --- |
-| Gameplay rules and Arch ECS | `src/Game.Core` is the unmodified pinned upstream import; do not edit it for presentation. See [provenance](docs/PROVENANCE.md). | `mise run test-core` |
+| Gameplay rules and Arch ECS | `src/Game.Core` is the pinned upstream import with the documented six-player extension; do not edit it for presentation. See [provenance](docs/PROVENANCE.md). | `mise run test-core` |
 | Solo adapter, deterministic replay, bounded snapshots, private resume files, hex projection, asset metadata | `src/Game.Shared`; no Godot dependencies or transport framework | `mise run test-shared` |
 | Startup, active session lifetime, screen transitions and exit | `src/Game.Godot/Application`; `Scenes/Main.tscn` declares services and retained world views | `mise run test-session` |
 | ENet/RPC transport and reconnect | `src/Game.Godot/Networking/GodotSession.cs`; only `Application/SessionCoordinator.cs` creates/disposes sessions | `mise run test-multiplayer`, `test-reconnect` |

@@ -7,7 +7,8 @@ internal sealed class GodotSteamPlatform : IDisposable
 {
     public bool Initialized { get; private set; }
     public GodotObject Api { get; private set; } = null!;
-    public uint AppId { get; private set; }
+    public const uint DevelopmentAppId = 480;
+    public uint AppId => DevelopmentAppId;
     public bool LoggedIn => Initialized && Api.Call("isSteamRunning").AsBool() && Api.Call("loggedOn").AsBool();
     public ulong Identity => Api.Call("getSteamID").AsUInt64();
     public string Name => LoggedIn ? Api.Call("getPersonaName").AsString() : "Steam offline";
@@ -16,14 +17,12 @@ internal sealed class GodotSteamPlatform : IDisposable
         status = "Steam unavailable. Offline and LAN remain available.";
         if (System.Environment.GetEnvironmentVariable("COMMON_WATCH_STEAM_DISABLED") == "1") return false;
         if (Initialized) return LoggedIn;
-        if (!uint.TryParse(System.Environment.GetEnvironmentVariable("COMMON_WATCH_STEAM_APP_ID"), out uint appId) || appId == 0)
-        { status = "Set COMMON_WATCH_STEAM_APP_ID to your authorized AppID."; return false; }
         if (!Engine.HasSingleton("Steam") || !ClassDB.ClassExists("SteamMultiplayerPeer")) return false;
         Api = Engine.GetSingleton("Steam");
         if (!Api.Call("isSteamRunning").AsBool()) return false;
-        var result = Api.Call("steamInitEx", appId, false).AsGodotDictionary();
+        var result = Api.Call("steamInitEx", DevelopmentAppId, false).AsGodotDictionary();
         if (result["status"].AsInt64() != 0) return false;
-        Initialized = true; AppId = appId; Api.Call("initRelayNetworkAccess");
+        Initialized = true; Api.Call("initRelayNetworkAccess");
         status = LoggedIn ? Name : "Log in to Steam first."; return LoggedIn;
     }
     public void Poll() { if (Initialized) Api.Call("run_callbacks"); }

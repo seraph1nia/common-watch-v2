@@ -9,6 +9,37 @@ namespace Game.Shared.Tests;
 
 public sealed class SessionDataTests
 {
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    public void EverySupportedRosterStartsWithScaledForecastAndRoundTrips(int players)
+    {
+        using var host = new AuthoritySession(AuthorityPolicy.PlayingHost, combatSeed: SoloSession.DefaultSeed);
+        for (int peer = 2; peer <= players; peer++)
+            Assert.True(host.Admit(peer, WireJson.ProtocolVersion, "", 0).Accepted);
+        var start = Command.FromSnapshot(host.Snapshot(), 1, "start", host.LocalPlayerId);
+        Assert.True(host.ExecuteLocal(start).Accepted);
+        MatchSnapshot state = host.Snapshot();
+        Assert.Equal(players, state.Players.Length);
+        Assert.Equal(players, state.Arena!.Sectors.Length);
+        Assert.Equal(players * SharedArena.SectorWidth * SharedArena.Depth, state.Arena.Board.Cells.Length);
+        Assert.Equal(players, state.NextWave.Select(u => u.Origin).Distinct().Count());
+        var combat = new CombatConfiguration(state.Rules);
+        Assert.Equal(players * WavePower.Total(state.WaveCatalog[0], combat),
+            WavePower.Total(state.WaveCatalog[0], combat, players));
+        MatchSnapshot decoded = SnapshotPayload.DecodeForReceiving(SnapshotPayload.Encode(state));
+        Assert.Equal(JsonSerializer.Serialize(state, WireJson.Options), JsonSerializer.Serialize(decoded, WireJson.Options));
+        Assert.Throws<ArgumentOutOfRangeException>(() => WavePower.Total(state.WaveCatalog[0], combat, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => WavePower.Total(state.WaveCatalog[0], combat, 7));
+        Assert.Throws<ArgumentException>(() => new SharedArena(Enumerable.Range(1, 7)));
+        Assert.Throws<InvalidDataException>(() => SnapshotPayload.DecodeForReceiving(
+            SnapshotPayload.Encode(state with { Players = Enumerable.Range(1, 7).Select(id => state.Players[0] with { Id = id }).ToArray() })));
+    }
+
     [Fact]
     public void SnapshotCodecPreservesRealCombatAndRefusesHistoricalFlow()
     {

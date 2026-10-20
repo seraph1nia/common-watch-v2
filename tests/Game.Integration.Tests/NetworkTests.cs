@@ -6,7 +6,7 @@ namespace Game.Integration.Tests;
 public sealed class NetworkTests
 {
     [Fact, Trait("Layer", "multiplayer")]
-    public Task GodotTwoThroughFourPlayers() => Run("multiplayer.sh");
+    public Task GodotOneThroughSixPlayers() => Run("multiplayer.sh");
     [Fact, Trait("Layer", "reconnect")]
     public Task GodotReconnectAndFailures() => Run("reconnect.sh");
 
@@ -20,7 +20,7 @@ public sealed class NetworkTests
         if (script == "multiplayer.sh") start.ArgumentList.Add("test");
         using var process = Process.Start(start)!;
         var output = process.StandardOutput.ReadToEndAsync(); var error = process.StandardError.ReadToEndAsync();
-        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(20));
         try { await process.WaitForExitAsync(deadline.Token); }
         catch (OperationCanceledException) { process.Kill(true); throw new TimeoutException("Network process supervisor exceeded deadline."); }
         string transcript = await output + await error;

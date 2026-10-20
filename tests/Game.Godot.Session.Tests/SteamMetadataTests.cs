@@ -39,4 +39,24 @@ public sealed class SteamMetadataTests
         Assert.False(host.Admit(3, WireJson.ProtocolVersion, joined.Credential, 0, "impostor").Accepted);
         Assert.True(host.Admit(3, WireJson.ProtocolVersion, joined.Credential, 1000, "guest").Accepted);
     }
+
+    [Fact]
+    public void FullSteamRosterRejectsSeventhIdentityButAllowsSixthToResume()
+    {
+        using var host = new AuthoritySession(AuthorityPolicy.PlayingHost, originalHostIdentity: "host", requireTrustedIdentity: true);
+        AdmissionResult sixth = null!;
+        for (int peer = 2; peer <= 6; peer++)
+        {
+            sixth = host.Admit(peer, WireJson.ProtocolVersion, "", 0, $"guest-{peer}");
+            Assert.True(sixth.Accepted);
+        }
+        Assert.False(host.Admit(7, WireJson.ProtocolVersion, "", 0, "guest-7").Accepted);
+        host.Disconnect(6);
+        Assert.False(host.Admit(8, WireJson.ProtocolVersion, "", 0, "guest-8").Accepted);
+        Assert.False(host.Admit(9, WireJson.ProtocolVersion, sixth.Credential, 0, "impostor").Accepted);
+        var resumed = host.Admit(10, WireJson.ProtocolVersion, sixth.Credential, 0, "guest-6");
+        Assert.True(resumed.Accepted);
+        Assert.Equal(sixth.PlayerId, resumed.PlayerId);
+        Assert.Equal(6, resumed.State!.Players.Length);
+    }
 }

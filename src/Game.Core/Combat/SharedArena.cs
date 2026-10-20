@@ -32,11 +32,11 @@ public sealed record ArenaState(HexBoardDefinition Board, ArenaSector[] Sectors,
 public sealed class SharedArena
 {
     public const int SectorWidth = 7, Depth = 9;
-    // Exactly four constant, immutable topologies. Full snapshot identity
-    // validation must not rebuild all-pairs routing for the four-owner
-    // approach allowance on every received state. Owner IDs, footprints,
-    // claims and mutable projections remain per arena, never in this cache.
-    private static readonly Lazy<HexBoard>[] Boards = Enumerable.Range(1, 4)
+    // One cached topology per supported roster size. Full snapshot identity
+    // validation and approach bounds reuse the largest roster's routing.
+    // Owner IDs, footprints, claims and mutable projections remain per arena,
+    // never in this cache.
+    private static readonly Lazy<HexBoard>[] Boards = Enumerable.Range(1, Match.MaximumPlayers)
         .Select(count => new Lazy<HexBoard>(() => BuildBoard(count))).ToArray();
     private readonly ArenaSector[] _sectors;
     private readonly ArenaFootprint[] _footprints;
@@ -46,8 +46,8 @@ public sealed class SharedArena
     public SharedArena(IEnumerable<int> owners, IEnumerable<(int Owner, int Slot)>? armyTowers = null)
     {
         int[] roster = owners.Order().ToArray();
-        if (roster.Length is < 1 or > 4 || roster.Any(id => id <= 0) || roster.Distinct().Count() != roster.Length)
-            throw new ArgumentException("Arena needs one to four distinct owners.", nameof(owners));
+        if (roster.Length is < 1 or > Match.MaximumPlayers || roster.Any(id => id <= 0) || roster.Distinct().Count() != roster.Length)
+            throw new ArgumentException("Arena needs one to six distinct owners.", nameof(owners));
         int width = roster.Length * SectorWidth;
         int Cell(int column, int row) => row * width + column + 1;
         Board = Boards[roster.Length - 1].Value;

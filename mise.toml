@@ -74,13 +74,13 @@ description = "Actual Godot menu, doctrine, replacement and gameplay lifecycle c
 depends = ["test-graphics"]
 
 [tasks.test-multiplayer]
-description = "Actual godot LAN processes: two, three and four players through combat and drafting"
+description = "Actual godot LAN processes: one through six players through combat and drafting"
 depends = ["build"]
 run = "bash tools/multiplayer.sh test"
 raw_args = true
 
 [tasks.dev-multiplayer]
-description = "Launch a LAN host and guests with normal graphics/audio; --players 1..4"
+description = "Launch a LAN host and guests with normal graphics/audio; --players 1..6"
 depends = ["build"]
 run = "bash tools/multiplayer.sh dev"
 raw_args = true
@@ -99,7 +99,7 @@ description = "Actual godot network-faults checks"
 depends = ["test-reconnect"]
 
 [tasks.capture-lobby]
-description = "Capture the actual two-, three- and four-player native lobby controls"
+description = "Capture the actual one- through six-player native lobby controls"
 depends = ["test-multiplayer"]
 
 [tasks.test-steam]
@@ -108,7 +108,7 @@ depends = ["build"]
 run = "dotnet test tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj --no-build --no-restore --nologo"
 
 [tasks.play-steam]
-description = "Optional Steam startup using COMMON_WATCH_STEAM_APP_ID; offline fallback remains available"
+description = "Optional Steam startup using hardcoded development App ID 480; offline fallback remains available"
 depends = ["build"]
 run = "bash tools/client.sh --render-mode debug --steam"
 raw_args = true

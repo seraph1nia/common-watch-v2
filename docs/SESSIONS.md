@@ -2,15 +2,15 @@
 
 The application starts at a main menu. Choose **Single player**, choose a doctrine, then **Start match**. Return to the main menu from preparation, combat or drafting to dispose that authority; the next game gets a fresh match identity. Music and local preferences belong to AudioController and survive session replacement. Native Master/Music/SFX/UI buses and the text-authored settings scene retain the existing JSON preference path/format.
 
-`Application/SessionCoordinator` exclusively owns the active session Node with ENet and reliable Godot RPCs. Native Steam callbacks live in `Networking/Steam/SteamCoordinator`; UI confirmation and lobby Controls are separate. Game.Core is unchanged and owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
+`Application/SessionCoordinator` exclusively owns the active session Node with ENet and reliable Godot RPCs. Native Steam callbacks live in `Networking/Steam/SteamCoordinator`; UI confirmation and lobby Controls are separate. Game.Core owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
 
 ## Hosting and joining LAN games
 
-Run `mise run play`. Choose **Host LAN** in one instance. Guests enter `host:port` and choose **Join / reconnect LAN**. The default is UDP **27025**. Allow that UDP port through your own firewall when playing across machines. Hosting can start with one through four total players.
+Run `mise run play`. Choose **Host LAN** in one instance. Guests enter `host:port` and choose **Join / reconnect LAN**. The default is UDP **27025**. Allow that UDP port through your own firewall when playing across machines. Hosting can start with one through six total players.
 
 The lobby shows admitted cities, host, local player, connected status, doctrines and remaining city slots. Choose your own doctrine and let the host start. Lobby membership has no second readiness toggle. Preparation uses Core's existing all-player readiness. Every participant builds, recruits and drafts their own rewards. The shared combat arena includes all players.
 
-The unchanged Core retains an admitted city when its player leaves, including in a lobby. A slot count therefore describes unallocated cities, not free network connections. Reconnect to reclaim that city. Start another hosted session for a completely fresh roster. New cities cannot join a match after it starts.
+Core retains an admitted city when its player leaves, including in a lobby. A slot count therefore describes unallocated cities, not free network connections. Reconnect to reclaim that city. Start another hosted session for a completely fresh roster. New cities cannot join a match after it starts.
 
 Development launches use your normal display and audio:
 
@@ -44,10 +44,10 @@ Full snapshots use the original bounded Brotli codec and compatibility validatio
 
 ## Optional Steam
 
-Set **`COMMON_WATCH_STEAM_APP_ID`** to your own authorized Steam AppID. No test or production AppID is assumed. Ordinary offline/LAN startup makes no Steam SDK initialization request. Steam buttons can initialize on demand; `play-steam` additionally enables invitation handling at startup. A missing SDK/login/configuration leaves offline and LAN play available. `COMMON_WATCH_STEAM_DISABLED=1` prevents initialization during offline verification.
+The Steam App ID is hardcoded to **480** for development in `GodotSteamPlatform.DevelopmentAppId`; no App ID environment variable is required or read. Player Steam identities still come from the logged-in client and authenticated transport. Ordinary offline/LAN startup makes no Steam SDK initialization request. Steam buttons can initialize on demand; `play-steam` additionally enables invitation handling at startup. A missing SDK/login/configuration leaves offline and LAN play available. `COMMON_WATCH_STEAM_DISABLED=1` prevents initialization during offline verification.
 
 ```sh
-COMMON_WATCH_STEAM_APP_ID=YOUR_AUTHORIZED_ID mise run play-steam
+mise run play-steam
 ```
 
 Choose **Host private Steam lobby**. **Invite Steam friends** opens Steam's native friend invitation overlay. Launch the application through Steam when the overlay requires Steam launch/injection. An accepted warm invitation uses a confirmation before leaving a current game; cold `+connect_lobby LOBBY_ID` arguments are supported. For exported Godot applications launched by Steam, use launch options `-- --steam` so engine and game arguments stay separate. Godot also reads the SDK launch command line for cold invitations. A lobby ID can also be entered directly. The host checks native lobby membership as well as the authenticated socket identity. Lobby membership only permits a transport attempt: Core admission and a valid compatible initial snapshot are still required.
@@ -64,7 +64,7 @@ All commands run at the repository root. `mise run test` includes Core/shared, o
 | --- | --- |
 | Build and upstream regressions | `mise run build`, `test-core`, `test-shared`, `test` |
 | Menu/solo/native controls | `mise run test-session` |
-| Actual two-, three-, four-player LAN gameplay | `mise run test-multiplayer` |
+| Actual one- through six-player LAN gameplay | `mise run test-multiplayer` |
 | Lobby integration and actual frames | `mise run test-lobby`, `capture-lobby` |
 | Resume and failure/admission checks | `mise run test-reconnect`, `test-network-faults` |
 | Offline Steam state/metadata/authentication logic | `mise run test-steam` |
@@ -73,16 +73,15 @@ All commands run at the repository root. `mise run test` includes Core/shared, o
 
 Lobby commands reuse the complete actual multiplayer exercise, including paid construction, readiness, combat, independent drafting and identical wave-two snapshots. Reconnection commands include protocol rejection, ownership attacks, duplicate delivery, process restart, preparation/combat/draft reconnect, exact accepted-command retry, invalid/expired credentials, roster lock, capacity, lobby departure and host shutdown. All process supervisors have bounded timeouts, isolated UDP ports and user data, terminate their process groups and own an Xvfb display on Linux. Python 3 and the existing graphical prerequisites are required; no system packages are installed by tasks. Interactive dev tasks keep normal audio; only automated checks use silent drivers.
 
-Actual lobby frames are written to `artifacts/captures/godot/lobby-{2,3,4}p.png`. Process logs are under `artifacts/test-logs`. Development control/report switches are opt-in verification instrumentation; they only submit commands or observe detached snapshots.
+Actual lobby frames are written to `artifacts/captures/godot/lobby-{1,2,3,4,5,6}p.png`. Process logs are under `artifacts/test-logs`. Development control/report switches are opt-in verification instrumentation; they only submit commands or observe detached snapshots.
 
 ## Native Steam verification gate
 
 Native Steam SDK/account tests have **not been executed** here. Mock tests, native library loading, ABI conversion and LAN tests do not prove Steam connectivity, invitations, relay routing or authenticated reconnection.
 
-Use two eligible accounts with access to the configured AppID, normally on separate machines. Explicitly authorize each worker:
+Use two eligible accounts with access to the development App ID 480, normally on separate machines. Explicitly authorize each worker:
 
 ```sh
-export COMMON_WATCH_STEAM_APP_ID=YOUR_AUTHORIZED_ID
 export COMMON_WATCH_STEAM_NATIVE_AUTHORIZED=1
 mise run test-steam-native -- host FRIEND_STEAM_ID
 # On the second account/machine, use the printed lobby ID:

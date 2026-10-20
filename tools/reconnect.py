@@ -54,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
             if any(p.poll() not in (None, 0, -signal.SIGTERM) for p in processes):
                 raise RuntimeError('Client failure: ' + message + '; process exits=' + repr([(p.pid, p.poll()) for p in processes]))
             time.sleep(.08)
-        states = [(i, current['status'] if (current := status(i)) else 'no status') for i in range(6)]
+        states = [(i, current['status'] if (current := status(i)) else 'no status') for i in range(8)]
         raise TimeoutError(message + ': ' + repr(states))
 
     def control(index, kind, **values):
@@ -195,7 +195,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         control(0, 'quit')
         host.wait(timeout=8)
         wait(lambda: not status(1)['connected'], 'Host shutdown')
-        # A new authority on the same endpoint is a new match, with a fresh four-city lobby.
+        # A new authority on the same endpoint is a new match, with a fresh six-city lobby.
         control(1, 'leave')
         wait(lambda: status(1)['state'] is None, 'Old match cleanup')
         (work / '1' / 'resume.json').unlink()
@@ -208,15 +208,19 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         fourth = launch(3)
         wait(lambda: (current := status(3)) and current['connected'], 'Fourth lobby player')
         fifth = launch(4)
-        wait(lambda: (current := status(4)) and 'full' in current['status'].lower(), 'Fifth player refused')
-        assert [p['Id'] for p in status(0)['state']['Players']] == [1, 2, 3, 4]
+        wait(lambda: (current := status(4)) and current['connected'], 'Fifth lobby player')
+        sixth = launch(5)
+        wait(lambda: (current := status(5)) and current['connected'], 'Sixth lobby player')
+        seventh = launch(6)
+        wait(lambda: (current := status(6)) and 'full' in current['status'].lower(), 'Seventh player refused')
+        assert [p['Id'] for p in status(0)['state']['Players']] == [1, 2, 3, 4, 5, 6]
         control(3, 'quit'); fourth.wait(timeout=8)
         wait(lambda: not status(0)['state']['Players'][3]['Connected'], 'Lobby leave retained city')
         control(0, 'quit'); host.wait(timeout=8)
         wait(lambda: not status(2)['connected'], 'Host leaving lobby')
-        absent = launch(5)
-        wait(lambda: (current := status(5)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
-        refused = status(5)
+        absent = launch(7)
+        wait(lambda: (current := status(7)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
+        refused = status(7)
         assert not refused['connected'] and refused['state'] is None
         print('godot', 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/death/draft resume, animation reset, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)
     finally:

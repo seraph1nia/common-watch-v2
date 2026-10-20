@@ -18,7 +18,7 @@ public static class WavePower
     {
         ArgumentNullException.ThrowIfNull(wave);
         ArgumentNullException.ThrowIfNull(combat);
-        if (players is < 1 or > 4) throw new ArgumentOutOfRangeException(nameof(players));
+        if (players is < 1 or > Match.MaximumPlayers) throw new ArgumentOutOfRangeException(nameof(players));
         // Allocation scales with the ORIGINAL roster, including fallen owners.
         return players * wave.Entries.Sum(entry => entry.Count * Member(combat.Unit(
             entry.Type, entry.Rank, entry.IsBoss, entry.Level, faction: Faction.Skeletons).Runtime()));

@@ -51,21 +51,21 @@ public sealed class AuthoritySessionTests
     }
 
     [Fact]
-    public void HostedStartBelongsOnlyToOriginalLocalHostAndCapacityIsFour()
+    public void HostedStartBelongsOnlyToOriginalLocalHostAndCapacityIsSix()
     {
         using var session = new AuthoritySession(AuthorityPolicy.PlayingHost);
-        for (int peer = 2; peer <= 4; peer++) Assert.True(Join(session, peer).Accepted);
-        Assert.Equal(4, session.Snapshot().Players.Length);
-        Assert.False(Join(session, 5).Accepted);
+        for (int peer = 2; peer <= 6; peer++) Assert.True(Join(session, peer).Accepted);
+        Assert.Equal(6, session.Snapshot().Players.Length);
+        Assert.False(Join(session, 7).Accepted);
         Assert.True(session.CanStart(session.LocalPlayerId));
         Assert.False(session.CanStart(2));
         string before = State(session);
         Assert.False(Remote(session, 2, Cmd(session, 2, 1, "start")).Accepted);
         Assert.Equal(before, State(session));
         Assert.True(session.ExecuteLocal(Cmd(session, 1, 1, "start")).Accepted);
-        Assert.False(Join(session, 6).Accepted);
+        Assert.False(Join(session, 8).Accepted);
         Assert.False(session.CanStart(1));
-        Assert.Equal(4, session.Snapshot().Players.Length);
+        Assert.Equal(6, session.Snapshot().Players.Length);
     }
 
     [Fact]

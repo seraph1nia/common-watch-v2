@@ -311,6 +311,7 @@ public sealed class Match : IDisposable
         _combat.SetCityHealth(Rules.CityHealth);
         _settlementCommands = new(Economy, Army, _combat);
     }
+    public const int MaximumPlayers = 6;
     public const int StepsPerSecond = 60;
     public Rules Rules { get; }
     public CombatConfiguration Configuration { get; }
@@ -344,7 +345,7 @@ public sealed class Match : IDisposable
 
     public City? Join()
     {
-        if (Phase != Phase.Lobby || Players.Count >= 4) return null;
+        if (Phase != Phase.Lobby || Players.Count >= MaximumPlayers) return null;
         var city = new City(_nextPlayer++, Rules, _combat, Economy, Configuration, Army);
         Players.Add(city.Id, city); _combat.ConfigureArena(Players.Keys); Revision++;
         return city;

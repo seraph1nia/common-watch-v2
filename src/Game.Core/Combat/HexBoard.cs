@@ -63,7 +63,8 @@ public sealed class HexBoard
         if (definition.Cells is null || definition.Anchors is null || definition.Entries is null || definition.SiegeCells is null)
             throw new ArgumentException("Missing board data.", nameof(definition));
         if (string.IsNullOrWhiteSpace(definition.Id) || definition.Version < 1 || definition.Capacity is not (1 or 6)
-            || definition.Cells.Length is < 2 or > 256 || definition.Anchors.Length != definition.Capacity)
+            || definition.Cells.Length < 2 || definition.Cells.Length > SharedArena.SectorWidth * SharedArena.Depth * Match.MaximumPlayers
+            || definition.Anchors.Length != definition.Capacity)
             throw new ArgumentException("Invalid board identity or bounded capacity/topology.", nameof(definition));
         Id = definition.Id; Version = definition.Version; Capacity = definition.Capacity;
         if (definition.Cells.Any(c => c is null || c.Neighbors is null || c.Id <= 0 || !Enum.IsDefined(c.Affinity)
