@@ -14,8 +14,10 @@ public partial class SettingsPanel : Control
     public Button CloseButton => GetNode<Button>(Content + "Close");
     public event Action? Opened;
 
-    public void Bind(AudioController audio)
+    public void Bind(AudioController audio, Texture2D? background)
     {
+        if (MenuBackground.Attach(this, background))
+            GetNode<ColorRect>("Shade").Color = new Color(0, 0, 0, 0.25f);
         _audio = audio;
         _audio.VolumeChanged += Refresh;
         Slider.SetValueNoSignal(audio.Settings.MusicVolume * 100);

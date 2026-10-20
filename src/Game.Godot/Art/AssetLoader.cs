@@ -15,6 +15,23 @@ public sealed class AssetLoader : IDisposable
     public int DecodeAttempts { get; private set; }
     private bool _mapChecked;
     private SettlementMapLayout? _mapLayout;
+    private Texture2D? _menuBackground;
+    private bool _menuBackgroundChecked;
+
+    // The supplied main-menu backdrop is shared by both presentation modes.
+    public Texture2D? MenuBackground()
+    {
+        if (_menuBackgroundChecked) return _menuBackground;
+        _menuBackgroundChecked = true;
+        string path = System.IO.Path.Combine(Options.AssetsRoot, "..", "menu", "main_menu_background.png");
+        if (System.IO.File.Exists(path))
+        {
+            using var image = new Image();
+            if (image.Load(path) == Error.Ok && !image.IsEmpty())
+                _menuBackground = ImageTexture.CreateFromImage(image);
+        }
+        return _menuBackground;
+    }
 
     // Supplied static UI artwork is external like the sprite pack, including in exports.
     // Keep textures in the application cache so retained dialogs never own/dispose them.
@@ -107,6 +124,7 @@ public sealed class AssetLoader : IDisposable
 
     public void Dispose()
     {
+        _menuBackground?.Dispose();
         foreach (var texture in WorldTextures.Values.Concat(HudTextures.Values)) texture?.Dispose();
         WorldTextures.Clear(); HudTextures.Clear();
     }

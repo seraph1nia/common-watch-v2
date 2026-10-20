@@ -16,11 +16,17 @@ public partial class GameApplication
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
         _session.SelectSlot(0); RefreshUi(true); await GameplayCapture("hud-build");
         Require(_gameUi.Inspector.Construction.Categories.Count == 5, "five native construction categories");
-        foreach (var definition in _session.Snapshot.BuildingCatalog)
+        for (int category = 0; category < _gameUi.Inspector.Construction.Categories.Count; category++)
         {
-            Press(_gameUi.Inspector.Construction.Categories[ConstructionPanel.CategoryOf(definition)]);
-            Require(_gameUi.Inspector.BuildButtons[definition.Type].Visible, "category exposes " + definition.Type);
-            Require(_gameUi.Inspector.BuildButtons.Where(pair => pair.Value.Visible).All(pair => ConstructionPanel.CategoryOf(_session.Snapshot.BuildingCatalog.Single(d => d.Type == pair.Key)) == ConstructionPanel.CategoryOf(definition)), "category filters cards");
+            var tab = _gameUi.Inspector.Construction.Categories[category];
+            Press(tab); await GameplayCapture("build-" + tab.Text.ToLowerInvariant());
+            foreach (var definition in _session.Snapshot.BuildingCatalog)
+            {
+                var card = _gameUi.Inspector.BuildButtons[definition.Type];
+                Require(card.Visible == (ConstructionPanel.CategoryOf(definition) == category), "category filters " + definition.Type);
+                if (!card.Visible) continue;
+                Require(_gameUi.ContextArea.Encloses(card.GetGlobalRect()), "complete construction option fits without scrolling: " + definition.Type);
+            }
         }
         Press(_gameUi.Inspector.Construction.Categories[0]);
         Require(_gameUi.ContextArea.Encloses(_gameUi.Inspector.Construction.Categories[^1].GetGlobalRect()), "all five construction categories fit the floating panel");
@@ -39,17 +45,16 @@ public partial class GameApplication
         MoveMouse(_gameUi.Inspector.BuildButtons[Building.Farm].GetGlobalRect().GetCenter());
         await GameplayCapture("hud-build-focus-hover");
         Require(selectedCard.HasFocus() && selectedCard.ButtonPressed, $"keyboard focus remains independent of pointer hover and card selection: focus={selectedCard.HasFocus()}, selected={selectedCard.ButtonPressed}, owner={GetViewport().GuiGetFocusOwner()?.Name}");
-        Require(_gameUi.Inspector.Construction.CardArea.Encloses(selectedCard.GetGlobalRect()), $"keyboard focus scrolls the complete selected card into view: area={_gameUi.Inspector.Construction.CardArea}, card={selectedCard.GetGlobalRect()}");
+        Require(_gameUi.Inspector.Construction.CardArea.Encloses(selectedCard.GetGlobalRect()), $"complete focused card remains visible: area={_gameUi.Inspector.Construction.CardArea}, card={selectedCard.GetGlobalRect()}");
         var confirm = _gameUi.Inspector.Construction.ConfirmButton;
         var quote = _session.Snapshot.BuildingCatalog.Single(b => b.Type == Building.Lumbermill).Construction;
         Require(confirm.Text.Contains("Lumbermill") && confirm.Text.Contains(GameplayContext.Cost(quote)), "selection and real cost visible on construction confirmation");
         Require(_gameUi.ContextArea.Encloses(confirm.GetGlobalRect()), "construction confirmation fits the compact native dock");
-        var cards = (ScrollContainer)selectedCard.GetParent().GetParent();
-        int cardScroll = cards.ScrollHorizontal;
+        Rect2 selectedBounds = selectedCard.GetGlobalRect();
         RefreshUi(true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(cards.ScrollHorizontal == cardScroll, "selected card scroll retained on snapshot refresh");
+        Require(selectedCard.HasFocus() && selectedCard.GetGlobalRect() == selectedBounds, "selected card focus and position retained on snapshot refresh");
         Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.City.Slots[0].Type == Building.Lumbermill, "native paid construction");
         await GameplayCapture("hud-occupied");
@@ -162,8 +167,14 @@ public partial class GameApplication
         ReplaceSession(GameplayScenarios.CreateAt("defeat")); _frozen = true; RefreshUi(true);  await GameplayCapture("defeat");
         ReplaceSession(ScenarioRunner.CreateAt("settlement")); _frozen = true; _session.SelectSlot(4); RefreshUi(true);
         var recovery = _gameUi.Inspector.Construction.RecoveryButton!;
+        await GameplayCapture("build-gold-recovery");
+        Require(recovery.Visible && _gameUi.ContextArea.Encloses(recovery.GetGlobalRect()), "Gold recovery fits alongside every production option");
         long recoveryRevision = _session.Snapshot.Revision;
         Press(recovery); Require(_session.Snapshot.Revision == recoveryRevision, "recovery card selection spends nothing");
+        await GameplayCapture("build-gold-recovery-selected");
+        Require(_gameUi.ContextArea.Encloses(_gameUi.Inspector.Construction.ConfirmButton.GetGlobalRect()), "Gold recovery confirmation fits below the complete catalog");
+        foreach (var card in _gameUi.Inspector.BuildButtons.Values.Append(recovery).Where(card => card.Visible))
+            Require(_gameUi.ContextArea.Encloses(card.GetGlobalRect()), "every recovery/production option remains visible with confirmation");
         Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.LastResult?.Accepted == true && _session.City.Slots[4].Type == Building.Lumbermill, "4 Gold recovery stays accessible and confirmed");
         await CheckGameplayInput();

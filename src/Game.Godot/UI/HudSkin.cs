@@ -3,18 +3,20 @@ using Game.Shared;
 
 namespace Game.GodotClient;
 
-/// <summary>Optional forest resources adapt the native theme; plain mode never loads artwork.</summary>
+/// <summary>Optional forest resources adapt the native theme; the static menu backdrop is shared by all modes.</summary>
 public sealed class HudSkin : IDisposable
 {
     public Theme Theme { get; }
     public bool Illustrated { get; }
     public WorldtreeArt? Worldtree { get; }
+    public Texture2D? MenuBackground { get; }
     public int NinePatches { get; private set; }
     public HudSkin(AssetLoader assets)
     {
         var plain = GD.Load<Theme>("res://UI/WatchTheme.tres");
         Theme = (Theme)plain.Duplicate();
         Worldtree = WorldtreeArt.Load(assets);
+        MenuBackground = assets.MenuBackground();
         if (assets.Options.Hud != HudArt.Illustrated) return;
         const string path = "res://UI/ForestHud/ForestTheme.tres";
         if (!ResourceLoader.Exists(path)) return;

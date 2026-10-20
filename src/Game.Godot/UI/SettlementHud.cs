@@ -94,8 +94,16 @@ public partial class SettlementHud : Control
         _action.Position = new(Size.X - 368, Size.Y - actionHeight - 8); _action.Size = new(360, actionHeight);
         _contextBody.Visible = !BlocksWorld;
         float height = _session is not null && _session.SelectedSlot >= 0 && !_arenaContext ? ContextHeight : 140;
+        bool construction = _session is not null && _session.SelectedSlot >= 0 && Inspector.Construction.Visible && !BlocksWorld && !_arenaContext;
+        float width = construction ? Mathf.Min(1100, _action.Position.X - 24) : Mathf.Min(500, Size.X * .32f);
+        if (construction)
+        {
+            float frame = _dock.GetThemeStylebox("panel").GetMinimumSize().Y
+                + _contextBody.GetParent<Control>().GetCombinedMinimumSize().Y;
+            height = Mathf.Min(Mathf.Max(ContextHeight, Inspector.GetCombinedMinimumSize().Y + frame), Size.Y - _ribbon.Size.Y - 32);
+        }
         _dock.Visible = !_arenaContext;
-        _dock.Position = new(8, Size.Y - height - 8); _dock.Size = new(Mathf.Min(500, Size.X * .32f), height);
+        _dock.Position = new(8, Size.Y - height - 8); _dock.Size = new(width, height);
     }
     public void Inspect(UnitState unit, bool preview = false)
     {

@@ -62,6 +62,7 @@ public partial class LobbyPanel : PanelContainer
         Roster = WrapLabel(); Roster.MaxLinesVisible = 1; footer.AddChild(Roster);
         LobbyActions = new VBoxContainer(); footer.AddChild(LobbyActions);
         BackButton = skin.Button("Back to main menu", () => MenuRequested?.Invoke()); _setup.AddChild(BackButton);
+        InitializeBackground(skin.MenuBackground);
     }
     public void ShowError(string message)
     {
@@ -78,7 +79,6 @@ public partial class LobbyPanel : PanelContainer
         _setup.Visible = session is not null;
         Doctrines.Visible = session is { HasState: true };
         StartButton.Visible = session is { HasState: true, IsHost: true };
-        StartButton.Disabled = true;
         if (session is { HasState: true })
         {
             string key = $"{session.Snapshot.MatchId}:{session.PlayerId}";
@@ -100,9 +100,12 @@ public partial class LobbyPanel : PanelContainer
             }
             _choices.TryGetValue(key, out string? selected);
             for (int i = 0; i < _offers.Length; i++) _cards[i].Refresh(view.Cards.Single(c => c.Id == _offers[i]), selected == _offers[i]);
+            // Disabling an enabled native button cancels an in-progress click.
+            // Assign only the final eligibility so frame refreshes preserve held input.
             StartButton.Disabled = session is not { Connected: true, Pending: false } || session.Snapshot.Paused || selected is null || session.City.Run.Doctrine != selected || !session.AllDoctrinesChosen;
             StartButton.TooltipText = !session.AllDoctrinesChosen ? "Waiting for every connected player to choose a doctrine." : "Start the match with these personal doctrines.";
         }
+        else StartButton.Disabled = true;
         Roster.Text = session is null ? "" : !session.HasState ? session.Status :
             string.Join(" · ", session.Snapshot.Players.Select(p => $"P{p.Id}{(p.Id == session.PlayerId ? " [you]" : "")}: {RunCatalog.Doctrine(p.Run.Doctrine).Name}{(p.Connected ? "" : " (offline)")}"));
         Roster.TooltipText = Roster.Text;

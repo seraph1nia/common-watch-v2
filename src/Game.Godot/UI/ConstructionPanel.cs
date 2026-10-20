@@ -9,17 +9,16 @@ public partial class ConstructionPanel : VBoxContainer
     private HudSkin _skin = null!;
     private GameplayContext _context = null!;
     private readonly Dictionary<Building, Button> _buttons = [];
-    private ActionList _actions = null!;
+    private GridContainer _cards = null!;
     private int _category;
     private readonly List<Button> _categories = [];
     private int _slot, _city;
     private Building? _selected;
     private ConstructionPayment _payment;
-    public Button? RecoveryButton => _actions.Buttons.GetValueOrDefault("Recovery");
+    public Button? RecoveryButton { get; private set; }
     private Button _confirm = null!;
     private Label _reason = null!;
-    private ScrollContainer _cardScroll = null!;
-    public Rect2 CardArea => _cardScroll.GetGlobalRect();
+    public Rect2 CardArea => _cards.GetGlobalRect();
     public Button ConfirmButton => _confirm;
     public IReadOnlyList<Button> Categories => _categories;
     public IReadOnlyDictionary<Building, Button> BuildButtons => _buttons;
@@ -41,42 +40,69 @@ public partial class ConstructionPanel : VBoxContainer
             tab.ToggleMode = true; tab.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             _categories.Add(tab); tabs.AddChild(tab);
         }
-        var row = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(row);
-        var choice = new VBoxContainer { CustomMinimumSize = new(145, 0) }; row.AddChild(choice);
+        _cards = new GridContainer { Columns = 4, SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(_cards);
+        var choice = new HBoxContainer(); AddChild(choice);
         _confirm = skin.Button("Select a building", () =>
         {
             if (_selected is { } type) _context.Submit(new(GameplayAction.Build, _slot, type, Payment: _payment));
         }, "ForestPrimaryButton");
-        _confirm.AutowrapMode = TextServer.AutowrapMode.WordSmart; choice.AddChild(_confirm);
+        _confirm.AutowrapMode = TextServer.AutowrapMode.WordSmart; _confirm.SizeFlagsHorizontal = SizeFlags.ExpandFill; choice.AddChild(_confirm);
         _reason = WrapLabel(); _reason.MaxLinesVisible = 2; choice.AddChild(_reason);
-        var scroll = new ScrollContainer { FollowFocus = true, SizeFlagsHorizontal = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Auto, VerticalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        _cardScroll = scroll; row.AddChild(scroll); _actions = new ActionList { Vertical = false }; scroll.AddChild(_actions);
+        RecoveryButton = CreateCard(() => { _selected = Building.Lumbermill; _payment = ConstructionPayment.GoldRecovery; Refresh(_context, _slot); });
+        RecoveryButton.Hide();
+    }
+    private Button CreateCard(Action choose)
+    {
+        var button = _skin.Button("", choose);
+        button.ToggleMode = true; button.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        button.CustomMinimumSize = new(200, 100); button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        button.ThemeTypeVariation = _skin.Illustrated ? "ForestCard" : "";
+        if (_skin.Illustrated)
+            foreach (string state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
+            {
+                var style = (StyleBox)_skin.Theme.GetStylebox(state, "ForestCard").Duplicate();
+                style.ContentMarginLeft = style.ContentMarginRight = 16;
+                style.ContentMarginTop = style.ContentMarginBottom = 12;
+                button.AddThemeStyleboxOverride(state, style);
+            }
+        _cards.AddChild(button); return button;
+    }
+    private static void RefreshCard(Button button, string text, string blocked, bool selected)
+    {
+        button.Text = text + (blocked.Length > 0 ? "\n" + blocked : "");
+        button.TooltipText = blocked; button.Disabled = blocked.Length > 0;
+        button.SetPressedNoSignal(selected);
     }
     public void ResetSelection() { _selected = null; _category = 0; }
     public void Refresh(GameplayContext context, int slot)
     {
         if (_slot != slot || _city != context.City.Id) ResetSelection();
         for (int i = 0; i < _categories.Count; i++) _categories[i].SetPressedNoSignal(i == _category);
-        _context = context; _slot = slot; _city = context.City.Id; _actions.Begin(); _buttons.Clear();
+        _context = context; _slot = slot; _city = context.City.Id;
         foreach (var definition in context.State.BuildingCatalog)
         {
             var type = definition.Type;
             int category = CategoryOf(definition);
             bool wrongPlot = ArmyConfiguration.IsArmyPlot(slot) && !ArmyConfiguration.IsTower(type);
-            var button = _actions.Item(_skin, "Build" + type,
+            if (!_buttons.TryGetValue(type, out var button))
+            {
+                button = CreateCard(() => { _selected = type; _payment = ConstructionPayment.Standard; Refresh(_context, _slot); });
+                button.Name = "Build" + type; _buttons.Add(type, button);
+            }
+            RefreshCard(button,
                 $"{(_selected == type && _payment == ConstructionPayment.Standard ? "✓ " : "")}{GameplayContext.BuildingName(type)} — {GameplayContext.Cost(definition.Construction)}\n{Function(definition)}",
-                () => { _selected = type; _payment = ConstructionPayment.Standard; Refresh(_context, _slot); },
-                context.Block(definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""));
-            button.ToggleMode = true; button.SetPressedNoSignal(_selected == type && _payment == ConstructionPayment.Standard); button.CustomMinimumSize = new(215, 100); button.ThemeTypeVariation = _skin.Illustrated ? "ForestCard" : "";
+                context.Block(definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""),
+                _selected == type && _payment == ConstructionPayment.Standard);
             button.Visible = category == _category;
-            _buttons[type] = button;
         }
         var lumber = context.State.BuildingCatalog.First(b => b.Type == Building.Lumbermill);
+        RecoveryButton!.Visible = !ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0
+            && lumber.RecoveryConstruction is not null && _category == 0;
         if (!ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0 && lumber.RecoveryConstruction is { } quote)
         {
-            var recovery = _actions.Item(_skin, "Recovery", $"Lumbermill gold recovery — {GameplayContext.Cost(quote)}",
-                () => { _selected = Building.Lumbermill; _payment = ConstructionPayment.GoldRecovery; Refresh(_context, _slot); }, context.Block(quote));
-            recovery.ToggleMode = true; recovery.SetPressedNoSignal(_selected == Building.Lumbermill && _payment == ConstructionPayment.GoldRecovery);
+            RefreshCard(RecoveryButton, $"Lumbermill gold recovery — {GameplayContext.Cost(quote)}", context.Block(quote),
+                _selected == Building.Lumbermill && _payment == ConstructionPayment.GoldRecovery);
+            _cards.MoveChild(RecoveryButton, -1);
         }
         var selected = context.State.BuildingCatalog.FirstOrDefault(definition => definition.Type == _selected);
         ResourceCost? selectedCost = _payment == ConstructionPayment.GoldRecovery ? selected?.RecoveryConstruction : selected?.Construction;
@@ -86,14 +112,6 @@ public partial class ConstructionPanel : VBoxContainer
         _confirm.Visible = selected is not null;
         _confirm.TooltipText = selected is null ? "" : $"Build {GameplayContext.BuildingName(selected.Type)}{(_payment == ConstructionPayment.GoldRecovery ? " (Gold recovery)" : "")} — {GameplayContext.Cost(selectedCost ?? default)}";
         _confirm.Disabled = selected is null || blocked.Length > 0; _reason.Text = blocked; _reason.TooltipText = blocked; _reason.Visible = blocked.Length > 0;
-        _actions.End();
-        if (RecoveryButton is { Visible: true } recoveryCard) recoveryCard.Visible = _category == 0;
-        foreach (var button in _actions.Buttons.Values) button.CustomMinimumSize = new(215, 100);
-        foreach (var definition in context.State.BuildingCatalog)
-        {
-            int category = CategoryOf(definition);
-            _buttons[definition.Type].Visible = category == _category;
-        }
     }
     public static int CategoryOf(BuildingDefinition definition) => definition.Produces is not null ? 0 : definition.Recruits is not null ? 1 : ArmyConfiguration.IsTower(definition.Type) ? 2 : definition.Type == Building.Market ? 3 : 4;
     public static string Function(BuildingDefinition definition) => definition.Produces is { } resource ? $"Output {definition.LevelOneOutput}/{definition.LevelTwoOutput} {resource}/production (base); max L{definition.MaximumLevel}."

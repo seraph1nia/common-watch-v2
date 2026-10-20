@@ -42,8 +42,16 @@ public partial class GameApplication
         Require(old.City.Run.Doctrine == offers[1] && !_sessionMenu.StartButton.Disabled, "offered doctrine applied explicitly");
         ((DoctrineCard)_sessionMenu.Doctrines.GetChild(2)).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed);
         Require(old.City.Run.Doctrine == offers[2] && ((DoctrineCard)_sessionMenu.Doctrines.GetChild(2)).ChooseButton.ButtonPressed && !((DoctrineCard)_sessionMenu.Doctrines.GetChild(1)).ChooseButton.ButtonPressed, "selection replaces previous highlight");
-        _sessionMenu.StartButton.EmitSignal(BaseButton.SignalName.Pressed);
-        Require(old.Snapshot.Phase == Phase.Building, "start UI");
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        Vector2 start = _sessionMenu.StartButton.GetGlobalRect().GetCenter();
+        Input.WarpMouse(start);
+        GetViewport().PushInput(new InputEventMouseMotion { Position = start, GlobalPosition = start }, true);
+        GetViewport().PushInput(new InputEventMouseButton { Position = start, GlobalPosition = start, ButtonIndex = MouseButton.Left, ButtonMask = MouseButtonMask.Left, Pressed = true }, true);
+        // A real click spans refreshes; emitting Pressed bypasses native button state.
+        for (int i = 0; i < 3; i++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(old.Snapshot.Phase == Phase.Lobby, "start waits for mouse release");
+        GetViewport().PushInput(new InputEventMouseButton { Position = start, GlobalPosition = start, ButtonIndex = MouseButton.Left, Pressed = false }, true);
+        Require(old.Snapshot.Phase == Phase.Building && !_sessionMenu.Visible && _gameUi.Visible, "native start click survives lobby refreshes and opens gameplay");
         ReturnToMenu(); BeginSolo();
         Require(_session!.Snapshot.MatchId != match && _session.City.Run.Doctrine == "warden", "replacement isolation");
         try { old.Send("ready"); throw new InvalidOperationException("Disposed session accepted input"); }
