@@ -1,5 +1,19 @@
 # Verification
 
+## CI native extension startup (2026-10-20)
+
+GitHub run `39290970449` failed the native Steam ABI check because its fresh
+Godot cache had no extension registration. CI now calls the existing
+`tools/prepare-godot.sh` before the check, bounds the probe to 90 seconds with a
+five-second kill grace period, and prints its diagnostic log on failure.
+
+Local reproduction with `extension_list.cfg` removed failed at the same native
+extension assertion. The updated workflow command block passed with registration
+removed and PNG import forced. Locked solution build passed without warnings;
+Core (40), Shared (66) and offline session/Steam (25) tests passed. This offline
+ABI check does not qualify live Steam, native Windows/macOS or physical hardware;
+the intermittent native .NET/JIT risk remains unresolved.
+
 ## Illustrated forest settlement (2026-10-18)
 
 [Implementation, file inventory and reproduction commands](SETTLEMENT_MAP.md). The unchanged supplied nine-pad PNG is repository-local. Core, gameplay rules, transport, combat code, existing cutouts/catalog, soundtrack and dependency locks are unchanged.

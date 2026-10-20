@@ -48,9 +48,12 @@ jobs:
       - name: Test offline Godot sessions and Steam integration
         run: |
           mise run test-steam
+          mise exec -- env COMMON_WATCH_STEAM_DISABLED=1 bash tools/prepare-godot.sh
           mkdir -p artifacts/test-logs
-          mise exec -- env COMMON_WATCH_STEAM_DISABLED=1 godot --headless --path src/Game.Godot --audio-driver Dummy -- --check-steam-extension > artifacts/test-logs/godot-steam-abi.log 2>&1
+          status=0
+          mise exec -- env COMMON_WATCH_STEAM_DISABLED=1 timeout --kill-after=5s 90s godot --headless --path src/Game.Godot --audio-driver Dummy -- --check-steam-extension > artifacts/test-logs/godot-steam-abi.log 2>&1 || status=$?
           cat artifacts/test-logs/godot-steam-abi.log
+          if (( status != 0 )); then exit "$status"; fi
           grep -q 'GODOT_STEAM_ABI_PASS' artifacts/test-logs/godot-steam-abi.log
           if grep -Eq 'ERROR:|Unhandled exception' artifacts/test-logs/godot-steam-abi.log; then exit 1; fi
 
