@@ -17,6 +17,18 @@ run_client() {
   timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 2560x1440x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
+  capture-environment)
+    client_timeout=240
+    output="$(pwd)/artifacts/captures/godot/environment"
+    environment_log="$(pwd)/artifacts/test-logs/environment.log"
+    mkdir -p "$(dirname "$environment_log")"
+    : > "$environment_log"
+    run_client --battle swordsman --world-art sprites --environment-captures "$output" "$@" 2>&1 | tee -a "$environment_log"
+    run_client --battle swordsman --battle-tick 74 --world-art sprites --environment-effects full --environment-preset rain --environment-time 8 --assets-root "$settings_directory/missing-sprites" --capture "$output/missing-art.png" 2>&1 | tee -a "$environment_log"
+    run_client --battle swordsman --battle-tick 74 --world-art debug --environment-effects full --environment-preset rain --environment-time 8 --capture "$output/debug.png" 2>&1 | tee -a "$environment_log"
+    if rg -n 'SHADER ERROR:|ERROR:|Unhandled exception' "$environment_log"; then exit 1; fi
+    rg -q 'GODOT_ENVIRONMENT_PASS' "$environment_log"
+    ;;
   capture-arena)
     client_timeout=240
     run_client --battle swordsman --world-art sprites --arena-captures "$(pwd)/artifacts/captures/godot/modular-arena" "$@"

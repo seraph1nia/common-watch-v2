@@ -12,6 +12,7 @@ public partial class GameApplication : Node
     private RenderOptions _options = null!;
     private AssetLoader _assets = null!;
     private HudSkin _skin = null!;
+    private EnvironmentController _environment = null!;
     private bool _frozen;
     private string[] _args = [];
 
@@ -95,6 +96,7 @@ public partial class GameApplication : Node
         if (_assets is null) return;
         _assets.Configure(_options);
         _steam.Poll();
+        _environment.Suspended = (_frozen && _session is { HasState: true }) || (_battle?.Paused ?? (_session is { HasState: true } && (_session.Snapshot.Paused || !_session.Connected)));
         RunControlProbe();
         if (_session is null || _gameUi is null) return;
         _animationProfile?.Begin(delta);
@@ -124,13 +126,15 @@ public partial class GameApplication : Node
     private Vector2 WorldOrigin => WorldArea.GetCenter();
     private void CreateWorld()
     {
+        _environment = GetNode<EnvironmentController>("Environment");
+        _environment.Initialize(_assets, _args, Argument("--settings-path") is { } settings ? settings + ".environment.json" : ProjectSettings.GlobalizePath("user://environment-settings.json"));
         _camera = GetNode<WorldCamera>("World/Camera");
         _arenaBackdrop = GetNode<ArenaBackdrop>("ArenaBackdrop");
-        _settlementView = GetNode<SettlementView>("World/Settlement"); _settlementView.Initialize(_assets);
-        _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview"); _arenaPreview.Initialize(_assets);
+        _settlementView = GetNode<SettlementView>("World/Settlement"); _settlementView.Initialize(_assets, _environment);
+        _arenaPreview = GetNode<ArenaPreview>("World/ArenaPreview"); _arenaPreview.Initialize(_assets, _environment);
         _battlefield = GetNode<BattlefieldView>("World/Battlefield");
         _battlefield.ShaderEnabled = Argument("--combat-shader") != "off";
-        _battlefield.Initialize(_assets); _battlefield.FramePresented += OnBattleFrame;
+        _battlefield.Initialize(_assets, _environment); _battlefield.FramePresented += OnBattleFrame;
         _camera.Layout(WorldOrigin);
         InputActions.Register();
     }

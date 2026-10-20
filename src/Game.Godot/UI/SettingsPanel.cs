@@ -6,6 +6,8 @@ namespace Game.GodotClient;
 public partial class SettingsPanel : Control
 {
     private AudioController _audio = null!;
+    private EnvironmentController _environment = null!;
+    private OptionButton _effects = null!;
     private Control? _previousFocus;
     public Control? FallbackFocus { private get; set; }
     public PanelContainer Panel => GetNode<PanelContainer>("Center/Panel");
@@ -14,10 +16,16 @@ public partial class SettingsPanel : Control
     public Button CloseButton => GetNode<Button>(Content + "Close");
     public event Action? Opened;
 
-    public void Bind(AudioController audio, Texture2D? background)
+    public void Bind(AudioController audio, Texture2D? background, EnvironmentController environment)
     {
         if (MenuBackground.Attach(this, background))
             GetNode<ColorRect>("Shade").Color = new Color(0, 0, 0, 0.25f);
+        _environment = environment;
+        _effects = GetNode<OptionButton>(Content + "EnvironmentEffects");
+        foreach (string name in new[] { "Off", "Subtle", "Full" }) _effects.AddItem(name);
+        _effects.Selected = (int)environment.Settings.Quality;
+        _effects.ItemSelected += OnEffects;
+        _environment.QualityChanged += RefreshEffects;
         _audio = audio;
         _audio.VolumeChanged += Refresh;
         Slider.SetValueNoSignal(audio.Settings.MusicVolume * 100);
@@ -25,6 +33,8 @@ public partial class SettingsPanel : Control
         CloseButton.Pressed += Close;
         Refresh();
     }
+    private void OnEffects(long selected) => _environment.SetQuality((EnvironmentQuality)selected);
+    private void RefreshEffects() => _effects.Selected = (int)_environment.Settings.Quality;
     private void OnVolume(double percent) => _audio.SetVolume((float)percent / 100);
     private void Refresh()
     {
@@ -54,6 +64,8 @@ public partial class SettingsPanel : Control
     }
     public override void _ExitTree()
     {
+        if (_environment is not null) _environment.QualityChanged -= RefreshEffects;
+        if (_effects is not null) _effects.ItemSelected -= OnEffects;
         if (_audio is not null) _audio.VolumeChanged -= Refresh;
         Slider.ValueChanged -= OnVolume;
         CloseButton.Pressed -= Close;

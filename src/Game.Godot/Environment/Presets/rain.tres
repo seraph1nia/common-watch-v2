@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EnvironmentPreset" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Environment/EnvironmentPreset.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Tint = Color(0.18, 0.27, 0.38, 0.18)
+Fog = 0.3
+Clouds = 0.35
+Rain = 0.9
+Motes = 0.0
+Glow = 0.5
+Wind = Vector2(-18, 0)

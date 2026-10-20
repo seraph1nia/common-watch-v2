@@ -11,6 +11,9 @@ public partial class SettlementView : Node2D
     private GodotSession _session = null!;
     private WorldArt _art = null!;
     private AssetLoader _assets = null!;
+    private EnvironmentView _environmentView = null!;
+    private EnvironmentController _environment = null!;
+    private string _emitterKey = "";
     private (Texture2D Texture, SettlementMapLayout Layout)? _map;
     public bool HasMap => _map is not null;
     public SettlementMapLayout? MapLayout => _map?.Layout;
@@ -39,14 +42,36 @@ public partial class SettlementView : Node2D
     }
     private float _compression = 1;
     private Vector2 Center => new(HexRadius * Mathf.Sqrt(3) / 4, HexRadius * 1.5f * 3 * _compression);
-    public void Initialize(AssetLoader assets) { _assets = assets; _art = new(assets); Hide(); }
+    public void Initialize(AssetLoader assets, EnvironmentController environment) { _assets = assets; _art = new(assets); _environment = environment; _environmentView = environment.Attach(this, EnvironmentScene.Settlement); Hide(); }
     public void Present(GodotSession session, bool visible)
     {
         _session = session;
         _map = _assets.SettlementMap();
         if (_compression != _assets.Options.GroundCompression || Projection.Radius != HexRadius)
         { _compression = _assets.Options.GroundCompression; Projection = new(HexRadius, _compression); }
-        Visible = visible; QueueRedraw();
+        Visible = visible; UpdateEnvironmentAnchors(); QueueRedraw();
+    }
+    private void UpdateEnvironmentAnchors()
+    {
+        if (!Visible || _map is not { } map) { _environmentView.SetArea(default, default); _environmentView.Hide(); return; }
+        var bounds = new Rect2(-new Vector2(map.Layout.Width, map.Layout.Height) / 2, new Vector2(map.Layout.Width, map.Layout.Height));
+        _environmentView.SetArea(bounds, new Rect2(bounds.Position, new Vector2(bounds.Size.X, bounds.Size.Y * .24f)));
+        if (_environment.Settings.Quality == EnvironmentQuality.Off) return;
+        string key = $"{_session.ViewedCity.Id}:" + string.Join(',', _session.ViewedCity.Slots.Select(s => s.Type));
+        if (key == _emitterKey) return;
+        _emitterKey = key; _environmentView.ClearEmitters();
+        foreach (var spot in map.Layout.Spots)
+        {
+            var type = _session.ViewedCity.Slots[spot.Slot].Type;
+            // The cutouts' foundation anchors and display sizes already define their pixel scale.
+            string id = VisualAssets.BuildingId(type);
+            float size = spot.BuildingSize * _assets.Catalog.Metadata(id).DisplaySize / 142;
+            Vector2 ground = PlotPosition(spot.Slot);
+            if (type is Building.Arcanum or Building.ResearchTower)
+                _environmentView.AddEmitter(ground + new Vector2(0, -size * .64f), EnvironmentEmitterKind.Crystal, size * .16f);
+            if (type is Building.MetalMine or Building.Lumbermill)
+                _environmentView.AddEmitter(ground + new Vector2(size * .1f, -size * .58f), EnvironmentEmitterKind.Smoke, size * .12f);
+        }
     }
     private Vector2 LocalPosition(NumVector point) => new Vector2(point.X, point.Y) - Center;
     private Vector2 MapPosition(MapPoint point) => new(point.X - _map!.Value.Layout.Width / 2f, point.Y - _map.Value.Layout.Height / 2f);

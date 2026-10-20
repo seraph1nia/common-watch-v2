@@ -8,8 +8,10 @@ namespace Game.GodotClient;
 public partial class ArenaPreview : Node2D
 {
     private AssetLoader _assets = null!;
+    private EnvironmentView _environmentView = null!;
+    private EnvironmentController _environment = null!;
     private readonly ArenaScenery _scenery = new();
-    public void Initialize(AssetLoader assets) { _assets = assets; AddChild(_scenery); }
+    public void Initialize(AssetLoader assets, EnvironmentController environment) { _assets = assets; AddChild(_scenery); _environment = environment; _environmentView = environment.Attach(this, EnvironmentScene.Arena); _environmentView.ShowBehindParent = true; }
     private MatchSnapshot? _state;
     public Rect2 RenderBounds => ArenaPresentation.RenderBounds(_state!.Arena!, _projection, _assets.Options.Mode == RenderMode.Sprites);
     private HexProjection _projection = new(30);
@@ -19,6 +21,8 @@ public partial class ArenaPreview : Node2D
     public void Present(MatchSnapshot state, bool visible, float compression)
     {
         Visible = visible; _state = state; _projection = new(30, compression);
+        _scenery.AnimatedEnvironment = _environment.Settings.Quality != EnvironmentQuality.Off;
+        if (visible && state.Arena is { } layoutArena) _environmentView.SetArena(new ArenaLayout(layoutArena, _projection));
         _scenery.Present(_assets, visible ? state.Arena : null, _projection);
         if (!visible || state.Arena is not { } arena) return;
         var points = arena.Board.Cells.Select(c => _projection.Project(c.Coordinate)).ToArray();

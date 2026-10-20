@@ -20,6 +20,10 @@ public partial class GameApplication
             long revision = _session.Snapshot.Revision;
             for (int slot = 0; slot < 9; slot++)
             {
+                // Empty-plot construction panels intentionally cover parts of the map.
+                // Expose each target before its native click; never click through the HUD.
+                _session.SelectSlot(-1); RefreshUi(true);
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 Vector2 point = _camera.ToScreen(_settlementView.PlotPosition(slot));
                 Require(WorldArea.HasPoint(point), "default framing exposes slot " + slot);
                 Click(point);
@@ -42,10 +46,16 @@ public partial class GameApplication
             GetViewport().PushInput(new InputEventMouseMotion { Position = drag + new Vector2(37, -23), Relative = new Vector2(37, -23), ButtonMask = MouseButtonMask.Middle }, true);
             GetViewport().PushInput(new InputEventMouseButton { Position = drag + new Vector2(37, -23), ButtonIndex = MouseButton.Middle, Pressed = false }, true);
             GetViewport().PushInput(new InputEventMouseButton { Position = drag, ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
+            GetViewport().PushInput(new InputEventMouseButton { Position = drag, ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
             Require(_camera.PanPixels == Vector2.Zero && _camera.Magnification == beforeZoom, "native pan and wheel leave fixed settlement unchanged");
+            _session.SelectSlot(-1); RefreshUi(true);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            GetViewport().GuiReleaseFocus();
             Click(_camera.ToScreen(_settlementView.PlotPosition(2)));
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Require(_session.SelectedSlot == 2, "native painted-pad selection after attempted pan and zoom");
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Require(_session.SelectedSlot == 2, $"native painted-pad selection after attempted pan and zoom: selected={_session.SelectedSlot}, hovered={_settlementView.HoveredSlot}");
             await CaptureMap("fixed-camera"); _camera.Reset();
         }
         // Paid scenarios, and a real locked-plot purchase through the existing native button.

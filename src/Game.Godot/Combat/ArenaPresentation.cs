@@ -7,6 +7,8 @@ namespace Game.GodotClient;
 /// <summary>Shared visual bounds and board furniture for playback and the read-only deployment view.</summary>
 public static class ArenaPresentation
 {
+    private static readonly int[] BackdropVariants = [1, 2, 3, 2, 1, 3];
+    internal static int BackdropVariant(int index) => BackdropVariants[(index + BackdropVariants.Length) % BackdropVariants.Length];
     public static Rect2 GridBounds(ArenaState arena, HexProjection projection)
     {
         var points = arena.Board.Cells.SelectMany(c => projection.Corners(c.Coordinate)).ToArray();
@@ -68,21 +70,20 @@ public static class ArenaPresentation
             canvas.DrawLine(corner - new Vector2(16, 0), corner + new Vector2(16, 0), new Color("b4a06b"), 2, true);
         }
     }
-    internal static void DrawModular(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection)
+    internal static void DrawModular(Node2D canvas, AssetLoader assets, ArenaState arena, HexProjection projection, bool animatedEnvironment = false)
     {
         var layout = new ArenaLayout(arena, projection);
         var art = new WorldArt(assets);
         Vector2 start = new(layout.Position.X, layout.Position.Y);
         float pitch = layout.Pitch, height = layout.Size.Y;
         int count = layout.Sectors.Length;
-        int[] variants = [1, 2, 3, 2, 1, 3];
         float capWidth = pitch * 352 / 1024;
         var paintedBounds = new Rect2(start.X - capWidth, start.Y - pitch * .30f, layout.Size.X + capWidth * 2, height + pitch * .6125f);
         // Continue a full tile beneath BOTH transparent caps and the final odd-row half-cell.
         // The repeat pitch excludes the half-column stagger in the whole board's bounds.
         for (int i = -1; i <= count; i++)
         {
-            int variant = variants[(i + variants.Length) % variants.Length];
+            int variant = BackdropVariant(i);
             float x = start.X + i * pitch;
             if (!WorldArt.VisibleArea(canvas).Intersects(new Rect2(x, paintedBounds.Position.Y, pitch, paintedBounds.Size.Y))) continue;
             var ground = new Rect2(x, start.Y - pitch * .08f, pitch, height + pitch * .20f);
@@ -91,7 +92,7 @@ public static class ArenaPresentation
             // Upright bands use a uniform scale in both projections.
             art.Texture(canvas, $"arena/backdrop_repeat_{variant:00}", new Rect2(x, start.Y - pitch * .30f, pitch, pitch * .375f), clip: paintedBounds);
             art.Texture(canvas, "arena/foreground_repeat", new Rect2(x, start.Y + height, pitch, pitch * .3125f), clip: paintedBounds);
-            art.Texture(canvas, "arena/rain_repeat", new Rect2(x, start.Y, pitch, height), new Color(1, 1, 1, .16f), paintedBounds);
+            if (!animatedEnvironment) art.Texture(canvas, "arena/rain_repeat", new Rect2(x, start.Y, pitch, height), new Color(1, 1, 1, .16f), paintedBounds);
         }
         // Caps are strictly outside the outermost playable corners, never at sector joins.
         art.Texture(canvas, "arena/arena_left_cap", new Rect2(start.X - capWidth, start.Y - pitch * .12f, capWidth, pitch * 1.25f), clip: paintedBounds);

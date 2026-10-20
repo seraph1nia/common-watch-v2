@@ -23,7 +23,7 @@ public partial class GameApplication
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore, Theme = _skin.Theme };
         layer.AddChild(root); root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _settings = GD.Load<PackedScene>("res://Scenes/UI/SettingsPanel.tscn").Instantiate<SettingsPanel>();
-        root.AddChild(_settings); _settings.Bind(_audio, _skin.MenuBackground);
+        root.AddChild(_settings); _settings.Bind(_audio, _skin.MenuBackground, _environment);
         _settings.Opened += StopCameraDrag;
         _settingsButton = _gameUi.SettingsButton;
         _gameUi.SettingsRequested += _settings.Open;

@@ -31,3 +31,5 @@ Verification receipts and native-platform limitations are recorded in [VERIFICAT
 - Runtime: `src/Game.Shared/SettlementMapLayout.cs`, `src/Game.Shared/VisualAssets.cs`, `src/Game.Godot/Art/AssetLoader.cs`, `src/Game.Godot/World/SettlementView.cs`, `src/Game.Godot/Application/GameApplication.cs`.
 - Verification: `tests/Game.Shared.Tests/SettlementMapTests.cs`, `src/Game.Godot/Development/CameraChecks.cs`, `src/Game.Godot/Development/SettlementMapChecks.cs`, `src/Game.Godot/Development/StartupChecks.cs`, `tools/graphical.sh`, `mise.toml`.
 - Documentation: this page, `README.md`, `docs/ARTWORK.md`, `docs/PROVENANCE.md`, `docs/VERIFICATION.md`.
+
+Optional [dynamic environment effects](DYNAMIC_ENVIRONMENT.md) overlay cloud shadows, mist and particles without deforming the painting. Building smoke/glow follows the existing foundation anchors; native ellipse picking and fixed framing are unchanged. Water/foliage animation needs qualified separated art or masks.

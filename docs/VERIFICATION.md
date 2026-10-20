@@ -318,3 +318,69 @@ Not rerun: aggregate `mise run test`, multiplayer/reconnect/network-fault suites
 performance profiling, release exports, remote CI, live two-account Steam and
 native Windows/macOS or physical GPU/input/audio checks. The known intermittent
 native .NET/JIT crash risk remains unresolved; these passing runs do not remove it.
+
+## Dynamic environment — 2026-10-21
+
+Implemented optional retained environmental layers on the existing Compatibility
+renderer and artwork. `docs/DYNAMIC_ENVIRONMENT.md` documents composition,
+configuration, masks and limits. No Core, Shared, networking, dependency pin,
+source artwork, catalog, provenance or audio data changed.
+
+Executed locally:
+
+| Command | Result |
+| --- | --- |
+| `mise run build` | Pass, zero warnings/errors |
+| `mise run test-core` | 46 passed |
+| `mise run test-shared` | 88 passed |
+| `mise run test-session` | 2 actual graphical integration tests passed |
+| `mise run test-animation` | 8 contracts; 19 native phase frames per art mode and fallback/camera checks passed on retry |
+| `mise run capture-battle` | Pass: 19 phases and 22 ordered frames per art mode, missing-art and angled/panned fallback |
+| `mise run capture-arena` | Pass: all 24 player/projection/resolution records, 132 actual PNGs, native camera/picking/cross-sector/structure checks |
+| `mise run capture-settlement` | Pass after repairing probe input sequencing: nine native picks, hover, buy/build, ignored pan/wheel, five window sizes, camera/modal checks |
+| `mise run test-environment` | 13 settings contracts and actual renderer suite passed; 145 PNGs, independent layer motion, deterministic resampling, exact Off restoration, unchanged playback tick, presets, nine ellipse picks, lifecycle, shader swatches, missing/debug fallback |
+
+An additional `mise exec -- bash tools/graphical.sh capture-arena
+--environment-effects full --environment-time 8` passed all 24 records with
+atmosphere enabled. The focused environment suite separately covers enabled
+1/6-player local/overview, both projections and resolutions. The settlement
+probe now clears only local selection between covered targets, releases its
+synthetic wheel button and waits for native layout/input before the final click;
+it does not click through panels or alter gameplay/picking logic.
+
+Qualification: normal runs encountered the documented native .NET/JIT problem
+(`Invalid Program: attempted to call a UnmanagedCallersOnly method from managed
+code`), a native abort and a supervised camera-process timeout. MSBuild also
+intermittently lost child nodes or threw `EntryPointNotFoundException` in its
+own project evaluator. Build server shutdown/retries recovered builds; final
+animation, arena, settlement and environment retries ran with scoped
+`DOTNET_TieredCompilation=0 MSBUILDDISABLENODEREUSE=1`. Those are invocation-only
+workarounds; no runtime version, repository launch default or check was weakened.
+Passing retries do not resolve the native instability. Logs are preserved under
+`artifacts/test-logs/environment*.log`; shader errors are explicitly fatal to the
+new capture wrapper. An intermediate wrapper failure came from editing the shell
+file during an active run; the unchanged rerun passed.
+
+Final dedicated Off/Full sampling (30 frames per case after warmup, no concurrent
+graphical workload, Xvfb/Mesa llvmpipe; scoped runtime flags above):
+
+| Resolution | Off median range | Full median range | Maximum Full p95 |
+| --- | --- | --- | --- |
+| 1280×720 | 6.15–12.65 ms | 7.68–15.16 ms | 16.50 ms |
+| 1920×1080 | 11.43–18.43 ms | 13.80–25.56 ms | 25.93 ms |
+
+Across all cases the process-wide allocation mean was approximately 458 KB/frame
+Off and 462 KB/frame Full; these include existing whole-client redraw/snapshot
+work and capture scheduling, not just environment code. Steady texture decodes
+were zero. Full's worst software-rendered 1080p case is approximately 39 FPS,
+so this is not a claim of universal 60 FPS. Subtle removes near-rain overdraw and
+reduces density; physical GPU timing remains unqualified. Ground mist is confined
+to a low band, arena embers to the burning backdrop, and unused layers are omitted.
+
+Artifacts: `artifacts/captures/godot/environment/performance.json` and actual PNGs;
+`mise run review-environment` builds a local comparison in
+`.lavish/dynamic-environment/index.html` using WatchTheme colors. No game imagery
+is synthesized by the review builder. Native Windows, physical GPU/audio and
+live Steam are unexecuted gaps. Water/reflection, foliage/window masks and any
+additional background separation remain asset-dependent; reusable shaders were
+rendered only as technical swatches where no qualified surface exists.

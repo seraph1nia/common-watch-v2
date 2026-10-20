@@ -34,7 +34,7 @@ Main menu leaves the authority; a fresh match gets a new identity and personal d
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
-Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
+Settings controls environment effects (Off/Subtle/Full) and music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
 
 Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. `play-assets` prefers the angled view; `-- --view topdown` overrides it. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
@@ -131,3 +131,5 @@ The illustrated [Worldtree](docs/WORLDTREE.md) uses the supplied static shrine s
 18 circular research controls and framed canonical details. `mise run capture-worldtree`
 verifies native input and captures empty, hovered, locked, available and acquired
 states at 720p/1080p. Plain mode and missing artwork retain the text tree.
+
+Optional [dynamic environment effects](docs/DYNAMIC_ENVIRONMENT.md) add animated rain, fog, cloud shadows, smoke, embers, glow, pollen/fireflies and snow. Settings offers **Off / Subtle / Full** (Off by default), or use `--environment-effects full` and optional `--environment-preset clear|mist|rain|night|enchanted|ember|snow`. `mise run test-environment` captures repeatable animated frames and Off/Full frame timings with the existing renderer and artwork.

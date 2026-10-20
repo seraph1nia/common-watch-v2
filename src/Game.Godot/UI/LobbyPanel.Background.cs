@@ -6,7 +6,7 @@ public partial class LobbyPanel
 {
     private void InitializeBackground(Texture2D? texture)
     {
-        if (!MenuBackground.Attach(this, texture)) return;
+        if (!MenuBackground.Attach(this, texture, atmosphere: true)) return;
         AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
         var labelBacking = new StyleBoxFlat
         {

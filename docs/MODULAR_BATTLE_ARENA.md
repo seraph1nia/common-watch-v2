@@ -22,9 +22,9 @@ corners, with continued ground underneath their transparent inner edges.
 
 Ground variants follow `1, 2, 3, 2, 1, 3`; their matching backdrops repeat at the
 same distance. Hex outlines are separate native geometry. A low-opacity static
-rain overlay is cosmetic. Assembled plates are retained only in the source pack,
+rain overlay is cosmetic in the default Off mode; enabled [environment effects](DYNAMIC_ENVIRONMENT.md) replace it with animated rain. Assembled plates are retained only in the source pack,
 never installed or layered over these components. Smoke, embers and glow are
-installed but not decoded by normal arena rendering.
+shared by the optional dynamic environment composition.
 
 A separate viewport CanvasLayer places a heavily pre-blurred, low-contrast,
 slightly darkened copy of the supplied `backdrop_repeat_01` behind the sharp

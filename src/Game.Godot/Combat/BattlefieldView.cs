@@ -16,6 +16,8 @@ public partial class BattlefieldView : Node2D
     BattleShowcase? _battle;
     private GodotSession _session = null!;
     private AssetLoader _assets = null!;
+    private EnvironmentView _environmentView = null!;
+    private EnvironmentController _environment = null!;
     private WorldArt _art = null!;
     private RenderOptions _options => _assets.Options;
     private HexProjection _arena = new(30);
@@ -24,6 +26,7 @@ public partial class BattlefieldView : Node2D
     private static readonly Color _gold = new("efd478"), _muted = new("a9bcc7");
     private Label _diagnostics = null!;
     public event Action? FramePresented;
+    internal EnvironmentView Atmosphere => _environmentView;
     public CombatMotion Motion => _motion;
     public int Resets => _visualResets;
     public int TotalHits => _totalAnimatedHits;
@@ -31,10 +34,11 @@ public partial class BattlefieldView : Node2D
     public bool Finishing => _finishingCombat;
     public bool Active => _session is { HasState: true } && PresentingCombat;
     public bool ShaderEnabled { get; set; } = true;
-    public void Initialize(AssetLoader assets)
+    public void Initialize(AssetLoader assets, EnvironmentController environment)
     {
         _assets = assets; _art = new(assets);
         AddChild(_scenery);
+        _environment = environment; _environmentView = environment.Attach(this, EnvironmentScene.Arena); _environmentView.ShowBehindParent = true;
         var layer = new CanvasLayer { Layer = 1 }; AddChild(layer);
         _diagnostics = new Label { Position = new Vector2(22, 130), MouseFilter = Control.MouseFilterEnum.Ignore }; layer.AddChild(_diagnostics);
         Hide();
@@ -45,6 +49,8 @@ public partial class BattlefieldView : Node2D
         if (_compression != _options.GroundCompression)
         { _compression = _options.GroundCompression; _arena = new(30, _compression); }
         ObserveCombat(); Visible = Active;
+        _scenery.AnimatedEnvironment = _environment.Settings.Quality != EnvironmentQuality.Off;
+        if (Active) _environmentView.SetArena(new ArenaLayout(CombatState.Arena!, _arena));
         _scenery.Present(_assets, Active ? CombatState.Arena : null, _arena);
         _diagnostics.Visible = Active && _options.DebugOverlay;
         if (!Active) { foreach (var figure in _figures.Values) figure.Hide(); foreach (var structure in _structures.Values) structure.Hide(); if (_combatOverlay is not null) _combatOverlay.Hide(); }

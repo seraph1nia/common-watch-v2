@@ -11,9 +11,10 @@ public partial class ArenaScenery : Node2D
     private ArenaState? _arena;
     private HexProjection _projection = new(30);
     private readonly ShaderMaterial _edge = new() { Shader = GD.Load<Shader>("res://Combat/ArenaEdge.gdshader") };
+    public bool AnimatedEnvironment { get; set; }
     public bool Available { get; private set; }
 
-    public override void _Ready() { ShowBehindParent = true; Material = _edge; }
+    public override void _Ready() { ShowBehindParent = true; ZIndex = -20; Material = _edge; }
 
     public void Present(AssetLoader assets, ArenaState? arena, HexProjection projection)
     {
@@ -30,7 +31,7 @@ public partial class ArenaScenery : Node2D
 
     public override void _Draw()
     {
-        if (Available) ArenaPresentation.DrawModular(this, _assets, _arena!, _projection);
+        if (Available) ArenaPresentation.DrawModular(this, _assets, _arena!, _projection, AnimatedEnvironment);
     }
 
     public override void _ExitTree() => _edge.Dispose();

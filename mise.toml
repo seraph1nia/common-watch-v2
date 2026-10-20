@@ -212,3 +212,18 @@ description = "Verify native illustrated Worldtree input/purchases and capture f
 depends = ["build"]
 run = "bash tools/graphical.sh capture-worldtree"
 raw_args = true
+
+[tasks.capture-environment]
+description = "Actual deterministic atmosphere frames, quality/pause/lifecycle and Off/Full frame timings"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-environment"
+raw_args = true
+
+[tasks.test-environment]
+description = "Environment configuration contracts and actual animated graphical captures"
+depends = ["build"]
+run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --filter FullyQualifiedName~EnvironmentSettings --nologo", "bash tools/graphical.sh capture-environment"]
+
+[tasks.review-environment]
+description = "Review actual atmosphere samples and Off/Full measurements locally"
+run = "python3 tools/environment-review.py"
