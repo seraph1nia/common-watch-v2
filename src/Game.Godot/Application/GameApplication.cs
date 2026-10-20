@@ -76,6 +76,7 @@ public partial class GameApplication : Node
         _gameUi.ReconnectRequested += ReconnectCurrent;
         _gameUi.CommandSubmitted += ResumeAfterCommand;
         _gameUi.ArenaChanged += RefreshWorld;
+        _gameUi.ArenaOverviewRequested += OverviewArena;
         CreateAudioUi();
     }
     private void ResumeAfterCommand() { _frozen = false; RefreshUi(true); RefreshWorld(); }
@@ -141,15 +142,25 @@ public partial class GameApplication : Node
     private void RefreshWorld()
     {
         if (_camera is null) return;
-        _assets.Configure(_options); _camera.Layout(WorldOrigin);
+        _assets.Configure(_options);
         if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); return; }
         _battlefield.Present(_session, _battle);
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
         if (_settlementView.Visible) _camera.Frame(_settlementView.ScreenOrigin(WorldArea.Size), _settlementView.Framing(WorldArea.Size));
-        else if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
-        else if (preview) FrameArena(_arenaPreview.RenderBounds);
+        else if (_battlefield.Active || preview)
+        {
+            var state = _battle?.Snapshot ?? _session.Snapshot;
+            string key = $"{state.MatchId}:{state.Arena!.Sectors.Length}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
+            if (_camera.Fixed || key != _arenaCameraKey)
+            {
+                _arenaCameraKey = key;
+                var layout = new ArenaLayout(state.Arena, new HexProjection(30, _options.GroundCompression));
+                var focus = layout.SectorCenter(_session.PlayerId);
+                _camera.FrameArena(_battlefield.Active ? _battlefield.RenderBounds : _arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch);
+            }
+        }
         Vector2 mouse = GetViewport().GetMousePosition();
         _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && WorldArea.HasPoint(mouse)
             ? _camera.ToWorld(mouse) : null);
@@ -178,17 +189,23 @@ public partial class GameApplication : Node
             { HandleBattleKey(key.Keycode); GetViewport().SetInputAsHandled(); return; }
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
+        if (!_settlementView.Visible && input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F })
+        { OverviewArena(); GetViewport().SetInputAsHandled(); return; }
         var area = WorldArea;
         if (!_settlementView.Visible) _camera.Handle(input, area);
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
     private Rect2 WorldArea => GetViewport().GetVisibleRect();
+    private string _arenaCameraKey = "";
+    private void OverviewArena()
+    {
+        if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
+        else if (_arenaPreview.Visible) FrameArena(_arenaPreview.RenderBounds);
+    }
     private void FrameArena(Rect2 bounds)
     {
-        Vector2 size = WorldArea.Size;
-        float zoom = Mathf.Min(size.X * .8f / bounds.Size.X, size.Y * .8f / bounds.Size.Y);
-        _camera.Frame(size / 2 - bounds.GetCenter() * zoom, zoom);
+        _camera.FrameArena(bounds, WorldArea.Size);
     }
     private void SelectAt(Vector2 point)
     {
@@ -212,9 +229,10 @@ public partial class GameApplication : Node
     {
         _sessions.Changed -= OnSessionChanged;
         if (_battlefield is not null) _battlefield.FramePresented -= OnBattleFrame;
+        if (_gameUi is not null) _gameUi.ArenaOverviewRequested -= OverviewArena;
         if (_closeSubscribed) GetWindow().CloseRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.SettingsRequested -= _settings.Open;
-        if (_settings is not null) { _settings.Opened -= StopCameraDrag; _gameUi.SettingsRequested -= _settings.Open; }
+        if (_settings is not null) { _settings.Opened -= StopCameraDrag; if (_gameUi is not null) _gameUi.SettingsRequested -= _settings.Open; }
         _audio?.Stop();
         _sessions.Close();
         _steam?.Shutdown();

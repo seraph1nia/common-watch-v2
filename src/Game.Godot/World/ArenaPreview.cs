@@ -10,7 +10,7 @@ public partial class ArenaPreview : Node2D
     private AssetLoader _assets = null!;
     public void Initialize(AssetLoader assets) => _assets = assets;
     private MatchSnapshot? _state;
-    public Rect2 RenderBounds => ArenaPresentation.RenderBounds(_state!.Arena!, _projection);
+    public Rect2 RenderBounds => ArenaPresentation.RenderBounds(_state!.Arena!, _projection, _assets.Options.Mode == RenderMode.Sprites);
     private HexProjection _projection = new(30);
     private readonly Dictionary<int, Vector2> _units = [];
     private readonly Dictionary<(int, ArenaStructureKind, int), Vector2> _structures = [];
@@ -50,11 +50,11 @@ public partial class ArenaPreview : Node2D
     public override void _Draw()
     {
         if (_state?.Arena is not { } arena) return;
-        ArenaPresentation.Draw(this, _assets, arena, _projection);
+        bool modular = ArenaPresentation.Draw(this, _assets, arena, _projection);
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _projection.Corners(cell.Coordinate).Select(p => new Vector2(p.X, p.Y) - _center).ToArray();
-            WorldArt.Hex(this, corners, new Color("45553b"), new Color("6d7955"), 1);
+            WorldArt.Hex(this, corners, modular ? Colors.Transparent : new Color("45553b"), modular ? new Color(.65f, .73f, .78f, .22f) : new Color("6d7955"), 1);
         }
         foreach (var sector in arena.Sectors)
         {
@@ -62,17 +62,23 @@ public partial class ArenaPreview : Node2D
             foreach (var home in city.Army?.Homes ?? [])
                 WorldArt.Text(this, $"P{city.Id} H{home.Number}", Cell(sector.DeploymentCells[home.Number - 1]) + new Vector2(0, 23), 10, new Color("b7c8cd"));
         }
-        foreach (var pair in _structures)
+        var art = new WorldArt(_assets);
+        var actors = _structures.Select(p => (Ground: p.Value, Structure: (StructureState?)_state.Structures.Single(s => (s.Owner, s.Kind, s.Slot) == p.Key), Unit: (UnitState?)null))
+            .Concat(_units.Select(p => (Ground: p.Value, Structure: (StructureState?)null, Unit: (UnitState?)_state.NextWave.Concat(_state.Players.SelectMany(c => c.Soldiers)).Single(u => u.Id == p.Key))))
+            .OrderBy(a => a.Ground.Y);
+        foreach (var actor in actors)
         {
-            var structure = _state.Structures.Single(s => (s.Owner, s.Kind, s.Slot) == pair.Key);
-            DrawRect(new Rect2(pair.Value - new Vector2(11, 15), new Vector2(22, 22)), new Color("a8a084"));
-            WorldArt.Text(this, $"P{structure.Owner} {structure.Kind}", pair.Value + new Vector2(0, 14), 10);
-        }
-        foreach (var pair in _units)
-        {
-            var unit = _state.NextWave.Concat(_state.Players.SelectMany(p => p.Soldiers)).Single(u => u.Id == pair.Key);
-            DrawCircle(pair.Value, unit.IsBoss ? 9 : 6, new Color(unit.Faction == Faction.Adventurers ? "80bbab" : "efd478"));
-            WorldArt.Text(this, $"{unit.Type.ToString()[0]}{unit.Level}", pair.Value - new Vector2(0, 10), 9);
+            if (!WorldArt.VisibleArea(this).Grow(120).HasPoint(actor.Ground)) continue;
+            if (actor.Structure is { Active: true, Health: > 0 } structure)
+            {
+                art.Structure(this, structure, actor.Ground, Colors.White);
+                WorldArt.Text(this, $"P{structure.Owner} {structure.Kind}", actor.Ground + new Vector2(0, 14), 10);
+            }
+            if (actor.Unit is { } unit)
+            {
+                DrawCircle(actor.Ground, unit.IsBoss ? 9 : 6, new Color(unit.Faction == Faction.Adventurers ? "80bbab" : "efd478"));
+                WorldArt.Text(this, $"{unit.Type.ToString()[0]}{unit.Level}", actor.Ground - new Vector2(0, 10), 9);
+            }
         }
     }
 }

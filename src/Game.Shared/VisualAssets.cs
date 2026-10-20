@@ -50,6 +50,7 @@ public static class VisualAssets
     private static readonly HashSet<string> Known = Enum.GetValues<Building>().Select(BuildingId)
         .Concat(Enum.GetValues<UnitType>().Select(t => "unit/" + t.ToString().ToLowerInvariant()))
         .Concat(Enum.GetValues<UnitType>().Select(t => "unit/enemy_" + t.ToString().ToLowerInvariant()))
+        .Concat(ArenaAssets.Names.Select(name => "arena/" + name))
         .Concat(new[] { "terrain/hex", "terrain/woodland_hex", "terrain/settlement_map", "resource/gold", "resource/wood", "resource/stone", "hud/panel", "hud/card_frame", "hud/button", "hud/tooltip" }).ToHashSet(StringComparer.Ordinal);
     public static string BuildingId(Building type) => "building/" + type.ToString().ToLowerInvariant();
     public static string UnitId(UnitState unit) => "unit/" + (unit.Faction == Faction.Skeletons ? "enemy_" : "") + unit.Type.ToString().ToLowerInvariant();
@@ -57,7 +58,7 @@ public static class VisualAssets
     {
         if (!Known.Contains(identifier)) throw new ArgumentException("Unknown logical visual identifier.", nameof(identifier));
         string[] parts = identifier.Split('/');
-        string folder = parts[0] switch { "building" => "buildings", "unit" => "units", "terrain" => "terrain", "resource" => "resources", "hud" => "hud", _ => throw new ArgumentException(nameof(identifier)) };
+        string folder = parts[0] switch { "building" => "buildings", "unit" => "units", "terrain" => "terrain", "resource" => "resources", "hud" => "hud", "arena" => "arena", _ => throw new ArgumentException(nameof(identifier)) };
         return Path.Combine(folder, parts[1] + ".png");
     }
     /// <summary>Only proposes a file. Framework decoders must fall back if it is invalid.</summary>

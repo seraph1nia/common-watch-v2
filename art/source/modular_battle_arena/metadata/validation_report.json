@@ -1,0 +1,141 @@
+{
+  "status": "passed",
+  "runtime_png_count": 19,
+  "rgba_memory_all_assets_mib": 44.69,
+  "exact_boundary_pair_checks": 37,
+  "all_asset_hashes_dimensions_modes_checked": true,
+  "structure_alpha_checks": [
+    {
+      "name": "keep",
+      "clear_corners": true,
+      "nonzero_alpha_bbox": [
+        51,
+        46,
+        471,
+        478
+      ],
+      "clear_canvas_margin": true
+    },
+    {
+      "name": "defense_tower",
+      "clear_corners": true,
+      "nonzero_alpha_bbox": [
+        69,
+        172,
+        433,
+        471
+      ],
+      "clear_canvas_margin": true
+    }
+  ],
+  "geometry_cases": [
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 1,
+      "cells": 54,
+      "adjacent_cross_seam_pairs": 0,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 2,
+      "cells": 108,
+      "adjacent_cross_seam_pairs": 9,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 3,
+      "cells": 162,
+      "adjacent_cross_seam_pairs": 18,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 4,
+      "cells": 216,
+      "adjacent_cross_seam_pairs": 27,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 5,
+      "cells": 270,
+      "adjacent_cross_seam_pairs": 36,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 6,
+      "rows": 9,
+      "sectors": 6,
+      "cells": 324,
+      "adjacent_cross_seam_pairs": 45,
+      "pitch": 311.76914536239786
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 1,
+      "cells": 63,
+      "adjacent_cross_seam_pairs": 0,
+      "pitch": 363.7306695894642
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 2,
+      "cells": 126,
+      "adjacent_cross_seam_pairs": 9,
+      "pitch": 363.7306695894642
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 3,
+      "cells": 189,
+      "adjacent_cross_seam_pairs": 18,
+      "pitch": 363.7306695894642
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 4,
+      "cells": 252,
+      "adjacent_cross_seam_pairs": 27,
+      "pitch": 363.7306695894642
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 5,
+      "cells": 315,
+      "adjacent_cross_seam_pairs": 36,
+      "pitch": 363.7306695894642
+    },
+    {
+      "columns": 7,
+      "rows": 9,
+      "sectors": 6,
+      "cells": 378,
+      "adjacent_cross_seam_pairs": 45,
+      "pitch": 363.7306695894642
+    }
+  ],
+  "not_executed": [
+    "Godot rendering",
+    "GPU sampler seam check",
+    "authoritative gameplay or legal match captures",
+    "multiplayer",
+    "runtime asset loader integration"
+  ],
+  "limitations": [
+    "Boundary equality does not replace a visual GPU filtering/zoom test.",
+    "Previews are offline composites, not gameplay screenshots."
+  ],
+  "failures": []
+}

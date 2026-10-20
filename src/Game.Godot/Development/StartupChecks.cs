@@ -21,6 +21,7 @@ public partial class GameApplication
     private async Task RunDevelopmentActions()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (Argument("--arena-captures") is { } arenaOutput) { await CaptureModularArena(arenaOutput); await QuitAfterAudioDrain(); return; }
         // Presentation-only comparison controls. No scenario or authoritative state edits.
         if (Argument("--settlement-radius") is { } radius)
         {

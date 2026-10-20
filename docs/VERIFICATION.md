@@ -1,5 +1,57 @@
 # Verification
 
+## Modular battle arena — 2026-10-20
+
+Implemented the supplied Rain / Ember pack; see the
+[rendering, import and capture contract](MODULAR_BATTLE_ARENA.md). This checkout
+uses 6×9 per sector, rather than the pack report's 7×9. Rendering derives the
+repeat width from snapshot cells. Core and dependency/tool locks are unchanged;
+the initial worktree was clean and no commits or pushes were made.
+
+| Executed check | Result / evidence |
+| --- | --- |
+| `mise run build` | Passed, zero warnings/errors; `artifacts/modular-final-build.log` |
+| `mise run test-core` | 46 passed; `artifacts/modular-core.log` |
+| `mise run test-shared` | 88 passed, including six legal roster recordings and 6/7-column projection distances; `artifacts/modular-shared.log` |
+| `mise run test-session` | Both actual-process facts passed: installed, absent and corrupt artwork, lifecycle, native controls/input, settings and audio; `artifacts/modular-session.log` |
+| `mise run test-animation` | 8 tests passed; 19 event/pose capture moments verified in each of debug and sprite modes, plus missing-art/shader-off captures; `artifacts/modular-animation.log` |
+| `mise run capture-arena` | All 24 combinations passed (1–6 sectors, topdown/angled, 720p/1080p), with 116 actual viewport PNGs; `artifacts/modular-arena-run.log` |
+| `mise run test-art`, `mise run art-validate` | 19 Pillow tests passed; 45 installed/staged asset records validated; `artifacts/modular-art.log` |
+| `mise run art-process`, `mise run art-install` | Completed; original 29 catalog records unchanged and 16 byte-preserved component entries appended. Rechecked every original pack checksum and runtime component byte equality. |
+| `mise run test-gameplay-ui` | Native UI and seven-wave real host/guest checks passed, including squad/deployment, allied inspection, pause, speed and retry; `artifacts/modular-gameplay.log` |
+| `mise run test-multiplayer` | All rosters 1–6 passed in real Godot processes with identical wave-two snapshots; `artifacts/modular-multiplayer.log` |
+| `mise run test-reconnect` | Passed preparation/combat/death/draft resume, ownership, credentials, sequence continuity, protocol refusal and shutdown; `artifacts/modular-reconnect.log` |
+| `mise run capture-art` | Passed; existing settlement, HUD, combat, draft and showroom captures; `artifacts/modular-capture-art.log` |
+| `git diff --check` | Passed |
+
+The arena probe submits accepted commands under default rules and replays actual
+combat. Its [24 receipts](../artifacts/captures/godot/modular-arena/verification.json)
+record 54–324 real cells, actual structure-hit/destruction ticks and cross-sector
+movement at tick 1201 for rosters 2–6. Native wheel/drag poses persist through
+refresh, F fits the whole field, every cell center survives camera inversion,
+and moving actors/structures pick at their projected positions in both views
+and resolutions. Actual screenshots were inspected for joined ground/bands,
+outside-only caps, proportional upright sprites and local/overview framing.
+
+Representative original captures:
+
+- [Six-sector overview at 1080p](../artifacts/captures/godot/modular-arena/6-sectors-angled-1920-overview.png)
+- [Own-sector framing at 720p](../artifacts/captures/godot/modular-arena/6-sectors-angled-1280-own-sector.png)
+- [Cross-sector movement](../artifacts/captures/godot/modular-arena/2-sectors-angled-1920-crossing.png)
+- [Structure destruction](../artifacts/captures/godot/modular-arena/2-sectors-angled-1920-structure-destroyed.png)
+- [Combat with the illustrated HUD](../artifacts/captures/godot/art/combat-sprites.png)
+
+These checks qualify Linux Xvfb/Mesa with automated Dummy audio. The aggregate
+`mise run test`, full ordered animation sequence (`test-animation` uses
+`--no-sequence`), repeated performance profiling, release exports/runtime,
+remote CI, native Windows/macOS, physical GPU/input/audio and live Steam
+accounts/relay/invites were not executed for this integration. The existing
+intermittent native .NET/JIT crash risk remains unresolved; these successful
+runs do not establish its absence. The supplied offline PNG previews were not
+counted as game verification. The optional HTML gallery uses the project theme;
+its files were HTTP-checked, but Chrome review was unavailable because the
+attached CDP target disappeared.
+
 ## Menu, HUD, doctrine and arena cleanup (2026-10-20)
 
 Implemented the four-button main menu and separate LAN/Steam submenu; three personal doctrine cards with explicit selection; a fixed map beneath floating HUD controls; five construction tabs; contextual troop/home management; and the requested removal of Run, forecast, selected-plot, upkeep, collapse and history/footer presentation. Recruitment, trading, upgrades, sales, rewards, pause and host combat speed retain authoritative commands. Army-home tower inspection routes into Homes management rather than adding a settlement plot.

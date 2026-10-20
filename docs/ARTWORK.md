@@ -1,5 +1,11 @@
 # Pillow to Godot 2D
 
+The optional [modular battle arena](MODULAR_BATTLE_ARENA.md) adds 16 byte-preserved
+component PNGs to the existing 29 crop entries. Its supplied RGB ground images
+and RGBA strips/cutouts use explicit `arena/*` IDs and source hashes. The
+assembled alternatives remain source-only. The tiled combat descriptions below
+also describe the retained missing-pack fallback.
+
 The current sprite settlement uses the [single illustrated forest map](SETTLEMENT_MAP.md), with nine measured elliptical pads and no world text labels. The earlier tiled-settlement sections below document the retained cutout pipeline and historical comparisons; terrain tiles still belong to combat/showrooms. Debug settlement uses its native grid fallback.
 
 The supplied archive was inspected for absolute paths, traversal and symlinks, then its four PNGs were extracted once into `art/source/`, retaining filenames and bytes. `art/manifests/provenance.json` records the archive hash, source hashes, RGBA modes and dimensions (all 1536 × 1024). The archive's README is retained unchanged. The archive is no longer an input: no archive discovery, extraction script, configuration or mise task exists.

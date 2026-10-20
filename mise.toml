@@ -69,6 +69,12 @@ depends = ["build"]
 run = "bash tools/graphical.sh capture"
 raw_args = true
 
+[tasks.capture-arena]
+description = "Actual modular arena: 1..6 sectors, both projections, 720p/1080p, native input and legal structure damage"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-arena"
+raw_args = true
+
 [tasks.test-session]
 description = "Actual Godot menu, doctrine, replacement and gameplay lifecycle checks"
 depends = ["test-graphics"]

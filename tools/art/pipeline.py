@@ -149,7 +149,7 @@ def read_manifests():
     ids, paths = set(), set()
     for e in extraction['assets']:
         parts = e['id'].split('/')
-        if len(parts) != 2 or parts[0] not in ('building','unit','terrain','resource','hud') or not all(c.islower() or c.isdigit() or c == '_' for c in parts[1]):
+        if len(parts) != 2 or parts[0] not in ('building','unit','terrain','resource','hud','arena') or not all(c.islower() or c.isdigit() or c == '_' for c in parts[1]):
             raise ValueError(f'Invalid asset ID: {e["id"]}')
         if e['id'] in ids or e['output'] in paths:
             raise ValueError('Duplicate asset ID or output')
@@ -166,12 +166,20 @@ def process():
     for e in entries:
         source_path = bounded_path(ROOT, e['source'])
         with Image.open(source_path) as source:
-            image, info = process_image(source, e, settings)
-            info['source_size'] = source.size
+            if e.get('preserve_png'):
+                if e['id'].split('/')[0] != 'arena' or hashlib.sha256(source_path.read_bytes()).hexdigest() != e['source_sha256']:
+                    raise ValueError('Supplied arena PNG hash differs from manifest')
+                image, info = source.copy(), {'source_size': source.size}
+            else:
+                image, info = process_image(source, e, settings)
+                info['source_size'] = source.size
         target = bounded_path(STAGE, e['output'])
         target.parent.mkdir(parents=True, exist_ok=True)
-        image.save(target, compress_level=9)
-        record = dict(e, path=e['output'], size=image.size, alpha=alpha_stats(image), **info)
+        if e.get('preserve_png'):
+            shutil.copyfile(source_path, target)
+        else:
+            image.save(target, compress_level=9)
+        record = dict(e, path=e['output'], size=image.size, alpha=alpha_stats(image) if image.mode == 'RGBA' else None, **info)
         record['source_sha256'] = hashlib.sha256(source_path.read_bytes()).hexdigest()
         record['sha256'] = hashlib.sha256(target.read_bytes()).hexdigest()
         records.append(record)
@@ -194,11 +202,11 @@ def validate(base=STAGE):
             raise ValueError('Source changed: process again')
         with Image.open(path) as image:
             image.load()
-            if image.mode != 'RGBA' or list(image.size) != e['size'] or image.getchannel('A').getbbox() is None:
+            if (image.mode != 'RGBA' and not (e.get('preserve_png') and image.mode == 'RGB')) or list(image.size) != e['size'] or (image.mode == 'RGBA' and image.getchannel('A').getbbox() is None):
                 raise ValueError(f'Invalid RGBA image: {path}')
             if 'slice' in e:
                 slice_margins(image.size, e['slice'])
-    print(f'Validated {len(catalog["assets"])} RGBA assets, hashes, dimensions and slice margins')
+    print(f'Validated {len(catalog["assets"])} assets, hashes, dimensions and slice margins')
 
 
 def install():
@@ -235,6 +243,7 @@ def previews(records):
     for i,e in enumerate(records):
         x,y = (i%4)*260,(i//4)*240
         with Image.open(STAGE/e['path']) as image:
+            image = image.convert('RGBA')
             image.thumbnail((230,190))
             sheet.paste(image,(x+(260-image.width)//2,y+20),image)
         draw.text((x+10,y+216),e['id'],fill='white')

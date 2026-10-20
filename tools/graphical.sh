@@ -17,6 +17,10 @@ run_client() {
   timeout --kill-after=5s "${client_timeout:-90}s" xvfb-run -a -s '-screen 0 2560x1440x24' bash tools/client.sh --settings-path "$settings_directory/audio-settings.json" "$@"
 }
 case "$operation" in
+  capture-arena)
+    client_timeout=240
+    run_client --battle swordsman --world-art sprites --arena-captures "$(pwd)/artifacts/captures/godot/modular-arena" "$@"
+    ;;
   capture-worldtree)
     client_timeout=120
     run_client --world-art debug --hud-art illustrated --worldtree-test --gameplay-captures "$(pwd)/artifacts/captures/godot/worldtree" "$@"

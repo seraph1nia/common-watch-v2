@@ -1,0 +1,10 @@
+{
+  "purpose": "Provenance only; do not change pinned repository dependencies. Optional rebuild may differ between library versions.",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "libraries": {
+    "Pillow": "12.3.0",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "opencv-python": "4.13.0.92"
+  }
+}

@@ -103,8 +103,9 @@ class ProcessingTests(unittest.TestCase):
         original={'building/arcanum','building/lumbermill','building/farm','building/barracks','unit/swordsman','unit/enemy_swordsman','terrain/woodland_hex','resource/gold','resource/wood','resource/stone','hud/panel','hud/card_frame','hud/button','hud/tooltip'}
         detailed={'building/'+name for name in ['mine','metalmine','archeryrange','researchtower','arrowtower','catapulttower','stonecutter','weaver','market','townhall']}
         detailed.update('unit/'+name for name in ['berserker','crossbowman','mage','enemy_crossbowman','enemy_mage'])
-        self.assertEqual(original | detailed, {e['id'] for e in entries})
-        self.assertEqual(29,len(entries))
+        arena = {'arena/'+name for name in ['ground_repeat_01','ground_repeat_02','ground_repeat_03','backdrop_repeat_01','backdrop_repeat_02','backdrop_repeat_03','foreground_repeat','arena_left_cap','arena_right_cap','keep','defense_tower','rain_repeat','embers_repeat','smoke_repeat','fire_glow','crystal_glow']}
+        self.assertEqual(original | detailed | arena, {e['id'] for e in entries})
+        self.assertEqual(45,len(entries))
 
     def test_authored_ground_points_survive_trim_and_resize(self):
         entries,settings=read_manifests()

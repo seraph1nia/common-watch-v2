@@ -57,6 +57,12 @@ mise run test-art
 
 Combat poses, shots, statuses, hits and deaths follow authoritative playback. Showcase scenarios are earned through legal commands. [Animation documentation](docs/COMBAT_ANIMATION.md) covers controls, receipts, captures and known static-sprite limitations.
 
+Sprite combat now uses the supplied [modular Rain / Ember arena](docs/MODULAR_BATTLE_ARENA.md).
+All snapshot cells remain playable (this branch uses 6×9 per sector). The camera
+starts near your sector; drag with middle/right mouse, zoom with the wheel and
+choose **Field overview** or F for the complete field. `mise run capture-arena`
+checks 1–6 sectors in both projections at 720p/1080p using legal combat replays.
+
 ## Verification
 
 ```sh

@@ -780,6 +780,182 @@
         455
       ],
       "ground_note": "Midpoint of feet, excluding staff silhouette and cape fringe."
+    },
+    {
+      "id": "arena/ground_repeat_01",
+      "source": "art/source/modular_battle_arena/assets/ground/ground_repeat_01.png",
+      "output": "sprites/arena/ground_repeat_01.png",
+      "preserve_png": true,
+      "source_sha256": "c6cf05bb0d9d4160edb7ca308a0d002d1521b18ed0dfdfa90fa3648c9843240e",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/ground_repeat_02",
+      "source": "art/source/modular_battle_arena/assets/ground/ground_repeat_02.png",
+      "output": "sprites/arena/ground_repeat_02.png",
+      "preserve_png": true,
+      "source_sha256": "2eb1fbcb38284310e0c93ecaa5a30f26a16c161e5a3044196c6c24fc135134c4",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/ground_repeat_03",
+      "source": "art/source/modular_battle_arena/assets/ground/ground_repeat_03.png",
+      "output": "sprites/arena/ground_repeat_03.png",
+      "preserve_png": true,
+      "source_sha256": "08dce8f24c59edd3f512129491b9c6e2f2a5b3153eb65e5c2a8720cc1b24af6d",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/backdrop_repeat_01",
+      "source": "art/source/modular_battle_arena/assets/backdrops/backdrop_repeat_01.png",
+      "output": "sprites/arena/backdrop_repeat_01.png",
+      "preserve_png": true,
+      "source_sha256": "a73f16d58762a4eab7430f7fa9ad042740e1d917c32b8509eacfd06635a984b5",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/backdrop_repeat_02",
+      "source": "art/source/modular_battle_arena/assets/backdrops/backdrop_repeat_02.png",
+      "output": "sprites/arena/backdrop_repeat_02.png",
+      "preserve_png": true,
+      "source_sha256": "9270d8a0e8794faa6f9c56dab8d99d79288f56d1a9319bf3dff85e4987103b78",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/backdrop_repeat_03",
+      "source": "art/source/modular_battle_arena/assets/backdrops/backdrop_repeat_03.png",
+      "output": "sprites/arena/backdrop_repeat_03.png",
+      "preserve_png": true,
+      "source_sha256": "4b381d6252b6e06847db468045ac3d196453186427788f687e8f7afae1452d6d",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/foreground_repeat",
+      "source": "art/source/modular_battle_arena/assets/edges/foreground_repeat.png",
+      "output": "sprites/arena/foreground_repeat.png",
+      "preserve_png": true,
+      "source_sha256": "29a0e5f99a5b90a45132a2c65d7fec0248dd5376f3d71ad95bec177dec0fb8d9",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/arena_left_cap",
+      "source": "art/source/modular_battle_arena/assets/edges/arena_left_cap.png",
+      "output": "sprites/arena/arena_left_cap.png",
+      "preserve_png": true,
+      "source_sha256": "1c3a5725f7a46209ed1cb32a950df673fdafa0c80d4e62c071933786da324c42",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/arena_right_cap",
+      "source": "art/source/modular_battle_arena/assets/edges/arena_right_cap.png",
+      "output": "sprites/arena/arena_right_cap.png",
+      "preserve_png": true,
+      "source_sha256": "f0ffda8edc7163bdd41b9e4e1e578250d4c724dccdd86dd3acd320c1d9ac2264",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/keep",
+      "source": "art/source/modular_battle_arena/assets/structures/keep.png",
+      "output": "sprites/arena/keep.png",
+      "preserve_png": true,
+      "source_sha256": "d2f41876e89d01f60ec9e171325b22981e93dd67041f7bcf269b67705eda5ce0",
+      "anchor": [
+        0.5,
+        0.83984375
+      ]
+    },
+    {
+      "id": "arena/defense_tower",
+      "source": "art/source/modular_battle_arena/assets/structures/defense_tower.png",
+      "output": "sprites/arena/defense_tower.png",
+      "preserve_png": true,
+      "source_sha256": "6c580bd448a9a3d7df8f746fef25d9852c4483b76bfb6df0760ba96d9577ac0c",
+      "anchor": [
+        0.5,
+        0.83984375
+      ]
+    },
+    {
+      "id": "arena/rain_repeat",
+      "source": "art/source/modular_battle_arena/assets/fx/rain_repeat.png",
+      "output": "sprites/arena/rain_repeat.png",
+      "preserve_png": true,
+      "source_sha256": "bb906b6d09e9728f969f9f1b86becfff1995f05de99c39a0912102c5d1a500cd",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/embers_repeat",
+      "source": "art/source/modular_battle_arena/assets/fx/embers_repeat.png",
+      "output": "sprites/arena/embers_repeat.png",
+      "preserve_png": true,
+      "source_sha256": "4f4b99826c6edb18f46124f39a616fca56e7ee3da66fe651e9c1b7a26b02a7cb",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/smoke_repeat",
+      "source": "art/source/modular_battle_arena/assets/fx/smoke_repeat.png",
+      "output": "sprites/arena/smoke_repeat.png",
+      "preserve_png": true,
+      "source_sha256": "2bbe59b8127c4e9b9edc478266b4469921fd55f420ad396a150873b77630d553",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/fire_glow",
+      "source": "art/source/modular_battle_arena/assets/fx/fire_glow.png",
+      "output": "sprites/arena/fire_glow.png",
+      "preserve_png": true,
+      "source_sha256": "1a4eac9313383d0c22c072f85dacb6473d5a4b03f5087ffe606b63431aab5bac",
+      "anchor": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "arena/crystal_glow",
+      "source": "art/source/modular_battle_arena/assets/fx/crystal_glow.png",
+      "output": "sprites/arena/crystal_glow.png",
+      "preserve_png": true,
+      "source_sha256": "c2da06caafa65374b31ae370c2dc3dc05f17ec48a9df93555776d65a74f643fe",
+      "anchor": [
+        0.5,
+        0.5
+      ]
     }
   ]
 }

@@ -54,7 +54,7 @@ public partial class GameApplication
         Require(_audio.Player.GetInstanceId() == musicPlayer, "music player persists across game resets and phases");
         if (_args.Contains("--expect-installed-art"))
         {
-            Require(_assets.Catalog.Entries.Count == 29 && _skin.Illustrated && _skin.NinePatches > 0, "installed native forest StyleBoxTexture skins");
+            Require(_assets.Catalog.Entries.Count == 45 && _skin.Illustrated && _skin.NinePatches > 0, "installed native forest StyleBoxTexture skins");
             Require(_options.Mode != RenderMode.Sprites || _assets.WorldTextureCount > 0, "native world PNG decoding");
             if (_options.Mode == RenderMode.Sprites)
                 foreach (var entry in _assets.Catalog.Entries.Where(e => !e.Id.StartsWith("hud/", StringComparison.Ordinal)))

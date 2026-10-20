@@ -9,6 +9,7 @@ public partial class BattlefieldView : Node2D
     CombatOverlay? _combatOverlay;
     readonly Shader _hitShader = GD.Load<Shader>("res://Combat/HitFlash.gdshader");
     readonly Dictionary<int, CombatFigure> _figures = [];
+    readonly Dictionary<(int Owner, ArenaStructureKind Kind, int Slot), CombatStructure> _structures = [];
     CombatPlayback? _visualPlayback;
     int _visualGeneration, _visualResets, _totalAnimatedHits;
     BattleShowcase? _battle;
@@ -43,12 +44,13 @@ public partial class BattlefieldView : Node2D
         { _compression = _options.GroundCompression; _arena = new(30, _compression); }
         ObserveCombat(); Visible = Active;
         _diagnostics.Visible = Active && _options.DebugOverlay;
-        if (!Active) { foreach (var figure in _figures.Values) figure.Hide(); if (_combatOverlay is not null) _combatOverlay.Hide(); }
+        if (!Active) { foreach (var figure in _figures.Values) figure.Hide(); foreach (var structure in _structures.Values) structure.Hide(); if (_combatOverlay is not null) _combatOverlay.Hide(); }
         QueueRedraw();
     }
     public void Reset()
     {
         foreach (var figure in _figures.Values) figure.QueueFree(); _figures.Clear();
+        foreach (var structure in _structures.Values) structure.QueueFree(); _structures.Clear();
         _motion.Clear(); _visualPlayback = null; _finishingCombat = false; _totalAnimatedHits = 0;
         _session = null!; _battle = null;
         Hide(); _diagnostics?.Hide();
@@ -71,7 +73,7 @@ public partial class BattlefieldView : Node2D
     }
     private bool CombatShader => ShaderEnabled;
     private static Vector2 V(System.Numerics.Vector2 value) => new(value.X, value.Y);
-    public Rect2 RenderBounds => CombatState.Arena is { } arena ? ArenaPresentation.RenderBounds(arena, _arena) : new Rect2(-200, -200, 400, 400);
+    public Rect2 RenderBounds => CombatState.Arena is { } arena ? ArenaPresentation.RenderBounds(arena, _arena, _options.Mode == RenderMode.Sprites) : new Rect2(-200, -200, 400, 400);
     private Vector2 ArenaCenter()
     {
         var coordinates = CombatState.Arena?.Board.Cells.Select(c => V(_arena.Project(c.Coordinate))).ToArray() ?? [];
@@ -85,6 +87,7 @@ public partial class BattlefieldView : Node2D
             _finishingCombat = CombatState.Phase == Phase.Combat;
             _visualResets++; _motion.Clear(); _terminalTick = -1;
             foreach (var figure in _figures.Values) figure.QueueFree();
+            foreach (var structure in _structures.Values) structure.QueueFree(); _structures.Clear();
             _figures.Clear(); _visualPlayback = Playback; _visualGeneration = Playback.Generation;
         }
         foreach (var entry in Playback.Drain())
@@ -107,9 +110,17 @@ public partial class BattlefieldView : Node2D
         Vector2 Project(System.Numerics.Vector2 p) => new Vector2(p.X, p.Y * _options.GroundCompression) - center;
         Vector2 Ground(UnitState u) => Project(CombatVisuals.Position(u, state, tick));
         Vector2 Cell(int cell) => arena.Board.Cells.FirstOrDefault(c => c.Id == cell) is { } c ? V(_arena.Project(c.Coordinate)) - center : Vector2.Zero;
-        ArenaPresentation.Draw(this, _assets, arena, _arena);
+        bool modular = ArenaPresentation.Draw(this, _assets, arena, _arena);
+        Rect2 visibleArea = WorldArt.VisibleArea(this);
+        var units = Playback.Units().Where(u => u.Hex?.Lifecycle is UnitLifecycle.Alive or UnitLifecycle.Dying).OrderBy(u => Ground(u).Y).ThenBy(u => u.Id).ToArray();
+        var positions = units.ToDictionary(u => u.Id, Ground);
+        // Exact common ground order: animation bounce/rotation never changes occlusion.
+        var depths = units.Select(u => (Key: (Unit: u.Id, Owner: 0, Kind: ArenaStructureKind.Keep, Slot: 0), Y: positions[u.Id].Y))
+            .Concat(Playback.Structures().Select(s => (Key: (Unit: 0, s.Owner, s.Kind, s.Slot), Y: Cell(s.Cell).Y)))
+            .OrderBy(a => a.Y).ThenBy(a => a.Key).Select((a, index) => (a.Key, Depth: index + 1)).ToDictionary(a => a.Key, a => a.Depth);
         foreach (var cell in arena.Board.Cells)
         {
+            if (modular) break;
             var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
             DrawColoredPolygon(corners, new Color("45553b"));
             _art.Ground(this, "terrain/woodland_hex", corners, new Color(.78f, .83f, .68f));
@@ -118,8 +129,11 @@ public partial class BattlefieldView : Node2D
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
-            DrawPolyline(corners.Append(corners[0]).ToArray(), new Color("6d7955"), 1, true);
+            if (visibleArea.Grow(30).HasPoint(Cell(cell.Id))) DrawPolyline(corners.Append(corners[0]).ToArray(), modular ? new Color(.65f, .73f, .78f, .22f) : new Color("6d7955"), 1, true);
         }
+        foreach (var visual in _structures.Values) visual.Hide();
+        var structureKeys = Playback.Structures().Select(s => (s.Owner, s.Kind, s.Slot)).ToHashSet();
+        foreach (var key in _structures.Keys.Where(k => !structureKeys.Contains(k)).ToArray()) { _structures[key].QueueFree(); _structures.Remove(key); }
         foreach (var structure in Playback.Structures())
         {
             // Keep snapshots omit DestroyedTick; use the actual destruction event when present.
@@ -127,11 +141,17 @@ public partial class BattlefieldView : Node2D
             float fade = structure.Health > 0 ? 1 : Math.Clamp(1 - (float)(tick - destroyedAt) / 30, 0, 1);
             if (!structure.Active && structure.Health > 0 || fade <= 0) continue;
             Vector2 p = Cell(structure.Cell);
-            DrawRect(new Rect2(p - new Vector2(12, 18), new Vector2(24, 23)), new Color("a8a084") with { A = fade });
-            TextCentered(structure.Kind + " " + HealthPoints.Format(structure.Health), p + new Vector2(0, 17), 10, _muted);
+            if (!visibleArea.Grow(120).HasPoint(p)) continue;
+            var key = (structure.Owner, structure.Kind, structure.Slot);
+            if (!_structures.TryGetValue(key, out var visual)) { visual = new(); _structures[key] = visual; AddChild(visual); }
+            var hit = _motion.Events.LastOrDefault(e => e.Type == CombatEventType.StructureHit && e.Structure is { } s && (s.Owner, s.Kind, s.Slot) == key && e.Tick <= tick);
+            float flash = hit is null ? 0 : Math.Clamp(1 - (float)(tick - hit.Tick) / 12, 0, 1);
+            visual.Present(_assets, structure, p, depths[(0, structure.Owner, structure.Kind, structure.Slot)], fade, flash);
+            float hp = Math.Clamp((float)structure.Health / Math.Max(1, structure.MaximumHealth), 0, 1);
+            _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34, 4)), new Color("111c24") with { A = fade });
+            _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34 * hp, 4)), new Color("80bbab") with { A = fade });
+            TextCentered($"P{structure.Owner} {structure.Kind} {HealthPoints.Format(structure.Health)}", p + new Vector2(0, 17), 10, _muted with { A = fade });
         }
-        var units = Playback.Units().Where(u => u.Hex?.Lifecycle is UnitLifecycle.Alive or UnitLifecycle.Dying).OrderBy(u => Ground(u).Y).ThenBy(u => u.Id).ToArray();
-        var positions = units.ToDictionary(u => u.Id, Ground);
         var visible = units.Select(u => u.Id).ToHashSet();
         foreach (int id in _figures.Keys.Where(id => !visible.Contains(id)).ToArray()) { _figures[id].QueueFree(); _figures.Remove(id); }
         Vector2 Aim(UnitState actor)
@@ -144,15 +164,15 @@ public partial class BattlefieldView : Node2D
             if (actor.Hex?.FrozenAim is { } frozen) return Project(CombatVisuals.Point(frozen, state, 30));
             return positions.GetValueOrDefault(actor.TargetId, Ground(actor));
         }
-        int depth = 1;
         foreach (var unit in units)
         {
             Vector2 ground = positions[unit.Id], aim = Aim(unit);
+            if (!visibleArea.Grow(120).HasPoint(ground)) { if (_figures.TryGetValue(unit.Id, out var hidden)) hidden.Hide(); continue; }
             Vector2 direction = aim - ground;
             if (unit.Hex is { Action: UnitActionKind.Moving } move) direction = Cell(move.Destination.Cell) - Cell(move.Position.Cell);
             FigurePose pose = _motion.Sample(unit, tick, new(direction.X, direction.Y));
             if (!_figures.TryGetValue(unit.Id, out var figure)) { figure = new(); _figures[unit.Id] = figure; AddChild(figure); }
-            figure.ZIndex = depth++; figure.Visible = true;
+            figure.ZIndex = depths[(unit.Id, 0, ArenaStructureKind.Keep, 0)]; figure.Visible = true;
             DrawSetTransform(ground, 0, new Vector2(1, .38f));
             DrawCircle(Vector2.Zero, 10, new Color(0, 0, 0, .28f * pose.Opacity), true, -1, true);
             DrawArc(Vector2.Zero, 9, 0, Mathf.Tau, 24, new Color(unit.Faction == Faction.Adventurers ? "54798c" : "885649") with { A = pose.Opacity }, 1, true);

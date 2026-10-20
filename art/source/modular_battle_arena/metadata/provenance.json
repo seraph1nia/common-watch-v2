@@ -1,0 +1,29 @@
+{
+  "pack": "Rain / Ember modular battle arena",
+  "created": "2026-10-20",
+  "art_direction": "User-approved rain-soaked rune battlefield, burning villages, cyan forest magic.",
+  "sources": [
+    {
+      "path": "sources/arena_painting_original.png",
+      "origin": "New generated environment painting in this conversation, subsequently processed into repeat-compatible strips."
+    },
+    {
+      "path": "sources/approved_battle_reference.png",
+      "origin": "Earlier user-approved concept from this conversation; structure cutouts and endcap scenery extracted from it."
+    }
+  ],
+  "derivatives": {
+    "ground_and_backdrops": "Three phase-shifted variants from the same painting. Shared edge collars and periodic boundary blending; not three wholly independent paintings.",
+    "endcaps": "Left edge crop from approved concept; right endcap is a horizontal mirror. Creatures within endcaps are static scenic silhouettes, not animated gameplay units.",
+    "structures": "Cropped with protected-foreground masks and color matting. Original cyan/fire glow retained conservatively. Not SVG, not hand-separated rigs.",
+    "fx": "Deterministic technical rain, ember, smoke and radial glow textures; seeded procedural raster generation."
+  },
+  "checks": "See metadata/validation_report.json. No Godot game or GPU rendering was run for this pack.",
+  "source_integrity": {
+    "sources/defense_tower_cutout.png": "eba06f3a244a340f09cdf88dd12d874b0c80c20aa7418e7ed3c0804274182d6a",
+    "sources/keep_cutout.png": "41c9e7bd1d174bbeda88198191b2aefac612f8e79776c525ed73240c8c03b07d",
+    "sources/approved_battle_reference.png": "62c64646e5c9399da4e460885de3902df63a42af3ff9914bd4fc8a550ca47825",
+    "sources/arena_painting_original.png": "1d726388ed3697d3d69c558f231f0127963e40cdf9ce4f224fce35ae8d41253e"
+  },
+  "no_external_downloads_at_runtime": true
+}

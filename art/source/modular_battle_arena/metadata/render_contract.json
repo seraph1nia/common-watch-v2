@@ -1,0 +1,104 @@
+{
+  "schema": "common-watch-arena-layout/1",
+  "purpose": "Presentation contract, NOT authoritative game configuration and NOT assets/catalog.json.",
+  "units": {
+    "native_texture_period_px": 1024,
+    "hex_radius": "R: use current renderer",
+    "ground_compression": "C: use current view preset"
+  },
+  "requested_art_example": {
+    "columns": 6,
+    "rows": 9,
+    "maximum_segments": 6
+  },
+  "observed_repo_topology": {
+    "columns_per_sector": 7,
+    "rows": 9,
+    "max_owners_reported_by_source": 6,
+    "source": "src/Game.Core/Combat/SharedArena.cs",
+    "blob_sha": "c3f12d5e24cb752919eb827deed673c725482eaf",
+    "read_date": "2026-10-20",
+    "instruction": "Verify current branch; preserve all actual cells. No gameplay change is authorized by this asset pack."
+  },
+  "projection": {
+    "orientation": "pointy-top",
+    "offset_coordinates": "odd-r (odd row shifted right by half hex width)",
+    "global_center": "subtract the same ArenaCenter from every world layer",
+    "center_x": "sqrt(3)*R*(global_column + 0.5*(row & 1))",
+    "center_y": "1.5*R*C*row",
+    "segment_pitch_x": "columns_per_sector*sqrt(3)*R",
+    "ground_height": "(1.5*(rows-1)+2)*R*C",
+    "warning": "Do not use a sector bounding-box width as pitch; it includes the half-column stagger. Never restart parity at a seam."
+  },
+  "layered_mode": {
+    "default": true,
+    "ground": "Map each matching 1024-square variant to its sector-wide ground rectangle; extend terrain beyond outer half-cell stagger and beneath endcaps.",
+    "backgrounds": "Uniform scale pitch/1024; bottom fade overlaps the ground outside the active field.",
+    "foreground": "Uniform scale pitch/1024; keep dense objects outside the global last playable row.",
+    "endcaps": "Exactly two total, outside global left/right board bounds; overlay continued base art, never black gutters. Not extra sectors.",
+    "boundary_selection": "Geometry, highlight, ownership and picking come from live cells, not PNG art.",
+    "variant_sequence_example": [
+      1,
+      2,
+      3,
+      2,
+      1,
+      3
+    ]
+  },
+  "assembled_mode": {
+    "alternative_only": true,
+    "files": [
+      "assets/assembled/arena_mid_01.png",
+      "assets/assembled/arena_mid_02.png",
+      "assets/assembled/arena_mid_03.png"
+    ],
+    "size_px": [
+      1024,
+      1536
+    ],
+    "reference_compression": 0.72,
+    "reference_columns": 7,
+    "reference_rows": 9,
+    "reference_top_edge_y_px": 370,
+    "warning": "Do not stack these on the layered mode; they already include ground, backdrop and foreground. For another projection use layered mode."
+  },
+  "structure_suggestions": {
+    "keep": {
+      "asset": "assets/structures/keep.png",
+      "kind": "Keep",
+      "anchor_uv": [
+        0.5,
+        0.83984375
+      ],
+      "display_canvas_side_in_R": 3.7
+    },
+    "defense_tower": {
+      "asset": "assets/structures/defense_tower.png",
+      "kind": "ArrowTower",
+      "anchor_uv": [
+        0.5,
+        0.83984375
+      ],
+      "display_canvas_side_in_R": 3.2
+    },
+    "Watchpost": "Retain existing visual/fallback, or explicitly reuse tower cosmetically with clear kind label.",
+    "CatapultTower": "Retain existing catapult art/fallback. Do not mislabel the supplied arrow tower as a separate catapult design.",
+    "note": "World footprints, life bars, state, targeting and ownership remain authoritative. Painted banner colors are decorative, not faction data."
+  },
+  "drawing_order": [
+    "background/ground",
+    "grid and ground highlights",
+    "structures and units in one ground-depth order",
+    "sparse atmospheric effects",
+    "foreground outside play region",
+    "existing health indicators and HUD"
+  ],
+  "memory_note": "19 runtime PNGs total; loading every variant, all optional plates, and all FX uncompressed is about 50 MiB before overhead/mipmaps. Load one presentation route and share textures.",
+  "boundaries": {
+    "simulation_change": false,
+    "collision_from_images": false,
+    "independent_animation_damage": false,
+    "keep_resize_on_camera_zoom": false
+  }
+}

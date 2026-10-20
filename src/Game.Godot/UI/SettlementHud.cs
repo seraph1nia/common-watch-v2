@@ -20,6 +20,7 @@ public partial class SettlementHud : Control
     private string _uiKey = "";
     private int _viewed;
     private Button _rewards = null!, _arena = null!;
+    private Button _overview = null!;
     public Button SettingsButton { get; private set; } = null!;
     public BuildingInspector Inspector { get; private set; } = null!;
     public DraftPanel Draft { get; private set; } = null!;
@@ -35,6 +36,7 @@ public partial class SettlementHud : Control
     public bool BlocksWorld => Details.Visible || Draft.Visible;
     public Rect2 WorldArea => new(Vector2.Zero, Size);
     public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged, SettingsRequested;
+    public event Action? ArenaOverviewRequested;
     public void Reset()
     {
         _uiKey = ""; _viewed = 0; ShowArena = false;
@@ -73,6 +75,7 @@ public partial class SettlementHud : Control
         _action = new PanelContainer(); AddChild(_action); skin.Panel(_action);
         var actions = new VBoxContainer(); _action.AddChild(actions);
         _controls = new MatchControls(); actions.AddChild(_controls); _controls.Initialize(skin, Submitted);
+        _overview = skin.Button("Field overview  [F]", () => ArenaOverviewRequested?.Invoke()); actions.AddChild(_overview);
         var links = new HBoxContainer();
         _rewards = skin.Button("Rewards", () => { Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
         actions.AddChild(links);
@@ -111,6 +114,7 @@ public partial class SettlementHud : Control
         _arena.Text = ShowArena ? "Show settlement" : "Show arena";
         string key = $"{state.MatchId}:{state.Revision}:{session.Connected}:{session.Pending}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}";
         _arenaContext = ShowArena || state.Phase == Phase.Combat || finishingCombat;
+        _overview.Visible = _arenaContext;
         if (force || key != _uiKey)
         {
             _uiKey = key;

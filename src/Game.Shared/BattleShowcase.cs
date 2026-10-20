@@ -14,10 +14,10 @@ public sealed class BattleShowcase
     public bool Complete => Playback.Tick >= Frames[^1].Tick;
     int frame;
     double credit;
-    public BattleShowcase(string scenario)
+    public BattleShowcase(string scenario, int players = 1)
     {
         Scenario = scenario;
-        Frames = Record(scenario);
+        Frames = scenario == "arena" ? ArenaShowcase.Record(players) : Record(scenario);
         Snapshot = Frames[0];
         Playback.Accept(Snapshot, true);
     }

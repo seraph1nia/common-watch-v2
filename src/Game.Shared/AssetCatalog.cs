@@ -82,7 +82,7 @@ public sealed class AssetCatalog
             string path = System.IO.Path.Combine(root, entry.Path);
             return File.Exists(path) ? path : null;
         }
-        if (id.StartsWith("hud/")) return null; // No valid margins, no decorative skin.
+        if (id.StartsWith("hud/") || id.StartsWith("arena/")) return null; // Authored margins/ground anchors require qualified metadata.
         return VisualAssets.Resolve(spriteRoot, id, RenderMode.Sprites);
     }
 }

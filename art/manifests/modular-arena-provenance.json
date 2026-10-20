@@ -1,0 +1,11 @@
+{
+  "archive": "common_watch_modular_battle_arena.zip",
+  "archive_sha256": "39b87cc6e5aada61beb1a6e363576e26a9ac8580942145ce1d0ba2e19d046323",
+  "source_root": "art/source/modular_battle_arena",
+  "source_checksums": "art/source/modular_battle_arena/SHA256SUMS.txt",
+  "pack_provenance": "art/source/modular_battle_arena/metadata/provenance.json",
+  "render_contract": "art/source/modular_battle_arena/metadata/render_contract.json",
+  "import": "Validated archive paths, symlinks and expanded size; retained all original files; verified every supplied checksum; no artwork generation or downloads.",
+  "runtime": "Sixteen byte-preserved component PNGs installed through extraction.json and the existing catalog. Assembled alternatives remain source-only.",
+  "topology": "Current local SharedArena uses 6x9 per sector. Rendering derives sector width from detached snapshots and preserves all cells; Core unchanged. Pack report of 7x9 describes a different checkout."
+}

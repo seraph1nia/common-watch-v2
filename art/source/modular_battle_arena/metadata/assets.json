@@ -1,0 +1,356 @@
+{
+  "schema": "common-watch-arena-assets/1",
+  "assets": [
+    {
+      "path": "assets/ground/ground_repeat_01.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "c6cf05bb0d9d4160edb7ca308a0d002d1521b18ed0dfdfa90fa3648c9843240e",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "ground",
+      "variant_method": "Source phase variation; common edge collars"
+    },
+    {
+      "path": "assets/ground/ground_repeat_02.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "2eb1fbcb38284310e0c93ecaa5a30f26a16c161e5a3044196c6c24fc135134c4",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "ground",
+      "variant_method": "Source phase variation; common edge collars"
+    },
+    {
+      "path": "assets/ground/ground_repeat_03.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "08dce8f24c59edd3f512129491b9c6e2f2a5b3153eb65e5c2a8720cc1b24af6d",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "ground",
+      "variant_method": "Source phase variation; common edge collars"
+    },
+    {
+      "path": "assets/backdrops/backdrop_repeat_01.png",
+      "size": [
+        1024,
+        384
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "a73f16d58762a4eab7430f7fa9ad042740e1d917c32b8509eacfd06635a984b5",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "backdrop",
+      "bottom_fade_px": 145
+    },
+    {
+      "path": "assets/backdrops/backdrop_repeat_02.png",
+      "size": [
+        1024,
+        384
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "9270d8a0e8794faa6f9c56dab8d99d79288f56d1a9319bf3dff85e4987103b78",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "backdrop",
+      "bottom_fade_px": 145
+    },
+    {
+      "path": "assets/backdrops/backdrop_repeat_03.png",
+      "size": [
+        1024,
+        384
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "4b381d6252b6e06847db468045ac3d196453186427788f687e8f7afae1452d6d",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "backdrop",
+      "bottom_fade_px": 145
+    },
+    {
+      "path": "assets/edges/foreground_repeat.png",
+      "size": [
+        1024,
+        320
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "29a0e5f99a5b90a45132a2c65d7fec0248dd5376f3d71ad95bec177dec0fb8d9",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "foreground",
+      "top_fade_px": 124
+    },
+    {
+      "path": "assets/edges/arena_left_cap.png",
+      "size": [
+        352,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "1c3a5725f7a46209ed1cb32a950df673fdafa0c80d4e62c071933786da324c42",
+      "repeat_axes": [],
+      "family": "endcap",
+      "placement": "outside global left board bound"
+    },
+    {
+      "path": "assets/edges/arena_right_cap.png",
+      "size": [
+        352,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "f0ffda8edc7163bdd41b9e4e1e578250d4c724dccdd86dd3acd320c1d9ac2264",
+      "repeat_axes": [],
+      "family": "endcap",
+      "placement": "outside global right board bound",
+      "derived_from": "mirrored left edge; decorative only"
+    },
+    {
+      "path": "assets/structures/keep.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "d2f41876e89d01f60ec9e171325b22981e93dd67041f7bcf269b67705eda5ce0",
+      "anchor": [
+        0.5,
+        0.83984375
+      ],
+      "source_ground_px": [
+        257,
+        438
+      ],
+      "source_crop": [
+        1170,
+        0,
+        1672,
+        500
+      ],
+      "normalize_scale": 0.933852140077821,
+      "normalize_offset": [
+        16,
+        21
+      ],
+      "role": "static_structure_sprite"
+    },
+    {
+      "path": "assets/structures/defense_tower.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "6c580bd448a9a3d7df8f746fef25d9852c4483b76bfb6df0760ba96d9577ac0c",
+      "anchor": [
+        0.5,
+        0.83984375
+      ],
+      "source_ground_px": [
+        250,
+        278
+      ],
+      "source_crop": [
+        1170,
+        540,
+        1672,
+        864
+      ],
+      "normalize_scale": 0.9523809523809523,
+      "normalize_offset": [
+        18,
+        165
+      ],
+      "role": "static_structure_sprite"
+    },
+    {
+      "path": "assets/fx/rain_repeat.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        73
+      ],
+      "sha256": "bb906b6d09e9728f969f9f1b86becfff1995f05de99c39a0912102c5d1a500cd",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "weather",
+      "suggested_opacity": 0.3
+    },
+    {
+      "path": "assets/fx/embers_repeat.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        190
+      ],
+      "sha256": "4f4b99826c6edb18f46124f39a616fca56e7ee3da66fe651e9c1b7a26b02a7cb",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "weather",
+      "suggested_opacity": 0.45
+    },
+    {
+      "path": "assets/fx/smoke_repeat.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        54
+      ],
+      "sha256": "2bbe59b8127c4e9b9edc478266b4469921fd55f420ad396a150873b77630d553",
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "family": "weather",
+      "suggested_opacity": 0.24
+    },
+    {
+      "path": "assets/fx/fire_glow.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        150
+      ],
+      "sha256": "1a4eac9313383d0c22c072f85dacb6473d5a4b03f5087ffe606b63431aab5bac",
+      "repeat_axes": [],
+      "family": "glow"
+    },
+    {
+      "path": "assets/fx/crystal_glow.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        150
+      ],
+      "sha256": "c2da06caafa65374b31ae370c2dc3dc05f17ec48a9df93555776d65a74f643fe",
+      "repeat_axes": [],
+      "family": "glow"
+    },
+    {
+      "path": "assets/assembled/arena_mid_01.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "96587af4f595639777617b01e56c83cd4c74d1a09df271bc9366cd546b502047",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "assembled_plate",
+      "alternative_to_layered": true
+    },
+    {
+      "path": "assets/assembled/arena_mid_02.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "895e7b604125b621a07518408ca30f613a04d3d96c0602deba7cd5d4d998e014",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "assembled_plate",
+      "alternative_to_layered": true
+    },
+    {
+      "path": "assets/assembled/arena_mid_03.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "sha256": "154326f9b8625098779d842e43ecb47ca32f7eb825d3af694dc94822b3c49bff",
+      "repeat_axes": [
+        "x"
+      ],
+      "family": "assembled_plate",
+      "alternative_to_layered": true
+    }
+  ]
+}

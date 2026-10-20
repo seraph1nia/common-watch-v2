@@ -11,6 +11,7 @@ public partial class WorldCamera : Camera2D
     private Vector2 _origin;
     private bool _dragging;
     private float _defaultMagnification = 1;
+    private Vector2 _defaultOrigin;
     public override void _Ready()
     {
         AnchorMode = AnchorModeEnum.FixedTopLeft;
@@ -34,9 +35,16 @@ public partial class WorldCamera : Camera2D
     }
     public void Frame(Vector2 origin, float zoom)
     {
-        Fixed = true; _defaultMagnification = zoom; Magnification = zoom; PanPixels = Vector2.Zero; StopDrag(); Layout(origin);
+        Fixed = true; _defaultOrigin = origin; _defaultMagnification = zoom; Magnification = zoom; PanPixels = Vector2.Zero; StopDrag(); Layout(origin);
     }
-    public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; Layout(_origin); }
+    public void FrameArena(Rect2 bounds, Vector2 viewport, Vector2? focus = null, float? sectorPitch = null)
+    {
+        var frame = focus is { } center && sectorPitch is { } pitch
+            ? new Rect2(new Vector2(center.X - pitch * .85f, bounds.Position.Y), new Vector2(pitch * 1.7f, bounds.Size.Y)) : bounds;
+        float zoom = Mathf.Min(viewport.X * .8f / frame.Size.X, viewport.Y * .8f / frame.Size.Y);
+        Frame(viewport / 2 - frame.GetCenter() * zoom, zoom); Fixed = false;
+    }
+    public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; Layout(_defaultOrigin); }
     public void StopDrag() => _dragging = false;
     public void ZoomAt(Vector2 cursor, bool inward)
     {
