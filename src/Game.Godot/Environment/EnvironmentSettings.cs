@@ -26,10 +26,17 @@ public sealed record EnvironmentSettings
                 case "--environment-effects":
                     result = result with { Quality = Value(ref i) switch { "off" => EnvironmentQuality.Off, "subtle" => EnvironmentQuality.Subtle, "full" => EnvironmentQuality.Full, _ => throw new ArgumentException("--environment-effects requires off|subtle|full") } }; break;
                 case "--environment-preset":
-                    string name = Value(ref i);
-                    if (!Enum.TryParse<AtmospherePreset>(name, true, out var preset) || !Enum.IsDefined(preset) || int.TryParse(name, out _))
-                        throw new ArgumentException("--environment-preset requires clear|mist|rain|night|enchanted|ember|snow");
-                    result = result with { Preset = preset }; break;
+                    result = result with { Preset = Value(ref i) switch
+                    {
+                        "clear" => AtmospherePreset.Clear,
+                        "mist" => AtmospherePreset.Mist,
+                        "rain" => AtmospherePreset.Rain,
+                        "night" => AtmospherePreset.Night,
+                        "enchanted" => AtmospherePreset.Enchanted,
+                        "ember" => AtmospherePreset.Ember,
+                        "snow" => AtmospherePreset.Snow,
+                        _ => throw new ArgumentException("--environment-preset requires clear|mist|rain|night|enchanted|ember|snow")
+                    } }; break;
                 case "--environment-seed":
                     result = result with { Seed = int.Parse(Value(ref i), CultureInfo.InvariantCulture) }; break;
                 case "--environment-time":

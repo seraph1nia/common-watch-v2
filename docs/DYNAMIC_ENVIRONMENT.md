@@ -15,7 +15,9 @@ The quality preference is saved separately in `user://environment-settings.json`
 A CLI quality overrides it for that launch. Tests using `--settings-path FILE` use
 `FILE.environment.json`, keeping ordinary player preferences untouched. The audio
 JSON format and reconnect files are unchanged. Preset, seed and capture time are
-launch/development options, not saved match state.
+launch/development options, not saved match state. Preset names are exactly the
+seven lowercase CLI values in the table below; case variants, composite enum
+names, numeric values and aliases are rejected.
 
 ## Ownership and composition
 
@@ -50,6 +52,16 @@ also exposes `ParticlesEnabled`, `EmittersEnabled` and `LightingEnabled`. Preset
 control baseline opacity and velocity; `Strength` and `SpeedScale` multiply those
 values. `AddLayer` registers another retained shader/texture layer. Layer materials
 are unique instances; shader resources and decoded PNGs are shared.
+
+Layers retain drawing commands until their clipped rectangle or source texture
+changes, and submit only changed shader parameters. Particle batches compare
+clipped bounds, sampled motion and drawing inputs; emitters retain glow geometry
+and rebuild smoke only when its drawing inputs change. Tint compares its clipped
+rectangle and effective color. Paused, unfocused and fixed-sample frames therefore
+submit no unchanged ambient shader parameters or drawing commands. Camera
+pan/zoom/resizing, reappearance, quality, immediate presets, effect controls and
+explicit resampling still update the affected component. This is retained-command
+reuse, not a claim that the renderer stops compositing visible effects.
 
 Only visible world rectangles are submitted. Ground mist is a lower-world band, and arena embers stay near the burning backdrop; low-value fullscreen overdraw is avoided. Shader coordinates come from the
 world vertices, not a tile's UV origin, so sector boundaries and viewport clipping
@@ -236,6 +248,11 @@ Compatibility-rendered neutral SoftGlow, WaterRipple and DistanceBlur swatches i
 a temporary isolated test viewport compare supplied translucent fire/crystal
 textures against native rendering (additive for glow), with vertex colors and
 both modulation levels; channels must agree within one 8-bit rounding step.
+Invalidation regressions observe native draw callbacks and shader submission counts
+on paused/live clocks, actual native focus loss, fixed samples, pan/zoom/resizing,
+hiding/reappearance, qualities, presets and effect controls. Static captures must
+remain pixel-identical; explicit resampling and control changes must change pixels
+without rebuilding unchanged layer geometry.
 It captures all seven settlement presets at 2/12 seconds, menu
 motion, technical shader swatches, missing artwork and debug fallback. Original
 camera/purchase/native picking suites remain the stronger interaction checks.

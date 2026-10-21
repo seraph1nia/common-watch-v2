@@ -1,4 +1,3 @@
-uniform float visual_time = 0.0;
 uniform vec2 motion_offset = vec2(0.0);
 uniform vec2 texture_scale = vec2(512.0);
 uniform float opacity = 0.1;

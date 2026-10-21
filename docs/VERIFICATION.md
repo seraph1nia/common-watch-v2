@@ -1,5 +1,65 @@
 # Verification
 
+## Retained environment rendering and exact preset parsing
+
+Final focused review checks passed with scoped `DOTNET_TieredCompilation=0`
+and `MSBUILDDISABLENODEREUSE=1` (no repository defaults or pins changed):
+
+```sh
+mise exec -- bash -c 'dotnet restore src/Game.Godot/Game.Godot.csproj --locked-mode && dotnet build src/Game.Godot/Game.Godot.csproj --no-restore --nologo && dotnet restore tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj --locked-mode && dotnet test tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.csproj --no-restore --filter FullyQualifiedName~EnvironmentSettings --nologo && bash tools/graphical.sh capture-environment'
+```
+
+- Project build: zero warnings/errors. Environment settings: **34 passed**,
+  including all seven exact lowercase presets, rejected composite/numeric/case/
+  alias/unknown values, and retained missing-value diagnostics.
+- Actual Godot 4.7.2 OpenGL Compatibility/Xvfb/Mesa checks passed with Dummy audio
+  and disposable preferences. `GODOT_ENVIRONMENT_INVALIDATION_PASS` observes no
+  unchanged native draw callbacks or shader submissions during pause, native
+  focus loss, fixed samples, stationary camera poses and hidden debug scenes.
+  Pan/zoom/resize, quality, immediate presets and independent controls invalidate
+  correctly; repeated frames restore exact pixels. Explicit resampling changes
+  effects without rebuilding layer geometry. Fire/crystal glow and smoke paths
+  are exercised. The X11-only test focus driver selects its own native window
+  explicitly because bare Xvfb has no window manager; it restores focus on exit.
+- All prior live-clock, shader-identity and integrated-motion regressions passed,
+  plus the 16 arena combinations, sampled animation, quality/Off restoration,
+  unchanged combat tick, settlement presets/picking, menu/lifecycle, texture cache,
+  and missing/debug fallback captures. The final graphical log has no shader
+  errors. No native .NET/JIT failure occurred in the final checks.
+- The first attempt stopped at a span/await overload compile error in the new
+  assertions. After correcting that test code, build/parsing passed but the
+  window-manager-dependent focus setup failed. The explicit native focus driver
+  corrected the probe; the final scoped build/capture retry passed. The complete
+  attempt history is retained in `artifacts/test-logs/environment-review-r4-r5.log`.
+
+Refreshed `performance.json` has 32 whole-client Off/Full records (30 sampled
+frames each), with zero steady texture decodes:
+
+| Resolution | Off median range (ms) | Full median range (ms) | Maximum Full p95 (ms) |
+| --- | --- | --- | --- |
+| 1280×720 | 6.48–12.97 | 7.87–15.24 | 15.98 |
+| 1920×1080 | 12.12–19.15 | 14.57–26.38 | 27.51 |
+
+Mean process-wide managed allocation was about 458 KB/frame Off and 459 KB/frame
+Full, including existing snapshot/presentation work and capture scheduling.
+These are Linux software-renderer observations, not isolated effect/GPU timings
+or physical hardware certification. The static regressions establish retained
+command reuse, not zero compositor cost for paused visible effects.
+
+Artifacts for copying after synchronization are in this validation worktree:
+
+- `/home/bart/.no-mistakes/worktrees/3d5a80f8df35/01M5DR26EJTFEN4FG3SAP70PP4/artifacts/captures/godot/environment/`
+  contains refreshed PNGs (including `invalidation-*.png` and shader identity
+  pairs) and `performance.json`.
+- `/home/bart/.no-mistakes/worktrees/3d5a80f8df35/01M5DR26EJTFEN4FG3SAP70PP4/artifacts/test-logs/`
+  contains `environment.log` (final capture run) and
+  `environment-review-r4-r5.log` (all focused attempts).
+
+The complete test/lint suites and other pipeline phases were not run in this
+review fix round. Native Windows, live Steam and physical GPU verification remain
+unexecuted; the known intermittent native .NET/JIT risk remains unresolved.
+Publication and remote CI remain outside this local validation task.
+
 ## Dynamic environment review regressions
 
 Focused review verification passed with scoped `DOTNET_TieredCompilation=0`
@@ -392,8 +452,10 @@ Passing retries do not resolve the native instability. Logs are preserved under
 new capture wrapper. An intermediate wrapper failure came from editing the shell
 file during an active run; the unchanged rerun passed.
 
-Final dedicated Off/Full sampling (30 frames per case after warmup, no concurrent
-graphical workload, Xvfb/Mesa llvmpipe; scoped runtime flags above):
+Initial pre-review dedicated Off/Full sampling (30 frames per case after warmup,
+no concurrent graphical workload, Xvfb/Mesa llvmpipe; scoped runtime flags above).
+The refreshed review measurements at the top of this document supersede these
+initial observations and the current `performance.json` contains the new run:
 
 | Resolution | Off median range | Full median range | Maximum Full p95 |
 | --- | --- | --- | --- |

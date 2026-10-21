@@ -14,6 +14,7 @@ public partial class EnvironmentView : Node2D
     private readonly List<EnvironmentEmitter> _emitters = [];
     private AmbientParticles _particles = null!;
     private Rect2 _bounds, _distant;
+    private (Rect2 Bounds, Color Tint)? _tintState;
     // Measured source-pixel centers on the three supplied 1024x384 backdrop strips.
     private static readonly Vector2[] FireAnchors = [new(350, 210), new(660, 210), new(380, 175)];
     private static readonly Vector2[] CrystalAnchors = [new(605, 235), new(485, 280), new(265, 240)];
@@ -98,7 +99,7 @@ public partial class EnvironmentView : Node2D
         Visible = CanPresent && _controller.Settings.Quality != EnvironmentQuality.Off;
         if (!Visible) return;
         if (!_built) BuildLayers();
-        _atmosphere.Approach(_controller.Preset(_scene), 1 - MathF.Exp(-Math.Min(delta, .1f) * .8f));
+        if (delta > 0) _atmosphere.Approach(_controller.Preset(_scene), 1 - MathF.Exp(-Math.Min(delta, .1f) * .8f));
         float quality = _controller.Settings.Quality == EnvironmentQuality.Full ? 1 : .45f;
         float calm = _scene == EnvironmentScene.Menu ? .3f : 1;
         var a = _atmosphere;
@@ -117,20 +118,23 @@ public partial class EnvironmentView : Node2D
         var near = _layers["NearRain"]; near.Bounds = _bounds; near.Opacity = quality < 1 ? 0 : a.Rain * .5f * calm;
         near.Velocity = new(a.Wind.X * 1.5f, 285); near.TextureScale = new(660, 660);
         foreach (var layer in _layers.Values) layer.UpdateLayer(time, sampled);
-        _particles.Visible = ParticlesEnabled;
         _particles.Bounds = _bounds; _particles.Quality = quality * calm;
         _particles.Amount = a.Motes; _particles.Snow = a.Snow; _particles.Embers = a.Embers;
         _particles.Rain = a.Rain; _particles.Splashes = _scene == EnvironmentScene.Arena;
         _particles.Wind = a.Wind.X; _particles.UpdateMotion(time, sampled);
-        _particles.Tint = a.ParticleTint; _particles.QueueRedraw();
+        _particles.Tint = a.ParticleTint; _particles.UpdateParticles(ParticlesEnabled);
         foreach (var emitter in _emitters) { emitter.Wind = a.Wind; emitter.UpdateEmitter(time, EmittersEnabled ? a.Glow * quality : 0); }
-        QueueRedraw();
+        var tintBounds = LightingEnabled ? _bounds.Intersection(WorldArt.VisibleArea(this)) : default;
+        var tintState = (tintBounds, tintBounds.HasArea() ? a.Tint with { A = a.Tint.A * (quality < 1 ? .5f : 1) } : Colors.Transparent);
+        if (_tintState != tintState)
+        {
+            _tintState = tintState;
+            QueueRedraw();
+        }
     }
     public override void _Draw()
     {
-        if (!LightingEnabled || !Visible || _controller.Settings.Quality == EnvironmentQuality.Off) return;
-        var visible = _bounds.Intersection(WorldArt.VisibleArea(this));
-        if (visible.HasArea()) DrawRect(visible, _atmosphere.Tint with { A = _atmosphere.Tint.A * (_controller.Settings.Quality == EnvironmentQuality.Full ? 1 : .5f) });
+        if (_tintState is { } state && state.Bounds.HasArea()) DrawRect(state.Bounds, state.Tint);
     }
     public override void _ExitTree() { if (IsInstanceValid(_controller)) _controller.Detach(this); }
 }

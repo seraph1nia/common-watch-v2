@@ -18,6 +18,38 @@ public sealed class EnvironmentSettingsTests
     }
 
     [Theory]
+    [InlineData("clear", AtmospherePreset.Clear)]
+    [InlineData("mist", AtmospherePreset.Mist)]
+    [InlineData("rain", AtmospherePreset.Rain)]
+    [InlineData("night", AtmospherePreset.Night)]
+    [InlineData("enchanted", AtmospherePreset.Enchanted)]
+    [InlineData("ember", AtmospherePreset.Ember)]
+    [InlineData("snow", AtmospherePreset.Snow)]
+    public void AcceptsDocumentedPresetNames(string name, AtmospherePreset expected) =>
+        Assert.Equal(expected, EnvironmentSettings.Parse(["--environment-preset", name]).Preset);
+
+    [Theory]
+    [InlineData("mist,rain")]
+    [InlineData("mist, rain")]
+    [InlineData("0")]
+    [InlineData("3")]
+    [InlineData("-1")]
+    [InlineData("Rain")]
+    [InlineData("RAIN")]
+    [InlineData(" rainy ")]
+    [InlineData("rainy")]
+    [InlineData("clear-day")]
+    [InlineData("magical")]
+    [InlineData(" rain")]
+    [InlineData("rain ")]
+    [InlineData("")]
+    public void RejectsUndocumentedPresetSpellings(string value)
+    {
+        var error = Assert.Throws<ArgumentException>(() => EnvironmentSettings.Parse(["--environment-preset", value]));
+        Assert.Equal("--environment-preset requires clear|mist|rain|night|enchanted|ember|snow", error.Message);
+    }
+
+    [Theory]
     [InlineData("--environment-effects", "wrong")]
     [InlineData("--environment-preset", "unknown")]
     [InlineData("--environment-preset", "99")]
@@ -32,7 +64,11 @@ public sealed class EnvironmentSettingsTests
     [InlineData("--environment-preset")]
     [InlineData("--environment-time")]
     [InlineData("--environment-seed")]
-    public void RejectsMissingValues(string key) => Assert.Throws<ArgumentException>(() => EnvironmentSettings.Parse([key]));
+    public void RejectsMissingValues(string key)
+    {
+        var error = Assert.Throws<ArgumentException>(() => EnvironmentSettings.Parse([key]));
+        Assert.Equal("Missing environment option value.", error.Message);
+    }
 
     [Fact]
     public void SavesOnlyLocalQualityAndRecoversFromMissingCorruptOrInvalidFiles()

@@ -26,10 +26,21 @@ public partial class AmbientParticles : Node2D
     public int Seed { get; set; }
     public Color Tint { get; set; }
     public float Quality { get; set; }
+    private (Rect2 Visible, Rect2 Bounds, float Time, Vector2 Offset, float SnowOffset, float Amount, float Snow, float Rain, float Embers, float Wind, bool Splashes, int Seed, Color Tint, float Quality)? _drawState;
+    public void UpdateParticles(bool enabled = true)
+    {
+        var visible = Bounds.Intersection(WorldArt.VisibleArea(this));
+        Visible = enabled && Quality > 0 && Math.Max(Amount, Math.Max(Snow, Math.Max(Rain, Embers))) > 0 && visible.HasArea();
+        if (!IsVisibleInTree()) return;
+        var state = (visible, Bounds, Time, MotionOffset, SnowOffset, Amount, Snow, Rain, Embers, Wind, Splashes, Seed, Tint, Quality);
+        if (_drawState == state) return;
+        _drawState = state;
+        QueueRedraw();
+    }
     private static float Random(int i, int seed) => Mathf.PosMod(Mathf.Sin(i * 127.1f + seed * 31.7f) * 43758.5453f, 1);
     public override void _Draw()
     {
-        Rect2 visible = Bounds.Intersection(WorldArt.VisibleArea(this));
+        Rect2 visible = _drawState?.Visible ?? default;
         if (!visible.HasArea()) return;
         // A world grid keeps positions continuous while panning; coarsen at overview zoom.
         float cell = Math.Max(72, visible.Size.X / 18);

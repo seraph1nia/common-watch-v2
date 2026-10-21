@@ -14,6 +14,9 @@ public partial class EnvironmentEmitter : Node2D
     public float Time { get; set; }
     private Texture2D? _fire, _crystal;
     private ShaderMaterial _glow = null!;
+    private float? _glowTime;
+    private (EnvironmentEmitterKind Kind, float Radius, float Intensity, float Time, float Wind, float Phase)? _drawState;
+    internal int ShaderUpdates { get; private set; }
     public void Initialize(EnvironmentController environment, AssetLoader assets)
     {
         _glow = new ShaderMaterial { Shader = environment.Shader("SoftGlow") }; Material = _glow;
@@ -23,8 +26,16 @@ public partial class EnvironmentEmitter : Node2D
     {
         Time = time; Intensity = intensity;
         Visible = intensity > .001f && WorldArt.VisibleArea(this).Grow(Radius * 4).HasPoint(Vector2.Zero);
-        if (!Visible) return;
-        _glow.SetShaderParameter("visual_time", time);
+        if (!IsVisibleInTree()) return;
+        if (_glowTime != time)
+        {
+            _glow.SetShaderParameter("visual_time", time);
+            _glowTime = time; ShaderUpdates++;
+        }
+        bool smoke = Kind == EnvironmentEmitterKind.Smoke;
+        var state = (Kind, Radius, Intensity, smoke ? time : 0, smoke ? Wind.X : 0, smoke ? Position.X : 0);
+        if (_drawState == state) return;
+        _drawState = state;
         QueueRedraw();
     }
     public override void _Draw()

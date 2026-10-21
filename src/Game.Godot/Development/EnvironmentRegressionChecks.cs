@@ -32,6 +32,7 @@ public partial class GameApplication
         await Frames(2);
         CheckEnvironmentMotion();
         await CheckShaderIdentity(directory);
+        await CheckEnvironmentInvalidation(directory);
         GD.Print("GODOT_ENVIRONMENT_REGRESSION_PASS live-clock pause shader-identity integrated-wind");
 
         async Task Frames(int count)

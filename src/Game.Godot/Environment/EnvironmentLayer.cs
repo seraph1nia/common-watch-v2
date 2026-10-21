@@ -16,6 +16,9 @@ public partial class EnvironmentLayer : Node2D
     public Rect2 Bounds { get; set; }
     public float Time { get; private set; }
     private Rect2 _visible;
+    private Texture2D? _drawTexture;
+    private (Vector2 Offset, Vector2 Scale, float Opacity, Color Tint, Rect2 Bounds)? _parameters;
+    internal int ShaderUpdates { get; private set; }
     private readonly EnvironmentMotion _motion = new();
     public Vector2 MotionOffset => _motion.Offset;
     public ShaderMaterial EffectMaterial { get; private set; } = null!;
@@ -28,20 +31,31 @@ public partial class EnvironmentLayer : Node2D
     {
         Time = time;
         _motion.Update(time, Velocity * SpeedScale, sampled);
-        _visible = Bounds.Intersection(WorldArt.VisibleArea(this));
-        Visible = Enabled && Opacity > .001f && _visible.HasArea();
-        if (!Visible) return;
-        EffectMaterial.SetShaderParameter("visual_time", time);
-        EffectMaterial.SetShaderParameter("motion_offset", MotionOffset);
-        EffectMaterial.SetShaderParameter("texture_scale", TextureScale);
-        EffectMaterial.SetShaderParameter("opacity", Opacity * Strength);
-        EffectMaterial.SetShaderParameter("tint", Tint);
-        EffectMaterial.SetShaderParameter("region", new Vector4(Bounds.Position.X, Bounds.Position.Y, Bounds.Size.X, Bounds.Size.Y));
-        QueueRedraw();
+        var visible = Bounds.Intersection(WorldArt.VisibleArea(this));
+        float opacity = Opacity * Strength;
+        Visible = Enabled && opacity > .001f && visible.HasArea();
+        if (!IsVisibleInTree()) return;
+        if (_parameters is not { } previous || previous.Offset != MotionOffset) SetParameter("motion_offset", MotionOffset);
+        if (_parameters is null || _parameters.Value.Scale != TextureScale) SetParameter("texture_scale", TextureScale);
+        if (_parameters is null || _parameters.Value.Opacity != opacity) SetParameter("opacity", opacity);
+        if (_parameters is null || _parameters.Value.Tint != Tint) SetParameter("tint", Tint);
+        if (_parameters is null || _parameters.Value.Bounds != Bounds)
+            SetParameter("region", new Vector4(Bounds.Position.X, Bounds.Position.Y, Bounds.Size.X, Bounds.Size.Y));
+        _parameters = (MotionOffset, TextureScale, opacity, Tint, Bounds);
+        if (_visible != visible || _drawTexture != Texture)
+        {
+            _visible = visible; _drawTexture = Texture;
+            QueueRedraw();
+        }
+    }
+    private void SetParameter(StringName name, Variant value)
+    {
+        EffectMaterial.SetShaderParameter(name, value);
+        ShaderUpdates++;
     }
     public override void _Draw()
     {
-        if (Texture is { } texture) DrawTextureRect(texture, _visible, false);
+        if (_drawTexture is { } texture) DrawTextureRect(texture, _visible, false);
         else DrawRect(_visible, Colors.White);
     }
     public override void _ExitTree() => EffectMaterial?.Dispose();
