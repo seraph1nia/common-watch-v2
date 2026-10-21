@@ -179,7 +179,7 @@ public partial class GameApplication
         Require(_session.LastResult?.Accepted == true && _session.City.Slots[4].Type == Building.Lumbermill, "4 Gold recovery stays accessible and confirmed");
         await CheckGameplayInput();
         await CheckWorldtreePresentation();
-        GD.Print("GODOT_GAMEPLAY_PASS catalog economy trades four-classes squads homes townhall research forecast inspector rewards victory defeat native-focus modal-scroll");
+        GD.Print($"GODOT_GAMEPLAY_PASS mode={_options.Mode} view={_options.View} hud={_options.Hud} catalog economy trades four-classes squads homes townhall research forecast inspector rewards victory defeat native-focus modal-scroll");
     }
     private void OpenDetails(DetailsPage page) => _gameUi.Details.Open(page, new GameplayContext(_session, ResumeAfterCommand));
     private void Press(Button button)

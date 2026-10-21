@@ -15,6 +15,9 @@ public sealed class ClientTests
     [Fact]
     public Task GodotInstalledArt() => Run(FindRoot(), Path.Combine(FindRoot(), "assets/sprites"), illustrated: true);
 
+    [Fact]
+    public Task GodotNormalPlayDefaults() => Run(FindRoot(), Path.Combine(FindRoot(), "assets/sprites"), defaults: true);
+
     private static async Task VerifyClient()
     {
         string root = FindRoot();
@@ -36,7 +39,7 @@ public sealed class ClientTests
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
-    private static async Task Run(string root, string assets, bool illustrated = false, bool missingHud = false)
+    private static async Task Run(string root, string assets, bool illustrated = false, bool missingHud = false, bool defaults = false)
     {
         var start = new ProcessStartInfo("bash")
         {
@@ -45,7 +48,7 @@ public sealed class ClientTests
             RedirectStandardError = true,
             UseShellExecute = false
         };
-        foreach (string argument in new[] { "tools/graphical.sh", "test", "--assets-root", assets })
+        foreach (string argument in new[] { "tools/graphical.sh", defaults ? "test-defaults" : "test", "--assets-root", assets })
             start.ArgumentList.Add(argument);
         if (illustrated)
             foreach (string argument in new[] { "--view", "angled", "--hud-art", "illustrated", "--debug-overlay", "on", "--expect-installed-art" }) start.ArgumentList.Add(argument);
@@ -60,20 +63,22 @@ public sealed class ClientTests
         string transcript = await output + "\n" + await error;
         string logDirectory = Path.Combine(root, "artifacts", "test-logs");
         Directory.CreateDirectory(logDirectory);
-        await File.WriteAllTextAsync(Path.Combine(logDirectory, "godot-" + (illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
+        await File.WriteAllTextAsync(Path.Combine(logDirectory, "godot-" + (defaults ? "defaults" : illustrated ? "installed" : missingHud ? "empty-illustrated" : Directory.EnumerateFiles(assets, "*.png", SearchOption.AllDirectories).Any() ? "invalid" : "empty") + ".log"), transcript);
         Assert.True(process.ExitCode == 0, $"Godot actual-graphics check failed ({process.ExitCode}):\n{transcript}");
         Assert.DoesNotContain("ERROR:", transcript);
         Assert.DoesNotContain("Unhandled exception", transcript);
-        Assert.Equal(2, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
-        Assert.True(transcript.Split("GODOT_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= 2,
-            "Both rendering modes must decode and start the bundled music, including settings checks.");
+        int passes = defaults ? 1 : 2;
+        Assert.Equal(passes, transcript.Split("SMOKE PASS", StringSplitOptions.None).Length - 1);
+        Assert.True(transcript.Split("GODOT_AUDIO_PASS loaded=true", StringSplitOptions.None).Length - 1 >= passes,
+            "Every smoke pass must decode and start bundled music, including settings checks.");
         Assert.Contains("settings=0/50/100 persisted=true", transcript);
-        Assert.Equal(2, transcript.Split("GODOT_CAMERA_PASS", StringSplitOptions.None).Length - 1);
-        Assert.Contains("mode=Debug", transcript);
+        Assert.Equal(passes, transcript.Split("GODOT_CAMERA_PASS", StringSplitOptions.None).Length - 1);
+        if (!defaults) Assert.Contains("mode=Debug", transcript);
         Assert.Contains("mode=Sprites", transcript);
-        if (illustrated)
+        if (defaults) Assert.Contains("GODOT_DEFAULTS_PASS mode=Sprites view=Angled hud=Illustrated overlay=false main-menu=true", transcript);
+        if (illustrated || defaults)
         {
-            Assert.Equal(2, transcript.Split("_ART_PASS", StringSplitOptions.None).Length - 1);
+            Assert.Equal(passes, transcript.Split("_ART_PASS", StringSplitOptions.None).Length - 1);
             Assert.Contains("view=Angled hud=Illustrated", transcript);
         }
     }

@@ -8,6 +8,15 @@ public partial class GameApplication
 {
     private async Task SmokeIntegration()
     {
+        if (_args.Contains("--expect-default-presentation"))
+        {
+            Require(_options.Mode == RenderMode.Sprites && _options.Hud == HudArt.Illustrated
+                && _options.View == ViewPreset.Angled && !_options.DebugOverlay && !_options.Showroom,
+                "normal play and export presentation defaults");
+            Require(_sessions.Current is null && _sessionMenu.Visible && _battle is null && !_frozen,
+                "normal startup reaches the production main menu without a scenario");
+            GD.Print("GODOT_DEFAULTS_PASS mode=Sprites view=Angled hud=Illustrated overlay=false main-menu=true");
+        }
         await SmokeSessionLifecycle();
         ulong musicPlayer = _audio.Player.GetInstanceId();
         string checkpoint = Argument("--checkpoint") ?? "settlement";

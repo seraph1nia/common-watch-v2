@@ -30,6 +30,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
                    '--gameplay-family', 'research' if index == 0 else 'mixed']
         if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated':
             command += ['--world-art', 'sprites', '--hud-art', 'illustrated', '--view', 'angled']
+        else:
+            command += ['--world-art', 'debug', '--hud-art', 'plain', '--view', 'topdown', '--debug-overlay', 'off']
         command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
         processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
     def status(index):

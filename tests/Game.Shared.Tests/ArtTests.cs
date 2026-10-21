@@ -9,10 +9,16 @@ namespace Game.Shared.Tests;
 public sealed class ArtTests
 {
     [Fact]
-    public void OptionsAreLocalStrictAndDebugByDefault()
+    public void OptionsAreLocalStrictAndMatchNormalPlayByDefault()
     {
         var defaults = RenderOptions.Parse([]);
-        Assert.Equal(RenderMode.Debug, defaults.Mode); Assert.Equal(HudArt.Plain, defaults.Hud); Assert.Equal(1, defaults.GroundCompression);
+        Assert.Equal(RenderMode.Sprites, defaults.Mode); Assert.Equal(HudArt.Illustrated, defaults.Hud);
+        Assert.Equal(ViewPreset.Angled, defaults.View); Assert.Equal(.72f, defaults.GroundCompression);
+        Assert.False(defaults.DebugOverlay); Assert.False(defaults.Showroom);
+        var debug = RenderOptions.Parse(["--world-art", "debug", "--hud-art", "plain", "--view", "topdown"]);
+        Assert.Equal(RenderMode.Debug, debug.Mode); Assert.Equal(HudArt.Plain, debug.Hud); Assert.Equal(1, debug.GroundCompression);
+        var overridden = RenderOptions.Parse(["--render-mode", "sprites", "--world-art", "debug", "--hud-art", "illustrated", "--hud-art", "plain", "--view", "angled", "--view", "topdown"]);
+        Assert.Equal(debug, overridden);
         var illustrated = RenderOptions.Parse(["--world-art", "sprites", "--hud-art", "illustrated", "--view", "angled", "--debug-overlay", "on"]);
         Assert.Equal(RenderMode.Sprites, illustrated.Mode); Assert.Equal(HudArt.Illustrated, illustrated.Hud); Assert.Equal(.72f, illustrated.GroundCompression); Assert.True(illustrated.DebugOverlay);
         foreach (string option in new[] { "--world-art", "--hud-art", "--view", "--debug-overlay" })
@@ -136,7 +142,7 @@ public sealed class ArtTests
             session.ChooseReward(session.City.Run.Offers[0]);
             return JsonSerializer.Serialize(session.Snapshot, WireJson.Options);
         }
-        Assert.Equal(Play([]), Play(["--world-art", "sprites", "--hud-art", "illustrated", "--view", "angled", "--debug-overlay", "on"]));
+        Assert.Equal(Play([]), Play(["--world-art", "debug", "--hud-art", "plain", "--view", "topdown", "--debug-overlay", "on"]));
     }
 
     static void WithCatalog(Action<string, string> action)

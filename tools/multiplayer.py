@@ -34,9 +34,10 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
             log = open(work / f'{index}.log', 'w+')
             logs.append(log)
             command = ['bash', 'tools/client.sh', '--settings-path', str(data / 'settings.json'),
-                       '--data-path', str(data), '--render-mode', 'debug']
+                       '--data-path', str(data)]
             command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
             if args.operation == 'test':
+                command += ['--world-art', 'debug', '--hud-art', 'plain', '--view', 'topdown', '--debug-overlay', 'off']
                 command += ['--network-test', str(args.players), '--report', str(work / f'{index}.json')]
                 if index == 0:
                     command += ['--lobby-capture', str(ROOT / 'artifacts' / 'captures' / 'godot' / f'lobby-{args.players}p.png')]

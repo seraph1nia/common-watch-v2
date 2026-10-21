@@ -21,4 +21,4 @@ export LIBGL_ALWAYS_SOFTWARE=1 COMMON_WATCH_TEST_AUDIO=dummy
 mkdir -p "artifacts/native-steam/godot"
 report="$(pwd)/artifacts/native-steam/godot/$role.json"
 rm -f "$report"
-timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1280x720x24' bash tools/client.sh --steam --render-mode debug --network-test 2 --native-verify yes --report "$report" --settings-path "$worker_directory/settings.json" --data-path "$worker_directory/private" "${role_args[@]}" "$@"
+timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1280x720x24' bash tools/client.sh --steam --world-art debug --hud-art plain --view topdown --debug-overlay off --network-test 2 --native-verify yes --report "$report" --settings-path "$worker_directory/settings.json" --data-path "$worker_directory/private" "${role_args[@]}" "$@"

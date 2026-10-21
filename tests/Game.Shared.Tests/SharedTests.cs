@@ -93,7 +93,7 @@ public sealed class SharedTests
     [Fact]
     public void ModesAndIdentifiersKeepSpritesIndependentFromGameplay()
     {
-        Assert.Equal(RenderMode.Debug, RenderOptions.Parse([]).Mode);
+        Assert.Equal(RenderMode.Sprites, RenderOptions.Parse([]).Mode);
         Assert.Equal(RenderMode.Sprites, RenderOptions.Parse(["--render-mode", "sprites"]).Mode);
         Assert.Throws<ArgumentException>(() => RenderOptions.Parse(["--render-mode", "unknown"]));
         Assert.Throws<ArgumentException>(() => RenderOptions.Parse(["--assets-root"]));

@@ -26,6 +26,12 @@ public sealed class GameplayUiTests
             Assert.True(process.ExitCode == 0, transcript);
             Assert.DoesNotContain("ERROR:", transcript);
             Assert.DoesNotContain("Unhandled exception", transcript);
+            if (operation == "test-gameplay")
+            {
+                Assert.Contains("GODOT_GAMEPLAY_PASS mode=Sprites view=Angled hud=Illustrated", transcript);
+                if (Environment.GetEnvironmentVariable("COMMON_WATCH_GAMEPLAY_ART") != "illustrated")
+                    Assert.Contains("GODOT_GAMEPLAY_PASS mode=Debug view=Topdown hud=Plain", transcript);
+            }
             Assert.Contains(operation == "test-gameplay" ? "GODOT_GAMEPLAY_PASS" : "GODOT_GAMEPLAY_NETWORK_PASS", transcript);
         }
     }

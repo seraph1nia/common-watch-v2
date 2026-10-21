@@ -7,17 +7,17 @@ public enum ViewPreset { Topdown, Angled }
 public enum HudArt { Plain, Illustrated }
 public sealed record RenderOptions(RenderMode Mode, string AssetsRoot)
 {
-    public ViewPreset View { get; init; } = ViewPreset.Topdown;
-    public HudArt Hud { get; init; } = HudArt.Plain;
+    public ViewPreset View { get; init; } = ViewPreset.Angled;
+    public HudArt Hud { get; init; } = HudArt.Illustrated;
     public bool DebugOverlay { get; init; }
     public bool Showroom { get; init; }
     public float GroundCompression => View == ViewPreset.Angled ? .72f : 1;
     public static RenderOptions Parse(string[] args)
     {
-        RenderMode mode = RenderMode.Debug;
+        RenderMode mode = RenderMode.Sprites;
         string root = Path.Combine(AppContext.BaseDirectory, "assets", "sprites");
-        ViewPreset view = ViewPreset.Topdown;
-        HudArt hud = HudArt.Plain;
+        ViewPreset view = ViewPreset.Angled;
+        HudArt hud = HudArt.Illustrated;
         bool overlay = false;
         string Value(int index) => index < args.Length ? args[index] : throw new ArgumentException("Missing presentation option value.");
         for (int i = 0; i < args.Length; i++)

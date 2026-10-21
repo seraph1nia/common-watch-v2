@@ -47,7 +47,7 @@ Buildings use 512 × 512, units 256 × 256, resource icons 128 × 128 and the wo
 | `resource/gold`, `resource/wood`, `resource/stone` | 04 | `assets/sprites/resources/{gold,wood,stone}.png` |
 | `hud/panel`, `hud/card_frame`, `hud/button`, `hud/tooltip` | 04 | `assets/hud/{panel,card_frame,button,tooltip}.png` |
 
-`assets/catalog.json` is the filesystem catalog. World entries are relative to its assets directory, with `sprites/` prefixes; HUD entries have `hud/` prefixes. `--assets-root` retains its existing meaning: the **sprites directory**, whose parent contains the optional catalog and HUD directory. Without a catalog, the original conventional world filenames still work. Catalog paths cannot escape the assets directory. Invalid catalogs, absent PNGs, dimension mismatches and native decode failures use plain/geometric fallbacks. Debug/plain defaults bypass image decoding and catalog reading. Replacement paths, display size, offset and anchor can change in the catalog without changing C# or simulation rules. Regenerate through manifests to retain reproducible source metadata.
+`assets/catalog.json` is the filesystem catalog. World entries are relative to its assets directory, with `sprites/` prefixes; HUD entries have `hud/` prefixes. `--assets-root` retains its existing meaning: the **sprites directory**, whose parent contains the optional catalog and HUD directory. Without a catalog, the original conventional world filenames still work. Catalog paths cannot escape the assets directory. Invalid catalogs, absent PNGs, dimension mismatches and native decode failures use plain/geometric fallbacks. Explicit debug/plain verification bypasses sprite decoding and catalog reading. Replacement paths, display size, offset and anchor can change in the catalog without changing C# or simulation rules. Regenerate through manifests to retain reproducible source metadata.
 
 ## Views and modes
 
@@ -56,9 +56,9 @@ mise run play
 mise run play-assets -- --view angled
 ```
 
-The application accepts `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are debug, topdown, plain and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
+The application accepts `--world-art debug|sprites` (alias for the retained `--render-mode`), `--view topdown|angled`, `--hud-art plain|illustrated`, and `--debug-overlay on|off`. Defaults are sprites, angled, illustrated and off. World and HUD artwork are independent preferences. Debug world rendering never loads world PNGs; an explicitly illustrated HUD may still load its four HUD PNGs.
 
-The `play-assets` and `battle-assets` tasks prefer the angled view; `play-assets` also enables the illustrated nine-slice HUD. Append `-- --hud-art plain` for plain controls, or `-- --view topdown` for the topdown comparison. Bare application/debug defaults remain unchanged.
+Ordinary `play`, its compatibility alias `play-assets`, and exported builds default to sprites, illustrated HUD and angled view with diagnostics off. `play-debug` explicitly selects debug/plain/topdown. The development showcase `battle-assets` also uses sprites and angled view. Append `-- --hud-art plain` for plain controls, or `-- --view topdown` for the topdown comparison.
 
 Angled projection compresses the logical ground plane by 0.72 and uses the same inverse transform for picking. Buildings and characters retain their image aspect ratios. Camera2D owns fixed settlement and responsive combat framing, AssetLoader caches native external PNG textures and BattlefieldView owns combat presentation; detached metadata and logical projection remain engine independent. Terrain finishes before depth-sorted tall sprites. Anchor/bounds overlays and logical hex borders remain visible. Godot's viewport uses native window dimensions so tall showroom windows and resized Controls have real layout space.
 

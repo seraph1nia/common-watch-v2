@@ -47,19 +47,25 @@ run = "dotnet run --project tools/scenarios/Scenarios.csproj --"
 raw_args = true
 
 [tasks.play]
-description = "Play Godot 2D with shapes and text (default)"
+description = "Play the game with the same defaults as exported builds"
 depends = ["build"]
-run = "bash tools/client.sh --render-mode debug"
+run = "bash tools/client.sh"
+raw_args = true
+
+[tasks.play-debug]
+description = "Development: play with artwork-independent shapes, plain HUD and top-down view"
+depends = ["build"]
+run = "bash tools/client.sh --world-art debug --hud-art plain --view topdown --debug-overlay off"
 raw_args = true
 
 [tasks.play-assets]
-description = "Play Godot with optional sprites and illustrated HUD, with plain/geometric fallback"
+description = "Compatibility alias for play: normal game presentation"
 depends = ["build"]
-run = "bash tools/client.sh --render-mode sprites --hud-art illustrated --view angled"
+run = "bash tools/client.sh"
 raw_args = true
 
 [tasks.test-graphics]
-description = "Godot graphical integration checks in both rendering modes"
+description = "Godot default startup, both rendering modes and artwork fallback checks"
 depends = ["build"]
 run = "dotnet test tests/Game.Integration.Tests/Game.Integration.Tests.csproj --no-build --no-restore --filter 'FullyQualifiedName~ClientTests' --nologo"
 
@@ -116,7 +122,7 @@ run = "dotnet test tests/Game.Godot.Session.Tests/Game.Godot.Session.Tests.cspro
 [tasks.play-steam]
 description = "Optional Steam startup using hardcoded development App ID 480; offline fallback remains available"
 depends = ["build"]
-run = "bash tools/client.sh --render-mode debug --steam"
+run = "bash tools/client.sh --steam"
 raw_args = true
 
 [tasks.test-steam-native]
@@ -150,9 +156,9 @@ description = "Test Pillow cropping, alpha, anchors, nine-slicing and determinis
 run = ".venv-art/bin/python -m unittest discover -s tests/art -v"
 
 [tasks.art-showroom]
-description = "Inspect installed artwork and native nine-slices without a running match"
+description = "Development showroom: inspect artwork and native nine-slices without a match"
 depends = ["build"]
-run = "bash tools/client.sh --asset-showroom --world-art sprites --hud-art illustrated --debug-overlay on --width 1280 --height 1080"
+run = "bash tools/client.sh --asset-showroom --world-art sprites --hud-art illustrated --view topdown --debug-overlay on --width 1280 --height 1080"
 raw_args = true
 
 [tasks.capture-art]
@@ -166,15 +172,15 @@ depends = ["build"]
 run = "bash tools/graphical.sh capture-settlement"
 
 [tasks.battle]
-description = "Animated tabletop battle showcase, native Godot controls, default debug art"
+description = "Development showcase: sampled tabletop battle with debug art"
 depends = ["build"]
-run = "bash tools/client.sh --battle swordsman --world-art debug"
+run = "bash tools/client.sh --battle swordsman --world-art debug --hud-art plain --view topdown --debug-overlay off"
 raw_args = true
 
 [tasks.battle-assets]
-description = "Godot battle with the two existing static character PNGs"
+description = "Development showcase: battle with the two existing static character PNGs"
 depends = ["build"]
-run = "bash tools/client.sh --battle swordsman --world-art sprites --view angled"
+run = "bash tools/client.sh --battle swordsman --world-art sprites --hud-art illustrated --view angled --debug-overlay off"
 raw_args = true
 
 [tasks.capture-battle]
@@ -198,12 +204,12 @@ description = "Build the local HTML review from actual captured frames and profi
 run = "python3 tools/battle-review.py"
 
 [tasks.test-gameplay-ui]
-description = "Actual native gameplay controls over paid default-rule campaign scenarios"
+description = "Production UI in default/debug presentation over paid campaign scenarios"
 depends = ["build"]
 run = ["bash tools/graphical.sh test-gameplay", "bash tools/graphical.sh test-gameplay-network"]
 
 [tasks.capture-gameplay-ui]
-description = "Capture actual native gameplay panels and terminal states"
+description = "Capture production gameplay panels in default/debug presentation at 720p/1080p"
 depends = ["build"]
 run = ["bash tools/graphical.sh capture-gameplay", "bash tools/graphical.sh test-gameplay-network"]
 

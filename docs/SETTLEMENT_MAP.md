@@ -1,6 +1,6 @@
 # Illustrated settlement map
 
-`mise run play-assets` uses the supplied nine-clearing forest map. Debug/plain remains the default. Missing, corrupt or mismatched map PNG/metadata falls back to the native nine-slot grid. Both `--view` presets leave the illustrated background's painted perspective intact; combat and the fallback grid retain their own projections.
+`mise run play` uses the supplied nine-clearing forest map, as do exported builds. `play-assets` remains a compatibility alias; `play-debug` selects debug/plain verification. Missing, corrupt or mismatched map PNG/metadata falls back to the native nine-slot grid. Both `--view` presets leave the illustrated background's painted perspective intact; combat and the fallback grid retain their own projections.
 
 The original 1672 × 941 PNG is retained byte-for-byte at `assets/sprites/terrain/settlement_map.png`. Its SHA-256 is `f72bb78e769ee7c3fb97d111f00ae27d595ee1652d64d47cd7e140e3ed1ccdc5`. The user supplied it as `Enchanted Forest Settlement Map.png`; the application never reads Downloads. No artwork was generated, downloaded or repainted. No separate artwork license was supplied; the code license is not asserted as an artwork grant.
 

@@ -34,7 +34,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         log = open(work / f'{index}-{len(logs)}.log', 'w+')
         logs.append(log)
         command = ['bash', 'tools/client.sh', '--settings-path', str(data / 'settings.json'),
-                   '--data-path', str(data), '--control-dir', str(control), '--test-fast-combat', 'yes']
+                   '--data-path', str(data), '--control-dir', str(control), '--test-fast-combat', 'yes',
+                   '--world-art', 'debug', '--hud-art', 'plain', '--view', 'topdown', '--debug-overlay', 'off']
         command += ['--host', str(port), '--pause-at-death', 'yes'] if index == 0 else ['--join', f'127.0.0.1:{port}']
         command += list(extra)
         process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)

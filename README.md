@@ -1,6 +1,6 @@
 # The Common Watch — Godot 2D
 
-A code-first C# game with a pure C# authoritative simulation and one Godot 2D application. Solo and host-authoritative 1–6 player sessions cover lobby/doctrine selection, settlement, shared automatic combat, individual reward drafting and wave progression. Optional GodotSteam integration remains unqualified with live accounts. The complete game defaults to shapes and readable text; artwork is optional.
+A code-first C# game with a pure C# authoritative simulation and one Godot 2D application. Solo and host-authoritative 1–6 player sessions cover lobby/doctrine selection, settlement, shared automatic combat, individual reward drafting and wave progression. Optional GodotSteam integration remains unqualified with live accounts. The game defaults to the existing sprites and illustrated HUD in angled view, with readable geometric/plain fallback when artwork is unavailable.
 
 ## Setup
 
@@ -19,12 +19,15 @@ Interactive play requires a display and OpenGL 3.3 driver. Linux automated check
 ## Play
 
 ```sh
-mise run play                      # artwork-independent debug/plain defaults
-mise run play-assets               # optional sprites and illustrated HUD
+mise run play                      # normal game; same defaults as exported builds
+mise run play-debug                # artwork-independent debug/plain/topdown verification
+mise run play-assets               # compatibility alias for play
 mise run dev-multiplayer           # supervised LAN host and guest
 mise run dev-multiplayer -- --players 6
 mise run play-steam                # optional; development Steam App ID is hardcoded to 480
 ```
+
+`play` runs from source for quick iteration; it does not export a release on each launch. It uses the same runtime presentation defaults, main menu, native controls, local preferences and normal audio as the exported game. `play-steam` adds only optional Steam startup.
 
 The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
 
@@ -36,9 +39,9 @@ A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then 
 
 Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
 
-Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. `play-assets` prefers the angled view; `-- --view topdown` overrides it. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
+Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
-## Battle and artwork tools
+## Battle and artwork development tools
 
 ```sh
 mise run battle
@@ -54,6 +57,8 @@ mise run art-preview
 mise run art-showroom
 mise run test-art
 ```
+
+Battle showcases and the asset showroom are development tools, separate from ordinary play. `profile-animation` repeats native battles at 30/60/120 FPS and three combat speeds; `capture-environment` records matched Off/Full environment timings, and `review-environment` presents those results. Measurements from software rendering describe that environment and do not establish physical GPU performance.
 
 Combat poses, shots, statuses, hits and deaths follow authoritative playback. Showcase scenarios are earned through legal commands. [Animation documentation](docs/COMBAT_ANIMATION.md) covers controls, receipts, captures and known static-sprite limitations.
 
@@ -71,7 +76,7 @@ mise run test-core
 mise run test-shared
 mise run test                       # Pillow + .NET/process tests + animation captures
 mise run test-session
-mise run test-gameplay-ui          # native gameplay + seven-wave host/guest replay
+mise run test-gameplay-ui          # default + debug native UI; seven-wave host/guest replay
 mise run capture-gameplay-ui       # actual panels at 720p/1080p and allied inspection
 mise run test-multiplayer
 mise run test-reconnect
@@ -84,7 +89,9 @@ mise run capture-settlement        # nine-pad map picking, purchase and actual s
 mise run capture-lobby
 ```
 
-[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the authoritative rules, with seed `20261018`.
+[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. The session checks include a startup with no presentation flags, exercising the production menu, doctrine selection, purchases, combat, rewards and resizing. Gameplay checks run those same production Controls in default and explicit debug presentation. Capture checkpoints replay legal commands into real snapshots; they do not replace the gameplay UI.
+
+Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the authoritative rules, with seed `20261018`.
 
 ```sh
 mise run capture -- --width 1920 --height 1080
@@ -100,7 +107,7 @@ mise run build-linux
 mise run build-windows
 ```
 
-Self-contained x64 Release outputs are `artifacts/builds/godot/linux/CommonWatch.x86_64` and `artifacts/builds/godot/windows/CommonWatch.exe`. Copy the **whole output folder**, including managed runtime, optional assets, music and licenses. Asset lookup is executable relative. Exported game arguments follow Godot's separator: `CommonWatch.x86_64 -- --world-art sprites`.
+Self-contained x64 Release outputs are `artifacts/builds/godot/linux/CommonWatch.x86_64` and `artifacts/builds/godot/windows/CommonWatch.exe`. Copy the **whole output folder**, including managed runtime, optional assets, music and licenses. Asset lookup is executable relative. Exports start with the same artwork/angled defaults as `mise run play`. Exported game arguments follow Godot's separator, for example: `CommonWatch.x86_64 -- --world-art debug --hud-art plain --view topdown`.
 
 Install matching **4.7.2.stable.mono export templates** in Godot's standard user `export_templates` directory before exporting. The [Godot GitHub Actions workflow](.github/workflows/godot.yml) fetches the pinned upstream templates and verifies their SHA-256. Builds use RID-specific locks under `tools/nuget-locks`, preserving Core's original lockfile. Tasks replace only their own output directory.
 

@@ -1,7 +1,8 @@
 # Forest HUD integration
 
 The user-supplied forest HUD replaces the illustrated parchment skin through
-`HudSkin`. Debug/plain remains the default. The supplied 78 transparent PNGs,
+`HudSkin`. Ordinary play and exported builds use this illustrated HUD by default;
+`play-debug` selects the retained plain verification UI. The supplied 78 transparent PNGs,
 `ForestTheme.tres`, SVG originals and delivery metadata are preserved; preview
 mockups are not runtime assets. See [provenance](PROVENANCE.md#forest-hud-delivery).
 The supplied assets, map coordinates, building anchors, soundtrack, dependency pins

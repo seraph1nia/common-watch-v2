@@ -1,6 +1,6 @@
 # Optional world sprites
 
-These PNGs are processed from the user-supplied sheets preserved in `art/source/`. The default debug renderer ignores them. `--world-art sprites` (or `--render-mode sprites`) enables native decoding and geometric fallbacks.
+These PNGs are processed from the user-supplied sheets preserved in `art/source/`. Ordinary play and exported builds decode them by default, with geometric fallbacks. `--world-art debug` selects the renderer that ignores world sprites; `play-debug` also selects plain HUD and top-down view. `--world-art sprites` (or `--render-mode sprites`) explicitly enables world artwork.
 
 `assets/catalog.json` maps stable IDs to world PNGs under this folder and HUD skins under `assets/hud/`, with anchors, display sizes and nine-slice margins. Building/unit IDs retain lowercase enum names. `terrain/woodland_hex` is the installed tile; the older optional `terrain/hex` identifier remains valid. Resource IDs are `resource/gold`, `resource/wood` and `resource/stone`.
 

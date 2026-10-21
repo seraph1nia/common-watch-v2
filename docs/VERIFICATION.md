@@ -1,5 +1,48 @@
 # Verification
 
+## Ordinary play and export defaults (2026-10-21)
+
+`mise run play` and a no-argument export now use the same sprites/illustrated/
+angled defaults, with diagnostics off. `play-debug` explicitly selects
+artwork-independent debug/plain/topdown. `play-assets` remains a compatibility
+alias, and interactive LAN development also uses the normal game defaults.
+
+Executed locally on Linux:
+
+- `mise run build`: passed with zero warnings/errors.
+- `mise run test-core`: **46 passed**; `mise run test-shared`: **88 passed**,
+  including defaults, explicit overrides/alias ordering and art-independent rules.
+- `mise run test-session`: **3 actual-process tests passed**. A new launch has
+  no presentation or checkpoint flags, verifies the production main menu, then
+  exercises doctrine/start, purchases, recruitment, combat, rewards, settings,
+  720p/1080p resize and native picking. Explicit debug/plain, installed artwork,
+  empty artwork, corrupt artwork and illustrated-HUD fallback remain covered.
+- `mise run test-gameplay-ui`: passed in both no-flag default presentation and
+  explicit debug/plain/topdown, plus the seven-wave host/guest replay. The
+  existing production Controls read detached snapshots and submit authoritative
+  commands; no scenario-specific gameplay screen was found or added. Showcase
+  and showroom controls remain explicit development tools.
+- `mise run capture-art`: **14 actual viewport captures** passed, covering
+  both projections, plain/illustrated HUD, 720p/1080p and the asset showroom.
+- `mise run test-multiplayer`: passed for **1–6 players**.
+  `mise exec -- bash tools/reconnect.sh`: passed reconnect/fault probes with
+  the already-built client and explicit debug/plain presentation.
+- `mise run build-linux`: passed. The self-contained executable then passed
+  `--smoke-test --expect-installed-art --expect-default-presentation` from a
+  temporary directory outside the repository, with no asset/audio root flags.
+  This verifies executable-relative artwork and soundtrack loading as well as
+  matching presentation, production controls and native resize/input behavior.
+
+Graphical checks used owned Xvfb displays, Mesa software rendering, Dummy audio
+and disposable preferences/private session data. Logs are
+`artifacts/test-logs/play-defaults-*.log`, `godot-defaults.log` and
+`export-defaults.log`; images are under `artifacts/captures/godot/art/`.
+An initial combined mise invocation treated the second task name as an argument;
+separate multiplayer and reconnect invocations passed. No native .NET/JIT crash
+occurred in these checks; the known intermittent risk remains unresolved.
+The full `mise run test` suite, profilers, live Steam, native Windows and physical
+GPU/audio verification were not run for this change.
+
 ## Retained environment rendering and exact preset parsing
 
 Final focused review checks passed with scoped `DOTNET_TieredCompilation=0`
