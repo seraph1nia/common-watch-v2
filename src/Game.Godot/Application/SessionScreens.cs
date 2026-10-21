@@ -8,24 +8,70 @@ public partial class GameApplication
 {
     private SettlementHud _gameUi = null!;
     private LobbyPanel _sessionMenu = null!;
+    private LobbyPanel _menuPopup = null!;
+    private SessionExitDialog _exitConfirmation = null!;
+    private Control? _menuInvoker;
     private void CreateSessionMenu()
     {
         var layer = new CanvasLayer { Layer = 2 }; AddChild(layer);
         _sessionMenu = new LobbyPanel(); layer.AddChild(_sessionMenu); _sessionMenu.Initialize(_skin);
-        _sessionMenu.SoloRequested += BeginSolo;
-        _sessionMenu.HostRequested += () => BeginHost(int.Parse(Argument("--port") ?? "27025"));
-        _sessionMenu.JoinRequested += (endpoint, fresh) =>
+        var popupLayer = new CanvasLayer { Layer = 6 }; AddChild(popupLayer);
+        _menuPopup = new LobbyPanel(); popupLayer.AddChild(_menuPopup); _menuPopup.Initialize(_skin, popup: true);
+        _menuPopup.Refresh(null); _menuPopup.Hide();
+        _exitConfirmation = new SessionExitDialog(); AddChild(_exitConfirmation); _exitConfirmation.Initialize(_skin);
+        foreach (var menu in new[] { _sessionMenu, _menuPopup })
         {
-            string file = System.IO.Path.Combine(SessionDataPath, "resume.json");
-            if (fresh && System.IO.File.Exists(file)) System.IO.File.Delete(file);
-            BeginJoin(endpoint);
-        };
+            menu.SoloRequested += BeginSolo;
+            menu.HostRequested += () => BeginHost(int.Parse(Argument("--port") ?? "27025"));
+            menu.JoinRequested += JoinFromMenu;
+            menu.QuitRequested += RequestQuit;
+            menu.SettingsRequested += OpenMenuSettings;
+            menu.NavigationChanged += RefreshSteamMenu;
+        }
+        _menuPopup.ContinueRequested += CloseMenu;
+        _menuPopup.MenuRequested += RequestReturnToMenu;
         _sessionMenu.DoctrineSelected += id => { _session.Send("doctrine:" + id); RefreshUi(true); };
         _sessionMenu.StartRequested += () => { if (_session.AllDoctrinesChosen) Act(() => _session.Start()); };
-        _sessionMenu.MenuRequested += ReturnToMenu;
-        _sessionMenu.QuitRequested += RequestQuit;
-        _sessionMenu.SettingsRequested += _settings.Open;
+        _sessionMenu.MenuRequested += RequestReturnToMenu;
         CreateSteamMenu(_sessionMenu.MultiplayerContent);
+    }
+    private void OpenMenuSettings() { CloseMenu(false); _settings.Open(); }
+    private void RequestReturnToMenu()
+    {
+        if (_session is null) ReturnToMenu();
+        else _exitConfirmation.Ask(false, _session, ReturnToMenu);
+    }
+    private void JoinFromMenu(string endpoint, bool fresh)
+    {
+        _sessionMenu.Endpoint.Text = _menuPopup.Endpoint.Text = endpoint;
+        string file = System.IO.Path.Combine(SessionDataPath, "resume.json");
+        if (fresh && System.IO.File.Exists(file)) System.IO.File.Delete(file);
+        BeginJoin(endpoint);
+    }
+    private void OpenMenu()
+    {
+        if (_menuPopup.Visible) return;
+        _menuInvoker = GetViewport().GuiGetFocusOwner(); _camera.StopDrag();
+        _settings.CoveredByMenu = true;
+        _menuPopup.ShowMain(); _menuPopup.Refresh(null); RefreshSteamMenu();
+        _menuPopup.ReturnToMenuButton!.Disabled = _session is null;
+        _menuPopup.ContinueButton!.GrabFocus();
+    }
+    private void CloseMenu() => CloseMenu(true);
+    private void CloseMenu(bool restoreFocus)
+    {
+        if (_menuPopup is null || !_menuPopup.Visible) return;
+        _menuPopup.Hide();
+        _settings.CoveredByMenu = false;
+        if (_steamPanel is not null) RefreshSteamMenu();
+        if (restoreFocus)
+        {
+            if (IsInstanceValid(_menuInvoker) && _menuInvoker!.IsVisibleInTree()) _menuInvoker.GrabFocus();
+            else if (_settings.Visible) _settings.Slider.GrabFocus();
+            else if (_gameUi.Visible) _gameUi.SettingsButton.GrabFocus();
+            else _sessionMenu.FocusDefault();
+        }
+        _menuInvoker = null;
     }
     private void BeginSolo()
     {
@@ -34,6 +80,9 @@ public partial class GameApplication
     }
     private void ReturnToMenu()
     {
+        _exitConfirmation?.Clear();
+        if (_settings is { Visible: true }) _settings.Close();
+        CloseMenu(false);
         _battle = null; _animationProfile = null; _battleLayer?.QueueFree(); _battleLayer = null;
         _battlefield.Reset();
         _sessions.Close(); _steam?.Leave();

@@ -13,7 +13,7 @@ public partial class GameApplication
         foreach (string method in new[] { "create_host", "create_client", "get_steam_id_for_peer_id" })
             Require(peer!.HasMethod(method), "Steam peer API: " + method);
         var api = Engine.GetSingleton("Steam");
-        foreach (string method in new[] { "steamInitEx", "run_callbacks", "initRelayNetworkAccess", "activateGameOverlayInviteDialog", "getLobbyOwner", "setLobbyData", "getNumLobbyMembers", "getLobbyMemberByIndex", "inviteUserToLobby", "getFriendRelationship", "getLaunchCommandLine" })
+        foreach (string method in new[] { "steamInitEx", "run_callbacks", "initRelayNetworkAccess", "getFriendCount", "getFriendByIndex", "getFriendPersonaName", "getLobbyOwner", "setLobbyData", "getNumLobbyMembers", "getLobbyMemberByIndex", "inviteUserToLobby", "getFriendRelationship", "getLaunchCommandLine" })
             Require(api.HasMethod(method), "GodotSteam API: " + method);
         foreach (string signal in new[] { "lobby_created", "lobby_joined", "join_requested" }) Require(api.HasSignal(signal), "Steam signal: " + signal);
         GD.Print("GODOT_STEAM_ABI_PASS extension=4.22.1 engine=" + Engine.GetVersionInfo()["string"]);
@@ -21,6 +21,7 @@ public partial class GameApplication
     private async Task RunDevelopmentActions()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (_args.Contains("--steam-friends-test")) { await CheckSteamFriendsPresentation(); await QuitAfterAudioDrain(); return; }
         if (Argument("--environment-captures") is { } environmentOutput) { await CaptureEnvironment(environmentOutput); await QuitAfterAudioDrain(); return; }
         if (Argument("--arena-captures") is { } arenaOutput) { await CaptureModularArena(arenaOutput); await QuitAfterAudioDrain(); return; }
         // Presentation-only comparison controls. No scenario or authoritative state edits.
@@ -53,6 +54,13 @@ public partial class GameApplication
             GD.Print($"GODOT_CAPTURE {absolute} phase={_session?.Snapshot.Phase} mode={_options.Mode}");
             await QuitAfterAudioDrain();
         }
-        else if (_args.Contains("--smoke-test")) await QuitAfterAudioDrain();
+        else if (_args.Contains("--smoke-test"))
+        {
+            RequestQuit();
+            Require(_exitConfirmation.Visible && !_quitting, "smoke exit requires confirmation");
+            _exitConfirmation.GetOkButton().EmitSignal(BaseButton.SignalName.Pressed);
+            Require(_quitting && _session is null, "confirmed exit closes the active session before draining audio");
+            GD.Print("GODOT_EXIT_CONFIRMED_PASS");
+        }
     }
 }

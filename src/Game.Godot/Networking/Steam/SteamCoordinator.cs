@@ -31,10 +31,9 @@ public partial class SteamCoordinator : Node
         int index = Array.IndexOf(_args, key);
         return index >= 0 && index + 1 < _args.Length ? _args[index + 1] : null;
     }
-    public void InviteFriends()
-    {
-        if (_steamLobby != 0 && _steam.LoggedIn) _steam.Api.Call("activateGameOverlayInviteDialog", _steamLobby);
-    }
+    private ulong InviteLobby => _session is { IsHost: true, IsSteam: true } ? _steamLobby : 0;
+    public SteamFriendList InviteFriends() => new SteamInvitations(_steam).Load(InviteLobby);
+    public SteamInviteResult InviteFriend(ulong lobby, SteamFriend friend) => new SteamInvitations(_steam).Send(lobby, InviteLobby, friend);
     private bool EnsureSteam()
     {
         try

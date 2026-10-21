@@ -31,6 +31,8 @@ public sealed class HudSkin : IDisposable
         Theme.SetFontSize("font_size", "Label", 16);
         Theme.SetFontSize("font_size", "Button", 16);
         Theme.SetFontSize("font_size", "OptionButton", 16);
+        foreach (string type in new[] { "Button", "ForestPrimaryButton", "ForestArcaneButton", "ForestDangerButton" })
+            Theme.SetColor("font_disabled_color", type, new Color("b1bfb0"));
     }
     public Button Button(string text, Action clicked, string variation = "")
     {

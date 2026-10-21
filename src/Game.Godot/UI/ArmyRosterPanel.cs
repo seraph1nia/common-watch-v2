@@ -29,6 +29,7 @@ public partial class ArmyRosterPanel : VBoxContainer
     public void ShowManagement() => _sections.CurrentTab = 2;
     public event Action<UnitState>? UnitSelected;
     public IReadOnlyDictionary<string, Button> MemberButtons => _members.Buttons;
+    internal ScrollContainer RosterScroll => _members.GetParent<ScrollContainer>();
     public void Initialize(HudSkin skin, Action submitted)
     {
         _skin = skin; _summary = WrapLabel(); AddChild(_summary);
@@ -37,7 +38,7 @@ public partial class ArmyRosterPanel : VBoxContainer
         _sections = new TabContainer { CustomMinimumSize = new(0, 360), SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(_sections);
         var rosterScroll = new ScrollContainer { Name = "Roster", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(rosterScroll);
         _members = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill }; rosterScroll.AddChild(_members);
-        var managementScroll = new ScrollContainer { Name = "Recruitment", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(managementScroll);
+        var managementScroll = new ScrollContainer { Name = "Recruit", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(managementScroll);
         var management = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; managementScroll.AddChild(management);
         _trainer = new OptionButton(); management.AddChild(_trainer); _trainer.ItemSelected += _ => Refresh(_context);
         _recruitment = new RecruitmentPanel(); management.AddChild(_recruitment); _recruitment.Initialize(skin);
@@ -46,13 +47,15 @@ public partial class ArmyRosterPanel : VBoxContainer
         halls.AddChild(WrapLabel("Town Halls — select a hall; choose a veteran in Roster to store or return."));
         _halls = new OptionButton(); halls.AddChild(_halls); _halls.ItemSelected += _ => Refresh(_context);
         _hall = new TownHallPanel(); halls.AddChild(_hall); _hall.Initialize(skin);
-        var homes = new ScrollContainer { Name = "Homes & towers", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
+        var homes = new ScrollContainer { Name = "6 homes & towers", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
         Deployment = new DeploymentPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill }; homes.AddChild(Deployment); Deployment.Initialize(skin, submitted);
     }
     public void Refresh(GameplayContext context)
     {
         _context = context; var city = context.City; Deployment.Refresh(context);
-        _summary.Text = $"P{city.Id} ARMY — {city.Soldiers.Length} persistent members; {city.Army?.PurchasedHomes}/6 homes\n{context.EditReason}\nRecruit one soldier into a new or compatible squad. Select any roster member to inspect, regroup, store, return or retire.";
+        _summary.Text = $"P{city.Id} ARMY · {city.Soldiers.Length} members · {city.Army?.PurchasedHomes}/6 homes"
+            + (context.EditReason.Length > 0 ? "\n" + context.EditReason : "")
+            + "\nSelect a member for squad, storage and veteran actions. Manage deployment in 6 homes & towers.";
         NativeOptions.Update(_trainer, city.Slots.Select((slot, i) => (slot, i)).Where(x => context.State.BuildingCatalog.FirstOrDefault(b => b.Type == x.slot.Type)?.Recruits is not null)
             .Select(x => (x.i, $"Plot {x.i + 1} — {GameplayContext.BuildingName(x.slot.Type)} L{x.slot.Level}")));
         _recruitment.Visible = _trainer.ItemCount > 0;

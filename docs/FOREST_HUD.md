@@ -11,7 +11,15 @@ recorded separately in [provenance](PROVENANCE.md).
 
 ## Interface
 
-The current interface uses a slim resource ribbon, floating **Build / Worldtree** context and Ready/Pause/menu controls. It has no Army/Run navigation, collapse control, upkeep/forecast/selected-plot tabs or history footer. Recruitment and troop/home management open contextually from selected buildings or plots with surviving troops. Construction expands the context panel beside the match controls and displays the active category in a four-column grid, with confirmation below the cards. All six production options and the conditional Gold recovery card fit at 720p/1080p without horizontal scrolling. The five category tabs and explicit build confirmation remain unchanged. See [playing](gameplay/PLAYING.md) for the current paths.
+The interface retains the resource ribbon, floating context dock and separate match controls. Stocks and signed production income are visible together. The ribbon moves resources into a second native row at 720p and keeps one row at 1080p. Allied inspection is explicitly read-only.
+
+The dock offers **Build**, **Worldtree**, **Troops & homes** and **City details**. With no plot selected it shows only navigation. **×** clears plot selection to expose covered clearings. Selected buildings retain contextual upgrades, sale, recruitment, trading and Town Hall management. Troops & homes exposes the roster and all six homes without selecting a specific building. City details inspects the doctrine, acquired rewards, wave and the last eight session notices in the existing modal; there is no permanent Run dashboard or feedback footer.
+
+Construction retains five categories and explicit **Build selected** confirmation. Cards reflow from three columns in the 720p floating dock to four at 1080p, with distinct name, purpose, quoted cost and visible shortage/restriction text. The conditional Lumbermill Gold-recovery option shares the confirmation row so both the selected alternative and exact quote fit at 720p. Selecting a card spends nothing.
+
+Ready is primary and shows the actual production-stage consequence. Pause/Resume remains secondary, combat speed permissions and field overview are unchanged, and Food shortages still allow readiness. The feedback control beside match actions shows accepted status temporarily; pending, rejected and disconnected status persists until resolved. Complete messages remain in City details. It also opens recent feedback in City details.
+
+The **Menu** button, F10 or controller Start opens the existing menu as a framed square over the current screen, without a replacement background or dimming. Continue or Esc closes it with focus restored; opening it does not leave or pause the match. The startup backdrop is retained.
 
 Three personal doctrine cards use the existing framed reward-card language and canonical run descriptions. Native style boxes retain pressed, hover, disabled and keyboard focus states. Settings, details and reward modal shades consume world input and restore focus on close. The map fills the viewport beneath the HUD, with fixed native camera inversion and protected clearing bounds. Combat uses separate proportional framing and approved forest textures with a sliced decorative rail. Plain/debug and missing-art fallbacks remain functional.
 
@@ -126,3 +134,7 @@ files retain their original hashes (`preservation-receipt.json`). No native cras
 occurred in the completed runs; the known intermittent native .NET/JIT crash risk
 remains. These are Linux/Xvfb/Mesa checks; live Steam, native Windows/macOS and
 physical GPU/audio hardware were not tested.
+
+## Forest UI refinement (2026-10-21)
+
+See [the refinement report](FOREST_UI_REFINEMENT.md) for file-level changes, actual before/after captures, exact verification receipts and remaining platform gaps. All approved artwork and the supplied Theme source remain intact.

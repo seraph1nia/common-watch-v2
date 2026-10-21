@@ -73,6 +73,8 @@ public sealed class ClientTests
             "Every smoke pass must decode and start bundled music, including settings checks.");
         Assert.Contains("settings=0/50/100 persisted=true", transcript);
         Assert.Equal(passes, transcript.Split("GODOT_CAMERA_PASS", StringSplitOptions.None).Length - 1);
+        Assert.Equal(passes, transcript.Split("GODOT_EXIT_MENU_PASS", StringSplitOptions.None).Length - 1);
+        Assert.Equal(passes, transcript.Split("GODOT_EXIT_CONFIRMED_PASS", StringSplitOptions.None).Length - 1);
         if (!defaults) Assert.Contains("mode=Debug", transcript);
         Assert.Contains("mode=Sprites", transcript);
         if (defaults) Assert.Contains("GODOT_DEFAULTS_PASS mode=Sprites view=Angled hud=Illustrated overlay=false main-menu=true", transcript);

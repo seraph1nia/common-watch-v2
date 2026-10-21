@@ -8,7 +8,7 @@ public static class InputActions
     {
         foreach (var (name, key) in new (string, Key)[]
         {
-            ("camera_reset", Key.R), ("game_pause", Key.Space),
+            ("camera_reset", Key.R), ("game_pause", Key.Space), ("game_menu", Key.F10),
             ("show_debug_overlay", Key.O), ("toggle_art_mode", Key.T)
         })
         {
@@ -22,5 +22,7 @@ public static class InputActions
             var input = new InputEventJoypadButton { ButtonIndex = button, Device = -1 };
             if (!InputMap.ActionHasEvent(name, input)) InputMap.ActionAddEvent(name, input);
         }
+        var menu = new InputEventJoypadButton { ButtonIndex = JoyButton.Start, Device = -1 };
+        if (!InputMap.ActionHasEvent("game_menu", menu)) InputMap.ActionAddEvent("game_menu", menu);
     }
 }

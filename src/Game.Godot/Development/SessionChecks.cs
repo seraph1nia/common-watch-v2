@@ -58,6 +58,7 @@ public partial class GameApplication
         catch (ObjectDisposedException) { }
         ReplaceSession(ScenarioRunner.CreateAt("combat")); ReturnToMenu(); BeginSolo();
         Require(_session.Snapshot.Phase == Phase.Lobby && _battlefield.Motion.Events.Count == 0, "leave during combat");
+        await CheckSessionExitMenu();
         GD.Print("GODOT_SESSION_PASS menu doctrine start replacement cleanup combat-leave offline");
     }
 }

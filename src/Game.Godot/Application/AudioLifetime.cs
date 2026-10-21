@@ -16,7 +16,7 @@ public partial class GameApplication
         GetTree().AutoAcceptQuit = false;
         GetWindow().CloseRequested += RequestQuit; _closeSubscribed = true;
     }
-    private void RequestQuit() => _ = QuitAfterAudioDrain();
+    private void RequestQuit() => _exitConfirmation.Ask(true, _session, () => _ = QuitAfterAudioDrain());
     private void CreateAudioUi()
     {
         var layer = new CanvasLayer { Layer = 5 }; AddChild(layer);
@@ -36,6 +36,7 @@ public partial class GameApplication
     {
         if (_quitting) return;
         _quitting = true;
+        _exitConfirmation?.Clear();
         _sessions.Close();
         _audio.Stop();
         // AudioServer releases stopped WAV playback on its next mixing buffers.

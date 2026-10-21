@@ -10,6 +10,7 @@ public partial class EnvironmentController : Node
     private readonly List<EnvironmentView> _views = [];
     private AssetLoader _assets = null!;
     private string _settingsPath = "";
+    private EnvironmentSettings _preferences = new();
     private double _seconds;
     private readonly FastNoiseLite _noiseSource = new() { Seed = 417, Frequency = .035f };
     public NoiseTexture2D Noise { get; } = new() { Width = 256, Height = 128, Seamless = true, GenerateMipmaps = false };
@@ -18,11 +19,13 @@ public partial class EnvironmentController : Node
     public bool HasVisibleEffects { get; private set; }
     public double VisualTime => Settings.SampleTime ?? _seconds;
     public event Action? QualityChanged;
+    public event Action? PresetChanged;
 
     public void Initialize(AssetLoader assets, string[] args, string settingsPath)
     {
         _assets = assets; _settingsPath = settingsPath;
-        Settings = EnvironmentSettings.Parse(args, EnvironmentSettings.LoadQuality(settingsPath));
+        _preferences = EnvironmentSettings.Load(settingsPath);
+        Settings = EnvironmentSettings.Parse(args, _preferences.Quality, _preferences.Preset);
         if (Settings.Quality != EnvironmentQuality.Off) Noise.Noise = _noiseSource;
         foreach (var preset in Enum.GetValues<AtmospherePreset>())
             _presets[preset] = GD.Load<EnvironmentPreset>($"res://Environment/Presets/{preset.ToString().ToLowerInvariant()}.tres");
@@ -50,15 +53,30 @@ public partial class EnvironmentController : Node
         if (!Enum.IsDefined(quality)) throw new ArgumentOutOfRangeException(nameof(quality));
         Settings = Settings with { Quality = quality };
         if (quality != EnvironmentQuality.Off && Noise.Noise is null) Noise.Noise = _noiseSource;
-        if (save && !EnvironmentSettings.SaveQuality(_settingsPath, quality)) GD.PushWarning("Environment quality applies for this session; preferences could not be saved.");
+        if (save)
+        {
+            _preferences = _preferences with { Quality = quality };
+            SavePreferences();
+        }
         // Off is immediate, including the legacy static arena rain fallback.
         foreach (var view in _views) view.Visible = quality != EnvironmentQuality.Off;
         QualityChanged?.Invoke();
     }
-    public void SetPreset(AtmospherePreset? preset, bool immediate = false)
+    public void SetPreset(AtmospherePreset? preset, bool immediate = false, bool save = false)
     {
+        if (preset is { } value && !Enum.IsDefined(value)) throw new ArgumentOutOfRangeException(nameof(preset));
         Settings = Settings with { Preset = preset };
+        if (save)
+        {
+            _preferences = _preferences with { Preset = preset };
+            SavePreferences();
+        }
         if (immediate) foreach (var view in _views) view.SnapPreset();
+        PresetChanged?.Invoke();
+    }
+    private void SavePreferences()
+    {
+        if (!_preferences.Save(_settingsPath)) GD.PushWarning("Environment settings apply for this session; preferences could not be saved.");
     }
     public void Sample(double? seconds)
     {
@@ -79,6 +97,7 @@ public partial class EnvironmentController : Node
     public override void _ExitTree()
     {
         QualityChanged = null;
+        PresetChanged = null;
         foreach (var shader in _shaders.Values) shader.Dispose();
         foreach (var preset in _presets.Values) preset.Dispose();
         Noise.Dispose(); _noiseSource.Dispose();

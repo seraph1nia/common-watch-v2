@@ -67,6 +67,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
     def capture_feedback(name, expected):
         control(1, 'close-details')
         wait(lambda: expected in status(1)['hudNotice'], name + ' native feedback')
+        wait(lambda: status(1)['hudNoticeVisible'] and expected in status(1)['hudNoticeText'], name + ' visible feedback control')
         assert status(1)['readyDisabled'] == (name != 'rejected')
         for width, height in ((1280, 720), (1920, 1080)):
             control(1, 'resize', width=width, height=height)

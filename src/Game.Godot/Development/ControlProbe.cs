@@ -84,6 +84,7 @@ public partial class GameApplication
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
             hudNotice = _gameUi.SessionFeedback, readyDisabled = _gameUi.ReadyButton.Disabled,
+            hudNoticeVisible = _gameUi.FeedbackButton.IsVisibleInTree(), hudNoticeText = _gameUi.FeedbackButton.Text,
             pending = _session?.Pending ?? false, status = _session?.Status ?? "Main menu",
             animation = new { hits = _battlefield.Motion.ObservedHits, effects = _battlefield.Motion.Events.Count, generation = _session?.Playback.Generation, resets = _battlefield.Resets, dying = _session?.Playback.Units().Count(u => u.Hex?.Lifecycle == UnitLifecycle.Dying) },
             result = _session?.LastResult, state = _session is { HasState: true } ? _session.Snapshot : null };

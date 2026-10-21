@@ -6,6 +6,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0"><PrivateAssets>all</PrivateAssets></PackageReference>
     <ProjectReference Include="../../src/Game.Shared/Game.Shared.csproj" />
     <Compile Include="../../src/Game.Godot/Networking/Steam/SteamLobbyMetadata.cs" Link="SteamLobbyMetadata.cs" />
+    <Compile Include="../../src/Game.Godot/Networking/Steam/SteamInvitations.cs" Link="SteamInvitations.cs" />
   </ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/Combat/CombatMotion.cs" Link="CombatMotion.cs" /><Compile Include="../../tools/animation-tests/AnimationContract.cs" Link="AnimationContract.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/Environment/EnvironmentSettings.cs" Link="EnvironmentSettings.cs" /></ItemGroup>

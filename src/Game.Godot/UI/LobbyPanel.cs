@@ -15,10 +15,15 @@ public partial class LobbyPanel : PanelContainer
     public Button MultiplayerButton { get; private set; } = null!;
     public Button SettingsButton { get; private set; } = null!;
     public Button BackButton { get; private set; } = null!;
+    public Button? ContinueButton { get; private set; }
+    public Button? ReturnToMenuButton { get; private set; }
+    public Button QuitButton { get; private set; } = null!;
+    internal PanelContainer MenuCard { get; private set; } = null!;
     public Button StartButton { get; private set; } = null!;
     public HBoxContainer Doctrines { get; private set; } = null!;
     public VBoxContainer LobbyActions { get; private set; } = null!;
     private Label _title = null!;
+    private Label _selectionHint = null!;
     public VBoxContainer MainButtons { get; private set; } = null!;
     public IReadOnlyList<string> Offers => _offers;
     private readonly Dictionary<string, string> _choices = [];
@@ -30,23 +35,48 @@ public partial class LobbyPanel : PanelContainer
     private bool _multiplayer;
     public bool MultiplayerOpen => _multiplayer;
     public event Action? SoloRequested, HostRequested, StartRequested, MenuRequested, QuitRequested, SettingsRequested;
+    public event Action? ContinueRequested, NavigationChanged;
     public event Action<string, bool>? JoinRequested;
     public event Action<string>? DoctrineSelected;
 
     public void ShowMain() { _multiplayer = false; _key = ""; }
-    public void Initialize(HudSkin skin)
+    internal void FocusDefault()
+    {
+        if (ContinueButton is { } resume && resume.IsVisibleInTree()) resume.GrabFocus();
+        else if (Doctrines.IsVisibleInTree() && _cards.FirstOrDefault(c => !c.ChooseButton.Disabled) is { } card) card.ChooseButton.GrabFocus();
+        else if (Endpoint.IsVisibleInTree()) Endpoint.GrabFocus();
+        else if (SoloButton.IsVisibleInTree()) SoloButton.GrabFocus();
+        else if (BackButton.IsVisibleInTree()) BackButton.GrabFocus();
+    }
+    public override void _ExitTree()
+    {
+        SoloRequested = HostRequested = StartRequested = MenuRequested = QuitRequested = SettingsRequested = null;
+        ContinueRequested = NavigationChanged = null; JoinRequested = null; DoctrineSelected = null;
+    }
+    public void Initialize(HudSkin skin, bool popup = false)
     {
         _skin = skin; Theme = skin.Theme;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         OffsetLeft = 40; OffsetRight = -40; OffsetTop = 24; OffsetBottom = -24;
+        if (popup) { OffsetLeft = OffsetRight = OffsetTop = OffsetBottom = 0; MouseFilter = MouseFilterEnum.Stop; }
         var center = new CenterContainer(); AddChild(center);
-        var column = new VBoxContainer { CustomMinimumSize = new(410, 0) }; center.AddChild(column);
+        MenuCard = new PanelContainer(); center.AddChild(MenuCard);
+        var column = new VBoxContainer { CustomMinimumSize = new(410, 0) }; MenuCard.AddChild(column);
+        if (popup)
+        {
+            AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
+            skin.Panel(MenuCard);
+        }
+        else MenuCard.AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
         var title = new Label { Text = "THE COMMON WATCH", HorizontalAlignment = HorizontalAlignment.Center }; _title = title; title.AddThemeFontSizeOverride("font_size", 30); column.AddChild(title);
         MainButtons = new VBoxContainer(); column.AddChild(MainButtons);
-        SoloButton = skin.Button("Single Player", () => SoloRequested?.Invoke()); MainButtons.AddChild(SoloButton);
-        MultiplayerButton = skin.Button("Multiplayer", () => { _multiplayer = true; Refresh(null); }); MainButtons.AddChild(MultiplayerButton);
+        if (popup) { ContinueButton = skin.Button("Continue [Esc]", () => ContinueRequested?.Invoke()); MainButtons.AddChild(ContinueButton); }
+        SoloButton = skin.Button("Single Player", () => SoloRequested?.Invoke(), "ForestPrimaryButton"); MainButtons.AddChild(SoloButton);
+        MultiplayerButton = skin.Button("Multiplayer", () => { _multiplayer = true; Refresh(null); NavigationChanged?.Invoke(); }); MainButtons.AddChild(MultiplayerButton);
+        SoloButton.Visible = MultiplayerButton.Visible = !popup;
         SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); MainButtons.AddChild(SettingsButton);
-        MainButtons.AddChild(skin.Button("Exit Game", () => QuitRequested?.Invoke()));
+        if (popup) { ReturnToMenuButton = skin.Button("Return to main menu", () => MenuRequested?.Invoke()); MainButtons.AddChild(ReturnToMenuButton); }
+        QuitButton = skin.Button("Exit Game", () => QuitRequested?.Invoke()); MainButtons.AddChild(QuitButton);
         MultiplayerContent = new VBoxContainer(); column.AddChild(MultiplayerContent);
         MultiplayerContent.AddChild(skin.Button("Host LAN", () => HostRequested?.Invoke()));
         Endpoint = new LineEdit { Text = "127.0.0.1:27025", PlaceholderText = "host:port" }; MultiplayerContent.AddChild(Endpoint);
@@ -57,12 +87,13 @@ public partial class LobbyPanel : PanelContainer
         _setup = new VBoxContainer { CustomMinimumSize = new(1040, 0) }; column.AddChild(_setup);
         _setup.AddChild(new Label { Text = "Choose your starting doctrine", HorizontalAlignment = HorizontalAlignment.Center });
         Doctrines = new HBoxContainer(); Doctrines.AddThemeConstantOverride("separation", 18); _setup.AddChild(Doctrines);
+        _selectionHint = WrapLabel(); _selectionHint.HorizontalAlignment = HorizontalAlignment.Center; _setup.AddChild(_selectionHint);
         StartButton = skin.Button("Start Match", () => { if (!StartButton.Disabled) StartRequested?.Invoke(); }, "ForestPrimaryButton"); _setup.AddChild(StartButton);
         var footer = new HBoxContainer(); _setup.AddChild(footer);
         Roster = WrapLabel(); Roster.MaxLinesVisible = 1; footer.AddChild(Roster);
         LobbyActions = new VBoxContainer(); footer.AddChild(LobbyActions);
         BackButton = skin.Button("Back to main menu", () => MenuRequested?.Invoke()); _setup.AddChild(BackButton);
-        InitializeBackground(skin.MenuBackground);
+        if (!popup) InitializeBackground(skin.MenuBackground);
     }
     public void ShowError(string message)
     {
@@ -99,6 +130,7 @@ public partial class LobbyPanel : PanelContainer
                 }
             }
             _choices.TryGetValue(key, out string? selected);
+            _selectionHint.Text = selected is null ? "Select one doctrine to begin." : !session.AllDoctrinesChosen ? "Waiting for every connected player to choose a doctrine." : "Doctrine selected · ready to start.";
             for (int i = 0; i < _offers.Length; i++) _cards[i].Refresh(view.Cards.Single(c => c.Id == _offers[i]), selected == _offers[i]);
             // Disabling an enabled native button cancels an in-progress click.
             // Assign only the final eligibility so frame refreshes preserve held input.

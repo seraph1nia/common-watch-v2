@@ -1,5 +1,34 @@
 # Verification
 
+## Forest UI refinement and menu popup (2026-10-21)
+
+The [file-level report](FOREST_UI_REFINEMENT.md) contains real before/after Godot captures at 720p/1080p, exact command receipts, the artwork preservation check and platform limitations. Build, Core (46), Shared (88), Pillow/art (19), session process checks (3), gameplay UI/captures in both presentations, settlement/Worldtree/art captures, 1–6 player multiplayer, reconnect and offline Steam/session logic (61) passed locally. The menu now opens as a framed square over the retained screen with no backdrop or dimming; native checks cover edge clicks, focus, controller cancel and unchanged outside pixels.
+
+One native .NET/JIT crash and one MSBuild child-node failure occurred during iteration; failed logs are retained. The final command receipts are successful. CI run `39560834801` remains a separate stale phase/turn opening rejection; no CI fix or fresh CI pass is claimed. Live Steam, native Windows/macOS and physical hardware remain unverified.
+
+## In-game weather selection (2026-10-21)
+
+Settings now offers Scene default and all seven weather presets. Selection applies
+immediately, including while paused, and persists with environment quality. Old
+quality-only files still load. CLI overrides remain temporary unless explicitly
+chosen in Settings; seed and capture time are not persisted.
+
+Executed locally: `mise run build` (zero warnings/errors), `test-core` (46 passed),
+`test-shared` (88 passed), focused `EnvironmentSettings` tests (35 passed),
+`test-session` (3 actual graphical process tests passed) and `capture-art`
+(14 viewport captures). The native settings checks exercise every preset,
+quality changes, persistence, scene defaults and external preset synchronization
+without changing authoritative state. A further `test-defaults` smoke run captured
+the settings panel at 720p/1080p; both images were visually inspected.
+Logs: `artifacts/test-logs/weather-settings-*.log`; new panel images:
+`artifacts/captures/godot/weather-settings/settings-weather-{1280,1920}.png`.
+
+Checks used Linux/Xvfb/Mesa with disposable settings and Dummy audio. Full
+`test-environment`, multiplayer/reconnect, exports, live Steam, native Windows/macOS
+and physical GPU/audio checks were not rerun for this settings change. No native
+crash occurred in the completed checks; the known intermittent native .NET/JIT
+risk remains unresolved.
+
 ## Ordinary play and export defaults (2026-10-21)
 
 `mise run play` and a no-argument export now use the same sprites/illustrated/

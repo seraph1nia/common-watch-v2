@@ -22,7 +22,12 @@ public partial class GameApplication
             {
                 // Empty-plot construction panels intentionally cover parts of the map.
                 // Expose each target before its native click; never click through the HUD.
-                _session.SelectSlot(-1); RefreshUi(true);
+                if (_session.SelectedSlot >= 0)
+                {
+                    Click(_gameUi.ClearSelectionButton.GetGlobalRect().GetCenter());
+                    Require(_session.SelectedSlot == -1, "native clear-selection control exposes every painted pad");
+                }
+                RefreshUi(true);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 Vector2 point = _camera.ToScreen(_settlementView.PlotPosition(slot));
                 Require(WorldArea.HasPoint(point), "default framing exposes slot " + slot);
@@ -30,7 +35,7 @@ public partial class GameApplication
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 Require(_session.SelectedSlot == slot && _settlementView.HoveredSlot == slot,
-                    $"native painted-pad click and hover {slot}: selected={_session.SelectedSlot}, hovered={_settlementView.HoveredSlot}, mouse={GetViewport().GetMousePosition()}, target={point}");
+                    $"native painted-pad click and hover {slot}: selected={_session.SelectedSlot}, hovered={_settlementView.HoveredSlot}, mouse={GetViewport().GetMousePosition()}, target={point}, control={GetViewport().GuiGetHoveredControl()?.GetPath()}, bounds={GetViewport().GuiGetHoveredControl()?.GetGlobalRect()}");
                 Require(slot < 5 ? _gameUi.Inspector.BuildButtons.Values.Any(b => b.Visible)
                     : _gameUi.Inspector.Actions.ContainsKey("Buy"), "existing construction/purchase inspector " + slot);
             }

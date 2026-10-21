@@ -15,9 +15,9 @@ public sealed record EnvironmentSettings
     public int Seed { get; init; } = 417;
     public double? SampleTime { get; init; }
 
-    public static EnvironmentSettings Parse(string[] args, EnvironmentQuality saved = EnvironmentQuality.Off)
+    public static EnvironmentSettings Parse(string[] args, EnvironmentQuality saved = EnvironmentQuality.Off, AtmospherePreset? savedPreset = null)
     {
-        var result = new EnvironmentSettings { Quality = saved };
+        var result = new EnvironmentSettings { Quality = saved, Preset = savedPreset };
         string Value(ref int i) => ++i < args.Length ? args[i] : throw new ArgumentException("Missing environment option value.");
         for (int i = 0; i < args.Length; i++)
         {
@@ -48,22 +48,26 @@ public sealed record EnvironmentSettings
         return result;
     }
 
-    public static EnvironmentQuality LoadQuality(string path)
+    public static EnvironmentSettings Load(string path)
     {
         try
         {
             var value = JsonSerializer.Deserialize<EnvironmentSettings>(File.ReadAllText(path));
-            return value is not null && Enum.IsDefined(value.Quality) ? value.Quality : EnvironmentQuality.Off;
+            return new EnvironmentSettings
+            {
+                Quality = value is not null && Enum.IsDefined(value.Quality) ? value.Quality : EnvironmentQuality.Off,
+                Preset = value?.Preset is { } preset && Enum.IsDefined(preset) ? preset : null
+            };
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return EnvironmentQuality.Off; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return new(); }
     }
 
-    public static bool SaveQuality(string path, EnvironmentQuality quality)
+    public bool Save(string path)
     {
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-            File.WriteAllText(path, JsonSerializer.Serialize(new EnvironmentSettings { Quality = quality }));
+            File.WriteAllText(path, JsonSerializer.Serialize(new { Quality, Preset }));
             return true;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }

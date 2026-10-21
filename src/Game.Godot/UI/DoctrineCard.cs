@@ -13,13 +13,16 @@ public partial class DoctrineCard : PanelContainer
     private bool? _compact;
     public void Initialize(HudSkin skin, RunCardView card, Action choose)
     {
-        SizeFlagsHorizontal = SizeFlags.ExpandFill; CustomMinimumSize = new(0, 400);
+        SizeFlagsHorizontal = SizeFlags.ExpandFill; CustomMinimumSize = new(0, 420);
         skin.Panel(this, "hud/card_frame");
         var body = new VBoxContainer(); AddChild(Margin(body, 14)); body.AddThemeConstantOverride("separation", 8);
         var title = WrapLabel(card.Title); title.AddThemeFontSizeOverride("font_size", 25); body.AddChild(title);
         var category = WrapLabel(card.Subtitle); category.Modulate = new Color("efd478"); body.AddChild(category);
-        body.AddChild(WrapLabel(card.Description));
-        body.AddChild(new Control { SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore });
+        var scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            SizeFlagsVertical = SizeFlags.ExpandFill, FocusMode = FocusModeEnum.All, MouseFilter = MouseFilterEnum.Pass }; body.AddChild(scroll);
+        var description = WrapLabel(card.Description.Replace("\n\n", "\n")); description.AddThemeFontSizeOverride("font_size", 16);
+        description.MouseFilter = MouseFilterEnum.Ignore;
+        scroll.AddChild(description);
         _footer = WrapLabel(card.Footer); body.AddChild(_footer);
         ChooseButton = skin.Button("Select doctrine", choose, "ForestPrimaryButton"); ChooseButton.ToggleMode = true; body.AddChild(ChooseButton);
         // Labels and padding forward left clicks to the same selection action.
@@ -30,7 +33,8 @@ public partial class DoctrineCard : PanelContainer
             bool compact = GetViewport().GetVisibleRect().Size.Y < 900;
             if (_compact == compact) return;
             _compact = compact;
-            foreach (var label in body.GetChildren().OfType<Label>()) label.AddThemeFontSizeOverride("font_size", label == title ? (compact ? 23 : 25) : (compact ? 14 : 16));
+            CustomMinimumSize = new(0, compact ? 420 : 480);
+            foreach (var label in body.GetChildren().OfType<Label>()) label.AddThemeFontSizeOverride("font_size", label == title ? (compact ? 23 : 25) : 16);
         }
         _viewport = GetViewport(); _density = Density; _viewport.SizeChanged += Density; Density();
         Refresh(card, false);

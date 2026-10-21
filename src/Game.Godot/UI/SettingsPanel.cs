@@ -8,6 +8,7 @@ public partial class SettingsPanel : Control
     private AudioController _audio = null!;
     private EnvironmentController _environment = null!;
     private OptionButton _effects = null!;
+    private OptionButton _preset = null!;
     private Control? _previousFocus;
     public Control? FallbackFocus { private get; set; }
     public PanelContainer Panel => GetNode<PanelContainer>("Center/Panel");
@@ -15,6 +16,7 @@ public partial class SettingsPanel : Control
     public HSlider Slider => GetNode<HSlider>(Content + "Slider");
     public Button CloseButton => GetNode<Button>(Content + "Close");
     public event Action? Opened;
+    internal bool CoveredByMenu { get; set; }
 
     public void Bind(AudioController audio, Texture2D? background, EnvironmentController environment)
     {
@@ -26,6 +28,12 @@ public partial class SettingsPanel : Control
         _effects.Selected = (int)environment.Settings.Quality;
         _effects.ItemSelected += OnEffects;
         _environment.QualityChanged += RefreshEffects;
+        _preset = GetNode<OptionButton>(Content + "WeatherPreset");
+        _preset.AddItem("Scene default");
+        foreach (var preset in Enum.GetValues<AtmospherePreset>()) _preset.AddItem(preset.ToString());
+        RefreshPreset();
+        _preset.ItemSelected += OnPreset;
+        _environment.PresetChanged += RefreshPreset;
         _audio = audio;
         _audio.VolumeChanged += Refresh;
         Slider.SetValueNoSignal(audio.Settings.MusicVolume * 100);
@@ -35,6 +43,8 @@ public partial class SettingsPanel : Control
     }
     private void OnEffects(long selected) => _environment.SetQuality((EnvironmentQuality)selected);
     private void RefreshEffects() => _effects.Selected = (int)_environment.Settings.Quality;
+    private void OnPreset(long selected) => _environment.SetPreset(selected == 0 ? null : (AtmospherePreset)(selected - 1), immediate: true, save: true);
+    private void RefreshPreset() => _preset.Selected = _environment.Settings.Preset is { } preset ? (int)preset + 1 : 0;
     private void OnVolume(double percent) => _audio.SetVolume((float)percent / 100);
     private void Refresh()
     {
@@ -58,13 +68,18 @@ public partial class SettingsPanel : Control
     }
     public override void _Input(InputEvent input)
     {
-        if (!IsVisibleInTree() || !input.IsActionPressed("ui_cancel")) return;
+        if (CoveredByMenu || !IsVisibleInTree() || !input.IsActionPressed("ui_cancel")) return;
         Close();
         GetViewport().SetInputAsHandled();
     }
     public override void _ExitTree()
     {
-        if (_environment is not null) _environment.QualityChanged -= RefreshEffects;
+        if (_environment is not null)
+        {
+            _environment.QualityChanged -= RefreshEffects;
+            _environment.PresetChanged -= RefreshPreset;
+        }
+        if (_preset is not null) _preset.ItemSelected -= OnPreset;
         if (_effects is not null) _effects.ItemSelected -= OnEffects;
         if (_audio is not null) _audio.VolumeChanged -= Refresh;
         Slider.ValueChanged -= OnVolume;

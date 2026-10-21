@@ -16,7 +16,7 @@ public partial class BuildingInspector : VBoxContainer
     private MarketPanel _market = null!;
     private TownHallPanel _hall = null!;
     private int _slot;
-    private HBoxContainer _heading = null!;
+    private VBoxContainer _heading = null!;
     private VBoxContainer _text = null!;
     private Button _army = null!;
     public event Action? ArmyRequested;
@@ -33,7 +33,7 @@ public partial class BuildingInspector : VBoxContainer
     public void Initialize(HudSkin skin, Action submitted)
     {
         _skin = skin; _submitted = submitted;
-        _heading = new HBoxContainer(); AddChild(_heading);
+        _heading = new VBoxContainer(); AddChild(_heading);
         _text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _heading.AddChild(_text);
         _selection = WrapLabel(); _selection.AddThemeFontSizeOverride("font_size", 18); _text.AddChild(_selection); _details = WrapLabel(); _text.AddChild(_details);
         _actions = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkBegin }; _heading.AddChild(_actions);
@@ -96,8 +96,9 @@ public partial class BuildingInspector : VBoxContainer
             var tower = context.State.TowerCatalog.FirstOrDefault(t => t.Type == slot.Type && t.Level == slot.Level);
             if (tower is not null) tower = RunEffects.Tower(tower, context.City.Run);
             if (tower is not null) _details.Text += $"\nRange {tower.HexRange}; direct/secondary {HealthPoints.Format(tower.Damage)}/{HealthPoints.Format(tower.SecondaryDamage)}\nWindup {tower.WindupTicks} ticks; cadence {tower.CadenceTicks} ticks. Footprint: whole home.";
-            _actions.Item(_skin, "Upgrade", "Upgrade — " + (slot.UpgradeQuote is { } upgrade ? GameplayContext.Cost(upgrade) : "maximum level / separate tracks"),
-                () => _context.Submit(new(GameplayAction.Upgrade, _slot)), context.Block(slot.UpgradeQuote, slot.UpgradeQuote is null ? "No ordinary upgrade available." : ""));
+            if (slot.UpgradeQuote is { } upgrade)
+                _actions.Item(_skin, "Upgrade", "Upgrade — " + GameplayContext.Cost(upgrade),
+                    () => _context.Submit(new(GameplayAction.Upgrade, _slot)), context.Block(upgrade));
             if (slot.Type == Building.ArrowTower && slot.Level == 1)
             {
                 var economy = new EconomyConfiguration(context.State.Rules);
@@ -119,7 +120,6 @@ public partial class BuildingInspector : VBoxContainer
         _details.TooltipText = _details.Text;
         if (Compact && compactSummary is not null)
             _details.Text = compactSummary + (context.EditReason.Length > 0 ? "\n" + context.EditReason : "");
-        _army.Visible |= Compact && slot is not null && context.City.Soldiers.Length > 0;
         _actions.End();
     }
 }

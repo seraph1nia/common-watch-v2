@@ -14,6 +14,17 @@ public partial class GameApplication
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
+        await CheckMenuPopup("settlement");
+        foreach (var (resource, label) in ((ResourcePanel)_gameUi.Resources).IncomeLabels)
+        {
+            Require(label.IsVisibleInTree() && _gameUi.Resources.GetGlobalRect().Encloses(label.GetGlobalRect()), "visible ribbon income fits: " + resource);
+            string expected = _session.City.ProductionIncome?.Amount(resource).ToString("+0;-0;+0") ?? "?";
+            Require(label.Text.StartsWith(expected + " / "), "ribbon income uses authoritative production: " + resource);
+        }
+        Require(GetViewport().GetVisibleRect().Encloses(_gameUi.Resources.GetGlobalRect()), "complete resource ribbon fits viewport");
+        Press(_gameUi.FeedbackButton); await GameplayCapture("city-details");
+        Require(_gameUi.Details.Visible && _gameUi.Details.RecentFeedback.Contains(_gameUi.SessionFeedback), "visible recent feedback routes to read-only city details");
+        _gameUi.Details.Close();
         _session.SelectSlot(0); RefreshUi(true); await GameplayCapture("hud-build");
         Require(_gameUi.Inspector.Construction.Categories.Count == 5, "five native construction categories");
         for (int category = 0; category < _gameUi.Inspector.Construction.Categories.Count; category++)
@@ -26,6 +37,7 @@ public partial class GameApplication
                 Require(card.Visible == (ConstructionPanel.CategoryOf(definition) == category), "category filters " + definition.Type);
                 if (!card.Visible) continue;
                 Require(_gameUi.ContextArea.Encloses(card.GetGlobalRect()), "complete construction option fits without scrolling: " + definition.Type);
+                Require(card is ConstructionCard { ContentFits: true }, "construction name, purpose, cost and reason fit the native card: " + definition.Type);
             }
         }
         Press(_gameUi.Inspector.Construction.Categories[0]);
@@ -89,7 +101,17 @@ public partial class GameApplication
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
         Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("service XP"), "reusable persistent member inspector");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        var rosterScroll = _gameUi.Details.Army.RosterScroll;
+        rosterScroll.ScrollVertical = 80;
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        int rosterOffset = rosterScroll.ScrollVertical;
+        Require(rosterOffset > 0, "long native roster scrolls");
+        RefreshUi(true); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(rosterScroll.ScrollVertical == rosterOffset && _gameUi.Details.Inspector.SelectedUnit == member, "roster scroll and unit selection survive refresh");
+        rosterScroll.ScrollVertical = 0;
         await GameplayCapture("army-roster"); await GameplayCapture("squad-management"); await GameplayCapture("unit-inspector");
+        await CheckMenuPopup("army");
         OpenDetails(DetailsPage.Army);
         _gameUi.Details.Army.ShowHomes();
         Require(_gameUi.Details.Deployment.HomeButtons.Count == 12, "six numbered homes with inspect and deployment controls");
@@ -118,6 +140,7 @@ public partial class GameApplication
         Press(_gameUi.Details.Research.TechnologyButtons["TechAssault"]);
         Require(_gameUi.Details.Research.PurchaseButtons["Purchase"].Disabled, "exclusive sibling locked by authority");
         await GameplayCapture("worldtree");
+        await CheckMenuPopup("worldtree");
         _gameUi.Details.Close();
         var enemy = _session.Snapshot.NextWave[0]; _gameUi.Inspect(enemy, true);
         Require(_gameUi.Details.Inspector.Details.Contains("NEXT WAVE") && _gameUi.Details.Inspector.Buttons.Values.All(b => !b.Visible), "forecast inspector is read-only");
@@ -151,7 +174,7 @@ public partial class GameApplication
         _gameUi.Details.Close();
 
         ReplaceSession(ScenarioRunner.CreateAt("combat")); _frozen = true; RefreshUi(true);
-        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness"); await GameplayCapture("hud-combat");
+        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness"); await GameplayCapture("hud-combat"); await CheckMenuPopup("combat");
         ReplaceSession(GameplayScenarios.CreateAt("reward")); _frozen = true; RefreshUi(true);
         Require(_gameUi.Draft.RewardButtons.Count == 3, "actual three-card draft");
         long draftRevision = _session.Snapshot.Revision;
@@ -159,6 +182,7 @@ public partial class GameApplication
         Require(_session.Snapshot.Revision == draftRevision && _session.City.Run.Choice is null, "dismissing rewards does not choose or pause");
         _gameUi.Details.Close(); _gameUi.Draft.Open(); RefreshUi(true);
         await GameplayCapture("reward-draft");
+        await CheckMenuPopup("rewards");
         Press(_gameUi.Draft.RewardButtons[0]);
         Require(_session.City.Run.Cards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
 
@@ -177,9 +201,49 @@ public partial class GameApplication
             Require(_gameUi.ContextArea.Encloses(card.GetGlobalRect()), "every recovery/production option remains visible with confirmation");
         Press(_gameUi.Inspector.Construction.ConfirmButton);
         Require(_session.LastResult?.Accepted == true && _session.City.Slots[4].Type == Building.Lumbermill, "4 Gold recovery stays accessible and confirmed");
+        Press(_gameUi.ClearSelectionButton);
+        Require(_session.SelectedSlot == -1, "clear selection exposes covered settlement plots without spending");
         await CheckGameplayInput();
         await CheckWorldtreePresentation();
+        await CheckSessionExitMenu();
         GD.Print($"GODOT_GAMEPLAY_PASS mode={_options.Mode} view={_options.View} hud={_options.Hud} catalog economy trades four-classes squads homes townhall research forecast inspector rewards victory defeat native-focus modal-scroll");
+    }
+    private async Task CheckMenuPopup(string screen)
+    {
+        MoveMouse(new(10, 180));
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        var session = _session; long revision = session.Snapshot.Revision;
+        bool details = _gameUi.Details.Visible, draft = _gameUi.Draft.Visible, settings = _settings.Visible, paused = session.Snapshot.Paused;
+        int selected = session.SelectedSlot;
+        using var before = GetViewport().GetTexture().GetImage();
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.F10, PhysicalKeycode = Key.F10, Pressed = true }, true);
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.F10, PhysicalKeycode = Key.F10, Pressed = false }, true);
+        await GameplayCapture("menu-over-" + screen);
+        Require(_menuPopup.Visible && GetViewport().GetVisibleRect().Encloses(_menuPopup.MenuCard.GetGlobalRect()), "menu square fits over " + screen);
+        using var after = GetViewport().GetTexture().GetImage();
+        foreach (var point in new[] { new Vector2I(12, 180), new Vector2I(before.GetWidth() - 12, 180), new Vector2I(12, before.GetHeight() / 2), new Vector2I(before.GetWidth() - 12, before.GetHeight() / 2) })
+            Require(before.GetPixelv(point) == after.GetPixelv(point), "popup adds no backdrop or dimming outside its square over " + screen);
+        if (screen == "settlement")
+        {
+            Click(_gameUi.SettingsButton.GetGlobalRect().End - new Vector2(2, 2));
+            Require(_settings.Visible == settings, "popup also blocks underlying HUD buttons at the viewport edge");
+        }
+        Click(screen == "settlement" && _settlementView.HasMap ? _camera.ToScreen(_settlementView.PlotPosition(7)) : new Vector2(12, 180));
+        Require(session == _session && revision == session.Snapshot.Revision && selected == session.SelectedSlot && paused == session.Snapshot.Paused,
+            $"menu blocks world input over {screen}: same={session == _session}, revision={revision}/{session.Snapshot.Revision}, selection={selected}/{session.SelectedSlot}, pause={paused}/{session.Snapshot.Paused}, visible={_menuPopup.Visible}");
+        Require(details == _gameUi.Details.Visible && draft == _gameUi.Draft.Visible, "menu retains the underlying screen " + screen);
+        CancelUi();
+        Require(!_menuPopup.Visible && GetViewport().GuiGetFocusOwner() is { } focus && focus.IsVisibleInTree(), "closing popup restores visible focus over " + screen);
+        Require(details == _gameUi.Details.Visible && draft == _gameUi.Draft.Visible && settings == _settings.Visible, "closing popup retains the underlying modal over " + screen);
+        if (screen == "settlement")
+        {
+            GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.Start, Pressed = true }, true);
+            GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.Start, Pressed = false }, true);
+            Require(_menuPopup.Visible, "controller Start opens the same menu square");
+            GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.B, Pressed = true }, true);
+            GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.B, Pressed = false }, true);
+            Require(!_menuPopup.Visible && _session == session, "controller cancel closes menu without leaving authority");
+        }
     }
     private void OpenDetails(DetailsPage page) => _gameUi.Details.Open(page, new GameplayContext(_session, ResumeAfterCommand));
     private void Press(Button button)
@@ -203,6 +267,7 @@ public partial class GameApplication
             Require(GetViewport().GetVisibleRect().Encloses(_gameUi.Details.GetGlobalRect()), "details fits " + size);
             await GameplayCapture("worldtree-" + size.X);
             _settings.Open();
+            await CheckMenuPopup("settings-" + size.X);
             CancelUi(); Require(!_settings.Visible && _gameUi.Details.Visible, "Esc closes nested settings before details");
             CancelUi(); Require(!_gameUi.Details.Visible, "Esc closes details");
             Require(GetViewport().GuiGetFocusOwner() is { } restored && restored.IsVisibleInTree(), "details restores a visible native focus target");

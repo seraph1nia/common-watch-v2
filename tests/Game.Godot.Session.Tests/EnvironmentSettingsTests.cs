@@ -71,19 +71,53 @@ public sealed class EnvironmentSettingsTests
     }
 
     [Fact]
-    public void SavesOnlyLocalQualityAndRecoversFromMissingCorruptOrInvalidFiles()
+    public void SavesPreferencesAndRecoversFromMissingCorruptOrInvalidFiles()
     {
         string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
         try
         {
-            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.LoadQuality(path));
-            Assert.True(EnvironmentSettings.SaveQuality(path, EnvironmentQuality.Full));
-            Assert.Equal(EnvironmentQuality.Full, EnvironmentSettings.LoadQuality(path));
+            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.Load(path).Quality);
+            Assert.True(new EnvironmentSettings { Quality = EnvironmentQuality.Full }.Save(path));
+            Assert.Equal(EnvironmentQuality.Full, EnvironmentSettings.Load(path).Quality);
             File.WriteAllText(path, "broken");
-            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.LoadQuality(path));
+            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.Load(path).Quality);
             File.WriteAllText(path, "{\"Quality\":99}");
-            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.LoadQuality(path));
+            Assert.Equal(EnvironmentQuality.Off, EnvironmentSettings.Load(path).Quality);
         }
         finally { File.Delete(path); }
     }
+
+    [Fact]
+    public void PersistsQualityAndPresetWithoutCaptureOptionsAndCliOverridesRemainTemporary()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
+        try
+        {
+            var saved = new EnvironmentSettings { Quality = EnvironmentQuality.Full, Preset = AtmospherePreset.Snow, Seed = 42, SampleTime = 12 };
+            Assert.True(saved.Save(path));
+            string json = File.ReadAllText(path);
+            Assert.DoesNotContain("Seed", json);
+            Assert.DoesNotContain("SampleTime", json);
+            saved = EnvironmentSettings.Load(path);
+            Assert.Equal(EnvironmentQuality.Full, saved.Quality);
+            Assert.Equal(AtmospherePreset.Snow, saved.Preset);
+            Assert.Equal(417, saved.Seed);
+            Assert.Null(saved.SampleTime);
+            Assert.Equal(AtmospherePreset.Snow, EnvironmentSettings.Parse([], saved.Quality, saved.Preset).Preset);
+            var launch = EnvironmentSettings.Parse(["--environment-preset", "rain", "--environment-effects", "subtle"], saved.Quality, saved.Preset);
+            Assert.Equal(AtmospherePreset.Rain, launch.Preset);
+            Assert.Equal(EnvironmentQuality.Subtle, launch.Quality);
+            Assert.Equal(saved, EnvironmentSettings.Load(path));
+            Assert.True((saved with { Preset = null }).Save(path));
+            Assert.Null(EnvironmentSettings.Load(path).Preset);
+            File.WriteAllText(path, "{\"Quality\":2}");
+            Assert.Equal(EnvironmentQuality.Full, EnvironmentSettings.Load(path).Quality);
+            Assert.Null(EnvironmentSettings.Load(path).Preset);
+            File.WriteAllText(path, "{\"Quality\":2,\"Preset\":99}");
+            Assert.Equal(EnvironmentQuality.Full, EnvironmentSettings.Load(path).Quality);
+            Assert.Null(EnvironmentSettings.Load(path).Preset);
+        }
+        finally { File.Delete(path); }
+    }
+
 }

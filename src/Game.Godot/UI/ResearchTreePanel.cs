@@ -44,7 +44,7 @@ public partial class ResearchTreePanel : Control
             var frame = Decoration(art.Details); _info.AddChild(frame); frame.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
             var body = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
             _info.AddChild(body); body.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            body.AnchorLeft = .19f; body.AnchorRight = .81f; body.AnchorTop = .19f; body.AnchorBottom = .80f;
+            body.AnchorLeft = .17f; body.AnchorRight = .83f; body.AnchorTop = .21f; body.AnchorBottom = .80f;
             body.AddThemeConstantOverride("separation", 8);
             _heading.AddThemeFontSizeOverride("font_size", 28); _summary.AddThemeFontSizeOverride("font_size", 23);
             _details.AddThemeFontSizeOverride("font_size", 24);

@@ -3,7 +3,7 @@ using Godot;
 namespace Game.GodotClient;
 
 // Thin application-thread calls to the pinned GodotSteam GDExtension.
-internal sealed class GodotSteamPlatform : IDisposable
+internal sealed class GodotSteamPlatform : IDisposable, ISteamInvitationPlatform
 {
     public bool Initialized { get; private set; }
     public GodotObject Api { get; private set; } = null!;
@@ -46,6 +46,22 @@ internal sealed class GodotSteamPlatform : IDisposable
             if (Api.Call("getLobbyMemberByIndex", lobby, index).AsUInt64() == identity) return true;
         return false;
     }
+    public IReadOnlyList<SteamFriend> Friends()
+    {
+        const int immediateFriends = 4;
+        int count = (int)Api.Call("getFriendCount", immediateFriends).AsInt64();
+        if (count < 0) throw new IOException("Steam friends unavailable.");
+        var friends = new List<SteamFriend>(count);
+        for (int index = 0; index < count; index++)
+        {
+            ulong identity = Api.Call("getFriendByIndex", index, immediateFriends).AsUInt64();
+            string name = Api.Call("getFriendPersonaName", identity).AsString();
+            friends.Add(new(identity, string.IsNullOrWhiteSpace(name) ? identity.ToString() : name));
+        }
+        return friends;
+    }
+    public bool IsFriend(ulong identity) => Api.Call("getFriendRelationship", identity).AsInt64() == 3;
+    public bool Invite(ulong lobby, ulong identity) => Api.Call("inviteUserToLobby", lobby, identity).AsBool();
     public void Leave(ulong lobby) { if (Initialized && lobby != 0) Api.Call("leaveLobby", lobby); }
     public void Dispose() { if (Initialized) Api.Call("steamShutdown"); Initialized = false; }
 }

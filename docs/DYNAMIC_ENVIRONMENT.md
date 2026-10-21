@@ -11,11 +11,19 @@ mise run battle-assets -- --environment-effects full --environment-preset rain
 mise run play-assets -- --environment-effects subtle --environment-preset night
 ```
 
-The quality preference is saved separately in `user://environment-settings.json`.
-A CLI quality overrides it for that launch. Tests using `--settings-path FILE` use
+**Settings → Weather preset** selects Scene default, Clear, Mist, Rain, Night,
+Enchanted, Ember or Snow. Changes apply immediately. Scene default restores Clear
+for settlement, Enchanted for menus and Ember for the arena. Presets do not cycle
+automatically; enable Subtle or Full effects to see the selected atmosphere.
+
+Quality and weather preset are saved separately from audio in `user://environment-settings.json`.
+CLI quality/preset options override those preferences for that launch; changing a
+setting in-game saves that selection without persisting unrelated CLI overrides.
+Tests using `--settings-path FILE` use
 `FILE.environment.json`, keeping ordinary player preferences untouched. The audio
-JSON format and reconnect files are unchanged. Preset, seed and capture time are
-launch/development options, not saved match state. Preset names are exactly the
+JSON format and reconnect files are unchanged. Seed and capture time remain
+launch/development options. Environment preferences are local presentation data,
+not saved match state. Preset names are exactly the
 seven lowercase CLI values in the table below; case variants, composite enum
 names, numeric values and aliases are rejected.
 
