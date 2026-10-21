@@ -46,7 +46,7 @@ Only drained, positive-damage `Hit` events start flashes, recoil and numbers. Im
 
 A playback object change or generation change clears the presentation's visual history. This covers replacement, reconnect, event-history gaps and restarts. Death overrides attack recovery, uses Core's death interval and does not retain targetability. Ordinary live play keeps the battlefield visible until the last presented bodies finish before opening the reward overlay; a direct draft baseline still opens its UI immediately.
 
-Idle and all cosmetics pause with presentation. After the final simulation tick, terminal cosmetics use elapsed **CombatPlayback.VisualSeconds**, which already respects pause and connection state. This lets the last structure burst/fade expire without advancing gameplay or using independent wall-clock effect timers.
+Combat idle poses and event cosmetics pause with presentation. After the final simulation tick, terminal combat cosmetics use elapsed **CombatPlayback.VisualSeconds**, which already respects pause and connection state. This lets the last structure burst/fade expire without advancing gameplay or using independent wall-clock effect timers. Ambient scenery uses the separate [dynamic environment clock](DYNAMIC_ENVIRONMENT.md#timing-and-lifecycle).
 
 Status particles are sampled only between authoritative application and expiry ticks. Events are bounded by Core's 4096-entry history limit; particles are sampled vectors rather than persistent objects. No per-frame textures or per-particle nodes are created.
 

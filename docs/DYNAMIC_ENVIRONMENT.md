@@ -85,8 +85,10 @@ Settlement defaults to Clear, and the menu to Enchanted at 30% intensity. Preset
 mixing is explicit: `controller.SetPreset(AtmospherePreset.Mist)` approaches the
 new colors, densities and wind exponentially over a few seconds. `SetPreset(null)`
 restores each scene's own default. `immediate: true` is for deterministic capture.
-Edit or add a `.tres` alongside the others to author a preset, then register its enum
-name in `AtmospherePreset`; the controller loads these resources once.
+Edit or add a `.tres` alongside the others to author a preset. For a new preset,
+add its enum member to `AtmospherePreset` and its exact lowercase CLI mapping to
+`EnvironmentSettings.Parse`. Match the resource filename to the lowercase enum
+name; the controller loads these resources once.
 
 Arena glow positions reference the supplied backdrop's fire and rune details in
 normalized tile coordinates, repeated at `ArenaLayout.Pitch`, outside active rows.
@@ -123,8 +125,9 @@ while paused or unfocused. Captures can call `controller.Sample(seconds)`; calli
 velocity over live visual-time increments, so changing wind or `SpeedScale` never
 rebases earlier motion. Explicit samples instead compute displacement from the
 sampled time and current velocity, independently of previous frames; returning to
-live time retains that phase. Shaders use controller-supplied time/displacement,
-never Godot `TIME`.
+live time retains that phase. Explicit time does not snap an in-progress preset
+transition; use `SetPreset(..., immediate: true)` for a stable capture preset.
+Shaders use controller-supplied time/displacement, never Godot `TIME`.
 Layers/emitters release their private materials on tree exit, compositions unregister
 from the controller, and the controller releases cached shader/preset resources.
 External PNG lifetime remains exclusively with `AssetLoader`. A shared 256×128 seamless Godot NoiseTexture2D supplies fog/shadow noise; it is generated once and disposed with the controller.

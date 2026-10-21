@@ -21,10 +21,10 @@ the active rows. Exactly two endcaps sit outside the complete board's outermost
 corners, with continued ground underneath their transparent inner edges.
 
 Ground variants follow `1, 2, 3, 2, 1, 3`; their matching backdrops repeat at the
-same distance. Hex outlines are separate native geometry. A low-opacity static
-rain overlay is cosmetic in the default Off mode; enabled [environment effects](DYNAMIC_ENVIRONMENT.md) replace it with animated rain. Assembled plates are retained only in the source pack,
-never installed or layered over these components. Smoke, embers and glow are
-shared by the optional dynamic environment composition.
+same distance. Hex outlines are separate native geometry. For optional atmosphere,
+including static-rain replacement and supplied smoke/embers/glow, see
+[dynamic environment effects](DYNAMIC_ENVIRONMENT.md). Assembled plates are retained
+only in the source pack, never installed or layered over these components.
 
 A separate viewport CanvasLayer places a heavily pre-blurred, low-contrast,
 slightly darkened copy of the supplied `backdrop_repeat_01` behind the sharp
@@ -46,7 +46,7 @@ and 96 world pixels (3.7R and 3.2R). Catapults retain existing catapult artwork;
 Watchposts retain geometric presentation. Buildings and units share one exact
 ground-depth ordering; sampled bounce does not change that order. Health bars,
 owner/kind labels, inspection, hit flashes and destruction fades follow playback
-state and events. There are no independent damage or animation clocks.
+state and events. There are no independent damage or combat-animation clocks.
 
 Entering the arena focuses the local player's sector with 25% more magnification
 than the previous local framing, shifted slightly toward the keep. This default
