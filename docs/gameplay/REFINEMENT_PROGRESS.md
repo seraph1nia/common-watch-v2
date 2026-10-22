@@ -12,8 +12,8 @@ AGENTS.md ownership, pinned Core/art/audio, native focus and authenticated ident
 | #5 Visual army/deployment | Complete under local-evidence acceptance; [deployment review](ARMY_DEPLOYMENT_REVIEW.md), six native home targets, retained squad/member context, Core-funded preview, 100 Shared tests, four native UI passes and both remote pending/rejected/allied workers verified. |
 | #6 First-battle learning | Complete under local-evidence acceptance; [opening review](OPENING_REVIEW.md), optional guide, playstyle-led doctrine cards, six legal three-wave paths on two seeds, 108 Shared tests and both native opening/ordinary-control captures verified. No economy rules adjusted. |
 | #7 Build identity | Complete under local-evidence acceptance; [build review](BUILD_IDENTITY_REVIEW.md), current-target/effect previews, four existing strategy relationships, 26 legal multi-seed trajectories with 286 actual drafts and 512 sparse sensitivity samples. Draft/balance rules retained; 119 Shared tests and native ordinary/debug/reconnect coverage verified. |
-| #8 Veterans | Next |
-| #9 Campaign/bosses | Pending |
+| #8 Veterans | Complete under local-evidence acceptance; [veteran decision](VETERAN_REVIEW.md), explicit historical service, actual recovery/recruit/trainer quotes, guarded reviewed retirement, five legal comparison receipts, 125 Shared tests and native pointer/keyboard/controller/close/selection/session checks. No progression or equipment rules changed; funded stored upkeep wording corrected. |
+| #9 Campaign/bosses | Next |
 | #10 Cooperation/elimination | Pending |
 | #11 Forest consistency/assets | Pending |
 | #12 Sound/action feedback | Pending |

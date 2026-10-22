@@ -2,6 +2,14 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "veteran-review")
+    {
+        var cases = VeteranReview.Collect();
+        string report = System.Text.Json.JsonSerializer.Serialize(cases, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var item in cases) Console.WriteLine($"{item.Name} seed={item.Seed} W{item.Wave}\n{item.Comparison.Summary}\n{item.Comparison.Details}");
+        return 0;
+    }
     if (args.FirstOrDefault() == "build-review")
     {
         var runs = new List<BuildRun>();

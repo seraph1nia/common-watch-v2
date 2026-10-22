@@ -127,3 +127,11 @@ they are sensitivity samples, not actual rerolls. See
 [build identity review](BUILD_IDENTITY_REVIEW.md) for interpretation.
 Native gameplay captures also exercise reward effects by pointer/keyboard and
 Worldtree targets; the copy area remains scrollable with reward actions outside.
+
+Veteran review: `mise run scenario veteran-review artifacts/observations/veterans/review.json`
+records five actual early, recovering, not-yet-eligible and late replacement
+situations. `mise run capture-veterans` checks both sizes through actual Controls,
+including native review/cancel/confirm, exact paid recovery, stale phase/session
+signals, no refund and restored focus. The same checks run in the ordinary/debug
+UI suite. [Veteran decision and evidence](VETERAN_REVIEW.md) records the selected
+historical-service semantics and considered progression alternatives.

@@ -17,7 +17,7 @@ public partial class RecruitmentPanel : VBoxContainer
     public IReadOnlyDictionary<string, Button> Buttons => _actions.Buttons;
     public void Initialize(HudSkin skin)
     {
-        _skin = skin; AddChild(WrapLabel("Recruit one persistent soldier; reinforce or start a homogeneous squad."));
+        _skin = skin; AddChild(WrapLabel("New recruits start with zero service history. Trainer equipment applies only to new recruits; existing soldiers keep their tier."));
         var timing = WrapLabel("Recruit before the last Ready. Final income arrives before Food payment, but cannot buy more troops before combat.");
         timing.AddThemeFontSizeOverride("font_size", 14); AddChild(timing);
         _destination = new OptionButton { FitToLongestItem = false, ClipText = true }; AddChild(_destination);

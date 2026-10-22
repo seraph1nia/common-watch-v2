@@ -135,7 +135,7 @@ public partial class GameApplication
             case GameplayAction.Trade:
                 _gameUi.Inspector.Market.Bundles.Value = intent.Bundles; Press(_gameUi.Inspector.Market.Buttons["Trade" + intent.Resource]); break;
             case GameplayAction.Retire:
-                _gameUi.Inspect(_session.City.Soldiers.Single(u => u.Id == intent.UnitId)); Press(_gameUi.Details.Inspector.Buttons["Retire"]); break;
+                _gameUi.Inspect(_session.City.Soldiers.Single(u => u.Id == intent.UnitId)); Press(_gameUi.Details.Inspector.Buttons["Retire"]); Press(_gameUi.Details.Inspector.Buttons["ConfirmRetire"]); break;
             case GameplayAction.Ready: Press(_gameUi.ReadyButton); break;
             default: throw new InvalidOperationException("Unmapped ordinary opening control: " + intent.Action);
         }

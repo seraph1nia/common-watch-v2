@@ -80,7 +80,7 @@ public partial class GameplayDialog : Control
     public void Close() => Close(true);
     public void Close(bool restoreFocus)
     {
-        bool wasVisible = Visible; Hide();
+        bool wasVisible = Visible; Inspector.CancelRetirement(); Hide();
         if (wasVisible) Closed?.Invoke();
         if (!restoreFocus) return;
         if (wasVisible && _invoker is { } control && IsInstanceValid(control) && control.IsVisibleInTree()) control.GrabFocus();
@@ -102,12 +102,14 @@ public partial class GameplayDialog : Control
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
-                + "\n" + BuildDirection.Inspection(context.City) + "\n\n" + RunPresentation.Inspection(context.City);
+                + "\n" + BuildDirection.Inspection(context.City) + "\n\n" + BuildImpact.Inspection(context.City);
             if (LastOutcome is { } outcome) _cityDetails.Text += "\n\nLast battle\n" + outcome.Summary + "\n" + outcome.Details;
             _events.Text = string.Join("\n\n", RecentFeedback);
         }
         if (_page == DetailsPage.Army) Army.Refresh(context);
         if (_page == DetailsPage.Worldtree) Research.Refresh(context);
+        _unitPane.SizeFlagsHorizontal = _page == DetailsPage.Inspection ? SizeFlags.ExpandFill : SizeFlags.Fill;
+        Inspector.FallbackFocus = _tabs.Visible ? _tabs.GetTabBar() : _close;
         Inspector.Refresh(context);
     }
 }

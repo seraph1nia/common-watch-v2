@@ -16,6 +16,10 @@ public static class BuildImpact
     }
     private static readonly ConditionalWeakTable<Rules, Calculators> Cache = new();
     private static Calculators For(MatchSnapshot state) => Cache.GetValue(state.Rules, r => new(r));
+    public static string Description(string id) => id == "A06"
+        ? "Berserker/Mage upkeep −1 Food per funded member, including storage (minimum 1)."
+        : RunCatalog.Card(id).Effect;
+    public static string Inspection(CityState city) => RunPresentation.Inspection(city).Replace(RunCatalog.Card("A06").Effect, Description("A06"));
     public static ChoiceImpact Reward(MatchSnapshot state, CityState city, string id)
     {
         RewardCard card = RunCatalog.Card(id);
@@ -74,7 +78,7 @@ public static class BuildImpact
                 + (source ? "An allied current soldier can apply a status." : "No status source in current allied soldiers; acquire one to enable this combination."), source);
         }
         if (id is "R01" or "R03") return new(targets, card.Effect + " No guaranteed damage or yield forecast.", true);
-        if (id == "A06") return new(targets, string.Join("\n", members.GroupBy(u => u.Type).Select(g => $"{g.Key}: {calculators.Economy.Upkeep(g.Key, city.Run)} → {calculators.Economy.Upkeep(g.Key, after)} Food per participating member")) + "\nStored/unfunded members do not pay this battle's upkeep.", true);
+        if (id == "A06") return new(targets, string.Join("\n", members.GroupBy(u => u.Type).Select(g => $"{g.Key}: {calculators.Economy.Upkeep(g.Key, city.Run)} → {calculators.Economy.Upkeep(g.Key, after)} Food per funded member")) + "\nFunded stored members also pay Food; unfunded members do not.", true);
         return new(targets, UnitChanges(state, city, members, city.Research, after) + "\nMaximum HP increases do not heal living members.", true);
     }
     private static Building BuildingFor(string id) => id switch { "E01" => Building.Lumbermill, "E02" => Building.Farm, "E03" => Building.Mine, "E04" => Building.Stonecutter, "E05" => Building.MetalMine, "E06" => Building.Weaver, _ => Building.Empty };

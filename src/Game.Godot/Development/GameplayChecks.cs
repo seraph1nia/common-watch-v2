@@ -15,6 +15,7 @@ public partial class GameApplication
         await CheckOpeningGuide();
         await CheckCombatReadability();
         await CheckArmyDeployment();
+        await CheckVeteranChoices();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
@@ -104,7 +105,7 @@ public partial class GameApplication
         OpenDetails(DetailsPage.Army);
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
-        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("service XP"), "reusable persistent member inspector");
+        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var rosterScroll = _gameUi.Details.Army.RosterScroll;
         rosterScroll.ScrollVertical = 80;

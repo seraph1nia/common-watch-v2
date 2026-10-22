@@ -24,6 +24,18 @@ public partial class UnitInspector : VBoxContainer
     private bool _preview;
     private int? _preferredSquad;
     private Label _destination = null!;
+    private Label _veteran = null!;
+    private ScrollContainer _veteranScroll = null!;
+    internal ScrollContainer VeteranViewport => _veteranScroll;
+    internal Rect2 VeteranCopyArea => _veteranScroll.GetGlobalRect();
+    public Control? FallbackFocus { get; set; }
+    internal Button VeteranButton { get; private set; } = null!;
+    internal string VeteranDetails => _veteran.Text;
+    private bool _reviewRetirement;
+    private string _retireMatch = "";
+    private GodotSession? _retireSession;
+    private Button? _retireInvoker;
+    private int _retireFocusFrames;
     private Phase _selectedPhase;
     private (int Owner, ArenaStructureKind Kind, int Slot)? _structure;
     public event Action<int>? PlotRequested;
@@ -42,15 +54,25 @@ public partial class UnitInspector : VBoxContainer
         _destination = WrapLabel(); AddChild(_destination); _destination.Hide();
         _squad.ItemSelected += _ => Refresh(_context);
         _hall.ItemSelected += _ => Refresh(_context);
-        _actions = new ActionList(); AddChild(_actions);
+        VeteranButton = skin.Button("Compare recovery / replacement", () => { _veteranScroll.Visible = !_veteranScroll.Visible; _veteranScroll.ScrollVertical = 0; Refresh(_context); }); AddChild(VeteranButton);
+        _veteranScroll = new ScrollContainer { CustomMinimumSize = new(0, 190), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true, FocusMode = FocusModeEnum.All }; AddChild(_veteranScroll);
+        _veteran = WrapLabel(); _veteran.AddThemeFontSizeOverride("font_size", 14); _veteranScroll.AddChild(_veteran); _veteranScroll.Hide(); VeteranButton.Hide();
+        _actions = new ActionList(); AddChild(_actions); SetProcess(false);
     }
-    private void ResetAdvanced() { _advanced.Hide(); AdvancedButton.Text = "Advanced details ▾"; }
-    public void Clear() { _preferredSquad = null; _destination.Hide(); _id = 0; _structure = null; _text.Text = "Select a soldier, enemy or structure."; ResetAdvanced(); AdvancedButton.Hide(); _hall.Hide(); _squad.Hide(); _actions.Begin(); _actions.End(); }
+    public override void _Process(double delta)
+    {
+        if (_retireFocusFrames-- > 0) return;
+        SetProcess(false);
+        if (_reviewRetirement && IsVisibleInTree() && _actions.Buttons.TryGetValue("CancelRetire", out var cancel) && cancel.IsVisibleInTree())
+        { cancel.GrabFocus(); GetParentOrNull<ScrollContainer>()?.EnsureControlVisible(cancel); }
+    }
+    private void ResetAdvanced() { SetProcess(false); _reviewRetirement = false; _retireSession = null; _veteranScroll.Hide(); _advanced.Hide(); AdvancedButton.Text = "Advanced details ▾"; }
+    public void Clear() { _preferredSquad = null; _destination.Hide(); _id = 0; _structure = null; _text.Text = "Select a soldier, enemy or structure."; ResetAdvanced(); AdvancedButton.Hide(); VeteranButton.Hide(); _hall.Hide(); _squad.Hide(); _actions.Begin(); _actions.End(); }
     public void Select(UnitState unit, bool preview, Phase phase) { if (_id != unit.Id) { ResetAdvanced(); _preferredSquad = unit.Assignment is { Stored: false } ? unit.SquadId : 0; } _structure = null; _id = unit.Id; _preview = preview; _selectedPhase = phase; }
-    public void Select(StructureState structure) { if (_structure != (structure.Owner, structure.Kind, structure.Slot)) ResetAdvanced(); _id = 0; _structure = (structure.Owner, structure.Kind, structure.Slot); }
+    public void Select(StructureState structure) { if (_structure != (structure.Owner, structure.Kind, structure.Slot)) ResetAdvanced(); _veteranScroll.Hide(); _id = 0; _structure = (structure.Owner, structure.Kind, structure.Slot); }
     public void Refresh(GameplayContext context, CombatPlayback? playback = null)
     {
-        _context = context; _actions.Begin(); _hall.Hide(); _squad.Hide(); _destination.Hide();
+        _context = context; _veteranScroll.Visible &= !_preview && !ReadOnlyLive && _structure is null; _actions.Begin(); _hall.Hide(); _squad.Hide(); _destination.Hide(); VeteranButton.Hide();
         AdvancedButton.Visible = _id != 0 || _structure is not null;
         var units = playback?.Units() ?? context.State.Players.SelectMany(p => p.Soldiers).Concat(context.State.Enemies).Concat(context.State.DyingBodies).ToArray();
         double tick = playback?.Tick ?? context.State.Tick;
@@ -79,16 +101,24 @@ public partial class UnitInspector : VBoxContainer
         string funding = funded is null ? "Funding unavailable" : funded.Contains(unit.Id) ? "Funded" : "Unfunded";
         var p = unit.Profile;
         _text.Text = CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
-        if (!ReadOnlyLive && city is not null) _text.Text += $"\nservice XP {unit.Experience}\n" +
+        if (!ReadOnlyLive && city is not null) _text.Text += $"\nService history: {unit.Experience} battles (no stat or equipment gain)\n" +
             (unit.Assignment is { Stored: true } stored ? $"Stored: Town Hall plot {stored.HallSlot + 1}; never fights" : unit.Assignment is { } basicHome ? $"Army home {basicHome.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home")
             + $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}";
         _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
-        _advanced.Text = $"#{unit.Id} {unit.Type} · {unit.Class}\n{unit.Faction} · owner P{unit.Owner} · L{unit.Level}, rank {unit.Rank}{(unit.IsBoss ? " BOSS" : "")}\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(p.Health)}; service XP {unit.Experience}\nDamage direct/secondary {HealthPoints.Format(p.Damage)}/{HealthPoints.Format(p.SecondaryDamage)}\nStructure damage {HealthPoints.Format(p.StructureDamage)}; range {p.HexRange}\nMovement {p.MoveTicks}, windup {p.WindupTicks}, cadence {p.CadenceTicks} ticks\nSquad #{unit.SquadId}, member slot {unit.FormationSlot}\n" +
+        _advanced.Text = $"#{unit.Id} {unit.Type} · {unit.Class}\n{unit.Faction} · owner P{unit.Owner} · L{unit.Level}, rank {unit.Rank}{(unit.IsBoss ? " BOSS" : "")}\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(p.Health)}; Service history: {unit.Experience} battles (no stat or equipment gain)\nDamage direct/secondary {HealthPoints.Format(p.Damage)}/{HealthPoints.Format(p.SecondaryDamage)}\nStructure damage {HealthPoints.Format(p.StructureDamage)}; range {p.HexRange}\nMovement {p.MoveTicks}, windup {p.WindupTicks}, cadence {p.CadenceTicks} ticks\nSquad #{unit.SquadId}, member slot {unit.FormationSlot}\n" +
             (unit.Assignment is { Stored: true } a ? $"Stored: Town Hall plot {a.HallSlot + 1}, place {a.Tile + 1}; never fights" : unit.Assignment is { } home ? $"Army home {home.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home") +
             $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}\nCapabilities: {Capabilities(unit.Capabilities)}\n{Statuses(unit.Statuses, context.State.Tick)}\nTarget {unit.TargetKind} #{unit.TargetId}; action {unit.Hex?.Action}\nCommitted start {unit.ActionStartTick}, impact {unit.ImpactTick}, ready {unit.ReadyTick}";
         long rallyUntil = playback?.RallyDisruptions().GetValueOrDefault(unit.SquadId)
             ?? context.State.Squads.FirstOrDefault(s => s.Id == unit.SquadId)?.RallyDisruptedUntil ?? 0;
         if (rallyUntil > tick) { _text.Text += "\nRally disrupted"; _advanced.Text += $"\nRally disruption -{context.State.Rules.Arena.RallyDamageReductionPercent}% direct damage until tick {rallyUntil}"; }
+        if (!ReadOnlyLive && !_preview && unit.Owner == context.City.Id && unit.Health > 0 && unit.Assignment is not null)
+        {
+            VeteranButton.Show(); VeteranButton.Text = _veteranScroll.Visible ? "Hide recovery / replacement" : "Compare recovery / replacement";
+            var comparison = VeteranComparison.Project(context.State, context.City, unit.Id);
+            _veteran.Text = comparison.Summary + "\n\n" + comparison.Details;
+        }
+        else _veteranScroll.Hide();
+        if (_reviewRetirement && (_retireMatch != context.State.MatchId || !ReferenceEquals(_retireSession, context.Session))) _reviewRetirement = false;
         if (!ReadOnlyLive && !_preview && unit.Owner == context.Session.PlayerId && context.City.Id == unit.Owner && unit.Health > 0 && unit.Assignment is { } assignment)
         {
             _hall.Visible = city?.Army?.Halls.Length > 0; _squad.Show();
@@ -108,10 +138,36 @@ public partial class UnitInspector : VBoxContainer
                 string hallReason = hall is null ? "Build a Town Hall first." : city.Soldiers.Count(u => u.Assignment is { Stored: true } a && a.HallSlot == hall.Slot && a.HallGeneration == hall.Generation) >= hall.Capacity ? "Town Hall is full." : "";
                 _actions.Item(_skin, "Store", "Store veteran in selected Town Hall", () => ActMember(GameplayAction.Store), context.Block(reason: hallReason));
             }
-            _actions.Item(_skin, "Retire", "Retire veteran — no refund", () => ActMember(GameplayAction.Retire), context.Block());
+            _actions.Item(_skin, "Retire", "Review retirement — no refund", ReviewRetirement, context.Block());
+            if (_reviewRetirement)
+            {
+                _veteranScroll.Show();
+                _actions.Item(_skin, "ConfirmRetire", $"Confirm retire {unit.Type} L{unit.Level} permanently — no refund", ConfirmRetirement, context.Block());
+                _actions.Item(_skin, "CancelRetire", "Keep soldier / cancel retirement", () => { _reviewRetirement = false; Refresh(_context); _retireInvoker?.GrabFocus(); });
+            }
         }
         else _text.Text += "\nInspection only.";
         _actions.End();
+    }
+    public void CancelRetirement()
+    {
+        _reviewRetirement = false; _retireSession = null; SetProcess(false);
+        foreach (string key in new[] { "ConfirmRetire", "CancelRetire" })
+            if (_actions.Buttons.TryGetValue(key, out var button)) button.Hide();
+    }
+    private void ReviewRetirement()
+    {
+        if (!IsVisibleInTree() || _context.Block().Length != 0) return;
+        _reviewRetirement = true; _retireMatch = _context.State.MatchId; _retireSession = _context.Session;
+        _retireInvoker = _actions.Buttons["Retire"]; Refresh(_context);
+        _actions.Buttons["CancelRetire"].GrabFocus();
+        _retireFocusFrames = 1; SetProcess(true);
+    }
+    private void ConfirmRetirement()
+    {
+        if (!IsVisibleInTree() || !_reviewRetirement || _retireMatch != _context.State.MatchId || !ReferenceEquals(_retireSession, _context.Session) || _context.Block().Length != 0) return;
+        _reviewRetirement = false; ActMember(GameplayAction.Retire); Refresh(_context);
+        if (IsInstanceValid(FallbackFocus) && FallbackFocus!.IsVisibleInTree()) FallbackFocus.GrabFocus();
     }
     private void ActMember(GameplayAction action)
     {

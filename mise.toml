@@ -242,3 +242,8 @@ run = "python3 tools/environment-review.py"
 description = "Legal first-three-wave doctrine paths through native production controls at 720p/1080p"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-opening"
+
+[tasks.capture-veterans]
+description = "Actual veteran history, recovery/replacement quotes and guarded retirement at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-veterans"

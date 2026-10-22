@@ -26,7 +26,7 @@ public partial class RewardCard : PanelContainer
             CustomMinimumSize = new(0, 64), SizeFlagsVertical = SizeFlags.ExpandFill, FocusMode = FocusModeEnum.All, FollowFocus = true };
         content.AddChild(_scroll);
         var copy = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _scroll.AddChild(copy);
-        _description = WrapLabel(card.Description); copy.AddChild(_description);
+        _description = WrapLabel(BuildImpact.Description(card.Id)); copy.AddChild(_description);
         _effects = WrapLabel(); _effects.AddThemeFontSizeOverride("font_size", 14); _effects.Hide(); copy.AddChild(_effects);
         EffectsButton = skin.Button("Current effects", () =>
         {
