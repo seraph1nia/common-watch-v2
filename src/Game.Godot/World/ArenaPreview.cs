@@ -91,7 +91,7 @@ public partial class ArenaPreview : Node2D
             {
                 int fighting = _previewUnits.Count(u => u.Owner == city.Id && u.Assignment is { Stored: false } a && a.Tile == home.Cell);
                 string count = home.Used > 0 ? $" {fighting}/{home.Used}" : "";
-                WorldArt.Text(this, $"P{city.Id} H{home.Number}{count}", Cell(sector.DeploymentCells[home.Number - 1]) + new Vector2(0, 23), 10, new Color("b7c8cd"));
+                WorldArt.Text(this, $"H{home.Number}{count}", Cell(sector.DeploymentCells[home.Number - 1]) + new Vector2(0, 23), 10, new Color("b7c8cd"));
             }
         }
         if (_state.Phase == Phase.RewardDraft)
