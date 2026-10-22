@@ -84,6 +84,18 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             wait(lambda: path.exists(), name + ' capture')
         control(1, 'resize', width=1280, height=720)
 
+    def capture_homes(name, client=1):
+        wait(lambda: status(client)['homesVisible'], name + ' home board visible')
+        for width, height in ((1280, 720), (1920, 1080)):
+            control(client, 'resize', width=width, height=height)
+            wait(lambda: status(client)['viewportWidth'] == width, name + ' viewport resized')
+            art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+            path = ROOT / f'artifacts/captures/gameplay/network-{art}/{name}-{width}.png'
+            path.unlink(missing_ok=True); control(client, 'capture', path=str(path))
+            wait(lambda: path.exists(), name + ' capture')
+            wait(lambda: status(client)['homeTargetsFit'], name + ' all six home targets fit: ' + repr(status(client)['homeLayout']), seconds=5)
+        control(client, 'resize', width=1280, height=720)
+
     def city(index):
         current = status(index)
         return next(p for p in current['state']['Players'] if p['Id'] == current['player'])
@@ -211,6 +223,15 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             wait(lambda: f'Wave 8 → P{owner}:' in status(index)['preparationText'], 'allied summary follows inspected city')
             assert 'prep 2/3' in status(index)['transitionText']
             assert f'P{status(index)["player"]}' in status(index)['readyText']
+        # Home inspection keeps the foreign roster visible but submits no local command.
+        control(1, 'show-homes')
+        wait(lambda: status(1)['homesVisible'] and status(1)['homeTargetsDisabled'] and 'read-only' in status(1)['homeNotice'], 'allied home targets disabled')
+        old_sequence = status(1)['result']['Sequence']
+        control(1, 'deploy-home', slot=9)
+        capture_homes('allied-homes')
+        assert status(1)['result']['Sequence'] == old_sequence
+        control(1, 'inspect', owner=1, page='Worldtree')
+        wait(lambda: status(1)['disabledResearch'], 'allied tree restored after home inspection')
         capture = ROOT / 'artifacts/captures/gameplay/multiplayer-city-inspection.png'
         capture.unlink(missing_ok=True)
         control(1, 'capture', path=str(capture))
@@ -236,13 +257,27 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] == result['Sequence'] and not status(1)['pending'], 'exact retry')
         assert city(1)['Metal'] == before - 10
         send(1, 'trade', accepted=False, slot=market, resource='Metal', bundles=0)
-        # Explicit squad and deployment-cell arguments on the remote client.
+        # Remote home placement retains selection through pending and rejected commands.
         members = city(1)['Soldiers']
         squad = next(u for u in members if u['Type'] == 'Swordsman')
         home = squad['Assignment']['Tile']
-        sector = next(s for s in status(1)['state']['Arena']['Sectors'] if s['Owner'] == 2)
-        send(1, 'deploy-squad', squadId=squad['SquadId'], cell=sector['DeploymentCells'][home])
+        control(1, 'show-homes'); control(1, 'select-squad', squadId=squad['SquadId'])
+        wait(lambda: status(1)['homesVisible'] and status(1)['homeSquad'] == squad['SquadId'], 'shared selected squad on remote home board')
+        old_sequence = status(1)['result']['Sequence']
+        os.killpg(processes[0].pid, signal.SIGSTOP)
+        try:
+            control(1, 'deploy-home', slot=home + 9)
+            wait(lambda: status(1)['pending'] and status(1)['homeTargetsDisabled'] and 'acknowledgment' in status(1)['homeNotice'], 'remote placement pending locks home targets')
+            capture_homes('pending-homes')
+        finally:
+            os.killpg(processes[0].pid, signal.SIGCONT)
+        wait(lambda: not status(1)['pending'] and status(1)['result']['Sequence'] > old_sequence and status(1)['result']['Accepted'], 'home UI deployment accepted by authority')
+        assert status(1)['homeSquad'] == squad['SquadId']
         send(1, 'regroup-member', accepted=False, unitId=squad['Id'], squadId=99999)
+        wait(lambda: 'Rejected:' in status(1)['homeNotice'], 'rejection retained inside home board')
+        capture_homes('rejected-homes')
+        assert status(1)['homeSquad'] == squad['SquadId']
+        print('GODOT_HOME_NETWORK_PASS allied-read-only stale-guard native-deployment pending rejection retained-squad sizes=1280/1920', flush=True)
         send(1, 'research-tech', accepted=False, technology='FireMastery')
         send(1, 'research-tech', technology='RangedFoundation')
         trainer = next(i for i, s in enumerate(city(1)['Slots']) if s['Type'] == 'Barracks')

@@ -42,7 +42,7 @@ public partial class GameplayDialog : Control
         _tabs = new TabContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddChild(_tabs);
         _tabStyle = _tabs.GetThemeStylebox("panel");
         var armyScroll = new ScrollContainer { Name = "Troops & homes", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(armyScroll);
-        Army = new ArmyRosterPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill }; armyScroll.AddChild(Army); Army.Initialize(skin, submitted);
+        Army = new ArmyRosterPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; armyScroll.AddChild(Army); Army.Initialize(skin, submitted);
         Research = new ResearchTreePanel { Name = "Worldtree" }; _tabs.AddChild(Research); Research.Initialize(skin);
         var cityScroll = new ScrollContainer { Name = "City details", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(cityScroll);
         var cityBody = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; cityScroll.AddChild(cityBody);
@@ -50,10 +50,11 @@ public partial class GameplayDialog : Control
         cityBody.AddChild(new HSeparator());
         var eventsHeading = WrapLabel("Recent session feedback"); eventsHeading.AddThemeFontSizeOverride("font_size", 22); cityBody.AddChild(eventsHeading);
         _events = WrapLabel(); cityBody.AddChild(_events);
-        _unitPane = new ScrollContainer { CustomMinimumSize = new(350, 0), SizeFlagsHorizontal = SizeFlags.Fill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; row.AddChild(_unitPane);
+        _unitPane = new ScrollContainer { FollowFocus = true, CustomMinimumSize = new(350, 0), SizeFlagsHorizontal = SizeFlags.Fill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; row.AddChild(_unitPane);
         Resized += () => _unitPane.CustomMinimumSize = new(Mathf.Max(350, Size.X * .32f), 0);
         Inspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _unitPane.AddChild(Inspector); Inspector.Initialize(skin);
         Army.UnitSelected += unit => { Inspector.Select(unit, false, _context.State.Phase); Inspector.Refresh(_context); };
+        Army.SectionChanged += () => { if (_context is not null) Refresh(_context); };
         Inspector.PlotRequested += slot =>
         {
             if (ArmyConfiguration.IsArmyPlot(slot))
@@ -96,7 +97,7 @@ public partial class GameplayDialog : Control
         _tabs.AddThemeStyleboxOverride("panel", worldtree ? _emptyStyle : _tabStyle);
         foreach (string side in new[] { "left", "right", "top", "bottom" }) _bodyMargin.AddThemeConstantOverride("margin_" + side, worldtree ? 0 : 16);
         _tabs.Visible = _page != DetailsPage.Inspection;
-        _unitPane.Visible = _page is DetailsPage.Army or DetailsPage.Inspection;
+        _unitPane.Visible = _page == DetailsPage.Inspection || _page == DetailsPage.Army && !Army.HomesVisible;
         if (_page == DetailsPage.City)
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"

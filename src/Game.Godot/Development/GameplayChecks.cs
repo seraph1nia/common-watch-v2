@@ -13,6 +13,7 @@ public partial class GameApplication
         await CheckArenaFraming();
         await CheckPaintedHudControls();
         await CheckCombatReadability();
+        await CheckArmyDeployment();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
@@ -118,6 +119,7 @@ public partial class GameApplication
         _gameUi.Details.Army.ShowHomes();
         Require(_gameUi.Details.Deployment.HomeButtons.Count == 12, "six numbered homes with inspect and deployment controls");
         var chosenSquad = _session.City.Soldiers.First(u => u.Assignment is { Stored: false });
+        _gameUi.Details.Army.SelectSquad(chosenSquad.SquadId);
         Press(_gameUi.Details.Deployment.HomeButtons["Deploy" + (chosenSquad.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
         Require(_session.LastResult?.Accepted == true, "native squad and arena-cell command");
         await GameplayCapture("army-deployment");
@@ -131,8 +133,10 @@ public partial class GameApplication
         int health = stored.Health;
         Press(_gameUi.Details.Inspector.Buttons["Return"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Assignment is { Stored: false }, "native veteran return");
+        Require(_gameUi.Details.Inspector.SelectedUnit == stored.Id && _gameUi.Details.Army.SelectedSquad == _session.City.Soldiers.Single(u => u.Id == stored.Id).SquadId, "return retains the member and follows the accepted destination squad");
         Press(_gameUi.Details.Inspector.Buttons["Store"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Health == health, "native storage cannot heal independently");
+        Require(_gameUi.Details.Inspector.SelectedUnit == stored.Id, "storage retains the selected veteran context");
 
         ReplaceSession(GameplayScenarios.CreateAt("research")); _frozen = true; RefreshUi(true); OpenDetails(DetailsPage.Worldtree);
         Require(_gameUi.Details.Research.TechnologyButtons.Count == _session.Snapshot.TechnologyCatalog.Length, "every canonical technology inspectable");
@@ -274,6 +278,7 @@ public partial class GameApplication
             _settings.Open();
             await CheckMenuPopup("settings-" + size.X);
             CancelUi(); Require(!_settings.Visible && _gameUi.Details.Visible, "Esc closes nested settings before details");
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             CancelUi(); Require(!_gameUi.Details.Visible, "Esc closes details");
             Require(GetViewport().GuiGetFocusOwner() is { } restored && restored.IsVisibleInTree(), "details restores a visible native focus target");
         }

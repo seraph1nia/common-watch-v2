@@ -15,11 +15,15 @@ public partial class UnitInspector : VBoxContainer
     internal Button AdvancedButton { get; private set; } = null!;
     internal string AdvancedDetails => _advanced.Text;
     internal bool AdvancedVisible => _advanced.Visible;
+    internal OptionButton SquadSelector => _squad;
+    internal string DestinationDetails => _destination.Text;
     internal (int Owner, ArenaStructureKind Kind, int Slot)? SelectedStructure => _structure;
     private OptionButton _hall = null!, _squad = null!;
     private ActionList _actions = null!;
     private int _id;
     private bool _preview;
+    private int? _preferredSquad;
+    private Label _destination = null!;
     private Phase _selectedPhase;
     private (int Owner, ArenaStructureKind Kind, int Slot)? _structure;
     public event Action<int>? PlotRequested;
@@ -35,23 +39,24 @@ public partial class UnitInspector : VBoxContainer
         _advanced = WrapLabel(); _advanced.AddThemeFontSizeOverride("font_size", 13); AddChild(_advanced); _advanced.Hide();
         _hall = new OptionButton(); AddChild(_hall);
         _squad = new OptionButton(); AddChild(_squad);
+        _destination = WrapLabel(); AddChild(_destination); _destination.Hide();
         _squad.ItemSelected += _ => Refresh(_context);
         _hall.ItemSelected += _ => Refresh(_context);
         _actions = new ActionList(); AddChild(_actions);
     }
     private void ResetAdvanced() { _advanced.Hide(); AdvancedButton.Text = "Advanced details ▾"; }
-    public void Clear() { _id = 0; _structure = null; _text.Text = "Select a soldier, enemy or structure."; ResetAdvanced(); AdvancedButton.Hide(); _hall.Hide(); _squad.Hide(); _actions.Begin(); _actions.End(); }
-    public void Select(UnitState unit, bool preview, Phase phase) { if (_id != unit.Id) ResetAdvanced(); _structure = null; _id = unit.Id; _preview = preview; _selectedPhase = phase; }
+    public void Clear() { _preferredSquad = null; _destination.Hide(); _id = 0; _structure = null; _text.Text = "Select a soldier, enemy or structure."; ResetAdvanced(); AdvancedButton.Hide(); _hall.Hide(); _squad.Hide(); _actions.Begin(); _actions.End(); }
+    public void Select(UnitState unit, bool preview, Phase phase) { if (_id != unit.Id) { ResetAdvanced(); _preferredSquad = unit.Assignment is { Stored: false } ? unit.SquadId : 0; } _structure = null; _id = unit.Id; _preview = preview; _selectedPhase = phase; }
     public void Select(StructureState structure) { if (_structure != (structure.Owner, structure.Kind, structure.Slot)) ResetAdvanced(); _id = 0; _structure = (structure.Owner, structure.Kind, structure.Slot); }
     public void Refresh(GameplayContext context, CombatPlayback? playback = null)
     {
-        _context = context; _actions.Begin(); _hall.Hide(); _squad.Hide();
+        _context = context; _actions.Begin(); _hall.Hide(); _squad.Hide(); _destination.Hide();
         AdvancedButton.Visible = _id != 0 || _structure is not null;
         var units = playback?.Units() ?? context.State.Players.SelectMany(p => p.Soldiers).Concat(context.State.Enemies).Concat(context.State.DyingBodies).ToArray();
         double tick = playback?.Tick ?? context.State.Tick;
         if (_structure is { } identity)
         {
-            var structure = (playback?.Structures() ?? context.State.Structures).FirstOrDefault(s => s.Owner == identity.Owner && s.Kind == identity.Kind && s.Slot == identity.Slot);
+            var structure = (playback?.Structures() ?? BattleDeployment.Structures(context.State)).FirstOrDefault(s => s.Owner == identity.Owner && s.Kind == identity.Kind && s.Slot == identity.Slot);
             if (structure is null) { Clear(); return; }
             var tower = context.State.TowerCatalog.FirstOrDefault(t => t.Type == structure.TowerType && t.Level == structure.Level);
             _text.Text = $"P{structure.Owner} · {structure.Kind}\nHP {HealthPoints.Format(structure.Health)}/{HealthPoints.Format(structure.MaximumHealth)} · L{structure.Level}\n{(structure.Active ? "Active" : "Inactive / destroyed")}";
@@ -90,7 +95,9 @@ public partial class UnitInspector : VBoxContainer
             NativeOptions.Update(_hall, city?.Army?.Halls.Select(h => (h.Slot, $"Town Hall plot {h.Slot + 1} — {city.Soldiers.Count(u => u.Assignment is { Stored: true } a && a.HallSlot == h.Slot)}/{h.Capacity}")) ?? []);
             NativeOptions.Update(_squad, new[] { (0, "Automatic compatible squad"), (int.MaxValue, "New squad / free home") }.Concat(city!.Soldiers
                 .Where(u => u.Assignment is { Stored: false } && u.Type == unit.Type && u.Id != unit.Id).GroupBy(u => u.SquadId)
-                .Select(g => (g.Key, $"Squad #{g.Key} {unit.Type} — {g.Count()}/{city.Army?.SquadCapacity}"))));
+                .Select(g => (g.Key, ArmyDeploymentView.SquadLabel(city.Soldiers.Where(u => u.SquadId == g.Key && u.Assignment is { Stored: false }), city.Army?.SquadCapacity ?? 3)))));
+            if (_preferredSquad is { } preferred) { int index = _squad.GetItemIndex(preferred); if (index >= 0) _squad.Select(index); _preferredSquad = null; }
+            _destination.Text = ArmyDeploymentView.Destination(city, context.Army, unit.Type, NativeOptions.Squad(_squad), unit.Id); _destination.Show();
             string destination = context.Destination(unit.Type, NativeOptions.Squad(_squad), unit.Id) is null ? "No compatible squad space or free home." : "";
             if (assignment.Stored)
                 _actions.Item(_skin, "Return", "Return veteran to selected field squad", () => ActMember(GameplayAction.Send), context.Block(reason: destination));

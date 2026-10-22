@@ -64,6 +64,7 @@ public sealed class HudSkin : IDisposable
     private Texture2D? Texture(string path) => Illustrated && ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
     public Texture2D? Icon(string name) => Texture($"res://UI/ForestHud/icons/{name}.png");
     public Texture2D? BuildingSprite(Building type) => Illustrated && type != Building.Empty ? _assets.Load(VisualAssets.BuildingId(type)) : null;
+    public Texture2D? UnitSprite(UnitState unit) => _assets.Load(VisualAssets.UnitId(unit));
     public void Ornament(Control parent, string name, Vector2 position, Vector2 size)
     {
         if (Painted is not null) return;

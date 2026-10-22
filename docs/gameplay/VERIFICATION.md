@@ -107,3 +107,8 @@ The [combat readability review](COMBAT_READABILITY.md) documents issue #4, its
 factual accounting boundaries, native inspection checks and real 720p/1080p
 solo/cooperative captures. The [roadmap checkpoint](REFINEMENT_PROGRESS.md) tracks
 subsequent issue work separately from the original parity verification above.
+
+The [visual army/deployment review](ARMY_DEPLOYMENT_REVIEW.md) covers issue #5:
+six visible native home targets, legal placement/capacity projections, retained
+member context, Food forecasts, remote pending/rejected commands and allied
+read-only inspection at both capture sizes.

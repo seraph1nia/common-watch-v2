@@ -46,6 +46,14 @@ public partial class GameApplication
                     ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
                 case "hold-combat": _captureCombatWave = Number("wave", 6); break;
+                case "show-homes" when _session is { HasState: true }:
+                    _gameUi.Details.Open(DetailsPage.Army, new GameplayContext(_session, ResumeAfterCommand));
+                    _gameUi.Details.Army.ShowHomes(); RefreshUi(true); break;
+                case "select-squad": _gameUi.Details.Army.SelectSquad(Number("squadId")); break;
+                case "deploy-home":
+                    if (_gameUi.Details.Deployment.HomeButtons.TryGetValue("Deploy" + Number("slot"), out var target))
+                        target.EmitSignal(BaseButton.SignalName.Pressed);
+                    break;
                 case "inspect-combat" when _session is { HasState: true }:
                     if (_session.Playback.Units().FirstOrDefault(u => u.Id == Number("unitId")) is { } combatant)
                         _gameUi.Inspect(combatant);
@@ -98,6 +106,13 @@ public partial class GameApplication
             readyText = _gameUi.ReadyButton.Text, transitionText = _gameUi.TransitionText,
             preparationText = _gameUi.PreparationSummary.Text,
             preparationVisible = _gameUi.PreparationSummary.IsVisibleInTree(), viewportWidth = GetWindow().Size.X,
+            homesVisible = _gameUi.Details.Visible && _gameUi.Details.Army.HomesVisible,
+            homeSquad = _gameUi.Details.Army.SelectedSquad, homeNotice = _gameUi.Details.Deployment.Notice,
+            homeTargetsDisabled = _gameUi.Details.Deployment.HomeButtons.Where(p => p.Key.StartsWith("Deploy")).All(p => p.Value.Disabled),
+            homeTargetsFit = _gameUi.Details.Deployment.HomeButtons.Values.All(b => _gameUi.Details.Army.HomeViewport.GetGlobalRect().Encloses(b.GetGlobalRect()) && GetViewport().GetVisibleRect().Encloses(b.GetGlobalRect())),
+            homeLayout = new {
+                viewport = _gameUi.Details.Army.HomeViewport.GetGlobalRect().ToString(),
+                targets = _gameUi.Details.Deployment.HomeButtons.ToDictionary(p => p.Key, p => p.Value.GetGlobalRect().ToString()) },
             finishingCombat = _battlefield.Finishing,
             liveUnit = _gameUi.LiveInspector.SelectedUnit, liveVisible = _gameUi.LiveInspector.Visible,
             liveText = _gameUi.LiveInspector.Inspector.Details,
