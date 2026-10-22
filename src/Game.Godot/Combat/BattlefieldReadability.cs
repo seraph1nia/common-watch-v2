@@ -47,7 +47,8 @@ public partial class BattlefieldView
             _observedSquads[group.Key] = observed; maximum = observed.Health;
             float fraction = (float)Math.Clamp(health / maximum, 0, 1);
             string role = leader.Class switch { UnitClass.Melee => "F", UnitClass.Ranged => "R", _ => "M" };
-            string owner = leader.Faction == Faction.Adventurers ? $"P{leader.Owner}" : $"E→{leader.Destination}";
+            int sector = TeamAwareness.Sector(CombatState, leader);
+            string owner = leader.Faction == Faction.Adventurers ? $"P{leader.Owner}" + (sector > 0 && sector != leader.Owner ? $"@P{sector}" : "") : $"E→{leader.Destination}";
             string cue = leader.IsBoss ? $"BOSS →P{leader.Destination} · {HealthPoints.Format(leader.Health)} HP" : $"{owner} {role}{members.Length}/{observed.Members}{(fraction <= .3f ? " !" : "")}";
             float width = Mathf.Max(64, ThemeDB.FallbackFont.GetStringSize(cue, fontSize: 11).X + 8);
             var rect = new Rect2(ground + new Vector2(-width / 2, leader.IsBoss ? 18 : -65), new Vector2(width, 23));

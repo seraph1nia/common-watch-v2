@@ -9,6 +9,8 @@ public partial class SettlementHud : Control
     private GodotSession _session = null!;
     private Label _phase = null!, _keep = null!;
     private ResourcePanel _economy = null!;
+    private TeamPanel _team = null!;
+    internal TeamPanel Team => _team;
     private PreparationPanel _preparation = null!;
     private OpeningGuidePanel _opening = null!;
     private bool _openingHomesReviewed;
@@ -67,6 +69,7 @@ public partial class SettlementHud : Control
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
+        _team?.Reset();
         _openingHomesReviewed = false; _opening?.Hide();
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
@@ -91,6 +94,8 @@ public partial class SettlementHud : Control
         _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, false, true); };
         _keep = new Label(); _keep.AddThemeFontSizeOverride("font_size", 14); _ribbonBody.AddChild(_keep);
         _economy = new ResourcePanel(); _ribbonBody.AddChild(_economy); _economy.Initialize(skin);
+        _team = new TeamPanel(); AddChild(_team); _team.Initialize(skin);
+        _team.CityChanged += () => { Details.ResetSelection(); LiveInspector.Close(false); _uiKey = ""; Refresh(_session, default!, _combatPresentation, true); };
         _preparation = new PreparationPanel(); AddChild(_preparation); _preparation.Initialize(skin);
         _opening = new OpeningGuidePanel(); AddChild(_opening); _opening.Initialize(skin); _opening.Navigate += NavigateOpening;
         _menu = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_menu);
@@ -210,16 +215,18 @@ public partial class SettlementHud : Control
         // The upper map contains a purchasable clearing. Keep the summary in the
         // left scenery margin and yield it to selected-plot management below.
         float preparationWidth = wide ? 380 : 276;
-        _preparation.Position = new(edge, 92);
+        _team.Position = new(edge, 92); _team.Size = new(preparationWidth, _team.GetCombinedMinimumSize().Y);
+        _preparation.Position = new(edge, _team.Visible ? _team.GetGlobalRect().End.Y + 8 : 92);
         _preparation.Size = new(preparationWidth, _preparation.GetCombinedMinimumSize().Y);
         float guideLeft = _menu.Position.X + _menu.Size.X + 8;
         _opening.Layout(new(guideLeft, 12), Mathf.Min(940, _ribbon.Position.X - guideLeft - 12), 84);
-        LiveInspector.Layout(Size);
-        _resultFrame.Position = new(edge, 92);
+        LiveInspector.Layout(Size, _team.Visible ? _team.GetGlobalRect().End.Y + 8 : 92);
+        _resultFrame.Position = new(edge, _team.Visible ? _team.GetGlobalRect().End.Y + 8 : 92);
         _resultFrame.Size = new(wide ? 380 : 310, _resultFrame.GetCombinedMinimumSize().Y);
         _combatLegend.Position = new(edge, Size.Y - 92); _combatLegend.Size = new(310, 80);
         float inspectorWidth = wide ? 330 : 264;
         float inspectorHeight = Mathf.Min(_dock.GetThemeStylebox("panel").GetMinimumSize().Y + 52 + Inspector.GetCombinedMinimumSize().Y, Size.Y * .50f);
+        if (_team.Visible) inspectorHeight = Mathf.Min(inspectorHeight, Size.Y - _team.GetGlobalRect().End.Y - edge - 8);
         _dock.Size = new(inspectorWidth, inspectorHeight);
         _dock.Position = new(edge, Size.Y - inspectorHeight - edge);
         // Empty-plot construction owns its own retained native scroll area. The collapsed
@@ -276,6 +283,7 @@ public partial class SettlementHud : Control
         _phaseTrack.Refresh(state, finishingCombat);
         _keep.Text = $"Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _rewards.Visible = state.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated;
+        _team.Refresh(session);
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);
         _preparation.Refresh(Context, finishingCombat);
         _preparation.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0;

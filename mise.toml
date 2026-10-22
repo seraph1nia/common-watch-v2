@@ -252,3 +252,8 @@ run = "bash tools/graphical.sh capture-veterans"
 description = "Legal wave 10/20 forecast, crowned figures, playback health/windup/death and restart"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-bosses"
+
+[tasks.capture-cooperation]
+description = "Actual 2–6-player team layouts, allied pointer input, readiness, reconnect and legal early elimination"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-cooperation"

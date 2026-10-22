@@ -57,6 +57,9 @@ case "$operation" in
   test-gameplay-network)
     timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/gameplay-network.py
     ;;
+  capture-cooperation)
+    timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/cooperation.py
+    ;;
   capture-bosses)
     client_timeout=180
     for width in 1280 1920; do

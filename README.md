@@ -91,6 +91,7 @@ mise run capture-settlement        # nine-pad map picking, purchase and actual s
 mise run capture-opening           # six doctrines, three waves, actual production controls
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
+mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-lobby
 ```
 

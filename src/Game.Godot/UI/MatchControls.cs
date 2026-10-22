@@ -41,7 +41,7 @@ public partial class MatchControls : VBoxContainer
         bool ended = state.Phase is Phase.Defeat or Phase.Victory;
         bool combat = state.Phase == Phase.Combat || finishingCombat;
         bool preparing = !finishingCombat && state.Phase is Phase.Building or Phase.Preparation;
-        ReadyButton.Visible = preparing; _speeds.Visible = combat;
+        ReadyButton.Visible = preparing && !session.City.Eliminated; _speeds.Visible = combat;
         string next = state.Phase == Phase.Preparation ? "battle" : $"prep {state.Turn + 1}";
         ReadyButton.Text = session.City.Ready ? "Unready" : $"Ready · {next}";
         if (session.ViewedCity.Id != session.PlayerId) ReadyButton.Text = (session.City.Ready ? "Unready" : "Ready") + $" · P{session.PlayerId}";
@@ -49,6 +49,7 @@ public partial class MatchControls : VBoxContainer
         _consequence.Text = (state.Paused ? "PAUSED · Next: " : "Next: ") + (state.Phase == Phase.Preparation
             ? "income + Food → battle."
             : $"income → prep {state.Turn + 1}/3.");
+        if (session.City.Eliminated && !ended) _consequence.Text = "Observing · survivors advance the match.";
         if (state.Players.Length > 1)
         {
             int required = state.Players.Count(p => p.Connected && !p.Eliminated);

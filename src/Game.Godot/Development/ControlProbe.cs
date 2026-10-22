@@ -8,7 +8,7 @@ namespace Game.GodotClient;
 public partial class GameApplication
 {
     private long _controlWrite;
-    private bool _pausedAtDeath;
+    private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
     private bool _gameplayPolicy;
     private int _captureCombatWave;
     private async void CaptureGameplayNetwork(string path)
@@ -44,6 +44,10 @@ public partial class GameApplication
                         bundles: Number("bundles", 0), unitId: Number("unitId", 0), squadId: Number("squadId", 0), cell: Number("cell", 0)); break;
                 case "choose-doctrine" when _session is { HasState: true } && _session.Snapshot.Phase == Phase.Lobby:
                     ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
+                case "team-city" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var teamButton): teamButton.EmitSignal(BaseButton.SignalName.Pressed); break;
+                case "team-pointer" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var pointerButton): WorldtreeClick(pointerButton.GetGlobalRect().GetCenter()); break;
+                case "ready-pointer": WorldtreeClick(_gameUi.ReadyButton.GetGlobalRect().GetCenter()); break;
+                case "watch-ally": _gameUi.Team.WatchButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
                 case "hold-combat": _captureCombatWave = Number("wave", 6); break;
                 case "show-homes" when _session is { HasState: true }:
@@ -75,7 +79,7 @@ public partial class GameApplication
                     _session.ProbeCommand(Text("action"), Number("owner", _session.PlayerId), Text("duplicate") == "yes"); break;
             }
         }
-        if (_gameplayPolicy && _session is { HasState: true, Connected: true, Pending: false }
+        if (_gameplayPolicy && _session is { HasState: true, Connected: true, Pending: false } && !_session.City.Eliminated
             && (_session.Snapshot.Wave < int.Parse(Argument("--gameplay-stop-wave") ?? "8")
                 || _session.Snapshot.Phase == Phase.RewardDraft && _session.Snapshot.Wave == int.Parse(Argument("--gameplay-stop-wave") ?? "8"))
             && !_session.Snapshot.Paused)
@@ -84,10 +88,16 @@ public partial class GameApplication
                 _session.ChooseReward(GameplayScenarios.RewardChoice(_session.City.Run));
             else if (_session.Snapshot.Phase is Phase.Building or Phase.Preparation && !_session.City.Ready)
             {
-                if (GameplayScenarios.NextPreparation(_session.Snapshot, _session.PlayerId, Argument("--gameplay-family") ?? "frontline") is { } intent) _session.Submit(intent);
+                if (PreparationIntent() is { } intent) _session.Submit(intent);
                 else _session.Send("ready");
             }
         }
+        if (!_pausedOnLowKeep && Argument("--hold-on-low-keep") == "yes" && _session is { HasState: true, IsHost: true }
+            && _session.Snapshot.Phase == Phase.Combat && TeamAwareness.Project(_session.Snapshot, _session.PlayerId).Members.Any(m => m.Endangered))
+        { _pausedOnLowKeep = true; _session.Send("pause"); }
+        if (!_pausedOnFall && Argument("--hold-on-fall") == "yes" && _session is { HasState: true, IsHost: true }
+            && _session.Snapshot.Players.Any(p => p.Eliminated) && _session.Snapshot.Phase == Phase.Combat)
+        { _pausedOnFall = true; _session.Send("pause"); }
         if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
         { _pausedAtDeath = true; _session.Send("pause"); }
         if (_captureCombatWave > 0 && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
@@ -102,6 +112,10 @@ public partial class GameApplication
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
+            teamVisible = _gameUi.Team.IsVisibleInTree(), teamHeading = _gameUi.Team.Heading,
+            teamRows = _gameUi.Team.CityButtons.Values.Select(b => b.Text).ToArray(), teamTargetsFit = _gameUi.Team.TargetsFit,
+            teamObserver = _gameUi.Team.Overview?.Observer ?? false, readyVisible = _gameUi.ReadyButton.IsVisibleInTree(),
+            teamBounds = _gameUi.Team.GetGlobalRect().ToString(),
             hudNotice = _gameUi.SessionFeedback, readyDisabled = _gameUi.ReadyButton.Disabled,
             readyText = _gameUi.ReadyButton.Text, transitionText = _gameUi.TransitionText,
             preparationText = _gameUi.PreparationSummary.Text,
@@ -131,5 +145,11 @@ public partial class GameApplication
         string output = System.IO.Path.Combine(directory, "status.json");
         System.IO.File.WriteAllText(output + ".tmp", JsonSerializer.Serialize(status, new JsonSerializerOptions(WireJson.Options) { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never }));
         System.IO.File.Move(output + ".tmp", output, true);
+    }
+    private GameplayIntent? PreparationIntent()
+    {
+        string family = Argument("--gameplay-family") ?? "frontline";
+        return family is "idle" or "limited" ? CooperationReview.Next(_session!.Snapshot, _session.PlayerId, family)
+            : GameplayScenarios.NextPreparation(_session!.Snapshot, _session.PlayerId, family);
     }
 }

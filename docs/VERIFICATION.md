@@ -1,5 +1,43 @@
 # Verification
 
+## Cooperative readiness and observers — roadmap #13 / issue #10 (2026-10-23)
+
+The persistent native team panel exposes each city’s readiness, personal reward
+choice, pause/away/fallen state, Keep and Food/army warnings. Allied buttons use
+the existing viewed-city path; native pointer Ready still acts only on the local
+authenticated city. Playback cell locations supply actual cross-sector cues.
+Fallen players get an explanation/watch-ally shortcut and no Ready button;
+fallen/terminal veteran inspection no longer promises future recovery/purchases.
+See the [cooperation review](gameplay/COOPERATION_REVIEW.md) for the retained
+failure curve, methods and limits.
+
+Twenty legal uneven-group runs cover 2–6 players, two seeds and 220 battles.
+Replay assertions preserve original enemy allocations, future fallen-army
+exclusion and clear rewards. Ten full-policy groups with an idle city win,
+including a four-city W18 fall followed by victory. Deliberately limited groups
+lose in 1–3 waves; post-fall combat intervals range from 1139–5280 ticks. This is
+not proof of inevitable loss or human balance. Keep the current rules; record
+the 88-second simulated tail and recoverable last stand as explicit tradeoffs.
+
+Executed local checks: locked zero-warning build; 46 Core and 135 Shared tests;
+three session graphical facts; real 1–6-client admission/readiness/combat/draft;
+reconnect through preparation/combat/reward and fault cases; four ordinary/debug
+720p/1080p UI passes and the seven-wave cooperative UI worker (30 actors/11 cues);
+14 art views; 12 animation contracts and native phases; ordered battle frames
+in both renderers plus artwork/camera fallback. Shell/Python syntax and
+`git diff --check` pass. The new dedicated `capture-cooperation` records 2–6-city
+720p/1080p layouts, split readiness, allied pointer/local Ready, pause, Away/private
+resume, real low Keep, early elimination, observer navigation and terminal state.
+Its receipts distinguish screenshot waiting/capture pauses from accelerated
+active spectator time. Exact locally generated receipts/logs live in
+`artifacts/captures/cooperation/`, `artifacts/observations/cooperation/` and
+`artifacts/test-logs/roadmap-10-*`.
+
+The user accepts local tests, legal replays and actual screenshots as roadmap
+evidence. Live Steam, Windows/native-platform, physical controller/audio and
+human group observations remain unexecuted; no comprehension/enjoyment/balance
+claim is made. The known intermittent native .NET/JIT risk remains applicable.
+
 ## Preparation clarity — roadmap #13, initial priority #3 pass (2026-10-22)
 
 Completion follow-up: the requested acceptance method is local tests, legal

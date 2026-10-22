@@ -41,9 +41,9 @@ public partial class LiveCombatInspector : PanelContainer
         if (wasVisible && restoreFocus && _invoker is { } control && IsInstanceValid(control) && control.IsVisibleInTree()) control.GrabFocus();
         else if (wasVisible && restoreFocus && FallbackFocus is { } fallback && IsInstanceValid(fallback) && fallback.IsVisibleInTree()) fallback.GrabFocus();
     }
-    public void Layout(Vector2 viewport)
+    public void Layout(Vector2 viewport, float top = 92)
     {
-        Position = new(viewport.X >= 1600 ? 24 : 12, 92);
-        Size = new(viewport.X >= 1600 ? 380 : 310, Mathf.Min(460, viewport.Y - 120));
+        Position = new(viewport.X >= 1600 ? 24 : 12, top);
+        Size = new(viewport.X >= 1600 ? 380 : 310, Mathf.Min(460, viewport.Y - top - 104));
     }
 }

@@ -2,6 +2,17 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "cooperation-review")
+    {
+        var runs = (from players in Enumerable.Range(2, 5)
+                    from policy in new[] { "frontline", "limited" }
+                    from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    select CooperationReview.Run(players, policy, seed)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine($"{run.Players}p {run.Policy} {run.Seed}: {run.Result}, {run.Battles.Length} waves; first fall W{run.FallWave}; spectator {run.SpectatorTicks} ticks; cross-sector {run.Battles.Sum(b => b.CrossSectorSamples)} samples");
+        return 0;
+    }
     if (args.FirstOrDefault() == "campaign-review")
     {
         var runs = (from seed in new[] { 1UL, SoloSession.DefaultSeed }

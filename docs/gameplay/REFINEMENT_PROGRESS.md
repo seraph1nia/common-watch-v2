@@ -14,8 +14,8 @@ AGENTS.md ownership, pinned Core/art/audio, native focus and authenticated ident
 | #7 Build identity | Complete under local-evidence acceptance; [build review](BUILD_IDENTITY_REVIEW.md), current-target/effect previews, four existing strategy relationships, 26 legal multi-seed trajectories with 286 actual drafts and 512 sparse sensitivity samples. Draft/balance rules retained; 119 Shared tests and native ordinary/debug/reconnect coverage verified. |
 | #8 Veterans | Complete under local-evidence acceptance; [veteran decision](VETERAN_REVIEW.md), explicit historical service, actual recovery/recruit/trainer quotes, guarded reviewed retirement, five legal comparison receipts, 125 Shared tests and native pointer/keyboard/controller/close/selection/session checks. No progression or equipment rules changed; funded stored upkeep wording corrected. |
 | #9 Campaign/bosses | Complete under local-evidence acceptance; [campaign review](CAMPAIGN_REVIEW.md), actual tactical briefs/schedule, crowned enlarged bosses with playback health/windup/death, 400 legal battles across five policies/two seeds, 131 Shared + 12 animation contracts, four native UI passes, five-size picking and both renderer sequences verified. Existing curve/one-boss constraint retained. |
-| #10 Cooperation/elimination | Next; audit post-fall/terminal veteran comparison availability as part of observer/read-only flows. |
-| #11 Forest consistency/assets | Pending |
+| #10 Cooperation/elimination | Complete under local-evidence acceptance; [cooperation review](COOPERATION_REVIEW.md), persistent team state, authentic allied navigation, playback sector cues, low-Keep/observer flow, unavailable fallen/terminal veteran purchases, 20 legal uneven runs / 220 battles, 135 Shared tests, 2–6-city native pointer/Ready captures at both sizes and full session/co-op/reconnect/art/combat gates. Existing failure curve retained with spectator tradeoffs recorded. |
+| #11 Forest consistency/assets | Next |
 | #12 Sound/action feedback | Pending |
 
 Checkpoint boundary: retain one verified commit per issue and update the issue
