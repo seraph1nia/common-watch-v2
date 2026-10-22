@@ -3,11 +3,11 @@
 Commands and detached authoritative snapshots still own prices, soldiers, technologies and phase. The explicitly changed combat topology uses six columns per player, up to six players; damage and unit counts are unchanged.
 
 - **Single Player** opens three distinct random doctrine cards. Select one, then press **Start Match**. Offers stay stable through settings, resizing and reconnection; a new match identity creates new offers. **Multiplayer** holds LAN, reconnect and Steam operations, with personal doctrine selection and host-only start after every connected player chooses. **Settings** preserves audio preferences. **Exit Game** asks for confirmation before normal shutdown.
-- The upper-right ledger shows the inspected city, Keep, six resource stocks and signed production income, followed by the authoritative next Food payment/funding projection or completed upkeep receipt. Allied inspection is labeled read-only. Settings and Menu sit upper-left; wave/preparation and Ready/Pause sit lower-right. Fixed settlement framing reserves the HUD edge; wheel, drag and reset do not move it.
+- The upper-right ledger shows the inspected city, Keep, six resource stocks and signed production income, followed by battle Food/funding or the completed upkeep receipt. The preparation frame below Settings groups that city's incoming enemies by type (including bosses), next income, projected fighting army, unfunded field soldiers who sit out, stored soldiers and Food payment. Stages 1–2 use current stock; stage 3 includes final income. Purchases and later production can change the forecast. Selecting a plot yields that frame to building management; **×** restores the overview. It also clears during arena viewing, combat and open details/rewards. Allied inspection is labeled read-only. Settings and Menu sit upper-left; wave/preparation and Ready/Pause sit lower-right. Fixed settlement framing reserves the HUD edge; wheel, drag and reset do not move it.
 - The floating dock offers **Build**, **Worldtree**, **Troops & homes** and **City details**. **×** clears a selected plot to expose the map. Select any clearing. Empty owned land offers **Production**, **Military**, **Defense**, **Trade** and **Utility** tabs. Selecting a card spends nothing; confirmation pays the quoted construction cost. Lumbermill's **4 Gold recovery** card also requires confirmation. Locked land shows its purchase quote. Occupied plots provide upgrades, sale, recruitment, trading and relevant management controls.
 - **Troops & homes** opens management from navigation at any time. The same shortcut on selected military buildings or Town Halls opens that building’s management section. Its roster and recruitment/hall sections retain squad selection, persistent HP, equipment, XP, storage, return and retirement. **Homes & towers** retains all six army homes, paid home purchases, deployment and tower management. These homes are separate from the nine settlement plots. Squads and towers cannot share a home.
 - **Worldtree** retains all 18 technologies, prerequisites, exclusive branches, costs and acquired effects. Select a node, then purchase. Allied, fallen and disconnected cities remain read-only; inspecting another city never changes authenticated command identity.
-- **Ready/Unready** settles each of three preparations. Food shortages permit readiness; unfunded field members sit out. **Pause/Resume** affects the whole match; only the original host controls combat speed. Local dialogs never pause cooperative play.
+- **Ready · prep 2 / prep 3 / battle** names the next transition. All connected, standing cities must be Ready before collecting one production payment and advancing research/eligible recovery. The third settlement also pays Food and starts battle. **Unready** reopens your city for editing while waiting. The readiness count excludes disconnected and fallen cities. Inspecting an ally keeps Ready attached to your own labeled city. Food shortages permit readiness; unfunded field members sit out, while stored members never fight. **Pause/Resume** affects the whole match; only the original host controls combat speed. Local dialogs never pause cooperative play.
 - **Show arena** previews the forthcoming field army, enemies and structures. Click a combatant or structure to inspect it; active combat supports the same picking. The complete battlefield frames automatically to 80% of the viewport bounds with uniform scaling, reserved figure/effect margins and an optional illustrated forest frame/background.
 - Successful nonfinal combat offers three authoritative rewards. Dismissing rewards chooses nothing; **Rewards** reopens the same offers. Wave 20 ends in Victory; defeat offers no draft. **Esc / Menu** opens a framed popup over the current view; **F10 / controller Start** toggles it from any screen. **Continue / Esc** closes it. Opening the menu does not leave or pause the match. Reconnect remains beside the match actions. **City details** inspects your doctrine, acquired rewards, wave and recent feedback. The match-action feedback control shows temporary acceptance and persistent pending, rejected or disconnected status; click it for complete recent messages. There is no permanent Run dashboard or history footer.
 
@@ -47,6 +47,18 @@ forecast checkpoint includes partial food funding and a purchased tower. For exa
 mise run play -- --checkpoint army
 mise run scenario victory artifacts/scenarios/victory.json
 ```
+
+The [preparation review](PREPARATION_REVIEW.md) records the completed local
+[#3](https://github.com/seraph1nia/common-watch-v2/issues/3) pass in
+[#13](https://github.com/seraph1nia/common-watch-v2/issues/13), including observed
+solo/cooperative actions, empty stages and waiting. It preserves all three
+settlements. Optional human reviews can record actions taken in each preparation,
+time spent preparing, time waiting after Ready, and whether a stage felt empty
+over the first three waves. Ask players to name the next transition, expected
+army/sit-outs and one sensible adjustment before advancing. No human pacing or
+balance finding is established by the scripted campaign. A shorter rhythm would
+need a separate decision covering purchases between incomes, research, recovery
+and final Food payment; one triple-income payment is not an equivalent baseline.
 
 There are no campaign disk saves, new mechanics, replacement world artwork, host migration or
 matchmaking. Linux automation and cross-builds do not qualify live Steam accounts,

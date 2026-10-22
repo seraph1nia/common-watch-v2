@@ -157,7 +157,10 @@ public partial class GameApplication
         SelectAt(_camera.ToScreen(_arenaPreview.UnitPosition(forecastEnemy.Id)));
         Require(_gameUi.Details.Visible && _gameUi.Details.Inspector.SelectedUnit == forecastEnemy.Id, "native world forecast picking opens same inspector");
         Require(_session.Snapshot.Revision == forecastRevision, "forecast picking is read-only");
-        _gameUi.Details.Close(); await GameplayCapture("food-shortage");
+        _gameUi.Details.Close(); Press(_gameUi.ArenaButton); await GameplayCapture("food-shortage");
+        CheckPreparationSummary();
+        int unfedField = _session.City.Soldiers.Count(u => u.Assignment is not { Stored: true } && _session.City.FoodForecast!.Unfed.Contains(u.Id));
+        Require(_gameUi.PreparationSummary.Text.Contains($"{unfedField} sit out"), "shortage counts field soldiers separately from stored soldiers");
         var defense = _session.Snapshot.Structures.Single(s => s.Owner == _session.PlayerId && s.Slot == 7);
         _gameUi.Inspect(defense);
         Press(_gameUi.Details.Inspector.Buttons["ManageTower"]);

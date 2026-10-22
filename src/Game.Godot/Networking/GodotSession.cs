@@ -58,6 +58,7 @@ public partial class GodotSession : Node, IDisposable
     private readonly CombatPlayback _playback = new();
     public CombatPlayback Playback => _solo?.Playback ?? _playback;
     public CommandResult? LastResult { get; private set; }
+    internal Command? ObservedCommand => _solo?.LastCommand ?? _lastCommand;
     public string Status { get; private set; } = "Connecting…";
     internal bool ProbeDuplicates { get; set; }
     public bool Pending => _pending.Count != 0;

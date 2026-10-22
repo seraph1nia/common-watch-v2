@@ -30,6 +30,7 @@ public partial class GameApplication
             System.IO.File.Delete(path);
             switch (Text("kind"))
             {
+                case "single-player": _sessionMenu.SoloButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "leave": ReturnToMenu(); break;
                 case "reconnect": BeginJoin(Argument("--join") ?? ""); break;
                 case "quit": _ = QuitAfterAudioDrain(); break;
@@ -84,6 +85,14 @@ public partial class GameApplication
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
             hudNotice = _gameUi.SessionFeedback, readyDisabled = _gameUi.ReadyButton.Disabled,
+            readyText = _gameUi.ReadyButton.Text, transitionText = _gameUi.TransitionText,
+            preparationText = _gameUi.PreparationSummary.Text,
+            preparationVisible = _gameUi.PreparationSummary.IsVisibleInTree(), viewportWidth = GetWindow().Size.X,
+            finishingCombat = _battlefield.Finishing,
+            readyFits = GetViewport().GetVisibleRect().Encloses(_gameUi.PhaseArea)
+                && _gameUi.LedgerArea.End.Y + 8 <= _gameUi.PhaseArea.Position.Y
+                && _gameUi.PhaseArea.Encloses(_gameUi.ReadyButton.GetGlobalRect()),
+            readyLayout = new { ledger = _gameUi.LedgerArea.ToString(), phase = _gameUi.PhaseArea.ToString(), ready = _gameUi.ReadyButton.GetGlobalRect().ToString() },
             hudNoticeVisible = _gameUi.FeedbackButton.IsVisibleInTree(), hudNoticeText = _gameUi.FeedbackButton.Text,
             pending = _session?.Pending ?? false, status = _session?.Status ?? "Main menu",
             animation = new { hits = _battlefield.Motion.ObservedHits, effects = _battlefield.Motion.Events.Count, generation = _session?.Playback.Generation, resets = _battlefield.Resets, dying = _session?.Playback.Units().Count(u => u.Hex?.Lifecycle == UnitLifecycle.Dying) },

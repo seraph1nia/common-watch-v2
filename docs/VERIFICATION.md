@@ -1,5 +1,78 @@
 # Verification
 
+## Preparation clarity — roadmap #13, initial priority #3 pass (2026-10-22)
+
+Completion follow-up: the requested acceptance method is local tests, legal
+replays and actual screenshots. The [preparation review](gameplay/PREPARATION_REVIEW.md)
+now records nine stages for solo and both cooperative participants, including
+actions, empty stages, duration and Ready waiting. All have zero missed sequences.
+The opt-in bounded `--preparation-observations` probe excludes paused/away time
+from waiting and stores no credentials/commands/snapshots. Three deterministic
+observation contracts, a three-wave native solo run, the seven-wave cooperative
+worker and a fresh three-process session suite passed. Build/Core (46)/Shared
+(88) were rerun successfully. Existing production/research/recovery rules remain
+intact; the local evidence does not support replacing the three-stage rhythm.
+
+Ready names the next preparation or battle, and cooperative readiness counts only
+connected, standing cities. An allied forecast follows the inspected city while
+Ready remains labeled for the authenticated local city. A retained native frame
+groups the destination-filtered enemy manifest (including bosses), next production,
+authoritative participation, field sit-outs, storage and projected Food payment.
+Stages 1–2 explicitly use current stock; stage 3 includes final production.
+The resource tooltip no longer implies that every forecast includes production.
+All three settlements, research/recovery, rules, transport, assets and pins remain
+unchanged. No human pacing or balance result is claimed; the
+[playing guide](gameplay/PLAYING.md) records the outstanding playtest questions.
+
+Native checks exercise pointer Ready through all three boundaries, one production
+per boundary, final forecast/upkeep agreement, controller pause/resume, partial Food
+funding, forecast/army inspection, native focus and the existing campaign UI.
+Host/guest checks retain pending/rejected/disconnected controls and add readiness
+wording, authenticated allied inspection and waiting/allied preparation captures
+at 720p/1080p. Only legal commands earn scenario snapshots.
+
+| Executed check | Result |
+| --- | --- |
+| `mise run build` | Passed; zero warnings/errors, locked dependencies |
+| `mise run test-core` | 46 passed |
+| `mise run test-shared` | 88 passed |
+| `mise run test-session` | Final repeat: three actual graphical process tests passed |
+| `mise run capture-art` | Final repeat: 14 actual viewport captures passed |
+| `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` | Final 720p/1080p Controls/captures and seven-wave illustrated host/guest replay passed |
+| `mise exec -- bash tools/graphical.sh test-gameplay-network` | Final plain host/guest replay, waiting/allied captures, pending/rejection/disconnection and authenticated Unready passed |
+| `mise run capture-settlement -- --hud-art illustrated` | All nine clearings, native purchase/construction, fixed camera and five window sizes passed |
+| Python compile, `git diff --check`, protected-path comparison | Passed; Core/Shared, source/installed artwork, music and tool/dependency pins have no changes |
+
+The full default capture task also passed all four solo native runs (plain and
+illustrated, both sizes) during iteration. Its added cooperative probe initially
+failed presentation/layout sequencing; the final isolated plain worker and full
+illustrated capture task above passed after the fixes. A remote Unready check
+also exposed an acknowledgment/snapshot race in the probe; it now waits for the
+accepted command's city snapshot before checking readiness and turn.
+
+The first expanded-ledger capture failed its separation assertion at 720p. Later
+cooperative checks caught a crowded paused/allied action frame; compact phase
+wording, a single pause indicator and local-city labels keep the complete native
+targets separate from the ledger. An initial top-center summary covered locked
+clearing 7, so the summary now occupies the left scenery margin below Settings
+and yields to selected-plot management. The actual nine-clearing picking/purchase
+suite passes at all five window sizes. The cooperative capture probe also waits
+for local combat presentation to complete before pausing, rather than freezing
+the previous battle and expecting preparation Controls. Actual preparation
+and shortage images are under `artifacts/captures/gameplay/forest/` and `1920/`;
+plain equivalents are under `artifacts/captures/gameplay/`. Cooperative images
+use `network-plain/` and `network-forest/` in that directory. Logs use the
+`artifacts/test-logs/refinement-` prefix.
+
+Linux automated checks use owned Xvfb displays, Mesa and disposable settings with
+Dummy audio. Standalone multiplayer/reconnect suites, release exports, remote CI,
+live two-account Steam, native Windows/macOS and physical GPU/controller/audio
+checks were not run for the initial presentation pass. Reconnect was rerun for
+the completion follow-up. The known intermittent native .NET/JIT crash risk
+remains unresolved. Human timing/balance review is optional further evidence;
+the remaining roadmap priorities are tracked in
+[the compact checkpoint](gameplay/REFINEMENT_PROGRESS.md).
+
 ## Painted forest HUD (2026-10-21)
 
 The [painted HUD report](PAINTED_FOREST_HUD.md) links the source delivery and actual

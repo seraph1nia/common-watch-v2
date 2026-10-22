@@ -97,6 +97,7 @@ public partial class GameApplication : Node
         _assets.Configure(_options);
         _steam.Poll();
         _environment.Suspended = _battle?.Paused ?? (_session is { HasState: true } && (_frozen || _session.Snapshot.Paused || !_session.Connected));
+        RunPreparationObservations();
         RunControlProbe();
         if (_session is null || _gameUi is null) return;
         _animationProfile?.Begin(delta);

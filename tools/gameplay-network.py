@@ -12,6 +12,7 @@ import time
 ROOT = Path(__file__).resolve().parent.parent
 processes, logs = [], []
 serial = 0
+solo_observation = os.getenv('COMMON_WATCH_PREPARATION_SOLO') == '1'
 signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
 with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
     work = Path(temporary)
@@ -26,13 +27,18 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         logs.append(log)
         command = ['bash', 'tools/client.sh', '--settings-path', str(directory / 'settings.json'),
                    '--data-path', str(directory), '--control-dir', str(directory / 'control'),
-                   '--test-fast-combat', 'yes', '--gameplay-stop-wave', '8',
+                   '--test-fast-combat', 'yes', '--gameplay-stop-wave', '4' if solo_observation else '8',
                    '--gameplay-family', 'research' if index == 0 else 'mixed']
+        art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+        observation = ROOT / f'artifacts/observations/preparation/{"solo" if solo_observation else art}-player-{index + 1}.json'
+        observation.unlink(missing_ok=True)
+        command += ['--preparation-observations', str(observation)]
         if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated':
             command += ['--world-art', 'sprites', '--hud-art', 'illustrated', '--view', 'angled']
         else:
             command += ['--world-art', 'debug', '--hud-art', 'plain', '--view', 'topdown', '--debug-overlay', 'off']
-        command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
+        if not solo_observation:
+            command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
         processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
     def status(index):
         path = work / str(index) / 'control/status.json'
@@ -46,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             if any(p.poll() not in (None, 0) for p in processes):
                 raise RuntimeError('Godot process failed: ' + message)
             time.sleep(.06)
-        raise TimeoutError(message + ': ' + repr([status(i) and (status(i)['status'], status(i)['state']['Wave']) for i in range(2)]))
+        raise TimeoutError(message + ': ' + repr([status(i) and (status(i)['status'], status(i)['state'] and status(i)['state']['Wave']) for i in range(len(processes))]))
     def control(client_index, kind, **values):
         global serial
         serial += 1
@@ -81,7 +87,37 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
     def city(index):
         current = status(index)
         return next(p for p in current['state']['Players'] if p['Id'] == current['player'])
+    def capture_preparation(name):
+        control(1, 'close-details')
+        wait(lambda: status(1)['preparationVisible'], name + ' visible preparation summary')
+        for width, height in ((1280, 720), (1920, 1080)):
+            control(1, 'resize', width=width, height=height)
+            wait(lambda: status(1)['viewportWidth'] == width, name + ' resize')
+            art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+            path = ROOT / f'artifacts/captures/gameplay/network-{art}/{name}-{width}.png'
+            path.unlink(missing_ok=True)
+            control(1, 'capture', path=str(path))
+            wait(lambda: path.exists(), name + ' capture')
+            wait(lambda: status(1)['readyFits'], name + ' complete Ready frame: ' + repr(status(1)['readyLayout']), seconds=5)
+        control(1, 'resize', width=1280, height=720)
     try:
+        if solo_observation:
+            launch(0)
+            wait(lambda: status(0), 'ordinary single-player menu')
+            control(0, 'single-player')
+            wait(lambda: status(0)['state'] and status(0)['state']['Phase'] == 'Lobby', 'single-player doctrine screen')
+            control(0, 'choose-doctrine', index=0)
+            wait(lambda: not status(0)['doctrineStartDisabled'], 'explicit doctrine selection')
+            send(0, 'doctrine:warden')  # Same paid Warden policy as the cooperative comparison.
+            send(0, 'start')
+            control(0, 'policy', enabled='yes')
+            wait(lambda: status(0)['state']['Wave'] == 4 and status(0)['state']['Phase'] == 'Building', 'three paid solo waves', seconds=100)
+            observation = ROOT / 'artifacts/observations/preparation/solo-player-1.json'
+            wait(lambda: observation.exists() and len(json.loads(observation.read_text())['completed']) == 9, 'nine solo preparation observations')
+            stages = json.loads(observation.read_text())['completed']
+            assert all(s['Complete'] and not s['Partial'] and s['UnobservedCommands'] == 0 for s in stages), stages
+            print('GODOT_PREPARATION_SOLO_PASS three-waves nine-stages recorded-actions waiting unchanged-rules', flush=True)
+            raise SystemExit(0)
         launch(0)
         wait(lambda: status(0) and status(0)['connected'], 'host')
         launch(1)
@@ -111,6 +147,9 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         wait(lambda: all(status(i)['state']['Phase'] == 'Building' for i in range(2)), 'start synchronized')
         send(0, 'ready')
         assert city(0)['Ready']
+        wait(lambda: 'Ready: 1/2' in status(0)['transitionText'] and status(0)['readyText'] == 'Unready', 'visible all-city readiness and Unready')
+        assert status(0)['state']['Turn'] == 1, 'one ready city cannot advance production'
+        capture_preparation('waiting-for-ally')
         send(0, 'unready')
         assert not city(0)['Ready']
         send(1, 'speed-2x', accepted=False)
@@ -134,7 +173,15 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             control(index, 'policy', enabled='yes')
         wait(lambda: all(status(i)['state']['Wave'] == 8 and status(i)['state']['Phase'] == 'Building' for i in range(2)), 'seven legal cooperative waves', seconds=100)
         for index in range(2):
+            art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+            observation = ROOT / f'artifacts/observations/preparation/{art}-player-{index + 1}.json'
+            wait(lambda: observation.exists() and len(json.loads(observation.read_text())['completed']) >= 21, 'three observed preparations per earned wave')
+            stages = json.loads(observation.read_text())['completed'][:9]
+            assert all(s['Complete'] and not s['Partial'] and s['UnobservedCommands'] == 0 for s in stages), stages
+        for index in range(2):
             control(index, 'policy', enabled='no')
+        wait(lambda: all(not status(i)['finishingCombat'] for i in range(2)), 'local combat presentation completes before preparation capture')
+        send(1, 'ready')  # Hold the guest ready while inspecting the host; host stays unready.
         send(0, 'pause')
         # Native city selector and open dialogs must keep authenticated command identity distinct.
         for index in range(2):
@@ -142,12 +189,20 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             control(index, 'inspect', owner=owner, page="Worldtree")
             wait(lambda: status(index)['viewed'] == owner and 'read-only' in status(index)['readOnly'], 'allied read-only Worldtree')
             assert status(index)['disabledResearch']
+            wait(lambda: f'Wave 8 → P{owner}:' in status(index)['preparationText'], 'allied summary follows inspected city')
+            assert 'prep 2/3' in status(index)['transitionText']
+            assert f'P{status(index)["player"]}' in status(index)['readyText']
         capture = ROOT / 'artifacts/captures/gameplay/multiplayer-city-inspection.png'
         capture.unlink(missing_ok=True)
         control(1, 'capture', path=str(capture))
         wait(lambda: capture.exists(), 'actual allied-city capture')
+        capture_preparation('allied-preparation')
+        assert 'Unready' in status(1)['readyText'] and city(1)['Ready']
         send(1, 'pause')  # Inspecting an ally does not change local command identity.
         send(0, 'resume')
+        send(1, 'unready')
+        wait(lambda: not city(1)['Ready'], 'remote Unready snapshot while inspecting an ally')
+        assert not city(1)['Ready'] and status(1)['state']['Turn'] == 1
         control(1, 'inspect', owner=2, page="Army")
         wait(lambda: status(1)['viewed'] == 2, 'return to own city')
         for index in range(2):

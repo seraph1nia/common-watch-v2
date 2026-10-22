@@ -9,6 +9,7 @@ public partial class SettlementHud : Control
     private GodotSession _session = null!;
     private Label _phase = null!, _keep = null!;
     private ResourcePanel _economy = null!;
+    private PreparationPanel _preparation = null!;
     private CitySelector _cities = null!;
     private MatchControls _controls = null!;
     private PanelContainer _ribbon = null!, _dock = null!, _action = null!, _palette = null!;
@@ -38,11 +39,15 @@ public partial class SettlementHud : Control
     public Control Resources => _economy;
     public Button ReadyButton => _controls.ReadyButton;
     internal Button PauseButton => _controls.PauseButton;
+    internal string TransitionText => _controls.TransitionText;
+    internal Label PreparationSummary => _preparation.Summary;
+    internal Rect2 PreparationArea => _preparation.GetGlobalRect();
     internal Rect2 LedgerArea => _ribbon.GetGlobalRect();
     internal Rect2 PhaseArea => _action.GetGlobalRect();
     internal CitySelector Cities => _cities;
     internal Rect2 ContextArea => Inspector.Construction.IsVisibleInTree() ? _constructionBody.GetGlobalRect() : _contextBody.GetGlobalRect();
     internal Button ClearSelectionButton => _clear;
+    internal Button ArenaButton => _arena;
     internal Button FeedbackButton => _feedback;
     public bool ShowArena { get; private set; }
     internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
@@ -74,6 +79,7 @@ public partial class SettlementHud : Control
         _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, false, true); };
         _keep = new Label(); _keep.AddThemeFontSizeOverride("font_size", 14); _ribbonBody.AddChild(_keep);
         _economy = new ResourcePanel(); _ribbonBody.AddChild(_economy); _economy.Initialize(skin);
+        _preparation = new PreparationPanel(); AddChild(_preparation); _preparation.Initialize(skin);
         _menu = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_menu);
         SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); _menu.AddChild(SettingsButton);
         SettingsButton.CustomMinimumSize = new(126, 48);
@@ -121,6 +127,7 @@ public partial class SettlementHud : Control
         var links = new HBoxContainer();
         _rewards = skin.Button("Rewards", () => { Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
         _feedback = skin.Button("Recent feedback", () => OpenDetails(DetailsPage.City));
+        _feedback.ClipText = true;
         _feedback.AddThemeFontSizeOverride("font_size", 14); _feedback.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         actions.AddChild(links);
         _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }); links.AddChild(_arena);
@@ -180,6 +187,11 @@ public partial class SettlementHud : Control
         float actionHeight = _action.GetCombinedMinimumSize().Y;
         _action.Size = new(actionWidth, actionHeight);
         _action.Position = new(Size.X - actionWidth - edge, Size.Y - actionHeight - edge);
+        // The upper map contains a purchasable clearing. Keep the summary in the
+        // left scenery margin and yield it to selected-plot management below.
+        float preparationWidth = wide ? 380 : 276;
+        _preparation.Position = new(edge, 92);
+        _preparation.Size = new(preparationWidth, _preparation.GetCombinedMinimumSize().Y);
         float inspectorWidth = wide ? 330 : 264;
         float inspectorHeight = Mathf.Min(_dock.GetThemeStylebox("panel").GetMinimumSize().Y + 52 + Inspector.GetCombinedMinimumSize().Y, Size.Y * .50f);
         _dock.Size = new(inspectorWidth, inspectorHeight);
@@ -225,6 +237,8 @@ public partial class SettlementHud : Control
         _keep.Text = $"Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _rewards.Visible = state.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated;
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);
+        _preparation.Refresh(Context, finishingCombat);
+        _preparation.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0;
         _arena.Text = ShowArena ? "Show settlement" : "Show arena";
         string key = $"{state.MatchId}:{state.Revision}:{_feedbackKey}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}";
         _arenaContext = ShowArena || state.Phase == Phase.Combat || finishingCombat;
