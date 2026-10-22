@@ -13,6 +13,7 @@ public partial class BattleResultStrip : VBoxContainer
     internal string Summary => _summary.Text;
     internal string Details => _details.Text;
     internal Button ExpandButton => _expand;
+    internal bool Expanded => _details.Visible;
     public void Initialize(HudSkin skin)
     {
         BoxContainer row = Compact ? new VBoxContainer() : new HBoxContainer(); AddChild(row);

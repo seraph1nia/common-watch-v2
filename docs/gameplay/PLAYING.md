@@ -74,3 +74,12 @@ without instructions; that preference lasts across sessions in the current app.
 Doctrine cards lead with playstyle and expose canonical numbers through **Full
 effects & stock**. [Opening review](OPENING_REVIEW.md) documents six paid paths,
 resource constraints and actual first-three-wave results without changing rules.
+
+Reward cards name the current soldiers or producers they affect. **Current effects**
+shows Core-calculated changes; a **Pivot** label means a compatible purchase is
+still needed. The description/effects area scrolls independently of Choose reward.
+Maximum-HP bonuses do not heal existing soldiers. Conditional hit bonuses do not
+promise damage on every attack. The Worldtree also names current targets and
+shows before/after values for available purchases. City details records doctrine,
+army, technologies and rewards beside four existing build directions; combine or
+pivot freely.

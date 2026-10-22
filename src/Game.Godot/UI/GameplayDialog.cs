@@ -102,7 +102,7 @@ public partial class GameplayDialog : Control
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
-                + "\n" + RunPresentation.Inspection(context.City);
+                + "\n" + BuildDirection.Inspection(context.City) + "\n\n" + RunPresentation.Inspection(context.City);
             if (LastOutcome is { } outcome) _cityDetails.Text += "\n\nLast battle\n" + outcome.Summary + "\n" + outcome.Details;
             _events.Text = string.Join("\n\n", RecentFeedback);
         }

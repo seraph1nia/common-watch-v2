@@ -117,3 +117,13 @@ The [opening review](OPENING_REVIEW.md) records issue #6: six doctrines over thr
 waves with current defaults and ordinary production controls at both sizes, plus
 two-seed headless contracts, optional-guide interaction and exact Food participation
 receipts. These are local verification results, with no human comprehension claim.
+
+Build identity review: `mise run scenario build-review artifacts/observations/build-identity/review.json`
+records six doctrines through wave five and five existing build policies through
+twenty waves on two seeds. It validates retained offers against the pure draft
+calculator and evaluates a read-only relevance experiment. Sparse scans retire
+soldiers with real commands before testing the previous completed-wave pool;
+they are sensitivity samples, not actual rerolls. See
+[build identity review](BUILD_IDENTITY_REVIEW.md) for interpretation.
+Native gameplay captures also exercise reward effects by pointer/keyboard and
+Worldtree targets; the copy area remains scrollable with reward actions outside.

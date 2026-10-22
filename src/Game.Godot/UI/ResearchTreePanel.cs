@@ -130,12 +130,14 @@ public partial class ResearchTreePanel : Control
             string reason = owned ? "Already acquired." : eligibility?.Available == true ? "" : eligibility?.Reason ?? "Unavailable.";
             string prerequisite = selected.Prerequisite == TechnologyId.None ? "None" : TechnologyIds.Name(selected.Prerequisite)
                 + (city.Research.Has(selected.Prerequisite) ? " (acquired)" : " (required)");
+            var impact = BuildImpact.Research(context.State, city, selected);
             _heading.Text = selected.Name;
-            _details.Text = $"{(owned ? "ACQUIRED" : eligibility?.Available == true ? "AVAILABLE" : "LOCKED")} · {selected.Cost} points\n"
+            _details.Text = impact.Targets + "\n\n" + $"{(owned ? "ACQUIRED" : eligibility?.Available == true ? "AVAILABLE" : "LOCKED")} · {selected.Cost} points\n"
                 + $"{selected.Class} · tier {selected.Tier}\nRequires: {prerequisite}\n"
                 + (selected.Branch == TechnologyId.None ? "" : $"Exclusive branch: {TechnologyIds.Name(selected.Branch)}\n")
                 + (reason.Length > 0 ? reason + "\n" : "")
                 + (selected.Production is { } production ? $"Each {GameplayContext.BuildingName(production.Building)}: +{production.ExtraPerProducer} {production.Resource}/production" : UnitInspector.Capabilities(selected.Benefit))
+                + "\n\n" + impact.Details
                 + (context.EditReason.Length > 0 ? "\n\n" + context.EditReason : "");
             _purchase.Item(_skin, "Purchase", $"Research · {selected.Cost} points", () => _context.Submit(new(GameplayAction.Research, Technology: _selected)), context.Block(reason: reason));
         }
