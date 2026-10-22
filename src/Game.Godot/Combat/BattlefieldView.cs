@@ -187,11 +187,11 @@ public partial class BattlefieldView : Node2D
             if (!_figures.TryGetValue(unit.Id, out var figure)) { figure = new(); _figures[unit.Id] = figure; AddChild(figure); }
             figure.ZIndex = depths[(unit.Id, 0, ArenaStructureKind.Keep, 0)]; figure.Visible = true;
             DrawSetTransform(ground, 0, new Vector2(1, .38f));
-            DrawCircle(Vector2.Zero, 11, new Color(0, 0, 0, .48f * pose.Opacity), true, -1, true);
-            DrawArc(Vector2.Zero, 10, 0, Mathf.Tau, 24, OwnerColor(unit) with { A = pose.Opacity }, 1.6f, true);
+            DrawCircle(Vector2.Zero, unit.IsBoss ? 16 : 11, new Color(0, 0, 0, .48f * pose.Opacity), true, -1, true);
+            DrawArc(Vector2.Zero, unit.IsBoss ? 15 : 10, 0, Mathf.Tau, 24, OwnerColor(unit) with { A = pose.Opacity }, 1.6f, true);
             DrawSetTransform(Vector2.Zero);
             string id = VisualAssets.UnitId(unit);
-            figure.Present(_assets.Load(id), _assets.Catalog.Metadata(id), unit.Type, unit.Faction == Faction.Adventurers, pose, ground, CombatShader, _hitShader);
+            figure.Present(_assets.Load(id), _assets.Catalog.Metadata(id), unit.Type, unit.Faction == Faction.Adventurers, pose, ground, CombatShader, _hitShader, unit.IsBoss);
             Vector2 p = ground + V(pose.Offset);
             float hp = Math.Clamp((float)unit.Health / Math.Max(1, unit.Profile.Health), 0, 1);
             if (_options.DebugOverlay)
@@ -229,6 +229,7 @@ public partial class BattlefieldView : Node2D
             }
         }
         DrawReadability(units, positions, Cell, visibleArea);
+        DrawBossPresentation(units, positions, visibleArea, state, tick, Project);
         DrawDamageTotals(state, tick, Project, Cell);
         foreach (var entry in _motion.Events)
         {

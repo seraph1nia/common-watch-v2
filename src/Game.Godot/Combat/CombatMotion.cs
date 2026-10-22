@@ -40,6 +40,7 @@ public sealed class CombatMotion
             float recovery = (float)Math.Clamp((tick - unit.ImpactTick) / Math.Max(1, unit.ReadyTick - unit.ImpactTick), 0, 1);
             float reach = tick < unit.ImpactTick ? before < .6f ? -2.5f * Smooth(before / .6f) : -2.5f + 10.5f * Smooth((before - .6f) / .4f) : 8 * (1 - Smooth(Math.Min(1, recovery * 1.7f)));
             if (unit.Type is UnitType.Crossbowman or UnitType.Mage) reach *= -.27f;
+            if (unit.IsBoss) reach *= 1.25f;
             offset += direction * reach;
             rotation += direction.X * reach * .009f;
         }
@@ -58,7 +59,7 @@ public sealed class CombatMotion
             rotation = .95f * Smooth(death); offset = new(death * 3, death * 4);
             opacity = 1 - Smooth(Math.Clamp((death - .15f) / .85f, 0, 1)); scale = 1 - death * .08f;
         }
-        return new(offset, rotation, scale, opacity, flash);
+        return new(offset, rotation, scale * (unit.IsBoss ? 1.38f : 1), opacity, flash);
     }
     static float Smooth(float x) => x * x * (3 - 2 * x);
 }

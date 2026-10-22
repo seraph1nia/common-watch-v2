@@ -44,7 +44,7 @@ public partial class GameplayDialog : Control
         var armyScroll = new ScrollContainer { Name = "Troops & homes", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(armyScroll);
         Army = new ArmyRosterPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; armyScroll.AddChild(Army); Army.Initialize(skin, submitted);
         Research = new ResearchTreePanel { Name = "Worldtree" }; _tabs.AddChild(Research); Research.Initialize(skin);
-        var cityScroll = new ScrollContainer { Name = "City details", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(cityScroll);
+        var cityScroll = new ScrollContainer { Name = "City details", FollowFocus = true, FocusMode = FocusModeEnum.All, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(cityScroll);
         var cityBody = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; cityScroll.AddChild(cityBody);
         _cityDetails = WrapLabel(); cityBody.AddChild(_cityDetails);
         cityBody.AddChild(new HSeparator());
@@ -102,8 +102,10 @@ public partial class GameplayDialog : Control
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
-                + "\n" + BuildDirection.Inspection(context.City) + "\n\n" + BuildImpact.Inspection(context.City);
+                + "\nNext encounter\n" + EncounterBriefing.Project(context.State, context.City.Id).Details
+                + "\n\n" + BuildDirection.Inspection(context.City) + "\n\n" + BuildImpact.Inspection(context.City);
             if (LastOutcome is { } outcome) _cityDetails.Text += "\n\nLast battle\n" + outcome.Summary + "\n" + outcome.Details;
+            _cityDetails.Text += "\n\nCampaign · allocations per original city; fallen allocations are redistributed\n" + EncounterBriefing.Project(context.State, context.City.Id).Schedule;
             _events.Text = string.Join("\n\n", RecentFeedback);
         }
         if (_page == DetailsPage.Army) Army.Refresh(context);

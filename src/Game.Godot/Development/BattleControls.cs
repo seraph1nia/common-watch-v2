@@ -23,9 +23,10 @@ public partial class GameApplication
         column.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         column.AddChild(new Label { Text = "ANIMATED TABLETOP FIGURES", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         var scenarios = new OptionButton(); _battleScenarios = scenarios;
-        foreach (var text in new[] { "A · Swordsmen / raiders", "B · Ranged / magic", "C · Poison", "C · Burn", "C · Chill", "C · Structures" }) scenarios.AddItem(text);
-        scenarios.Selected = _battle!.Scenario == "swordsman" ? 0 : _battle.Scenario == "ranged" ? 1 : 2;
-        scenarios.ItemSelected += i => SelectBattle(new[] { "swordsman", "ranged", "status", "burn", "chill", "structures" }[(int)i]); column.AddChild(scenarios);
+        string[] names = ["swordsman", "ranged", "status", "burn", "chill", "structures", "boss-10", "boss-20"];
+        foreach (var text in new[] { "A · Swordsmen / raiders", "B · Ranged / magic", "C · Poison", "C · Burn", "C · Chill", "C · Structures", "D · Wave 10 boss", "D · Wave 20 boss" }) scenarios.AddItem(text);
+        scenarios.Selected = Math.Max(0, Array.IndexOf(names, _battle!.Scenario));
+        scenarios.ItemSelected += i => SelectBattle(names[(int)i]); column.AddChild(scenarios);
         column.AddChild(_skin.Button("Play / pause  [Space]", () => _battle!.Paused = !_battle.Paused));
         column.AddChild(_skin.Button("Restart  [Backspace]", () => { _battle!.Restart(); _battlefield.Present(_session, _battle); }));
         column.AddChild(_skin.Button("Change speed  [Tab]", CycleBattleSpeed));

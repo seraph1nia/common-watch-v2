@@ -16,6 +16,7 @@ public partial class GameApplication
         await CheckCombatReadability();
         await CheckArmyDeployment();
         await CheckVeteranChoices();
+        await CheckBossPresentation();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");

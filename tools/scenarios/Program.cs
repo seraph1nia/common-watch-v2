@@ -2,6 +2,17 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "campaign-review")
+    {
+        var runs = (from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    from family in new[] { "frontline", "ranged", "mixed", "towers", "research" }
+                    from adaptive in new[] { false, true }
+                    select CampaignReview.Run(family, seed, adaptive)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine($"{run.Family} seed={run.Seed} adaptive={run.Adaptive}: {run.Waves.Length} waves, {run.Waves[^1].Result}; ticks {run.Waves.Sum(w => w.Ticks)}, lost {run.Waves.Sum(w => w.Lost)}, Keep {run.Waves.Sum(w => w.KeepDamage)}; responses {run.Waves.Sum(w => w.Adaptations.Length)}");
+        return 0;
+    }
     if (args.FirstOrDefault() == "veteran-review")
     {
         var cases = VeteranReview.Collect();

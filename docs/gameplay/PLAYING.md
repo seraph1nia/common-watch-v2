@@ -91,3 +91,11 @@ storage uses individual places; stored soldiers never fight but still need Food
 funding for future recovery. **Review retirement** reveals a separate permanent,
 no-refund confirmation; **Keep soldier** cancels without a command. Replacement
 remains a separate paid recruit with a new identity and zero service history.
+
+Preparation forecasts name the current tactical problem and enemy equipment.
+Hover for the full brief, or open **City details** for the campaign schedule,
+actual boss HP/primary profile and clear rewards. Gear checks, mixed pressure and
+boss duels ask different questions; the suggestions never submit a command.
+Waves 10/20 use larger crowned figures, gold health emphasis and tick-synchronized
+anticipation/defeat cues. Bosses retain their original hit/occupancy rules and
+single-member squads; secondary attacks have no extra member to hit in them.

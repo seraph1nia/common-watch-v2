@@ -247,3 +247,8 @@ run = "bash tools/graphical.sh capture-opening"
 description = "Actual veteran history, recovery/replacement quotes and guarded retirement at 720p/1080p"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-veterans"
+
+[tasks.capture-bosses]
+description = "Legal wave 10/20 forecast, crowned figures, playback health/windup/death and restart"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-bosses"

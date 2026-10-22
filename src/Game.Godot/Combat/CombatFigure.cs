@@ -13,11 +13,13 @@ public partial class CombatFigure : Node2D
     Texture2D? texture;
     AssetMetadata meta = AssetMetadata.Default("unit/swordsman");
     UnitType type;
+    bool boss;
+    internal bool BossDecorated => boss;
     Color color;
-    public void Present(Texture2D? image, AssetMetadata metadata, UnitType unitType, bool friendly, FigurePose pose, Vector2 ground, bool shader, Shader hitShader)
+    public void Present(Texture2D? image, AssetMetadata metadata, UnitType unitType, bool friendly, FigurePose pose, Vector2 ground, bool shader, Shader hitShader, bool isBoss = false)
     {
         bool artworkChanged = texture != image || meta != metadata;
-        texture = image; meta = metadata; type = unitType;
+        texture = image; meta = metadata; type = unitType; boss = isBoss;
         if (artworkChanged)
         {
             sprite.Texture = image;
@@ -38,6 +40,7 @@ public partial class CombatFigure : Node2D
         if (!shader) Modulate = Colors.White.Lerp(new Color(1.7f, 1.4f, 1.4f), pose.Flash) with { A = pose.Opacity };
         QueueRedraw();
     }
+    internal Rect2 ReadabilityBounds => new(Bounds.Position - new Vector2(0, boss ? 18 : 0), Bounds.Size + new Vector2(0, boss ? 18 : 0));
     public Rect2 Bounds
     {
         get
@@ -49,6 +52,12 @@ public partial class CombatFigure : Node2D
     }
     public override void _Draw()
     {
+        if (boss)
+        {
+            float top = Bounds.Position.Y - 4;
+            DrawPolyline([new(-10, top), new(-11, top - 8), new(-5, top - 4), new(0, top - 12), new(5, top - 4), new(11, top - 8), new(10, top), new(-10, top)], new Color("f4d688"), 2, true);
+            DrawCircle(new(0, top - 5), 2, new Color("e9b361"), true, -1, true);
+        }
         if (texture is not null) return;
         // A readable tabletop token, entirely geometric. It is never catalog artwork.
         DrawLine(new(-4, -9), new(-5, -1), new Color("b9b1a0"), 4, true);

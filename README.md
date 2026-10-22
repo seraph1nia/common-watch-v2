@@ -90,6 +90,7 @@ mise run capture-art
 mise run capture-settlement        # nine-pad map picking, purchase and actual screenshots
 mise run capture-opening           # six doctrines, three waves, actual production controls
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
+mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
 mise run capture-lobby
 ```
 

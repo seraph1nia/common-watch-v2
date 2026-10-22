@@ -14,7 +14,7 @@ public partial class BattlefieldView
     internal bool SquadCuesFit { get; private set; }
     private long _readabilityWave = -1;
     private readonly Dictionary<(Faction Faction, int Owner, int Squad), (double Health, int Members)> _observedSquads = [];
-    private void ClearReadability() { _readabilityWave = -1; _observedSquads.Clear(); }
+    private void ClearReadability() { ClearBossPresentation(); _readabilityWave = -1; _observedSquads.Clear(); }
     private static readonly Color[] OwnerColors = [new("85dfc2"), new("9ec6f7"), new("f2d984"), new("c3abef"), new("efb5cd"), new("9edddd")];
     private static Color OwnerColor(UnitState unit) => unit.Faction != Faction.Adventurers ? new("ee967b")
         : OwnerColors[(Math.Max(1, unit.Owner) - 1) % OwnerColors.Length];
@@ -26,6 +26,14 @@ public partial class BattlefieldView
         var targetStructure = selected is null ? null : CombatInspection.TargetStructure(selected, Playback.Structures());
         if (_readabilityWave != CombatState.WaveStartedTick) { _observedSquads.Clear(); _readabilityWave = CombatState.WaveStartedTick; }
         var labels = new List<Rect2>();
+        var bossAreas = units.Where(u => u.IsBoss && _figures.TryGetValue(u.Id, out var visual) && visual.Visible).Select(u =>
+        {
+            var figure = _figures[u.Id]; var bounds = figure.ReadabilityBounds;
+            Vector2[] corners = [bounds.Position, new(bounds.End.X, bounds.Position.Y), bounds.End, new(bounds.Position.X, bounds.End.Y)];
+            var rectangle = new Rect2(figure.Transform * corners[0], Vector2.Zero);
+            foreach (var corner in corners.Skip(1)) rectangle = rectangle.Expand(figure.Transform * corner);
+            return rectangle;
+        }).ToArray();
         float top = visible.Position.Y + 76 / GetGlobalTransformWithCanvas().Scale.Y;
         foreach (var group in units.Where(u => u.Health > 0).GroupBy(u => (u.Faction, u.Owner, Squad: u.SquadId == 0 ? -u.Id : u.SquadId)))
         {
@@ -40,17 +48,17 @@ public partial class BattlefieldView
             float fraction = (float)Math.Clamp(health / maximum, 0, 1);
             string role = leader.Class switch { UnitClass.Melee => "F", UnitClass.Ranged => "R", _ => "M" };
             string owner = leader.Faction == Faction.Adventurers ? $"P{leader.Owner}" : $"E→{leader.Destination}";
-            string cue = $"{owner} {role}{members.Length}/{observed.Members}{(fraction <= .3f ? " !" : "")}";
+            string cue = leader.IsBoss ? $"BOSS →P{leader.Destination} · {HealthPoints.Format(leader.Health)} HP" : $"{owner} {role}{members.Length}/{observed.Members}{(fraction <= .3f ? " !" : "")}";
             float width = Mathf.Max(64, ThemeDB.FallbackFont.GetStringSize(cue, fontSize: 11).X + 8);
-            var rect = new Rect2(ground + new Vector2(-width / 2, -65), new Vector2(width, 23));
+            var rect = new Rect2(ground + new Vector2(-width / 2, leader.IsBoss ? 18 : -65), new Vector2(width, 23));
             rect.Position = new(Mathf.Clamp(rect.Position.X, visible.Position.X + 4, visible.End.X - width - 4),
                 Mathf.Clamp(rect.Position.Y, top, visible.End.Y - 27));
             var start = rect.Position;
-            for (int n = 1; n <= 48 && labels.Any(r => r.Grow(2).Intersects(rect)); n++)
+            for (int n = 1; n <= 48 && (labels.Any(r => r.Grow(2).Intersects(rect)) || bossAreas.Any(r => r.Grow(2).Intersects(rect))); n++)
                 rect.Position = new(start.X, Mathf.Clamp(start.Y + (n % 2 == 0 ? n / 2 : -(n + 1) / 2) * 25, top, visible.End.Y - 27));
-            SquadCuesFit &= visible.Encloses(rect);
+            SquadCuesFit &= visible.Encloses(rect) && !bossAreas.Any(r => r.Intersects(rect));
             labels.Add(rect);
-            Color color = fraction <= .3f ? new("ffc48d") : OwnerColor(leader);
+            Color color = leader.IsBoss ? new("f4d688") : fraction <= .3f ? new("ffc48d") : OwnerColor(leader);
             _combatOverlay!.Bar(rect, new Color(.025f, .045f, .06f, .88f));
             _combatOverlay.Bar(new Rect2(rect.Position + new Vector2(3, 18), new Vector2((width - 6) * fraction, 3)), color);
             _combatOverlay.Text(cue, rect.Position + new Vector2(width / 2, 13), 11, color);

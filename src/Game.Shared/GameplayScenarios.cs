@@ -6,7 +6,7 @@ namespace Game.Shared;
 public static class GameplayScenarios
 {
     public static IReadOnlyList<string> Checkpoints { get; } = Array.AsReadOnly<string>(
-        ["economy", "army", "town-hall", "research", "forecast", "reward", "late", "research-full", "research-open", "victory", "defeat"]);
+        ["boss-10", "boss-20", "economy", "army", "town-hall", "research", "forecast", "reward", "late", "research-full", "research-open", "victory", "defeat"]);
     public static GameplayIntent? NextPreparation(MatchSnapshot state, int player, string family = "frontline")
     {
         if (state.Phase is not (Phase.Building or Phase.Preparation)) return null;
@@ -31,7 +31,7 @@ public static class GameplayScenarios
                 if (solo.Snapshot.Phase != Phase.Defeat) throw new InvalidOperationException("Uninvested defense unexpectedly survived.");
                 return solo;
             }
-            int target = checkpoint switch { "reward" => 2, "forecast" => 8, "economy" => 8, "army" => 8, "town-hall" => 8, "research" => 12, "research-full" => 20, "research-open" => 14, "late" => 16, _ => 21 };
+            int target = checkpoint switch { "boss-10" => 10, "boss-20" => 20, "reward" => 2, "forecast" => 8, "economy" => 8, "army" => 8, "town-hall" => 8, "research" => 12, "research-full" => 20, "research-open" => 14, "late" => 16, _ => 21 };
             string family = checkpoint is "army" ? "mixed" : checkpoint == "town-hall" ? "reserve" : checkpoint is "research" or "research-full" or "research-open" ? "research" : "frontline";
             for (int wave = 1; wave <= 20; wave++)
             {

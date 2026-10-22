@@ -135,3 +135,11 @@ including native review/cancel/confirm, exact paid recovery, stale phase/session
 signals, no refund and restored focus. The same checks run in the ordinary/debug
 UI suite. [Veteran decision and evidence](VETERAN_REVIEW.md) records the selected
 historical-service semantics and considered progression alternatives.
+
+Campaign review: `mise run scenario campaign-review artifacts/observations/campaign/review.json`
+records five policies × two seeds × baseline/forecast responses through twenty
+battles, with exact consumed forecast/upkeep, actual rewards, duration, losses,
+Keep damage and command trails. `mise run capture-bosses` captures legal W10/W20
+forecasts and playback phases at both sizes; those probes also run in ordinary
+and debug gameplay checks. [Campaign decision and evidence](CAMPAIGN_REVIEW.md)
+explains the retained curve, short-boss tradeoff and limits of the corpus.

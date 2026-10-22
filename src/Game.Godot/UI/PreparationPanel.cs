@@ -1,4 +1,5 @@
 using Game.Core;
+using Game.Shared;
 using Godot;
 
 namespace Game.GodotClient;
@@ -18,11 +19,12 @@ public partial class PreparationPanel : PanelContainer
         Visible = !finishingCombat && state.Phase is Phase.Building or Phase.Preparation;
         if (!Visible) return;
         var threat = state.NextWave.Where(u => u.Destination == city.Id).ToArray();
-        string composition = string.Join(" · ", threat.GroupBy(u => (u.Type, u.IsBoss))
-            .Select(g => $"{g.Count()} {g.Key.Type}{(g.Key.IsBoss ? " BOSS" : "")}"));
+        var brief = EncounterBriefing.Project(state, city.Id);
+        string composition = brief.Composition;
+        Summary.TooltipText = brief.Details + "\n\nFull campaign purposes and clear rewards: City details.\nStored soldiers never fight.\nUnfunded field soldiers sit out; Food shortage permits Ready.\nEach production advances research and eligible stored-soldier recovery.";
         Summary.Text = $"Wave {state.Wave} → P{city.Id}: {threat.Length} enemies"
             + (city.Id != context.Session.PlayerId ? " · Allied forecast" : " · Your forecast")
-            + (composition.Length > 0 ? "\n" + composition : "");
+            + "\n" + brief.Purpose + (composition.Length > 0 ? "\n" + composition : "");
         if (city.Eliminated) { Summary.Text += "\nFallen city · no participating army."; return; }
         Summary.Text += "\nNext income: " + (city.ProductionIncome is { } income ? GameplayContext.Cost(income) : "Unavailable");
         if (city.FoodForecast is not { } food) { Summary.Text += "\nArmy / Food forecast unavailable."; return; }
@@ -35,6 +37,6 @@ public partial class PreparationPanel : PanelContainer
             ? "\nIncludes final income · Food paid when battle starts"
             : "\nStock now · later income and purchases can change this";
         if (unfedStored > 0) Summary.Text += $"\n{unfedStored} stored unfunded for next battle's recovery";
-        Summary.TooltipText = "Stored soldiers never fight.\nUnfunded field soldiers sit out; Food shortage permits Ready.\nEach production advances research and eligible stored-soldier recovery.";
+
     }
 }
