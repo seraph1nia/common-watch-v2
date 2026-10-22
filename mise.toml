@@ -237,3 +237,8 @@ run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --fil
 [tasks.review-environment]
 description = "Review actual atmosphere samples and Off/Full measurements locally"
 run = "python3 tools/environment-review.py"
+
+[tasks.capture-opening]
+description = "Legal first-three-wave doctrine paths through native production controls at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-opening"

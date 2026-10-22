@@ -18,6 +18,8 @@ public partial class RecruitmentPanel : VBoxContainer
     public void Initialize(HudSkin skin)
     {
         _skin = skin; AddChild(WrapLabel("Recruit one persistent soldier; reinforce or start a homogeneous squad."));
+        var timing = WrapLabel("Recruit before the last Ready. Final income arrives before Food payment, but cannot buy more troops before combat.");
+        timing.AddThemeFontSizeOverride("font_size", 14); AddChild(timing);
         _destination = new OptionButton { FitToLongestItem = false, ClipText = true }; AddChild(_destination);
         _destination.ItemSelected += _ => { DestinationChanged?.Invoke(NativeOptions.Squad(_destination)); Refresh(_context, _slot); };
         _actions = new ActionList(); AddChild(_actions);

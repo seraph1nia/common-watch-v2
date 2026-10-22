@@ -2,6 +2,14 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "opening-review")
+    {
+        var runs = Game.Core.RunCatalog.Doctrines.Select(d => OpeningCampaign.Review(d.Id)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine(run.Doctrine + ": " + string.Join("; ", run.Waves.Select(w => $"W{w.Wave} {w.Phase} army={string.Join(',', w.Participants.Select(p => p.Key + p.Value))} lost={w.Lost} keep={w.KeepDamage}")));
+        return 0;
+    }
     if (args.FirstOrDefault() == "battle")
     {
         foreach (string scenario in new[] { "swordsman", "ranged", "status", "burn", "chill", "structures" })

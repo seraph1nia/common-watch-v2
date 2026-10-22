@@ -29,6 +29,8 @@ mise run play-steam                # optional; development Steam App ID is hardc
 
 `play` runs from source for quick iteration; it does not export a release on each launch. It uses the same runtime presentation defaults, main menu, native controls, local preferences and normal audio as the exported game. `play-steam` adds only optional Steam startup.
 
+Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** supports the first three waves without gating Ready.
+
 The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
 
 Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Troops & homes** opens roster, squad, veteran and six-home management directly from the dock; selected military buildings and Town Halls also expose contextual management. **Worldtree** opens research. The city selector inspects allies read-only. Ready/Unready, whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with closer local camera framing and an optional sharp forest arena over a soft viewport backdrop. Successful nonfinal combat opens three reward cards. Resource income is visible beside stocks, and construction cards reflow with the floating dock. **City details** inspects doctrine, rewards, progression and recent feedback; the match controls retain important notices until resolved. **×** clears plot selection. **Esc**, **Menu**, F10 or controller Start opens only a menu square over the current view, with no backdrop or dimming; Continue/Esc closes it without leaving or pausing. There is no permanent Run dashboard or history footer. See [gameplay controls](docs/gameplay/PLAYING.md).
@@ -86,6 +88,7 @@ mise run test-steam-native -- host FRIEND_STEAM_ID  # explicitly gated
 mise run capture
 mise run capture-art
 mise run capture-settlement        # nine-pad map picking, purchase and actual screenshots
+mise run capture-opening           # six doctrines, three waves, actual production controls
 mise run capture-lobby
 ```
 

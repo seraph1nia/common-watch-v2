@@ -10,8 +10,8 @@ AGENTS.md ownership, pinned Core/art/audio, native focus and authenticated ident
 | #3 Preparation | Complete under local-evidence acceptance; [pacing review](PREPARATION_REVIEW.md), 720p/1080p captures, Core/Shared/session/reconnect and native solo/cooperative observations verified. |
 | #4 Combat readability/results | Complete under local-evidence acceptance; [combat review](COMBAT_READABILITY.md), nonmodal inspection, squad/target cues, factual recap, 94 Shared tests and ordinary/debug 720p/1080p + dense cooperative captures verified. |
 | #5 Visual army/deployment | Complete under local-evidence acceptance; [deployment review](ARMY_DEPLOYMENT_REVIEW.md), six native home targets, retained squad/member context, Core-funded preview, 100 Shared tests, four native UI passes and both remote pending/rejected/allied workers verified. |
-| #6 First-battle learning | Next |
-| #7 Build identity | Pending |
+| #6 First-battle learning | Complete under local-evidence acceptance; [opening review](OPENING_REVIEW.md), optional guide, playstyle-led doctrine cards, six legal three-wave paths on two seeds, 108 Shared tests and both native opening/ordinary-control captures verified. No economy rules adjusted. |
+| #7 Build identity | Next |
 | #8 Veterans | Pending |
 | #9 Campaign/bosses | Pending |
 | #10 Cooperation/elimination | Pending |

@@ -10,6 +10,9 @@ public partial class SettlementHud : Control
     private Label _phase = null!, _keep = null!;
     private ResourcePanel _economy = null!;
     private PreparationPanel _preparation = null!;
+    private OpeningGuidePanel _opening = null!;
+    private bool _openingHomesReviewed;
+    internal OpeningGuidePanel OpeningGuide => _opening;
     private readonly BattleOutcomeJournal _outcomes = new();
     public LiveCombatInspector LiveInspector { get; private set; } = null!;
     internal BattleResultStrip Result { get; private set; } = null!;
@@ -64,6 +67,7 @@ public partial class SettlementHud : Control
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
+        _openingHomesReviewed = false; _opening?.Hide();
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
         _feedbackKey = ""; _recentFeedback.Clear(); _acceptedUntil = 0;
@@ -88,6 +92,7 @@ public partial class SettlementHud : Control
         _keep = new Label(); _keep.AddThemeFontSizeOverride("font_size", 14); _ribbonBody.AddChild(_keep);
         _economy = new ResourcePanel(); _ribbonBody.AddChild(_economy); _economy.Initialize(skin);
         _preparation = new PreparationPanel(); AddChild(_preparation); _preparation.Initialize(skin);
+        _opening = new OpeningGuidePanel(); AddChild(_opening); _opening.Initialize(skin); _opening.Navigate += NavigateOpening;
         _menu = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_menu);
         SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); _menu.AddChild(SettingsButton);
         SettingsButton.CustomMinimumSize = new(126, 48);
@@ -207,6 +212,8 @@ public partial class SettlementHud : Control
         float preparationWidth = wide ? 380 : 276;
         _preparation.Position = new(edge, 92);
         _preparation.Size = new(preparationWidth, _preparation.GetCombinedMinimumSize().Y);
+        float guideLeft = _menu.Position.X + _menu.Size.X + 8;
+        _opening.Layout(new(guideLeft, 12), Mathf.Min(940, _ribbon.Position.X - guideLeft - 12), 84);
         LiveInspector.Layout(Size);
         _resultFrame.Position = new(edge, 92);
         _resultFrame.Size = new(wide ? 380 : 310, _resultFrame.GetCombinedMinimumSize().Y);
@@ -222,7 +229,7 @@ public partial class SettlementHud : Control
         float paletteWidth = Mathf.Max(440, right - left);
         float paletteHeight = _palette.GetThemeStylebox("panel").GetMinimumSize().Y + _contextNav.GetCombinedMinimumSize().Y
             + (construction ? Inspector.Construction.GetCombinedMinimumSize().Y + 8 : 0);
-        if (construction) paletteHeight = Mathf.Min(paletteHeight + 8, Size.Y - 200);
+        if (construction) paletteHeight = Mathf.Min(paletteHeight + 8, Size.Y - 180);
         _palette.Size = new(paletteWidth, paletteHeight);
         _palette.Position = new(left, Size.Y - paletteHeight - edge);
     }
@@ -272,6 +279,9 @@ public partial class SettlementHud : Control
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);
         _preparation.Refresh(Context, finishingCombat);
         _preparation.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0;
+        if (Details.Visible && Details.Army.IsVisibleInTree() && Details.Army.HomesVisible && city.Id == session.PlayerId) _openingHomesReviewed = true;
+        _opening.Refresh(state, city, _openingHomesReviewed, _outcomes.For(city.Id));
+        _opening.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0 && city.Id == session.PlayerId;
         _arena.Text = ShowArena ? "Show settlement" : "Show arena";
         string key = $"{state.MatchId}:{state.Revision}:{_feedbackKey}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}";
         _arenaContext = ShowArena || state.Phase == Phase.Combat || finishingCombat;
@@ -285,5 +295,37 @@ public partial class SettlementHud : Control
             if (Draft.Visible) Details.Close(false);
         }
         LayoutHud();
+    }
+    private void NavigateOpening(Game.Shared.OpeningDestination destination)
+    {
+        if (_session is not { HasState: true } || _session.ViewedCity.Id != _session.PlayerId) return;
+        if (destination == Game.Shared.OpeningDestination.Build)
+        {
+            int slot = Array.FindIndex(_session.City.Slots, s => s.Purchased && s.Type == Building.Empty);
+            if (slot < 0) slot = Array.FindIndex(_session.City.Slots, s => s.Type == Building.Farm);
+            if (slot >= 0)
+            {
+                bool recruiter = _session.City.Slots.Any(s => _session.Snapshot.BuildingCatalog.FirstOrDefault(b => b.Type == s.Type)?.Recruits is not null);
+                int category = !recruiter && _session.City.Slots.Any(s => s.Type == Building.Farm) && _session.City.Slots.Any(s => s.Type == Building.Lumbermill) ? 1 : 0;
+                _session.SelectSlot(slot); Submitted();
+                if (Inspector.Construction.IsVisibleInTree())
+                {
+                    Inspector.Construction.Categories[category].EmitSignal(BaseButton.SignalName.Pressed);
+                    Inspector.Construction.Categories[category].CallDeferred(Control.MethodName.GrabFocus);
+                }
+                else Inspector.Actions.Values.FirstOrDefault(b => b.IsVisibleInTree() && !b.Disabled)?.CallDeferred(Control.MethodName.GrabFocus);
+            }
+        }
+        else if (destination == Game.Shared.OpeningDestination.Outcome) OpenDetails(DetailsPage.City);
+        else
+        {
+            OpenDetails(DetailsPage.Army);
+            if (destination == Game.Shared.OpeningDestination.Homes) { _openingHomesReviewed = true; Details.Army.ShowHomes(); }
+            else
+            {
+                int trainer = Array.FindIndex(_session.City.Slots, s => _session.Snapshot.BuildingCatalog.FirstOrDefault(b => b.Type == s.Type)?.Recruits is not null);
+                if (trainer >= 0) Details.Army.ShowManagementFor(trainer, Context);
+            }
+        }
     }
 }

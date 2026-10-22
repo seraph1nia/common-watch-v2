@@ -57,6 +57,13 @@ case "$operation" in
   test-gameplay-network)
     timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/gameplay-network.py
     ;;
+  capture-opening)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --opening-review --gameplay-captures "$(pwd)/artifacts/captures/opening/$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
   test-gameplay|capture-gameplay)
     client_timeout=180
     # Both passes use the production Controls and legally earned snapshots.

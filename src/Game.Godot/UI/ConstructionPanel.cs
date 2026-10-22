@@ -18,6 +18,7 @@ public partial class ConstructionPanel : VBoxContainer
     public Button? RecoveryButton { get; private set; }
     private Button _confirm = null!;
     private Label _reason = null!;
+    private Label _recoveryHint = null!;
     public Rect2 CardArea => _cards.GetGlobalRect();
     public Button ConfirmButton => _confirm;
     public IReadOnlyList<Button> Categories => _categories;
@@ -41,6 +42,7 @@ public partial class ConstructionPanel : VBoxContainer
             skin.Painted?.IndicateSelection(tab);
             _categories.Add(tab); tabs.AddChild(tab);
         }
+        _recoveryHint = WrapLabel(); _recoveryHint.AddThemeFontSizeOverride("font_size", 14); AddChild(_recoveryHint); _recoveryHint.Hide();
         _cards = new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(_cards);
         Resized += Reflow;
         RecoveryButton = skin.Button("", () => { _selected = Building.Lumbermill; _payment = ConstructionPayment.GoldRecovery; Refresh(_context, _slot); }, skin.Painted is null ? "" : "ForestCard");
@@ -117,9 +119,13 @@ public partial class ConstructionPanel : VBoxContainer
                 Availability(context, definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""), Function(definition),
                 _selected == type && _payment == ConstructionPayment.Standard);
             ((ConstructionCard)button).SetThumbnail(_skin.BuildingSprite(type), _skin.Painted?.Texture("portrait"));
+            if (context.EditReason.Length == 0 && context.CostReason(definition.Construction) is { Length: > 0 } shortage)
+                button.TooltipText += "\n" + shortage;
             button.Visible = category == _category;
         }
         var lumber = context.State.BuildingCatalog.First(b => b.Type == Building.Lumbermill);
+        _recoveryHint.Visible = !ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0 && lumber.RecoveryConstruction is not null;
+        _recoveryHint.Text = lumber.RecoveryConstruction is { } recovery ? "Zero Wood: Lumbermill Gold recovery · " + GameplayContext.Cost(recovery) + " (Production)." : "";
         RecoveryButton!.Visible = !ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0
             && lumber.RecoveryConstruction is not null && _category == 0;
         if (!ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0 && lumber.RecoveryConstruction is { } quote)

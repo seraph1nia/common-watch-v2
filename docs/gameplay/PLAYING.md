@@ -67,3 +67,10 @@ intermittent native .NET/JIT crash risk remains unresolved.
 
 The [visual army/deployment review](ARMY_DEPLOYMENT_REVIEW.md) records issue #5
 interactions, projection boundaries and local native/network evidence.
+
+The optional top-band **Guide** names a current opening objective and links to
+production, recruitment, homes or the factual report. Collapse it to continue
+without instructions; that preference lasts across sessions in the current app.
+Doctrine cards lead with playstyle and expose canonical numbers through **Full
+effects & stock**. [Opening review](OPENING_REVIEW.md) documents six paid paths,
+resource constraints and actual first-three-wave results without changing rules.

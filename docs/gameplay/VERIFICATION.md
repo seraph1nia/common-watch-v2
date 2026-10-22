@@ -112,3 +112,8 @@ The [visual army/deployment review](ARMY_DEPLOYMENT_REVIEW.md) covers issue #5:
 six visible native home targets, legal placement/capacity projections, retained
 member context, Food forecasts, remote pending/rejected commands and allied
 read-only inspection at both capture sizes.
+
+The [opening review](OPENING_REVIEW.md) records issue #6: six doctrines over three
+waves with current defaults and ordinary production controls at both sizes, plus
+two-seed headless contracts, optional-guide interaction and exact Food participation
+receipts. These are local verification results, with no human comprehension claim.

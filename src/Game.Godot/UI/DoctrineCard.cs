@@ -1,4 +1,5 @@
 using Game.Core;
+using Game.Shared;
 using Godot;
 
 namespace Game.GodotClient;
@@ -8,6 +9,14 @@ public partial class DoctrineCard : PanelContainer
 {
     public Button ChooseButton { get; private set; } = null!;
     private Label _footer = null!;
+    private Label _numbers = null!;
+    private Label _lead = null!;
+    private ScrollContainer _scroll = null!;
+    internal bool IntroductionFits => _scroll.GetGlobalRect().Encloses(_lead.GetGlobalRect());
+    internal Button DetailsButton { get; private set; } = null!;
+    internal bool DetailsVisible => _numbers.Visible;
+    internal string FullDetails => _numbers.Text + "\n" + _footer.Text;
+    internal string Introduction { get; private set; } = "";
     private Viewport? _viewport;
     private Action? _density;
     private bool? _compact;
@@ -20,10 +29,17 @@ public partial class DoctrineCard : PanelContainer
         var category = WrapLabel(card.Subtitle); category.Modulate = new Color("efd478"); body.AddChild(category);
         var scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsVertical = SizeFlags.ExpandFill, FocusMode = FocusModeEnum.All, MouseFilter = MouseFilterEnum.Pass }; body.AddChild(scroll);
-        var description = WrapLabel(card.Description.Replace("\n\n", "\n")); description.AddThemeFontSizeOverride("font_size", 16);
-        description.MouseFilter = MouseFilterEnum.Ignore;
-        scroll.AddChild(description);
+        _scroll = scroll;
+        var copy = DoctrineIntroduction.For(card.Id);
+        Introduction = copy.Playstyle + "\n" + copy.Immediate;
+        var text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; scroll.AddChild(text);
+        var lead = WrapLabel(Introduction); lead.AddThemeFontSizeOverride("font_size", 16); lead.MouseFilter = MouseFilterEnum.Ignore; text.AddChild(lead); _lead = lead;
+        _numbers = WrapLabel(card.Description.Replace("\n\n", "\n")); _numbers.AddThemeFontSizeOverride("font_size", 14);
+        _numbers.MouseFilter = MouseFilterEnum.Ignore; text.AddChild(_numbers); _numbers.Hide();
+        DetailsButton = skin.Button("Full effects & stock ▾", () => { _numbers.Visible = !_numbers.Visible; DetailsButton.Text = _numbers.Visible ? "Full effects & stock ▴" : "Full effects & stock ▾"; _footer.Visible = _numbers.Visible; });
+        DetailsButton.AddThemeFontSizeOverride("font_size", 14); body.AddChild(DetailsButton);
         _footer = WrapLabel(card.Footer); body.AddChild(_footer);
+        _footer.Hide();
         ChooseButton = skin.Button("Select doctrine", choose, "ForestPrimaryButton"); ChooseButton.ToggleMode = true; body.AddChild(ChooseButton);
         // Labels and padding forward left clicks to the same selection action.
         GuiInput += input => { if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } && !ChooseButton.Disabled) { choose(); AcceptEvent(); } };

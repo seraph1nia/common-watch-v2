@@ -12,6 +12,7 @@ public partial class GameApplication
         await CheckMenuPresentation();
         await CheckArenaFraming();
         await CheckPaintedHudControls();
+        await CheckOpeningGuide();
         await CheckCombatReadability();
         await CheckArmyDeployment();
         _frozen = true;
@@ -201,7 +202,7 @@ public partial class GameApplication
         ReplaceSession(ScenarioRunner.CreateAt("settlement")); _frozen = true; _session.SelectSlot(4); RefreshUi(true);
         var recovery = _gameUi.Inspector.Construction.RecoveryButton!;
         await GameplayCapture("build-gold-recovery");
-        Require(recovery.Visible && _gameUi.ContextArea.Encloses(recovery.GetGlobalRect()), "Gold recovery fits alongside every production option");
+        Require(recovery.Visible && _gameUi.ContextArea.Encloses(recovery.GetGlobalRect()), $"Gold recovery fits alongside every production option: viewport={_gameUi.ContextArea} card={recovery.GetGlobalRect()}");
         long recoveryRevision = _session.Snapshot.Revision;
         Press(recovery); Require(_session.Snapshot.Revision == recoveryRevision, "recovery card selection spends nothing");
         await GameplayCapture("build-gold-recovery-selected");

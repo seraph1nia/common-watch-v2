@@ -35,6 +35,7 @@ public partial class GameApplication
         if (Argument("--settlement-zoom") is { } zoom)
             _camera.SetPose(float.Parse(zoom, System.Globalization.CultureInfo.InvariantCulture), Vector2.Zero);
         if (Argument("--battle-capture") is { } battleOutput) { await CaptureBattle(battleOutput); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--opening-review")) { await CheckOpeningCampaigns(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--gameplay-test")) { await GameplayUiChecks(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--worldtree-test")) { Require(_skin.Worldtree is not null, "Worldtree capture pack loaded"); await CheckWorldtreePresentation(); await QuitAfterAudioDrain(); return; }
         if (Argument("--settlement-captures") is { } settlementOutput) { await CheckSettlementMap(settlementOutput); await QuitAfterAudioDrain(); return; }
