@@ -89,6 +89,7 @@ public partial class GameApplication
         _gameUi.Reset(); _camera.StopDrag();
         _gameUi.Visible = false; _sessionMenu.Visible = true; _sessionMenu.ShowMain();
         RefreshSessionMenu(); RefreshWorld();
+        _sessionMenu.FocusDefault();
     }
     private void RefreshSessionMenu()
     {

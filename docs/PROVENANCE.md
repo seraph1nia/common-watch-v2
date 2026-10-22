@@ -1,5 +1,23 @@
 # Source provenance
 
+## Painted HUD addition — 2026-10-21
+
+The user explicitly authorized a dedicated HUD-only authoring phase. OpenAI's
+built-in `image_gen` produced the original RGBA paintings retained in
+[`art/source/painted_forest_hud`](../art/source/painted_forest_hud/README.md), guided
+by the user-supplied reference in `CommonWatch_ReferenceHUD_Production_Kit.zip`.
+The kit was specification/reference material, not finished assets. No opaque
+reference crop was used as a runtime ornament. The manifest records original and
+runtime hashes, dimensions, slice/content margins, state registration and anchors;
+the prompt records and rejected first plaque document the revision. There are no
+layered painting sources or traced painting SVGs. Four authored technical SVGs
+contain only focus/phase geometry. Source code and technical SVG additions are
+GPL-3.0-only. No separate license grant is inferred for the supplied reference.
+
+The existing source art, installed world/audio assets, original ForestHud pack,
+Worldtree and earlier provenance records remain unchanged. The historical records
+below describe their original imports, independently of this HUD addition.
+
 The user-supplied nine-clearing `Enchanted Forest Settlement Map.png` is retained unchanged as `assets/sprites/terrain/settlement_map.png` (1672 × 941, SHA-256 `f72bb78e769ee7c3fb97d111f00ae27d595ee1652d64d47cd7e140e3ed1ccdc5`). Its adjacent JSON records measured presentation coordinates. No artwork was generated, downloaded or repainted; no separate artwork license was supplied. See [settlement map](SETTLEMENT_MAP.md).
 
 `src/Game.Core` was imported byte-for-byte from https://github.com/seraph1nia/odot-game at revision `501a3de7c3f5cf8b5e1726e01dbaefad5ea82f35` (2026-10-18 import). Copyright (c) 2026 Odot contributors; GPL-3.0-only; see root LICENSE. The local six-player extension adds `Match.MaximumPlayers` and updates admission, wave power, shared arena topology, snapshot validation and combat overflow/approach bounds in `World.cs`, `WavePower.cs`, `Combat/SharedArena.cs`, `Combat/HexBoard.cs` (now bounded to 324 cells), `Combat/SnapshotCompatibility.cs` and `Combat/CombatConfiguration.cs`. The subsequent requested six-column topology changes `SharedArena` sector width and tower rails, with board version 2, combat rules 8 and protocol 17 (`Diagnostics.cs`). Six army homes and nine settlement plots remain. Dependencies and the original repository remain unchanged. New slice code is distributed under GPL-3.0-only.

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "panel",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Create ONE production game HUD panel frame master on genuine transparent RGBA. Input image is STYLE REFERENCE ONLY, do not extract or crop it. Match its richly painted 2D magical forest craft: rounded intertwined deep brown branches, violet shadow planes, warm honey edge highlights, subtle bark grain, several tiny jade leaves concentrated on corners. A horizontal rounded rectangular panel with aspect ratio 1.55:1; calm blue-black opaque interior, thin inner warm gold lip and THICK dimensional irregular branch rim. Front view, perfectly legible blank negative space filling 80% of panel. No squirrel, clock, mushrooms, buttons, symbols or text in this component; these will be independently attached. No scenery, no drop shadow outside silhouette, no checkerboard, no watermark. Whole silhouette including twigs comfortably inside canvas. Render at 1536x1024 or larger, crisp hand-painted volume similar to provided reference."
+  },
+  {
+    "id": "squirrel",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Asset type: separate reusable production 2D game HUD component. Image is STYLE REFERENCE only. ONE isolated expressive rounded russet squirrel sitting in three-quarter view facing left, huge curled fluffy tail on right, bright curious eyes, cream chest, tiny paws resting at same horizontal perch line, both ears and entire tail intact. No branch or base. Match the reference squirrel. Painted volume, fine warm fur tufts, cool violet shadows. Transparent padding around extremities. Carefully painted magical woodland style matching reference: deep warm browns, violet shadow planes, honey highlights, rounded organic silhouettes. High quality colorful fantasy game illustration, convincing form, clean alpha edges. Genuine transparent RGBA background, no checkerboard, no scenery, no watermark, no text. Render at least 1024 pixels. Do not make an atlas. Exactly one asset."
+  },
+  {
+    "id": "mushrooms-right",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Asset type: separate reusable production 2D game HUD component. Image is STYLE REFERENCE only. ONE isolated composed cluster of 3 plump purple mushrooms with cyan luminous gills and tiny glowing spots, small jade leaves and two blue crystal buds at feet. Tall cap to right, smaller caps extending left; outward-facing HUD corner garnish. Rich hand-painted depth. No soil island, no scenery. Keep glow contained within generous transparent padding. Carefully painted magical woodland style matching reference: deep warm browns, violet shadow planes, honey highlights, rounded organic silhouettes. High quality colorful fantasy game illustration, convincing form, clean alpha edges. Genuine transparent RGBA background, no checkerboard, no scenery, no watermark, no text. Render at least 1024 pixels. Do not make an atlas. Exactly one asset."
+  },
+  {
+    "id": "clock",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Asset type: separate reusable production 2D game HUD component. Image is STYLE REFERENCE only. ONE blue glowing circular clock crest/bezel, aged wooden outer ring, thin warm gold rim, luminous cyan clock hand and circular tick marks, dark sapphire center. Frontal symmetric emblem. No numbers, no lettering. Soft cyan contained halo. Entire object isolated. Carefully painted magical woodland style matching reference: deep warm browns, violet shadow planes, honey highlights, rounded organic silhouettes. High quality colorful fantasy game illustration, convincing form, clean alpha edges. Genuine transparent RGBA background, no checkerboard, no scenery, no watermark, no text. Render at least 1024 pixels. Do not make an atlas. Exactly one asset."
+  },
+  {
+    "id": "ready",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Asset type: separate reusable production 2D game HUD component. Image is STYLE REFERENCE only. ONE blank emerald-green rounded pill button master, front view, aspect 3:1, thick dimensional deep brown wood rim with warm gold inside lip, luminous jade-green glass inset, brighter emerald edge and subtle hand-painted highlights. Quiet empty dark emerald center for native text. NO words, icons, letters or scenery. Carefully painted magical woodland style matching reference: deep warm browns, violet shadow planes, honey highlights, rounded organic silhouettes. High quality colorful fantasy game illustration, convincing form, clean alpha edges. Genuine transparent RGBA background, no checkerboard, no scenery, no watermark, no text. Render at least 1024 pixels. Do not make an atlas. Exactly one asset."
+  },
+  {
+    "id": "pause",
+    "mode": "built-in image_gen",
+    "transparent_background": true,
+    "reference": "references/phase-reference.png",
+    "prompt": "Use case: stylized-concept. Asset type: separate reusable production 2D game HUD component. Image is STYLE REFERENCE only. ONE blank violet-purple rounded pill button master, front view, aspect 3:1, thick dimensional deep brown wood rim with warm gold inside lip, rich violet glass inset, luminous purple edge, subtle hand-painted highlights. Quiet empty dark violet center for native text. NO words, icons, letters or scenery. Carefully painted magical woodland style matching reference: deep warm browns, violet shadow planes, honey highlights, rounded organic silhouettes. High quality colorful fantasy game illustration, convincing form, clean alpha edges. Genuine transparent RGBA background, no checkerboard, no scenery, no watermark, no text. Render at least 1024 pixels. Do not make an atlas. Exactly one asset."
+  }
+]

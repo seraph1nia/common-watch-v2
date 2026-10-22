@@ -1,5 +1,84 @@
 # Verification
 
+## Painted forest HUD (2026-10-21)
+
+The [painted HUD report](PAINTED_FOREST_HUD.md) links the source delivery and actual
+before/after screenshot review. Starting HEAD was
+`45741e3a6d3a29af4b3b6daf64b4b5293ca7bcd3`; eight existing working-tree changes were
+preserved. Fresh baseline build, 46 Core, 88 Shared, 19 art and three actual-process
+session tests passed before implementation. Baseline and final matched captures
+use the same legal scenarios at 720p/1080p, angled sprites, overlay off and
+environment effects Off.
+
+| Executed check | Result | Receipt under `artifacts/painted-forest-hud/` |
+| --- | --- | --- |
+| `mise run build` | Passed; zero warnings/errors | `build.log` |
+| `mise run art-painted-hud` | 48 exports validated: RGBA, padding/edges, hashes, state registration, anchors, slices, technical SVG contents | `asset-validation.log` |
+| `mise run test-core` | 46 passed | `test-core.log` |
+| `mise run test-shared` | 88 passed; final normal task wrapped in a 90-second supervisor | `test-shared-final.log` |
+| `mise run test-art` | 19 passed | `test-art.log` |
+| `mise run test-session` | Three actual-process tests passed | `test-session.log` |
+| `mise run test` | 46 Core, 88 Shared, 70 session/Steam/animation logic and six process tests passed, plus 19 art tests and debug/sprite battle-frame verification | `test.log` |
+| `mise run test-gameplay-ui` | Illustrated and plain UI, native pointer/controller checks and seven-wave host/guest worker passed | `test-gameplay-ui.log` |
+| Illustrated `mise run capture-gameplay-ui` | Native UI captures at 720p/1080p and network worker passed | `capture-gameplay-ui-final.log` |
+| Explicit Off `tools/graphical.sh capture-gameplay` | Final matched production frames passed and copied to `after/gameplay/` | `capture-matched-last.log` |
+| `mise run capture-settlement` and illustrated Off variant | All nine clearings, clear selection, purchase, native picking, fixed camera, both projections and five window sizes passed | `capture-settlement.log`, `capture-settlement-illustrated.log` |
+| `mise run capture-worldtree` | 18 sockets, hover/focus, prerequisites, inspection, purchase and acquired states at both resolutions passed | `capture-worldtree.log` |
+| `mise run capture-art` | 14 actual Godot frames passed | `capture-art.log` |
+| `mise run test-multiplayer` | One through six actual Godot processes passed | `test-multiplayer.log` |
+| `mise run test-reconnect` | Reconnect/fault suite passed across Building, Preparation, Combat and RewardDraft | `test-reconnect.log` |
+| Illustrated `tools/graphical.sh test-gameplay-network` | Actual pending, rejected and disconnected feedback at both resolutions, allied inspection and seven-wave replay passed | `capture-network-illustrated.log` |
+
+New checks use native pointer Ready through preparations 1, 2 and 3, pointer Pause
+and controller accept to Resume. Existing card/confirmation, Gold recovery,
+focus/scroll retention and menu assertions remain. Camera reset now asserts the
+new safe framing scale **and** origin. All 470 protected source/runtime files
+retain their original hashes (`preservation-receipt.json`). The screenshot inventory
+includes only captures recorded by the fresh baseline/final logs; the review script
+passes `node --check`. Proof and contact-sheet compositions are labeled separately
+from actual gameplay PNGs.
+
+Intermediate failures caught collapsed scrolling, clipped confirmation and
+inspector overlap and led to layout fixes. One intermediate 1080p capture failed
+`Esc closes details` during resize; subsequent complete captures passed without
+changing menu/session policy. A late Shared repeat stalled with a busy test host;
+that host was explicitly terminated. The earlier full suite, a bounded diagnostic
+rerun (88 passed in 16.39s) and the final normal Shared task (88 passed) succeeded.
+The aborted and diagnostic receipts remain separate; no Core/Shared changes were
+made to make tests pass.
+
+The pre-existing [CI run at the starting commit](https://github.com/seraph1nia/common-watch-v2/actions/runs/39656535912)
+failed confirmation focus restoration and logged missing `rg` on the runner. No
+fresh CI run or fix is claimed. Linux/Xvfb/Mesa and Dummy audio do not qualify live
+Steam, Windows/macOS execution or physical GPU/controller/audio hardware. Release
+exports were not rerun. The known intermittent native .NET/JIT crash risk remains.
+
+## Escape menu and session exit confirmations (2026-10-21)
+
+Escape now opens the session menu after any open Settings/details/rewards panel
+is dismissed. Return to main menu and Exit Game require native confirmation,
+with separate solo, host, guest and no-session consequences. Cancel is focused
+initially; Cancel/Escape restores the invoking button without leaving or pausing.
+Confirmed return releases the session and world views; confirmed exit retains
+the existing session cleanup and audio drain.
+
+Executed locally: `mise run build` (zero warnings/errors), `test-core` (46),
+`test-shared` (88), `test-session` (3 actual graphical process tests), and
+`mise exec -- bash tools/graphical.sh test-gameplay` (default and debug), and
+`mise run capture-art` (14 viewport captures).
+The graphical checks exercise Escape entry, native button clicks, confirmation
+cancellation/focus, unchanged combat state, cleanup, role-specific warnings and
+confirmed process exit. An initial overlapping build/test invocation hit an
+MSBuild file lock; the sequential Core rerun passed.
+
+A default smoke run with `--gameplay-captures` recorded both confirmations at
+720p/1080p under `artifacts/captures/godot/exit-menu/`; return at 720p and exit at
+1080p were visually inspected. Logs: `artifacts/test-logs/escape-menu-*.log` and
+the session suite's `godot-*.log` files. Linux checks used owned Xvfb displays,
+Dummy audio and disposable settings/private guest credentials. Multiplayer and
+reconnect suites, exports, live Steam, native Windows/macOS and physical GPU/audio
+were not rerun. The known intermittent native .NET/JIT crash risk remains unresolved.
+
 ## Forest UI refinement and menu popup (2026-10-21)
 
 The [file-level report](FOREST_UI_REFINEMENT.md) contains real before/after Godot captures at 720p/1080p, exact command receipts, the artwork preservation check and platform limitations. Build, Core (46), Shared (88), Pillow/art (19), session process checks (3), gameplay UI/captures in both presentations, settlement/Worldtree/art captures, 1–6 player multiplayer, reconnect and offline Steam/session logic (61) passed locally. The menu now opens as a framed square over the retained screen with no backdrop or dimming; native checks cover edge clicks, focus, controller cancel and unchanged outside pixels.

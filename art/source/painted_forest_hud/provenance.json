@@ -1,0 +1,195 @@
+{
+  "date": "2026-10-21",
+  "starting_head": "45741e3a6d3a29af4b3b6daf64b4b5293ca7bcd3",
+  "authorization": "Explicit user authorization to author the specified HUD assets only",
+  "authoring_tool": "OpenAI built-in image_gen",
+  "layered_sources_produced": false,
+  "reference_archive_sha256": "26ba5fe91a7ec5715a2739fe682cbba19f05c53ba6b874b2b2ab3361a2aa6e26",
+  "masters": [
+    {
+      "path": "art/source/painted_forest_hud/masters/badge.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "sha256": "90b4a3e07199deb5bd9cd6c3313f10fba113d854d70e4c416bb1971790aaa9a7"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/clock.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "sha256": "6b4c1f03f5c901811df7be64589a97b8b199486924ee0f20686c0f454b43da40"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/crescent.png",
+      "dimensions": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "sha256": "c4fc364165f5539714f160a3d7b4a052d5ba3da6d58650bb0890f9e552d86c64"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/crystals.png",
+      "dimensions": [
+        1349,
+        1166
+      ],
+      "mode": "RGBA",
+      "sha256": "10dd39d18017775362f760e28c40ede4ef68626955d40f077798e0c2e8375076"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/details.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "sha256": "c13436dc1982eb2f920f1a1771138ecfbd9995a0e2594158056a410d6d17b4d8"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/ivy.png",
+      "dimensions": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "sha256": "1335e087964d1da380af2959de3bf1bb80f46458bd7e6aefdeb29781001293db"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/lantern.png",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "sha256": "0a512dea75ad1e6921ae596cb370ece055f7c03e3b8a5b6357f95c5965f7f2bd"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/menu.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "sha256": "b1e94aabc71209306f6b4a642bcc6d6dc0b9285b4b18c4b18d55b45455a929f2"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/mushrooms-left.png",
+      "dimensions": [
+        1391,
+        1131
+      ],
+      "mode": "RGBA",
+      "sha256": "786c12756b744ece83fb989fa13a0d2b218b10bad8976c2d2ecb9c97a09d5eae"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/mushrooms-right.png",
+      "dimensions": [
+        1312,
+        1199
+      ],
+      "mode": "RGBA",
+      "sha256": "5ac573722e24da98e3b9838ee59d378bed0b092948f11d0377aaea3ce826814d"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/mushrooms-small.png",
+      "dimensions": [
+        1375,
+        1144
+      ],
+      "mode": "RGBA",
+      "sha256": "57e78282070155c379d851c5c1acf968bf96e184bc06b1661747fa2f31783852"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/owl.png",
+      "dimensions": [
+        1364,
+        1153
+      ],
+      "mode": "RGBA",
+      "sha256": "f1e292f199a1be4d014942764a4b5bb555ac07bf5aa67088d8de57082abfac90"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/panel.png",
+      "dimensions": [
+        1560,
+        1008
+      ],
+      "mode": "RGBA",
+      "sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/pause.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "sha256": "6bc3f60e7ba530146d8a2cdba5567b5193a4bb838ad11e8c71fc924474b35fb3"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/plaque.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "sha256": "b3498279b0a41478fba460920eb9ff62c125081612204c31ee7a3c98a839a199"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/rabbit.png",
+      "dimensions": [
+        1380,
+        1140
+      ],
+      "mode": "RGBA",
+      "sha256": "564f8a35498c2022d283ca08e2ea623e29f36cd87066bbe1fb4b6c9ceac94c89"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/ready.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "sha256": "7cbd8ea753849fbe36923ada1b54e25233671fec9c3f27b2a8507b6917873913"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/sprig.png",
+      "dimensions": [
+        2048,
+        768
+      ],
+      "mode": "RGBA",
+      "sha256": "2184a21d0b150919375da497283d766b3fbfc72170e79f540ef4b302401f4cda"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/squirrel.png",
+      "dimensions": [
+        1335,
+        1178
+      ],
+      "mode": "RGBA",
+      "sha256": "1e794bd3d90fab5cb5bd229275e14e4db8065be40f6960e21a6bb385841e34b9"
+    },
+    {
+      "path": "art/source/painted_forest_hud/masters/tab.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "sha256": "0528bd9cd07eba873190089e9b41a71dacd074a2fd6d4b4c182ec25ac5740cc3"
+    }
+  ],
+  "world_artwork_changed": false,
+  "code_and_technical_vectors_license": "GPL-3.0-only",
+  "references_license_note": "User supplied reference; no separate third-party grant inferred",
+  "runtime_manifest": "manifest.json",
+  "revision_note": "Final plaque has a continuous honey face. Portrait frame and existing building sprite are separate fixed-size native TextureRects. Both rejected plaque variants are retained."
+}

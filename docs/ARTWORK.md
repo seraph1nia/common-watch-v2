@@ -1,5 +1,11 @@
 # Pillow to Godot 2D
 
+The additive [painted HUD](PAINTED_FOREST_HUD.md) has its own RGBA masters,
+manifest, anchors, registered states and technical SVGs under
+`art/source/painted_forest_hud/`. `mise run art-painted-hud` exports and validates
+its separate Godot namespace. It does not enter the world-sprite catalog or change
+the approved assets documented below.
+
 The optional [modular battle arena](MODULAR_BATTLE_ARENA.md) adds 16 byte-preserved
 component PNGs to the existing 29 crop entries. Its supplied RGB ground images
 and RGBA strips/cutouts use explicit `arena/*` IDs and source hashes. The

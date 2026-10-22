@@ -1,18 +1,22 @@
 using Godot;
 using Game.Shared;
+using Game.Core;
 
 namespace Game.GodotClient;
 
 /// <summary>Optional forest resources adapt the native theme; the static menu backdrop is shared by all modes.</summary>
 public sealed class HudSkin : IDisposable
 {
+    private readonly AssetLoader _assets;
     public Theme Theme { get; }
     public bool Illustrated { get; }
     public WorldtreeArt? Worldtree { get; }
     public Texture2D? MenuBackground { get; }
+    public PaintedHudArt? Painted { get; }
     public int NinePatches { get; private set; }
     public HudSkin(AssetLoader assets)
     {
+        _assets = assets;
         var plain = GD.Load<Theme>("res://UI/WatchTheme.tres");
         Theme = (Theme)plain.Duplicate();
         Worldtree = WorldtreeArt.Load(assets);
@@ -33,6 +37,8 @@ public sealed class HudSkin : IDisposable
         Theme.SetFontSize("font_size", "OptionButton", 16);
         foreach (string type in new[] { "Button", "ForestPrimaryButton", "ForestArcaneButton", "ForestDangerButton" })
             Theme.SetColor("font_disabled_color", type, new Color("b1bfb0"));
+        var painted = new PaintedHudArt();
+        if (painted.Available) { Painted = painted; painted.Apply(Theme); }
     }
     public Button Button(string text, Action clicked, string variation = "")
     {
@@ -44,6 +50,10 @@ public sealed class HudSkin : IDisposable
     {
         panel.Theme = Theme; panel.MouseFilter = Control.MouseFilterEnum.Stop;
         if (!Illustrated) return;
+        if (Painted is not null)
+        {
+            panel.AddThemeStyleboxOverride("panel", Painted.Frame()); NinePatches++; return;
+        }
         panel.ThemeTypeVariation = id switch { "ribbon" => "ForestRibbon", "modal" => "ForestModal", _ => "" };
         var style = (StyleBoxTexture)Theme.GetStylebox("panel", !panel.ThemeTypeVariation.IsEmpty ? panel.ThemeTypeVariation : "PanelContainer").Duplicate();
         // Padding is independent of source-pixel slice margins. Never scale the frame.
@@ -53,8 +63,10 @@ public sealed class HudSkin : IDisposable
     }
     private Texture2D? Texture(string path) => Illustrated && ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
     public Texture2D? Icon(string name) => Texture($"res://UI/ForestHud/icons/{name}.png");
+    public Texture2D? BuildingSprite(Building type) => Illustrated && type != Building.Empty ? _assets.Load(VisualAssets.BuildingId(type)) : null;
     public void Ornament(Control parent, string name, Vector2 position, Vector2 size)
     {
+        if (Painted is not null) return;
         if (Texture($"res://UI/ForestHud/ornaments/{name}.png") is not { } texture) return;
         var decoration = new Node2D { Name = "ForestOrnament" }; parent.AddChild(decoration);
         decoration.AddChild(new TextureRect { Texture = texture,

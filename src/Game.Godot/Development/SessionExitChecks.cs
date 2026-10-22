@@ -7,6 +7,7 @@ public partial class GameApplication
 {
     private async Task CheckSessionExitMenu()
     {
+        var originalSize = GetWindow().Size;
         ReplaceSession(ScenarioRunner.CreateAt("combat")); _frozen = true; RefreshUi(true);
         var session = _session;
         long revision = session.Snapshot.Revision;
@@ -30,7 +31,9 @@ public partial class GameApplication
             // Escape belongs to the confirmation window and must not dismiss its parent menu.
             _exitConfirmation.PushInput(new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = true }, true);
             _exitConfirmation.PushInput(new InputEventKey { Keycode = Key.Escape, PhysicalKeycode = Key.Escape, Pressed = false }, true);
-            Require(!_exitConfirmation.Visible && _menuPopup.Visible && _menuPopup.ReturnToMenuButton.HasFocus(), "Escape cancels confirmation and restores invoking focus");
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Require(!_exitConfirmation.Visible && _menuPopup.Visible && _menuPopup.ReturnToMenuButton.HasFocus(),
+                $"Escape cancels confirmation and restores invoking focus: dialog={_exitConfirmation.Visible} menu={_menuPopup.Visible} focus={GetViewport().GuiGetFocusOwner()?.GetPath()}");
             Click(_menuPopup.QuitButton.GetGlobalRect().GetCenter());
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Require(_exitConfirmation.Visible && _exitConfirmation.DialogText.Contains("game will close") && !_quitting, "exit asks before quitting");
@@ -50,15 +53,20 @@ public partial class GameApplication
         _menuPopup.ReturnToMenuButton.EmitSignal(BaseButton.SignalName.Pressed);
         Require(_exitConfirmation.DialogText.Contains("everyone") && _exitConfirmation.DialogText.Contains("disconnect all players"), "host warning explains impact on other players");
         ReturnToMenu();
-        BeginJoin("127.0.0.1:1"); OpenMenu();
-        _menuPopup.QuitButton.EmitSignal(BaseButton.SignalName.Pressed);
-        Require(_exitConfirmation.DialogText.Contains("other players can continue") && _exitConfirmation.DialogText.Contains("same session"), "guest warning explains disconnect and conditional reconnect");
-        ReturnToMenu();
+        string directory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "common-watch-exit-" + Guid.NewGuid().ToString("N"));
+        System.IO.Directory.CreateDirectory(directory);
+        try
+        {
+            _sessions.Open(guest => guest.Join("127.0.0.1", 1, directory)); RefreshUi(true); OpenMenu();
+            _menuPopup.QuitButton.EmitSignal(BaseButton.SignalName.Pressed);
+            Require(_exitConfirmation.DialogText.Contains("other players can continue") && _exitConfirmation.DialogText.Contains("same session"), "guest warning explains disconnect and conditional reconnect");
+        }
+        finally { ReturnToMenu(); System.IO.Directory.Delete(directory, recursive: true); }
         Require(!_exitConfirmation.Visible, "session replacement clears pending confirmations");
         _sessionMenu.QuitButton.EmitSignal(BaseButton.SignalName.Pressed);
         Require(_exitConfirmation.Visible && _exitConfirmation.DialogText.Contains("No match is active"), "main menu exit describes settings retention without claiming progress loss");
         _exitConfirmation.GetCancelButton().EmitSignal(BaseButton.SignalName.Pressed);
-        GetWindow().Size = new(1280, 720);
+        GetWindow().Size = originalSize;
         GD.Print("GODOT_EXIT_MENU_PASS escape return exit cancel focus solo host guest cleanup sizes=1280/1920");
     }
 }

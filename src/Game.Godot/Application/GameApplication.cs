@@ -155,7 +155,11 @@ public partial class GameApplication : Node
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _arenaBackdrop.Present(_assets, _battlefield.Active || preview);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
-        if (_settlementView.Visible) _camera.Frame(_settlementView.ScreenOrigin(WorldArea.Size), _settlementView.Framing(WorldArea.Size));
+        if (_settlementView.Visible)
+        {
+            var frame = _gameUi.SettlementFramingArea;
+            _camera.Frame(frame.Position + _settlementView.ScreenOrigin(frame.Size), _settlementView.Framing(frame.Size));
+        }
         else if (_battlefield.Active || preview)
         {
             var state = _battle?.Snapshot ?? _session.Snapshot;
@@ -254,6 +258,8 @@ public partial class GameApplication : Node
         if (_menuPopup is not null) _menuPopup.SettingsRequested -= OpenMenuSettings;
         if (_menuPopup is not null) _menuPopup.MenuRequested -= RequestReturnToMenu;
         if (_sessionMenu is not null) _sessionMenu.MenuRequested -= RequestReturnToMenu;
+        if (_menuPopup is not null) _menuPopup.QuitRequested -= RequestQuit;
+        if (_sessionMenu is not null) _sessionMenu.QuitRequested -= RequestQuit;
         if (_exitConfirmation is not null) _exitConfirmation.Clear();
         if (_settings is not null) { _settings.Opened -= StopCameraDrag; if (_gameUi is not null) _gameUi.SettingsRequested -= _settings.Open; }
         _audio?.Stop();

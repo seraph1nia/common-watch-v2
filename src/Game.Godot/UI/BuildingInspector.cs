@@ -19,6 +19,7 @@ public partial class BuildingInspector : VBoxContainer
     private VBoxContainer _heading = null!;
     private VBoxContainer _text = null!;
     private Button _army = null!;
+    private TextureRect _portrait = null!;
     public event Action? ArmyRequested;
     public bool Compact { get; set; }
     public string EmptyHint { get; set; } = "Select a clearing to build or manage your settlement.";
@@ -34,10 +35,14 @@ public partial class BuildingInspector : VBoxContainer
     {
         _skin = skin; _submitted = submitted;
         _heading = new VBoxContainer(); AddChild(_heading);
-        _text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _heading.AddChild(_text);
+        var header = new HBoxContainer(); _heading.AddChild(header);
+        _portrait = new TextureRect { CustomMinimumSize = new(48, 72), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore }; header.AddChild(_portrait);
+        _text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; header.AddChild(_text);
         _selection = WrapLabel(); _selection.AddThemeFontSizeOverride("font_size", 18); _text.AddChild(_selection); _details = WrapLabel(); _text.AddChild(_details);
         _actions = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkBegin }; _heading.AddChild(_actions);
-        _army = skin.Button("Manage troops & homes", () => ArmyRequested?.Invoke()); _text.AddChild(_army);
+        _army = skin.Button("Troops & homes", () => ArmyRequested?.Invoke()); _army.AutowrapMode = TextServer.AutowrapMode.WordSmart; _heading.AddChild(_army);
+        _heading.MoveChild(_army, 1);
         _construction = new ConstructionPanel(); AddChild(_construction); _construction.Initialize(skin);
         _recruitment = new RecruitmentPanel(); AddChild(_recruitment); _recruitment.Initialize(skin);
         _market = new MarketPanel(); AddChild(_market); _market.Initialize(skin);
@@ -47,7 +52,7 @@ public partial class BuildingInspector : VBoxContainer
     public void Refresh(GameplayContext context, int slotIndex)
     {
         _context = context; _slot = slotIndex;
-        _actions.Vertical = !Compact; _actions.Visible = true;
+        _actions.Vertical = true; _actions.Visible = true;
         _text.AddThemeConstantOverride("separation", Compact ? 4 : 10);
         _details.MaxLinesVisible = Compact ? 2 : -1;
         _details.Visible = true;
@@ -55,6 +60,8 @@ public partial class BuildingInspector : VBoxContainer
         SlotState? slot = ArmyConfiguration.IsArmyPlot(_slot) ? context.City.Army?.Homes.FirstOrDefault(h => h.PlotId == _slot)?.Plot
             : _slot is >= 0 and < 9 ? context.City.Slots[_slot] : null;
         bool occupiedHome = ArmyConfiguration.IsArmyPlot(_slot) && context.City.Army!.Homes.Single(h => h.PlotId == _slot).Used > 0;
+        _portrait.Texture = slot is null ? null : _skin.BuildingSprite(slot.Type);
+        _portrait.Visible = _portrait.Texture is not null;
         _construction.Visible = slot is { Purchased: true, Type: Building.Empty } && !occupiedHome;
         _recruitment.Visible = slot is not null && context.State.BuildingCatalog.FirstOrDefault(b => b.Type == slot.Type)?.Recruits is not null;
         _market.Visible = slot?.Type == Building.Market;

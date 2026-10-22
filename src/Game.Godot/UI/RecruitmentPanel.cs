@@ -15,7 +15,7 @@ public partial class RecruitmentPanel : VBoxContainer
     public void Initialize(HudSkin skin)
     {
         _skin = skin; AddChild(WrapLabel("Recruit one persistent soldier; reinforce or start a homogeneous squad."));
-        _destination = new OptionButton(); AddChild(_destination);
+        _destination = new OptionButton { FitToLongestItem = false, ClipText = true }; AddChild(_destination);
         _destination.ItemSelected += _ => Refresh(_context, _slot);
         _actions = new ActionList(); AddChild(_actions);
     }
@@ -27,6 +27,7 @@ public partial class RecruitmentPanel : VBoxContainer
         NativeOptions.Update(_destination, new[] { (0, "Automatic compatible squad"), (int.MaxValue, "New squad at an empty home") }
             .Concat(context.City.Soldiers.Where(u => u.Assignment is { Stored: false }).GroupBy(u => u.SquadId)
                 .Select(g => (g.Key, $"Squad #{g.Key} {g.First().Type} — {g.Count()}/{context.City.Army?.SquadCapacity}"))));
+        _destination.TooltipText = _destination.GetItemText(_destination.Selected);
         foreach (var type in definition?.Recruits ?? [])
         {
             var quote = context.City.RecruitmentQuotes.Single(q => q.Type == type && q.Level == building.Level);

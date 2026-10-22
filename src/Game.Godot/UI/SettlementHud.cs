@@ -11,18 +11,20 @@ public partial class SettlementHud : Control
     private ResourcePanel _economy = null!;
     private CitySelector _cities = null!;
     private MatchControls _controls = null!;
-    private PanelContainer _ribbon = null!, _dock = null!, _action = null!;
+    private PanelContainer _ribbon = null!, _dock = null!, _action = null!, _palette = null!;
+    private ScrollContainer _constructionBody = null!;
+    private HBoxContainer _menu = null!;
+    private PhaseTrack _phaseTrack = null!;
     private HBoxContainer _nav = null!;
     private VBoxContainer _ribbonBody = null!;
     private ScrollContainer _contextBody = null!;
     private HFlowContainer _contextNav = null!;
-    private Control _ribbonSpacer = null!;
     private Button _feedback = null!, _clear = null!;
     private string _feedbackKey = "";
     private double _acceptedUntil;
     private readonly Queue<string> _recentFeedback = new();
-    private (Vector2 View, Vector2 Ribbon, Vector2 Action, Vector2 Inspector, Vector2 Nav, bool Selected, bool Construction, bool Modal, bool Arena)? _layout;
     private bool _arenaContext;
+    private bool? _wideLayout;
     private string _uiKey = "";
     private int _viewed;
     private Button _rewards = null!, _arena = null!;
@@ -35,21 +37,24 @@ public partial class SettlementHud : Control
     public string SessionFeedback { get; private set; } = "";
     public Control Resources => _economy;
     public Button ReadyButton => _controls.ReadyButton;
+    internal Button PauseButton => _controls.PauseButton;
+    internal Rect2 LedgerArea => _ribbon.GetGlobalRect();
+    internal Rect2 PhaseArea => _action.GetGlobalRect();
     internal CitySelector Cities => _cities;
-    internal Rect2 ContextArea => _contextBody.GetGlobalRect();
+    internal Rect2 ContextArea => Inspector.Construction.IsVisibleInTree() ? _constructionBody.GetGlobalRect() : _contextBody.GetGlobalRect();
     internal Button ClearSelectionButton => _clear;
     internal Button FeedbackButton => _feedback;
     public bool ShowArena { get; private set; }
     internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
     public bool BlocksWorld => Details.Visible || Draft.Visible;
     public Rect2 WorldArea => new(Vector2.Zero, Size);
+    public Rect2 SettlementFramingArea => new(new Vector2(0, 24), new Vector2(Size.X - (Size.X >= 1600 ? 420 : 382), Size.Y - 108));
     public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged, SettingsRequested;
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
         _uiKey = ""; _viewed = 0; ShowArena = false;
         _feedbackKey = ""; _recentFeedback.Clear(); _acceptedUntil = 0;
-        _layout = null;
         Inspector?.Construction.ResetSelection(); Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(); }
     }
     private void Submitted() => CommandSubmitted?.Invoke();
@@ -65,46 +70,60 @@ public partial class SettlementHud : Control
         _ribbon.AddThemeStyleboxOverride("panel", (StyleBox)_ribbon.GetThemeStylebox("panel").Duplicate());
         _ribbonBody = new VBoxContainer(); _ribbonBody.AddThemeConstantOverride("separation", 4); _ribbon.AddChild(_ribbonBody);
         _nav = new HBoxContainer(); _ribbonBody.AddChild(_nav);
-        _cities = new CitySelector { CustomMinimumSize = new(220, 44), FitToLongestItem = false, ClipText = true }; _nav.AddChild(_cities); _cities.Initialize();
+        _cities = new CitySelector { CustomMinimumSize = new(200, 44), SizeFlagsHorizontal = SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true }; _nav.AddChild(_cities); _cities.Initialize();
         _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, false, true); };
-        _keep = new Label(); _nav.AddChild(_keep);
-        _economy = new ResourcePanel(); _nav.AddChild(_economy); _economy.Initialize(skin);
-        _ribbonSpacer = new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore }; _nav.AddChild(_ribbonSpacer);
-        _phase = WrapLabel(); _phase.CustomMinimumSize = new(260, 0); _nav.AddChild(_phase);
-        _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }); _nav.AddChild(_arena);
-        SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); _nav.AddChild(SettingsButton);
+        _keep = new Label(); _keep.AddThemeFontSizeOverride("font_size", 14); _ribbonBody.AddChild(_keep);
+        _economy = new ResourcePanel(); _ribbonBody.AddChild(_economy); _economy.Initialize(skin);
+        _menu = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_menu);
+        SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); _menu.AddChild(SettingsButton);
+        SettingsButton.CustomMinimumSize = new(126, 48);
+        _menu.AddChild(new Control { CustomMinimumSize = new(44, 0), MouseFilter = MouseFilterEnum.Ignore });
+        _menu.AddChild(skin.Button("Menu", () => MenuRequested?.Invoke()));
 
         _dock = new PanelContainer(); AddChild(_dock); skin.Panel(_dock);
         var column = new VBoxContainer(); _dock.AddChild(column);
-        var navigation = new HFlowContainer(); _contextNav = navigation; column.AddChild(navigation);
+        var dismiss = new HBoxContainer(); column.AddChild(dismiss);
+        var selectedHeading = new Label { Text = "Selected", SizeFlagsHorizontal = SizeFlags.ExpandFill }; dismiss.AddChild(selectedHeading);
+        _clear = skin.Button("×", () => { _session.SelectSlot(-1); Submitted(); }); _clear.CustomMinimumSize = new(44, 44);
+        _clear.TooltipText = "Clear plot selection · expose every clearing"; dismiss.AddChild(_clear);
+        _palette = new PanelContainer(); AddChild(_palette); skin.Panel(_palette);
+        if (skin.Painted is not null)
+        {
+            var paletteFrame = _palette.GetThemeStylebox("panel");
+            paletteFrame.ContentMarginLeft = paletteFrame.ContentMarginRight = 20;
+            paletteFrame.ContentMarginTop = 20; paletteFrame.ContentMarginBottom = 22;
+        }
+        var paletteColumn = new VBoxContainer(); _palette.AddChild(paletteColumn);
+        var navigation = new HFlowContainer(); _contextNav = navigation; paletteColumn.AddChild(navigation);
         var build = skin.Button("Build", () => { Details.Close(); Draft.Dismiss(); LayoutHud(); }); navigation.AddChild(build);
         navigation.AddChild(skin.Button("Worldtree", () => OpenDetails(DetailsPage.Worldtree)));
         navigation.AddChild(skin.Button("Troops & homes", () => OpenDetails(DetailsPage.Army)));
-        navigation.AddChild(skin.Button("City details", () => OpenDetails(DetailsPage.City)));
-        _clear = skin.Button("×", () => { _session.SelectSlot(-1); Submitted(); }); _clear.CustomMinimumSize = new(44, 44);
-        _clear.TooltipText = "Clear plot selection"; navigation.AddChild(_clear);
+        navigation.AddChild(skin.Button("City details", () => OpenDetails(DetailsPage.City), skin.Painted is null ? "" : "PaintedDetails"));
         foreach (var button in navigation.GetChildren().OfType<Button>())
             foreach (string state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
             {
-                var style = (StyleBox)skin.Theme.GetStylebox(state, "Button").Duplicate();
+                var style = (StyleBox)skin.Theme.GetStylebox(state, button.ThemeTypeVariation.IsEmpty ? "Button" : button.ThemeTypeVariation).Duplicate();
                 style.ContentMarginLeft = style.ContentMarginRight = 12;
                 button.AddThemeStyleboxOverride(state, style);
             }
         _contextBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; column.AddChild(_contextBody);
         Inspector = new BuildingInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _contextBody.AddChild(Inspector); Inspector.Initialize(skin, Submitted); Inspector.Compact = true;
+        _constructionBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; paletteColumn.AddChild(_constructionBody);
+        Inspector.Construction.Reparent(_constructionBody); Inspector.Construction.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         Inspector.ArmyRequested += () => { OpenDetails(DetailsPage.Army); if (_session.SelectedSlot is >= 0 and < 9 && (_session.ViewedCity.Slots[_session.SelectedSlot].Type == Building.TownHall || _session.Snapshot.BuildingCatalog.Any(b => b.Type == _session.ViewedCity.Slots[_session.SelectedSlot].Type && b.Recruits is not null))) Details.Army.ShowManagementFor(_session.SelectedSlot, Context); };
         skin.Ornament(_dock, "branch_sprig", new Vector2(-6, -20), new Vector2(72, 32));
 
         _action = new PanelContainer(); AddChild(_action); skin.Panel(_action);
         var actions = new VBoxContainer(); _action.AddChild(actions);
-        _controls = new MatchControls(); actions.AddChild(_controls); _controls.Initialize(skin, Submitted);
+        _phase = WrapLabel(); _phase.AddThemeFontSizeOverride("font_size", 18); actions.AddChild(_phase);
+        _phaseTrack = new PhaseTrack { Illustrated = skin.Painted is not null }; actions.AddChild(_phaseTrack);
         _overview = skin.Button("Field overview  [F]", () => ArenaOverviewRequested?.Invoke()); actions.AddChild(_overview);
         var links = new HBoxContainer();
         _rewards = skin.Button("Rewards", () => { Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
         _feedback = skin.Button("Recent feedback", () => OpenDetails(DetailsPage.City));
         _feedback.AddThemeFontSizeOverride("font_size", 14); _feedback.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         actions.AddChild(links);
-        links.AddChild(skin.Button("Menu", () => MenuRequested?.Invoke()));
+        _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }); links.AddChild(_arena);
         var reconnect = skin.Button("↻", () => ReconnectRequested?.Invoke()); reconnect.TooltipText = "Reconnect";
         reconnect.CustomMinimumSize = new(44, 44);
         links.AddChild(reconnect); links.AddChild(_feedback);
@@ -115,6 +134,26 @@ public partial class SettlementHud : Control
                 style.ContentMarginLeft = style.ContentMarginRight = 12;
                 button.AddThemeStyleboxOverride(state, style);
             }
+        _controls = new MatchControls(); actions.AddChild(_controls); _controls.Initialize(skin, Submitted);
+        if (skin.Painted is { } art)
+        {
+            art.Attach(SettingsButton, "owl", new(58, 54), Vector2.One, new(8, -5), new(.5f, .95f));
+            art.Attach(_menu, "mushrooms-small", new(50, 66), Vector2.Zero, new(-4, 48));
+            art.Attach(_ribbon, "rabbit", new(60, 54), new(1, 0), new(-48, 24), new(.5f, .95f));
+            art.Attach(_ribbon, "crescent", new(50, 50), Vector2.Zero, new(20, 30), new(.5f, .5f));
+            art.Attach(_ribbon, "ivy", new(70, 100), Vector2.Zero, new(-14, 84));
+            art.Attach(_ribbon, "lantern-glow", new(86, 104), new(0, .4f), new(-10, 0), new(.5f, .5f));
+            art.Attach(_ribbon, "lantern", new(36, 88), new(0, .4f), new(-4, 24));
+            art.Attach(_ribbon, "crystals", new(44, 64), new(0, 1), new(-6, -20));
+            art.Attach(_ribbon, "mushrooms-right", new(62, 74), Vector2.One, new(-8, -10));
+            art.Attach(_dock, "mushrooms-left", new(68, 90), new(0, 1), new(4, -6));
+            art.Attach(_palette, "mushrooms-left", new(60, 80), new(0, 1), new(0, -8));
+            art.Attach(_palette, "mushrooms-right", new(60, 80), Vector2.One, new(0, -8));
+            art.Attach(_palette, "separator", new(128, 24), new(.5f, 0), new(0, 24));
+            art.Attach(_action, "squirrel", new(66, 66), new(1, 0), new(-40, 38), new(.5f, .95f));
+            art.Attach(_action, "clock", new(44, 44), Vector2.Zero, new(22, 26), new(.5f, .5f));
+            art.Attach(_action, "mushrooms-small", new(54, 60), Vector2.One, new(-6, -10));
+        }
         Details = new GameplayDialog(); Details.Initialize(skin, Submitted); AddChild(Details); Details.FallbackFocus = build; Details.Closed += LayoutHud;
         Details.PlotRequested += slot => { _session.SelectSlot(slot); ShowArena = false; ArenaChanged?.Invoke(); Submitted(); };
         Draft = new DraftPanel(); AddChild(Draft); Draft.Initialize(skin, Submitted); Draft.FallbackFocus = build;
@@ -123,33 +162,40 @@ public partial class SettlementHud : Control
     private void LayoutHud()
     {
         if (_ribbon is null || Draft is null) return;
-        // Move the whole resource row; preserve readable type and every native control.
-        float required = _nav.GetChildren().OfType<Control>().Where(c => c != _economy && c != _ribbonSpacer).Sum(c => c.GetCombinedMinimumSize().X)
-            + _economy.WideMinimumWidth + 7 * _nav.GetThemeConstant("separation") + 24;
-        bool stacked = required > Size.X - 16;
-        _economy.SetCompact(stacked);
-        var ribbonStyle = _ribbon.GetThemeStylebox("panel");
-        ribbonStyle.ContentMarginTop = ribbonStyle.ContentMarginBottom = stacked ? 14 : 16;
-        if (stacked && _economy.GetParent() != _ribbonBody) _economy.Reparent(_ribbonBody);
-        else if (!stacked && _economy.GetParent() != _nav) { _economy.Reparent(_nav); _nav.MoveChild(_economy, 2); }
-        _ribbonSpacer.Visible = stacked;
         bool selected = _session is not null && _session.SelectedSlot >= 0;
         bool construction = selected && Inspector.Construction.Visible && !BlocksWorld && !_arenaContext;
-        _contextBody.Visible = selected && !BlocksWorld; _clear.Visible = selected;
-        var layout = (Size, _ribbon.GetCombinedMinimumSize(), _action.GetCombinedMinimumSize(), Inspector.GetCombinedMinimumSize(),
-            _contextNav.GetCombinedMinimumSize(), selected, construction, BlocksWorld, _arenaContext);
-        if (_layout == layout) return;
-        _layout = layout;
-        _ribbon.Position = new(8, 8); _ribbon.Size = new(Size.X - 16, _ribbon.GetCombinedMinimumSize().Y);
-        float actionHeight = Mathf.Max(120, _action.GetCombinedMinimumSize().Y);
-        _action.Position = new(Size.X - 368, Size.Y - actionHeight - 8); _action.Size = new(360, actionHeight);
-        float width = construction ? Mathf.Min(1100, _action.Position.X - 24) : Mathf.Min(610, _action.Position.X - 24);
-        float frame = _dock.GetThemeStylebox("panel").GetMinimumSize().Y + _contextNav.GetCombinedMinimumSize().Y + 10;
-        float height = frame + (selected ? Inspector.GetCombinedMinimumSize().Y : 0);
-        height = Mathf.Min(height, Size.Y - _ribbon.Size.Y - 32);
-        _dock.Visible = !_arenaContext && !BlocksWorld;
-        _dock.Position = new(8, Size.Y - height - 8); _dock.Size = new(width, height);
+        _contextBody.Visible = selected && !BlocksWorld;
+        _constructionBody.Visible = construction;
+        _clear.Visible = selected;
+        _dock.Visible = selected && !_arenaContext && !BlocksWorld;
+        _palette.Visible = !_arenaContext && !BlocksWorld;
+        bool wide = Size.X >= 1600;
+        float edge = wide ? 24 : 12;
+        float ledgerWidth = wide ? 380 : 350;
+        _menu.Position = new(edge + 12, edge + 8); _menu.Size = new(280, 48);
+        _ribbon.Position = new(Size.X - ledgerWidth - edge, wide ? 60 : 32);
+        _ribbon.Size = new(ledgerWidth, _ribbon.GetCombinedMinimumSize().Y);
+        if (_wideLayout != wide) { _wideLayout = wide; _phase.AddThemeFontSizeOverride("font_size", wide ? 18 : 16); }
+        float actionWidth = wide ? 380 : 350;
+        float actionHeight = _action.GetCombinedMinimumSize().Y;
+        _action.Size = new(actionWidth, actionHeight);
+        _action.Position = new(Size.X - actionWidth - edge, Size.Y - actionHeight - edge);
+        float inspectorWidth = wide ? 330 : 264;
+        float inspectorHeight = Mathf.Min(_dock.GetThemeStylebox("panel").GetMinimumSize().Y + 52 + Inspector.GetCombinedMinimumSize().Y, Size.Y * .50f);
+        _dock.Size = new(inspectorWidth, inspectorHeight);
+        _dock.Position = new(edge, Size.Y - inspectorHeight - edge);
+        // Empty-plot construction owns its own retained native scroll area. The collapsed
+        // navigation stays shallow; clear-selection removes both context surfaces.
+        float left = construction ? edge + inspectorWidth + 12 : wide ? 396 : 280;
+        float right = _action.Position.X - 12;
+        float paletteWidth = Mathf.Max(440, right - left);
+        float paletteHeight = _palette.GetThemeStylebox("panel").GetMinimumSize().Y + _contextNav.GetCombinedMinimumSize().Y
+            + (construction ? Inspector.Construction.GetCombinedMinimumSize().Y + 8 : 0);
+        if (construction) paletteHeight = Mathf.Min(paletteHeight + 8, Size.Y - 200);
+        _palette.Size = new(paletteWidth, paletteHeight);
+        _palette.Position = new(left, Size.Y - paletteHeight - edge);
     }
+
     public void Inspect(UnitState unit, bool preview = false)
     {
         Details.Inspector.Select(unit, preview, _session.Snapshot.Phase); OpenDetails(DetailsPage.Inspection);
@@ -175,6 +221,7 @@ public partial class SettlementHud : Control
             : session.LastResult is { Accepted: true } && Time.GetTicksMsec() < _acceptedUntil ? "Accepted ✓" : "Recent feedback";
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
         _phase.Text = $"Wave {state.Wave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
+        _phaseTrack.Refresh(state, finishingCombat);
         _keep.Text = $"Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _rewards.Visible = state.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated;
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);

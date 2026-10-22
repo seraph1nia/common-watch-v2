@@ -55,6 +55,13 @@ public partial class SessionExitDialog : ConfirmationDialog
         if (IsInstanceValid(invoker) && invoker!.IsVisibleInTree()) invoker.GrabFocus();
     }
 
+    public override void _Input(InputEvent input)
+    {
+        if (!Visible || !input.IsActionPressed("ui_cancel")) return;
+        SetInputAsHandled();
+        Cancel();
+    }
+
     public override void _ExitTree()
     {
         Confirmed -= Confirm;

@@ -155,6 +155,10 @@ run = ".venv-art/bin/python tools/art/pipeline.py preview"
 description = "Test Pillow cropping, alpha, anchors, nine-slicing and deterministic processing"
 run = ".venv-art/bin/python -m unittest discover -s tests/art -v"
 
+[tasks.art-painted-hud]
+description = "Export and validate the additive painted HUD masters with pinned Pillow"
+run = [".venv-art/bin/python tools/art/painted_hud.py", ".venv-art/bin/python tools/art/validate_painted_hud.py"]
+
 [tasks.art-showroom]
 description = "Development showroom: inspect artwork and native nine-slices without a match"
 depends = ["build"]

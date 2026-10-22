@@ -1,0 +1,2201 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "badge",
+      "role": "badge",
+      "source": "art/source/painted_forest_hud/masters/badge.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/badge.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "dimensions": [
+        509,
+        520
+      ],
+      "transparent_padding": [
+        11,
+        12,
+        11,
+        10
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "90b4a3e07199deb5bd9cd6c3313f10fba113d854d70e4c416bb1971790aaa9a7",
+      "sha256": "714431544311e0047b6f8109b93e16b15c94e4fa4d62b70dafcde32d5f1b550a",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "clock",
+      "role": "clock",
+      "source": "art/source/painted_forest_hud/masters/clock.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/clock.png",
+      "source_dimensions": [
+        1254,
+        1254
+      ],
+      "dimensions": [
+        520,
+        505
+      ],
+      "transparent_padding": [
+        8,
+        8,
+        8,
+        9
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "6b4c1f03f5c901811df7be64589a97b8b199486924ee0f20686c0f454b43da40",
+      "sha256": "85e1d48001dc488aadeb9a73bb4be1bb941fad07fce8eaac04eb17aa5167c231",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "crescent",
+      "role": "crescent",
+      "source": "art/source/painted_forest_hud/masters/crescent.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/crescent.png",
+      "source_dimensions": [
+        1312,
+        1199
+      ],
+      "dimensions": [
+        520,
+        520
+      ],
+      "transparent_padding": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "c4fc364165f5539714f160a3d7b4a052d5ba3da6d58650bb0890f9e552d86c64",
+      "sha256": "61ea8ad9ec7b4eab340a55a75f4556de415660d9f3c86666bbb8f89034636c27",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "crystals",
+      "role": "crystals",
+      "source": "art/source/painted_forest_hud/masters/crystals.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/crystals.png",
+      "source_dimensions": [
+        1349,
+        1166
+      ],
+      "dimensions": [
+        502,
+        520
+      ],
+      "transparent_padding": [
+        10,
+        9,
+        9,
+        10
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "10dd39d18017775362f760e28c40ede4ef68626955d40f077798e0c2e8375076",
+      "sha256": "4f726c32b1976932e16a4b3db2693986bd66e5b4f94cafd71575f0a910548596",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "details_normal",
+      "role": "details",
+      "source": "art/source/painted_forest_hud/masters/details.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/details_normal.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "details",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "c13436dc1982eb2f920f1a1771138ecfbd9995a0e2594158056a410d6d17b4d8",
+      "sha256": "3ec88e414f46cfa20873ca4f068a59e9bfdaafd79e89e9a9b081fad1ffe4ccc3",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "details_hover",
+      "role": "details",
+      "source": "art/source/painted_forest_hud/masters/details.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/details_hover.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "details",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "c13436dc1982eb2f920f1a1771138ecfbd9995a0e2594158056a410d6d17b4d8",
+      "sha256": "4a0288c019abde255a509e418e0bc403160bae2856c308b4c40900fa3fad0d97",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "details_pressed",
+      "role": "details",
+      "source": "art/source/painted_forest_hud/masters/details.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/details_pressed.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "details",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "c13436dc1982eb2f920f1a1771138ecfbd9995a0e2594158056a410d6d17b4d8",
+      "sha256": "26d31488c8ace7ad1d89d4ae8b669f535166ca6b5a874d99f942c2c13aa55c64",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "details_disabled",
+      "role": "details",
+      "source": "art/source/painted_forest_hud/masters/details.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/details_disabled.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "details",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "c13436dc1982eb2f920f1a1771138ecfbd9995a0e2594158056a410d6d17b4d8",
+      "sha256": "a0e059ae1b47cd6b559435c0aab7ab85948e76417df57277134980e6d1b109aa",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "ivy",
+      "role": "ivy",
+      "source": "art/source/painted_forest_hud/masters/ivy.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/ivy.png",
+      "source_dimensions": [
+        1312,
+        1199
+      ],
+      "dimensions": [
+        520,
+        485
+      ],
+      "transparent_padding": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "1335e087964d1da380af2959de3bf1bb80f46458bd7e6aefdeb29781001293db",
+      "sha256": "da967fb9a92baff1c1047bf82b74abfdf9007aee3a0ab8f2ca1afa2cf7ebf252",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "lantern",
+      "role": "lantern",
+      "source": "art/source/painted_forest_hud/masters/lantern.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/lantern.png",
+      "source_dimensions": [
+        1024,
+        1536
+      ],
+      "dimensions": [
+        195,
+        520
+      ],
+      "transparent_padding": [
+        7,
+        7,
+        7,
+        7
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "0a512dea75ad1e6921ae596cb370ece055f7c03e3b8a5b6357f95c5965f7f2bd",
+      "sha256": "68ddf0edd42ac6987fc3b4e358cf27cf84bb2b8a16e90f5d2b6d9fe7073bc470",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "lantern-glow",
+      "role": "lantern-glow",
+      "source": "art/source/painted_forest_hud/masters/lantern.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/lantern-glow.png",
+      "source_dimensions": [
+        1024,
+        1536
+      ],
+      "dimensions": [
+        264,
+        264
+      ],
+      "transparent_padding": [
+        29,
+        20,
+        28,
+        19
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.5
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "0a512dea75ad1e6921ae596cb370ece055f7c03e3b8a5b6357f95c5965f7f2bd",
+      "sha256": "a246a48ae19003730c1de03a07654a0954993b5c145dc2d7f4eb5bb9f990e5c1",
+      "provenance": "Technical soft light authored by tools/art/painted_hud.py; lantern master is its style reference"
+    },
+    {
+      "id": "menu_normal",
+      "role": "menu",
+      "source": "art/source/painted_forest_hud/masters/menu.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/menu_normal.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "menu",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "b1e94aabc71209306f6b4a642bcc6d6dc0b9285b4b18c4b18d55b45455a929f2",
+      "sha256": "2f242d2c762603a8e89a2350b6a94bc8196fee60e58b5aea96ad3894571561bb",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "menu_hover",
+      "role": "menu",
+      "source": "art/source/painted_forest_hud/masters/menu.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/menu_hover.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "menu",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "b1e94aabc71209306f6b4a642bcc6d6dc0b9285b4b18c4b18d55b45455a929f2",
+      "sha256": "be9544ff5e34cfc6b5009208af1e73d132f37f675ec3dfc56c3c7f7610747e84",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "menu_pressed",
+      "role": "menu",
+      "source": "art/source/painted_forest_hud/masters/menu.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/menu_pressed.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "menu",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "b1e94aabc71209306f6b4a642bcc6d6dc0b9285b4b18c4b18d55b45455a929f2",
+      "sha256": "063c303056eca69866fab309222a81760596a5de45ef017463f043d9add333f2",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "menu_disabled",
+      "role": "menu",
+      "source": "art/source/painted_forest_hud/masters/menu.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/menu_disabled.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "menu",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "b1e94aabc71209306f6b4a642bcc6d6dc0b9285b4b18c4b18d55b45455a929f2",
+      "sha256": "ee3753d2ba51f22b6d58a6ffb6e8d0b79348ef95f3513366413ea42d3e8815bf",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "mushrooms-left",
+      "role": "mushrooms-left",
+      "source": "art/source/painted_forest_hud/masters/mushrooms-left.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/mushrooms-left.png",
+      "source_dimensions": [
+        1391,
+        1131
+      ],
+      "dimensions": [
+        520,
+        444
+      ],
+      "transparent_padding": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "786c12756b744ece83fb989fa13a0d2b218b10bad8976c2d2ecb9c97a09d5eae",
+      "sha256": "0d21f9766e4a42c278f1caadefff0ac0ed593d41a0e42f4537ce56b364ed8356",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "mushrooms-right",
+      "role": "mushrooms-right",
+      "source": "art/source/painted_forest_hud/masters/mushrooms-right.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/mushrooms-right.png",
+      "source_dimensions": [
+        1312,
+        1199
+      ],
+      "dimensions": [
+        520,
+        503
+      ],
+      "transparent_padding": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "5ac573722e24da98e3b9838ee59d378bed0b092948f11d0377aaea3ce826814d",
+      "sha256": "e7d6ff60c7140b807a9ae562d7b40beda87d02a831a29755c6c04e1fc007a0c1",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "mushrooms-small",
+      "role": "mushrooms-small",
+      "source": "art/source/painted_forest_hud/masters/mushrooms-small.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/mushrooms-small.png",
+      "source_dimensions": [
+        1375,
+        1144
+      ],
+      "dimensions": [
+        520,
+        503
+      ],
+      "transparent_padding": [
+        11,
+        11,
+        11,
+        11
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "57e78282070155c379d851c5c1acf968bf96e184bc06b1661747fa2f31783852",
+      "sha256": "11def0e1437e83467a12ded70cdf551c84aaf0b74326868ed578d8be31502471",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "owl",
+      "role": "owl",
+      "source": "art/source/painted_forest_hud/masters/owl.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/owl.png",
+      "source_dimensions": [
+        1364,
+        1153
+      ],
+      "dimensions": [
+        449,
+        520
+      ],
+      "transparent_padding": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.95
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "f1e292f199a1be4d014942764a4b5bb555ac07bf5aa67088d8de57082abfac90",
+      "sha256": "3c64c47067d65c91b27400a431afd46721240973ff469c65a4fadfe07c09aade",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "panel",
+      "role": "panel",
+      "source": "art/source/painted_forest_hud/masters/panel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/panel.png",
+      "source_dimensions": [
+        1560,
+        1008
+      ],
+      "dimensions": [
+        328,
+        208
+      ],
+      "transparent_padding": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "nine_slice": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "native_content_margins": [
+        36,
+        44,
+        36,
+        32
+      ],
+      "attachment_anchor": null,
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          180,
+          96
+        ],
+        "maximum": [
+          1800,
+          1044
+        ]
+      },
+      "source_sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d",
+      "sha256": "a0a28292d97399948ccfd13807785438183fef556b7db2e2bccc062713deb9cd",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "inset",
+      "role": "inset",
+      "source": "art/source/painted_forest_hud/masters/panel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/inset.png",
+      "source_dimensions": [
+        1560,
+        1008
+      ],
+      "dimensions": [
+        264,
+        168
+      ],
+      "transparent_padding": [
+        4,
+        5,
+        4,
+        5
+      ],
+      "nine_slice": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "native_content_margins": [
+        36,
+        44,
+        36,
+        32
+      ],
+      "attachment_anchor": null,
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          180,
+          96
+        ],
+        "maximum": [
+          1800,
+          1044
+        ]
+      },
+      "source_sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d",
+      "sha256": "d08906e91925f2dfa3251483c2cdf0626c14f265dbb851422fc095a8c240bcd3",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "tooltip",
+      "role": "tooltip",
+      "source": "art/source/painted_forest_hud/masters/panel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/tooltip.png",
+      "source_dimensions": [
+        1560,
+        1008
+      ],
+      "dimensions": [
+        264,
+        168
+      ],
+      "transparent_padding": [
+        4,
+        5,
+        4,
+        5
+      ],
+      "nine_slice": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "native_content_margins": [
+        36,
+        44,
+        36,
+        32
+      ],
+      "attachment_anchor": null,
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          180,
+          96
+        ],
+        "maximum": [
+          1800,
+          1044
+        ]
+      },
+      "source_sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d",
+      "sha256": "d08906e91925f2dfa3251483c2cdf0626c14f265dbb851422fc095a8c240bcd3",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "portrait",
+      "role": "portrait",
+      "source": "art/source/painted_forest_hud/masters/panel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/portrait.png",
+      "source_dimensions": [
+        1560,
+        1008
+      ],
+      "dimensions": [
+        200,
+        200
+      ],
+      "transparent_padding": [
+        4,
+        5,
+        4,
+        5
+      ],
+      "nine_slice": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "native_content_margins": [
+        36,
+        44,
+        36,
+        32
+      ],
+      "attachment_anchor": null,
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          180,
+          96
+        ],
+        "maximum": [
+          1800,
+          1044
+        ]
+      },
+      "source_sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d",
+      "sha256": "36560df2441ff2072ac53fad76d6e74d33377e195b02512c0224cd000fcd74d1",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "interior",
+      "role": "interior",
+      "source": "art/source/painted_forest_hud/masters/panel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/interior.png",
+      "source_dimensions": [
+        1560,
+        1008
+      ],
+      "dimensions": [
+        527,
+        303
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": null,
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          180,
+          96
+        ],
+        "maximum": [
+          1800,
+          1044
+        ]
+      },
+      "source_sha256": "4cfcc472c30cc2925f9526b5b369a0cd8725beb875fe92a97ac36a63557ce74d",
+      "sha256": "5c1cc29c007715451c6def9f974e4e901c07185e1e763ac5a9d54813d5f7838f",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "pause_normal",
+      "role": "pause",
+      "source": "art/source/painted_forest_hud/masters/pause.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/pause_normal.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "pause",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "6bc3f60e7ba530146d8a2cdba5567b5193a4bb838ad11e8c71fc924474b35fb3",
+      "sha256": "e207960fedb8367997b3042c43f2f62904eec7be36eecfbf4c2684c909ca3d1f",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "pause_hover",
+      "role": "pause",
+      "source": "art/source/painted_forest_hud/masters/pause.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/pause_hover.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "pause",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "6bc3f60e7ba530146d8a2cdba5567b5193a4bb838ad11e8c71fc924474b35fb3",
+      "sha256": "c8a8899c0ec4f20f39be0b060b6f4ab4cd417facb672f3e0fd03ef87fc2f0e31",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "pause_pressed",
+      "role": "pause",
+      "source": "art/source/painted_forest_hud/masters/pause.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/pause_pressed.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "pause",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "6bc3f60e7ba530146d8a2cdba5567b5193a4bb838ad11e8c71fc924474b35fb3",
+      "sha256": "e8cbb89a0bbb2302eca17e13dec390b40bb4c8034a7e120131e7983ea4046ae6",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "pause_disabled",
+      "role": "pause",
+      "source": "art/source/painted_forest_hud/masters/pause.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/pause_disabled.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "pause",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "6bc3f60e7ba530146d8a2cdba5567b5193a4bb838ad11e8c71fc924474b35fb3",
+      "sha256": "c2b221b6941f52ed5e5dc464730992fcd8f7457cb90f07ae6074690e6bcc42a7",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "plaque_normal",
+      "role": "plaque",
+      "source": "art/source/painted_forest_hud/masters/plaque.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/plaque_normal.png",
+      "source_dimensions": [
+        1774,
+        887
+      ],
+      "dimensions": [
+        228,
+        104
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        28,
+        16,
+        28,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "plaque",
+      "intended_display_range": {
+        "minimum": [
+          176,
+          104
+        ],
+        "maximum": [
+          400,
+          160
+        ]
+      },
+      "source_sha256": "b3498279b0a41478fba460920eb9ff62c125081612204c31ee7a3c98a839a199",
+      "sha256": "a8412fd1dc8f7eb643ac50b7e59c0f25f16ade93fecdc215d2c9b9a43c24463b",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "plaque_hover",
+      "role": "plaque",
+      "source": "art/source/painted_forest_hud/masters/plaque.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/plaque_hover.png",
+      "source_dimensions": [
+        1774,
+        887
+      ],
+      "dimensions": [
+        228,
+        104
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        28,
+        16,
+        28,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "plaque",
+      "intended_display_range": {
+        "minimum": [
+          176,
+          104
+        ],
+        "maximum": [
+          400,
+          160
+        ]
+      },
+      "source_sha256": "b3498279b0a41478fba460920eb9ff62c125081612204c31ee7a3c98a839a199",
+      "sha256": "b30dac40695555a00c83b8fe46f0b28b6e632fd653d202d508849f21489adec7",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "plaque_pressed",
+      "role": "plaque",
+      "source": "art/source/painted_forest_hud/masters/plaque.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/plaque_pressed.png",
+      "source_dimensions": [
+        1774,
+        887
+      ],
+      "dimensions": [
+        228,
+        104
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        28,
+        16,
+        28,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "plaque",
+      "intended_display_range": {
+        "minimum": [
+          176,
+          104
+        ],
+        "maximum": [
+          400,
+          160
+        ]
+      },
+      "source_sha256": "b3498279b0a41478fba460920eb9ff62c125081612204c31ee7a3c98a839a199",
+      "sha256": "01ab19315d551e9c9edf7c070dcf507d3403afe06997f343188b818fd86ac16a",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "plaque_disabled",
+      "role": "plaque",
+      "source": "art/source/painted_forest_hud/masters/plaque.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/plaque_disabled.png",
+      "source_dimensions": [
+        1774,
+        887
+      ],
+      "dimensions": [
+        228,
+        104
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        28,
+        16,
+        28,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "plaque",
+      "intended_display_range": {
+        "minimum": [
+          176,
+          104
+        ],
+        "maximum": [
+          400,
+          160
+        ]
+      },
+      "source_sha256": "b3498279b0a41478fba460920eb9ff62c125081612204c31ee7a3c98a839a199",
+      "sha256": "c30ac5ca749fb1dba14cff6da23b37f077b042a4f2af07c306cdf5dce51fc167",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "rabbit",
+      "role": "rabbit",
+      "source": "art/source/painted_forest_hud/masters/rabbit.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/rabbit.png",
+      "source_dimensions": [
+        1380,
+        1140
+      ],
+      "dimensions": [
+        424,
+        520
+      ],
+      "transparent_padding": [
+        11,
+        9,
+        9,
+        9
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.95
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "564f8a35498c2022d283ca08e2ea623e29f36cd87066bbe1fb4b6c9ceac94c89",
+      "sha256": "6a94a5c28637b5c1115cfde554ac1aec4986bdeda0fa79ce2df15638e4c00714",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "ready_normal",
+      "role": "ready",
+      "source": "art/source/painted_forest_hud/masters/ready.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/ready_normal.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "ready",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "7cbd8ea753849fbe36923ada1b54e25233671fec9c3f27b2a8507b6917873913",
+      "sha256": "be50dbf99e5501475e0afad8b9dc3cdea19a315bfef0f428cfcae95f488d4e5d",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "ready_hover",
+      "role": "ready",
+      "source": "art/source/painted_forest_hud/masters/ready.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/ready_hover.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "ready",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "7cbd8ea753849fbe36923ada1b54e25233671fec9c3f27b2a8507b6917873913",
+      "sha256": "e0a337a773055a5e1b108fa8030b7586cb709faf848e6d2f72237306436ede35",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "ready_pressed",
+      "role": "ready",
+      "source": "art/source/painted_forest_hud/masters/ready.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/ready_pressed.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "ready",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "7cbd8ea753849fbe36923ada1b54e25233671fec9c3f27b2a8507b6917873913",
+      "sha256": "ac1d727d60980f0ffc9cf890ae39fce55d2ce6232f5138b58f8820c34c532fa6",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "ready_disabled",
+      "role": "ready",
+      "source": "art/source/painted_forest_hud/masters/ready.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/ready_disabled.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "ready",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "7cbd8ea753849fbe36923ada1b54e25233671fec9c3f27b2a8507b6917873913",
+      "sha256": "f60a3c0eaec0aba1f8d74f9edd7d9810340ed6b29a40a5b1928bcbf7d7c1fb9c",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "sprig",
+      "role": "sprig",
+      "source": "art/source/painted_forest_hud/masters/sprig.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/sprig.png",
+      "source_dimensions": [
+        2048,
+        768
+      ],
+      "dimensions": [
+        520,
+        167
+      ],
+      "transparent_padding": [
+        6,
+        5,
+        6,
+        6
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.9
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "2184a21d0b150919375da497283d766b3fbfc72170e79f540ef4b302401f4cda",
+      "sha256": "dcc791a4dd144a8c01b5e215d13293c7e5de893334d609616f6f3d07a4589859",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "separator",
+      "role": "separator",
+      "source": "art/source/painted_forest_hud/masters/sprig.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/separator.png",
+      "source_dimensions": [
+        2048,
+        768
+      ],
+      "dimensions": [
+        520,
+        167
+      ],
+      "transparent_padding": [
+        6,
+        5,
+        6,
+        6
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.5
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "2184a21d0b150919375da497283d766b3fbfc72170e79f540ef4b302401f4cda",
+      "sha256": "dcc791a4dd144a8c01b5e215d13293c7e5de893334d609616f6f3d07a4589859",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "squirrel",
+      "role": "squirrel",
+      "source": "art/source/painted_forest_hud/masters/squirrel.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/squirrel.png",
+      "source_dimensions": [
+        1335,
+        1178
+      ],
+      "dimensions": [
+        520,
+        470
+      ],
+      "transparent_padding": [
+        8,
+        9,
+        9,
+        8
+      ],
+      "nine_slice": null,
+      "native_content_margins": null,
+      "attachment_anchor": [
+        0.5,
+        0.95
+      ],
+      "state": "master",
+      "registration": null,
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          180,
+          180
+        ]
+      },
+      "source_sha256": "1e794bd3d90fab5cb5bd229275e14e4db8065be40f6960e21a6bb385841e34b9",
+      "sha256": "d3ec02104bc940e61c07a7633abe66868e63096eb5de131a34fbc9ce13a4f17b",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "tab_normal",
+      "role": "tab",
+      "source": "art/source/painted_forest_hud/masters/tab.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/tab_normal.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "normal",
+      "registration": "tab",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "0528bd9cd07eba873190089e9b41a71dacd074a2fd6d4b4c182ec25ac5740cc3",
+      "sha256": "971545ca43a55e1c7afcd4248796f9fa8dccacd721f89dd66e6d6beea36195b3",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "tab_hover",
+      "role": "tab",
+      "source": "art/source/painted_forest_hud/masters/tab.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/tab_hover.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "hover",
+      "registration": "tab",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "0528bd9cd07eba873190089e9b41a71dacd074a2fd6d4b4c182ec25ac5740cc3",
+      "sha256": "3b7f971a2c5ea39cc27502267c589bcfa8de04b3d5e92ec18176bcbc1eb6a267",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "tab_pressed",
+      "role": "tab",
+      "source": "art/source/painted_forest_hud/masters/tab.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/tab_pressed.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "pressed",
+      "registration": "tab",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "0528bd9cd07eba873190089e9b41a71dacd074a2fd6d4b4c182ec25ac5740cc3",
+      "sha256": "f9a44c390e4ff02d3762e1682bdf1a70174ab9bddeec0bccc86991e1a167998e",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "tab_disabled",
+      "role": "tab",
+      "source": "art/source/painted_forest_hud/masters/tab.png",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/tab_disabled.png",
+      "source_dimensions": [
+        2172,
+        724
+      ],
+      "dimensions": [
+        152,
+        56
+      ],
+      "transparent_padding": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "nine_slice": [
+        22,
+        16,
+        22,
+        16
+      ],
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "attachment_anchor": null,
+      "state": "disabled",
+      "registration": "tab",
+      "intended_display_range": {
+        "minimum": [
+          44,
+          44
+        ],
+        "maximum": [
+          500,
+          180
+        ]
+      },
+      "source_sha256": "0528bd9cd07eba873190089e9b41a71dacd074a2fd6d4b4c182ec25ac5740cc3",
+      "sha256": "853e90beaeda781ec34d60d13c53073d762ec7fa49a637bf6cfbae0bfeb28e53",
+      "provenance": "OpenAI built-in image_gen, user-authorized HUD-only painting; deterministic Pillow export"
+    },
+    {
+      "id": "focus",
+      "role": "independent keyboard focus",
+      "source": "art/source/painted_forest_hud/vectors/focus.svg",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/focus.svg",
+      "dimensions": [
+        48,
+        48
+      ],
+      "transparent_padding": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "nine_slice": [
+        22,
+        22,
+        22,
+        22
+      ],
+      "native_content_margins": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "attachment_anchor": null,
+      "state": "focus",
+      "registration": "focus",
+      "intended_display_range": [
+        22,
+        48
+      ],
+      "source_sha256": "6cf0e1a25285580ffa8e2847f617a3a29fd7fa9c977e6d7847d1f67ba573f0c0",
+      "sha256": "6cf0e1a25285580ffa8e2847f617a3a29fd7fa9c977e6d7847d1f67ba573f0c0",
+      "provenance": "Authored technical SVG geometry, GPL-3.0-only"
+    },
+    {
+      "id": "phase-active",
+      "role": "authoritative phase marker",
+      "source": "art/source/painted_forest_hud/vectors/phase-active.svg",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/phase-active.svg",
+      "dimensions": [
+        32,
+        32
+      ],
+      "transparent_padding": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "nine_slice": null,
+      "native_content_margins": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "attachment_anchor": null,
+      "state": "active",
+      "registration": "phase",
+      "intended_display_range": [
+        22,
+        48
+      ],
+      "source_sha256": "71199ef600f7350ebe8fc188bd58e112d2d10cb21aa8a834fd1f725fcd95f3e8",
+      "sha256": "71199ef600f7350ebe8fc188bd58e112d2d10cb21aa8a834fd1f725fcd95f3e8",
+      "provenance": "Authored technical SVG geometry, GPL-3.0-only"
+    },
+    {
+      "id": "phase-complete",
+      "role": "authoritative phase marker",
+      "source": "art/source/painted_forest_hud/vectors/phase-complete.svg",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/phase-complete.svg",
+      "dimensions": [
+        32,
+        32
+      ],
+      "transparent_padding": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "nine_slice": null,
+      "native_content_margins": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "attachment_anchor": null,
+      "state": "complete",
+      "registration": "phase",
+      "intended_display_range": [
+        22,
+        48
+      ],
+      "source_sha256": "e2c52d141d1199acb42808cbb0e2f1c16ae6b540c1b29f2fde575eed652f9f10",
+      "sha256": "e2c52d141d1199acb42808cbb0e2f1c16ae6b540c1b29f2fde575eed652f9f10",
+      "provenance": "Authored technical SVG geometry, GPL-3.0-only"
+    },
+    {
+      "id": "phase-upcoming",
+      "role": "authoritative phase marker",
+      "source": "art/source/painted_forest_hud/vectors/phase-upcoming.svg",
+      "runtime": "src/Game.Godot/UI/PaintedForestHud/textures/phase-upcoming.svg",
+      "dimensions": [
+        32,
+        32
+      ],
+      "transparent_padding": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "nine_slice": null,
+      "native_content_margins": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "attachment_anchor": null,
+      "state": "upcoming",
+      "registration": "phase",
+      "intended_display_range": [
+        22,
+        48
+      ],
+      "source_sha256": "649ab5e388ea420149822d31dca4ee262d30188a2ffd2cd2d36174b03631d5aa",
+      "sha256": "649ab5e388ea420149822d31dca4ee262d30188a2ffd2cd2d36174b03631d5aa",
+      "provenance": "Authored technical SVG geometry, GPL-3.0-only"
+    }
+  ],
+  "runtime_usages": {
+    "ledger_inspector_phase": {
+      "frame": "panel",
+      "native_content_margins": [
+        36,
+        44,
+        36,
+        32
+      ]
+    },
+    "construction_palette": {
+      "frame": "panel",
+      "native_content_margins": [
+        20,
+        20,
+        20,
+        22
+      ]
+    },
+    "construction_card": {
+      "frame": "plaque",
+      "native_content_margins": [
+        10,
+        20,
+        10,
+        18
+      ],
+      "thumbnail_box": [
+        40,
+        52
+      ],
+      "portrait_frame": "40x40 fixed aspect",
+      "thumbnail": "32x32 fixed aspect"
+    },
+    "gold_recovery": {
+      "frame": "plaque",
+      "native_content_margins": [
+        12,
+        6,
+        12,
+        6
+      ],
+      "minimum_height": 92
+    },
+    "perch_anchors": {
+      "owl": [
+        0.5,
+        0.95
+      ],
+      "rabbit": [
+        0.5,
+        0.95
+      ],
+      "squirrel": [
+        0.5,
+        0.95
+      ]
+    },
+    "decoration_scaling": "Uniform aspect-preserving fit; 1.25x above 1600 viewport pixels. Decorations never participate in Container minimum sizes."
+  },
+  "layered_sources": false,
+  "source_note": "Original generated RGBA paintings; no editable layers were produced."
+}

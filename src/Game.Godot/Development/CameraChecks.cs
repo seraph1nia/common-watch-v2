@@ -53,8 +53,10 @@ public partial class GameApplication
         _options = originalOptions; GetWindow().Size = originalSize;
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         RefreshWorld(); _camera.Reset();
-        float expectedDefault = _settlementView.Framing(WorldArea.Size);
+        var settlementFrame = _gameUi.SettlementFramingArea;
+        float expectedDefault = _settlementView.Framing(settlementFrame.Size);
         Require(_camera.Magnification == expectedDefault && _camera.PanPixels == Vector2.Zero, "camera reset restores settlement framing");
+        Require(_camera.ToScreen(Vector2.Zero).IsEqualApprox(settlementFrame.Position + _settlementView.ScreenOrigin(settlementFrame.Size)), "camera reset restores the HUD-safe settlement origin");
         Vector2 target = _camera.ToScreen(_settlementView.PlotPosition(4));
         GetViewport().GuiReleaseFocus();
         Click(target);

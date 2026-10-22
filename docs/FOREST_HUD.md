@@ -1,5 +1,12 @@
 # Forest HUD integration
 
+The current production interface uses the additive [painted forest HUD](PAINTED_FOREST_HUD.md):
+five floating regions, a vertical upper-right resource ledger, warm construction
+plaques and a lower-right squirrel/clock/Ready/Pause panel. The original supplied
+pack described below remains byte-preserved as the fallback and base theme.
+Its historical ribbon layout has been replaced; current captures and verification
+are linked from the painted HUD report.
+
 The user-supplied forest HUD replaces the illustrated parchment skin through
 `HudSkin`. Ordinary play and exported builds use this illustrated HUD by default;
 `play-debug` selects the retained plain verification UI. The supplied 78 transparent PNGs,
@@ -19,7 +26,7 @@ Construction retains five categories and explicit **Build selected** confirmatio
 
 Ready is primary and shows the actual production-stage consequence. Pause/Resume remains secondary, combat speed permissions and field overview are unchanged, and Food shortages still allow readiness. The feedback control beside match actions shows accepted status temporarily; pending, rejected and disconnected status persists until resolved. Complete messages remain in City details. It also opens recent feedback in City details.
 
-The **Menu** button, F10 or controller Start opens the existing menu as a framed square over the current screen, without a replacement background or dimming. Continue or Esc closes it with focus restored; opening it does not leave or pause the match. The startup backdrop is retained.
+**Esc**, the **Menu** button, F10 or controller Start opens the existing menu as a framed square over the current screen, without a replacement background or dimming. Continue or Esc closes it with focus restored; opening it does not leave or pause the match. **Return to main menu** and **Exit Game** open native confirmations explaining progress loss and the effect on other players; Cancel/Esc returns to the menu. The startup backdrop is retained.
 
 Three personal doctrine cards use the existing framed reward-card language and canonical run descriptions. Native style boxes retain pressed, hover, disabled and keyboard focus states. Settings, details and reward modal shades consume world input and restore focus on close. The map fills the viewport beneath the HUD, with fixed native camera inversion and protected clearing bounds. Combat uses separate proportional framing and approved forest textures with a sliced decorative rail. Plain/debug and missing-art fallbacks remain functional.
 

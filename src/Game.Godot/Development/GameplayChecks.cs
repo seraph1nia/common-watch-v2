@@ -11,6 +11,7 @@ public partial class GameApplication
     {
         await CheckMenuPresentation();
         await CheckArenaFraming();
+        await CheckPaintedHudControls();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
@@ -61,7 +62,7 @@ public partial class GameApplication
         var confirm = _gameUi.Inspector.Construction.ConfirmButton;
         var quote = _session.Snapshot.BuildingCatalog.Single(b => b.Type == Building.Lumbermill).Construction;
         Require(confirm.Text.Contains("Lumbermill") && confirm.Text.Contains(GameplayContext.Cost(quote)), "selection and real cost visible on construction confirmation");
-        Require(_gameUi.ContextArea.Encloses(confirm.GetGlobalRect()), "construction confirmation fits the compact native dock");
+        Require(_gameUi.ContextArea.Encloses(confirm.GetGlobalRect()), $"construction confirmation fits the compact native dock: area={_gameUi.ContextArea}, confirm={confirm.GetGlobalRect()}");
         Rect2 selectedBounds = selectedCard.GetGlobalRect();
         RefreshUi(true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
