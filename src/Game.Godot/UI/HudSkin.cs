@@ -18,7 +18,7 @@ public sealed class HudSkin : IDisposable
     {
         _assets = assets;
         var plain = GD.Load<Theme>("res://UI/WatchTheme.tres");
-        Theme = (Theme)plain.Duplicate();
+        Theme = (Theme)plain.Duplicate(); SupportingTheme.Typography(Theme);
         Worldtree = WorldtreeArt.Load(assets);
         MenuBackground = assets.MenuBackground();
         if (assets.Options.Hud != HudArt.Illustrated) return;
@@ -39,6 +39,7 @@ public sealed class HudSkin : IDisposable
             Theme.SetColor("font_disabled_color", type, new Color("b1bfb0"));
         var painted = new PaintedHudArt();
         if (painted.Available) { Painted = painted; painted.Apply(Theme); }
+        SupportingTheme.Forest(Theme);
     }
     public Button Button(string text, Action clicked, string variation = "")
     {

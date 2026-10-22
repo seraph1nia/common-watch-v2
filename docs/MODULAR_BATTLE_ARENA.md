@@ -43,7 +43,7 @@ geometric and artwork independent.
 The supplied keep and ArrowTower use the catalog ground anchor
 `(0.5, 0.83984375)` at their actual `structure.Cell`. Their canvas sizes are 111
 and 96 world pixels (3.7R and 3.2R). Catapults retain existing catapult artwork;
-Watchposts retain geometric presentation. Buildings and units share one exact
+Watchposts now reuse the supplied defense-tower cutout at a smaller scale, with their own label/health; missing/corrupt artwork retains geometry. Buildings and units share one exact
 ground-depth ordering; sampled bounce does not change that order. Health bars,
 owner/kind labels, inspection, hit flashes and destruction fades follow playback
 state and events. There are no independent damage or combat-animation clocks.

@@ -12,11 +12,21 @@ and RGBA strips/cutouts use explicit `arena/*` IDs and source hashes. The
 assembled alternatives remain source-only. The tiled combat descriptions below
 also describe the retained missing-pack fallback.
 
-The current sprite settlement uses the [single illustrated forest map](SETTLEMENT_MAP.md), with nine measured elliptical pads and no world text labels. The earlier tiled-settlement sections below document the retained cutout pipeline and historical comparisons; terrain tiles still belong to combat/showrooms. Debug settlement uses its native grid fallback.
+The current sprite settlement uses the [single illustrated forest map](SETTLEMENT_MAP.md), with nine measured elliptical pads and compact native level annotations (no building-name captions). The earlier tiled-settlement sections below document the retained cutout pipeline and historical comparisons; terrain tiles still belong to combat/showrooms. Debug settlement uses its native grid fallback.
 
 The supplied archive was inspected for absolute paths, traversal and symlinks, then its four PNGs were extracted once into `art/source/`, retaining filenames and bytes. `art/manifests/provenance.json` records the archive hash, source hashes, RGBA modes and dimensions (all 1536 × 1024). The archive's README is retained unchanged. The archive is no longer an input: no archive discovery, extraction script, configuration or mise task exists.
 
 The separately supplied `~/Downloads/common_watch_cutout_prototype.zip` was inspected and safely extracted to a temporary directory for the tilted-view work. It contains four prepared transparent cutouts, four rough versions and an opaque scale preview. Only the unchanged 512 × 512 shrine source is retained under `art/source/prototypes/`. [Prototype provenance](../art/manifests/prototype-provenance.json) records the archive hash, every inspected image's hash/dimensions/alpha and the reuse decisions. Builds and processing never read Downloads.
+
+## Explicit battle presentation paths
+
+[Issue #11 review](gameplay/FOREST_PRESENTATION_REVIEW.md) records the approved
+inventory, native captures, mapping decisions and source hashes. Watchposts reuse the
+supplied `arena/defense_tower` at a smaller scale, with their own label/health.
+The enemy Berserker uses a newly registered crop of the existing raised-arm orc
+pose on approved sheet 04; source bytes and all previous 46 entries remain intact.
+Explicit replacement paths, missing/corrupt artwork and debug geometry remain
+supported. No new painting or recolor is introduced.
 
 ## Reproduce the installed artwork
 
@@ -49,6 +59,7 @@ Buildings use 512 × 512, units 256 × 256, resource icons 128 × 128 and the wo
 | `building/arcanum` | Supplied shrine prototype | `assets/sprites/buildings/arcanum.png` |
 | `unit/swordsman` | 03 | `assets/sprites/units/swordsman.png` |
 | `unit/enemy_swordsman` | 04 | `assets/sprites/units/enemy_swordsman.png` |
+| `unit/enemy_berserker` | 04, raised-arm orc pose | `assets/sprites/units/enemy_berserker.png` |
 | `terrain/woodland_hex` | 01 | `assets/sprites/terrain/woodland_hex.png` |
 | `resource/gold`, `resource/wood`, `resource/stone` | 04 | `assets/sprites/resources/{gold,wood,stone}.png` |
 | `hud/panel`, `hud/card_frame`, `hud/button`, `hud/tooltip` | 04 | `assets/hud/{panel,card_frame,button,tooltip}.png` |
@@ -89,7 +100,7 @@ The source margins are retained in the catalog:
 
 These are source-coordinate cuts, not destination padding. Scaling the native border leaves corners fixed at their intended display size. Text is inset separately. Tooltip text is sampled from the hovered logical settlement plot. Missing skins retain ordinary UI and contrasting text.
 
-[The reusable nine-slice preview](../art/previews/nine-slice-preview.png) includes 160 × 48 button, 480 × 160 panel, 640 × 420 dialog and 260 × 390 card. [The contact sheet](../art/previews/contact-sheet.png) shows all twenty-nine cutouts.
+[The reusable nine-slice preview](../art/previews/nine-slice-preview.png) includes 160 × 48 button, 480 × 160 panel, 640 × 420 dialog and 260 × 390 card. [The contact sheet](../art/previews/contact-sheet.png) shows the current catalog, including the registered enemy Berserker crop.
 
 ```sh
 mise run art-showroom
@@ -107,7 +118,7 @@ Art captures are fourteen real application frames under `artifacts/captures/godo
 - Sheet 03 buttons have embedded labels; they were rejected in favor of the unlabelled sheet 04 button. The sheet 03 pointed tooltip was also bypassed in favor of the unlabelled rectangular parchment source. No painted gameplay text was copied into installed images.
 - Sheet 02's scene crops include scenery/labels, making it less suitable than the chosen cutouts. It is preserved unchanged for future manual selection.
 - The available enemy sword bearer is a green-skinned raider. It is a cosmetic stand-in for the authoritative enemy swordsman; faction and rules remain unchanged. No replacement art was created.
-- The original Lumbermill, Farm, Barracks and prototype Arcanum are retained, supplemented by the ten detailed buildings and five units below. Unsupplied IDs (including Enemy Berserker, which had no installed PNG at import) and independent combat structures retain geometric fallbacks. Angled building/unit artwork is shown upright as-is in topdown comparison mode.
+- The original Lumbermill, Farm, Barracks and prototype Arcanum are retained, supplemented by the ten detailed buildings and five units below. Enemy Berserker now has a registered crop from the original sheet, and all combat structure kinds have explicit mappings; missing/corrupt files retain geometric fallbacks. Angled building/unit artwork is shown upright as-is in topdown comparison mode.
 - These are static illustrations. Animation is procedural motion of one PNG per unit. The repeated woodland tile and painted ground islands do not form a production seamless terrain set.
 - Current validation is Linux/Xvfb/Mesa. This change does not claim native Windows rendering or qualification of physical display/audio hardware. Platform publishing tasks and executable-relative asset layout are retained; release builds were not rerun for this artwork work.
 
@@ -135,7 +146,7 @@ The extraction manifest merges these IDs with the original fourteen entries (29 
 - Buildings: `building/mine`, `building/metalmine`, `building/archeryrange`, `building/researchtower`, `building/arrowtower`, `building/catapulttower`, `building/stonecutter`, `building/weaver`, `building/market`, `building/townhall`.
 - Units: `unit/berserker`, `unit/crossbowman`, `unit/mage`, `unit/enemy_crossbowman`, `unit/enemy_mage`.
 
-Runtime PNGs are regenerated from painted sources by the existing deterministic pipeline. Canvases remain 512 × 512 and 256 × 256; new display sizes remain 142 and 46. Existing display sizes remain 142 for Lumbermill/Farm and 148 for Barracks/Arcanum. No display sizes changed. Every pre-existing installed image, including HUD and terrain, remains byte-for-byte identical; only their appropriate ground metadata changes. No pre-existing Enemy Berserker PNG was present, so its fallback remains available.
+Runtime PNGs are regenerated from painted sources by the existing deterministic pipeline. Canvases remain 512 × 512 and 256 × 256; new display sizes remain 142 and 46. Existing display sizes remain 142 for Lumbermill/Farm and 148 for Barracks/Arcanum. No display sizes changed. Every pre-existing installed image, including HUD and terrain, remains byte-for-byte identical; only their appropriate ground metadata changes. No Enemy Berserker PNG was present at that import; issue #11 now registers a separate approved orc pose from the original sheet. Its missing/corrupt fallback remains available.
 
 ### Ground registration
 

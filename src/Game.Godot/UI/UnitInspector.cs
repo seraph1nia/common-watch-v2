@@ -46,7 +46,7 @@ public partial class UnitInspector : VBoxContainer
     {
         _skin = skin; _text = WrapLabel("Select a soldier, enemy or structure."); AddChild(_text);
         if (ReadOnlyLive) _text.AddThemeFontSizeOverride("font_size", 14);
-        AdvancedButton = skin.Button("Advanced details ▾", () => { _advanced.Visible = !_advanced.Visible; AdvancedButton.Text = _advanced.Visible ? "Advanced details ▴" : "Advanced details ▾"; });
+        AdvancedButton = skin.Button("Advanced details ▾", () => { _advanced.Visible = !_advanced.Visible; AdvancedButton.Text = _advanced.Visible ? "Advanced details ▴" : "Advanced details ▾"; }, "ForestQuietButton");
         AddChild(AdvancedButton);
         _advanced = WrapLabel(); _advanced.AddThemeFontSizeOverride("font_size", 13); AddChild(_advanced); _advanced.Hide();
         _hall = new OptionButton(); AddChild(_hall);
@@ -54,7 +54,7 @@ public partial class UnitInspector : VBoxContainer
         _destination = WrapLabel(); AddChild(_destination); _destination.Hide();
         _squad.ItemSelected += _ => Refresh(_context);
         _hall.ItemSelected += _ => Refresh(_context);
-        VeteranButton = skin.Button("Compare recovery / replacement", () => { _veteranScroll.Visible = !_veteranScroll.Visible; _veteranScroll.ScrollVertical = 0; Refresh(_context); }); AddChild(VeteranButton);
+        VeteranButton = skin.Button("Compare recovery / replacement", () => { _veteranScroll.Visible = !_veteranScroll.Visible; _veteranScroll.ScrollVertical = 0; Refresh(_context); }, "ForestQuietButton"); AddChild(VeteranButton);
         _veteranScroll = new ScrollContainer { CustomMinimumSize = new(0, 190), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true, FocusMode = FocusModeEnum.All }; AddChild(_veteranScroll);
         _veteran = WrapLabel(); _veteran.AddThemeFontSizeOverride("font_size", 14); _veteranScroll.AddChild(_veteran); _veteranScroll.Hide(); VeteranButton.Hide();
         _actions = new ActionList(); AddChild(_actions); SetProcess(false);

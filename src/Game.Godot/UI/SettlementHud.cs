@@ -31,7 +31,7 @@ public partial class SettlementHud : Control
     private VBoxContainer _ribbonBody = null!;
     private ScrollContainer _contextBody = null!;
     private HFlowContainer _contextNav = null!;
-    private Button _feedback = null!, _clear = null!;
+    private Button _feedback = null!, _clear = null!, _reconnect = null!;
     private string _feedbackKey = "";
     private double _acceptedUntil;
     private readonly Queue<string> _recentFeedback = new();
@@ -60,6 +60,7 @@ public partial class SettlementHud : Control
     internal Button ClearSelectionButton => _clear;
     internal Button ArenaButton => _arena;
     internal Button FeedbackButton => _feedback;
+    internal Button ReconnectButton => _reconnect;
     public bool ShowArena { get; private set; }
     internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
     public bool BlocksWorld => Details.Visible || Draft.Visible;
@@ -144,18 +145,18 @@ public partial class SettlementHud : Control
         _overview = skin.Button("Field overview  [F]", () => ArenaOverviewRequested?.Invoke()); actions.AddChild(_overview);
         var links = new HBoxContainer();
         _rewards = skin.Button("Rewards", () => { Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
-        _feedback = skin.Button("Recent feedback", () => OpenDetails(DetailsPage.City));
+        _feedback = skin.Button("Recent feedback", () => OpenDetails(DetailsPage.City), "ForestQuietButton");
         _feedback.ClipText = true;
         _feedback.AddThemeFontSizeOverride("font_size", 14); _feedback.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         actions.AddChild(links);
-        _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }); links.AddChild(_arena);
-        var reconnect = skin.Button("↻", () => ReconnectRequested?.Invoke()); reconnect.TooltipText = "Reconnect";
+        _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }, "ForestQuietButton"); links.AddChild(_arena);
+        var reconnect = skin.Button("↻", () => ReconnectRequested?.Invoke(), "ForestQuietButton"); _reconnect = reconnect; reconnect.TooltipText = "Reconnect";
         reconnect.CustomMinimumSize = new(44, 44);
         links.AddChild(reconnect); links.AddChild(_feedback);
         foreach (var button in links.GetChildren().OfType<Button>())
             foreach (string state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
             {
-                var style = (StyleBox)skin.Theme.GetStylebox(state, "Button").Duplicate();
+                var style = (StyleBox)skin.Theme.GetStylebox(state, button.ThemeTypeVariation.IsEmpty ? "Button" : button.ThemeTypeVariation).Duplicate();
                 style.ContentMarginLeft = style.ContentMarginRight = 12;
                 button.AddThemeStyleboxOverride(state, style);
             }
@@ -278,6 +279,7 @@ public partial class SettlementHud : Control
         _feedback.Text = !session.Connected ? "Disconnected · details" : session.Pending ? "Pending · details"
             : session.LastResult is { Accepted: false } ? "Rejected · details"
             : session.LastResult is { Accepted: true } && Time.GetTicksMsec() < _acceptedUntil ? "Accepted ✓" : "Recent feedback";
+        _reconnect.Visible = !session.Connected;
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
         _phase.Text = $"Wave {state.Wave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
         _phaseTrack.Refresh(state, finishingCombat);

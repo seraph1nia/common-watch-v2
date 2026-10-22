@@ -17,7 +17,7 @@ public partial class LiveCombatInspector : PanelContainer
     {
         skin.Panel(this);
         var column = new VBoxContainer(); AddChild(column);
-        CloseButton = skin.Button("Close inspection [Esc]", () => Close()); column.AddChild(CloseButton);
+        CloseButton = skin.Button("Close inspection [Esc]", () => Close(), "ForestQuietButton"); column.AddChild(CloseButton);
         _scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_scroll);
         Inspector = new UnitInspector { ReadOnlyLive = true, SizeFlagsHorizontal = SizeFlags.ExpandFill }; _scroll.AddChild(Inspector); Inspector.Initialize(skin);
         Hide();

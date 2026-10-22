@@ -245,6 +245,31 @@
       "display_size": 46
     },
     {
+      "id": "unit/enemy_berserker",
+      "source": "art/source/04-expanded-art-and-hud-sheet.png",
+      "crop": [
+        1040,
+        330,
+        1175,
+        510
+      ],
+      "output": "sprites/units/enemy_berserker.png",
+      "anchor": [
+        0.5,
+        0.92
+      ],
+      "display_size": 46,
+      "content_anchor": [
+        0.5596330275229358,
+        0.9404761904761905
+      ],
+      "ground_point": [
+        74,
+        163
+      ],
+      "ground_note": "Midpoint of planted feet on the approved raised-arm orc pose; separate from the supplied sword-and-shield stance."
+    },
+    {
       "id": "terrain/woodland_hex",
       "source": "art/source/01-world-sprites.png",
       "crop": [

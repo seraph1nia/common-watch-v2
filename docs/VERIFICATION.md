@@ -1,5 +1,42 @@
 # Verification
 
+## Forest consistency and approved mappings — roadmap #13 / issue #11 (2026-10-23)
+
+The [forest presentation review](gameplay/FOREST_PRESENTATION_REVIEW.md) records
+the inventory, source hashes, mapping choices, level cues and visual evidence.
+Enemy Berserker now has its own catalog entry, cropped by the existing pinned
+Pillow pipeline from the approved raised-arm orc pose on sheet 04. Watchposts
+reuse the supplied defense tower at 82 pixels, with their own label/health;
+ArrowTower remains 96. All four structure kinds have explicit paths. No source
+painting is generated, repainted, recolored or downloaded. Every previous 46
+catalog record and PNG hash remains identical; the new crop is entry 47.
+
+Native typography and secondary forest surfaces are consistent across doctrine/
+reward cards, roster rows, disclosures and inspector/dialog closes. Gold roster
+selection remains independent of cyan focus. Quiet session links preserve
+feedback/history; reconnect is shown when disconnected. Emerald Ready/choices,
+violet Pause, the original painted frames, scene and building art remain intact.
+Screen-sized `L#` foundation annotations expose accepted building levels in both
+map and debug paths, after all tall sprites; hit geometry and anchors do not
+change. Native pointer production/upgrade pays exactly once and changes L1→L2;
+a legal late checkpoint shows L5.
+
+Executed checks: locked zero-warning build; 46 Core / 137 Shared / 19 Pillow tests;
+six focused forest cases (sprites/debug at 720p/1080p plus real missing/corrupt
+native decode paths); three session graphical facts repeated on the installed
+47-entry catalog; four ordinary/debug full UI passes plus seven-wave cooperative
+UI worker; five-size nine-pad picking/hover/fixed-camera checks; reconnect/faults;
+12 animation contracts and actual native phases. Artwork/showroom and ordered
+battle sequences are refreshed after installation. Artifact logs/captures are
+under `roadmap-11-*` and `artifacts/captures/forest-consistency/`. Shell/Python
+syntax and `git diff --check` pass. Core, pins, source art, WAV/loop markers,
+credentials/settings formats and RPC/session ownership remain intact.
+
+These are local Linux/Xvfb/Mesa/Dummy-audio observations and actual screenshots,
+accepted by the user as roadmap evidence. No human comprehension/enjoyment,
+physical hardware, live Steam or Windows/native-platform qualification is
+claimed. The intermittent native .NET/JIT risk remains applicable.
+
 ## Cooperative readiness and observers — roadmap #13 / issue #10 (2026-10-23)
 
 The persistent native team panel exposes each city’s readiness, personal reward

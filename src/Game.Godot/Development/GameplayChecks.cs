@@ -12,6 +12,7 @@ public partial class GameApplication
         await CheckMenuPresentation();
         await CheckArenaFraming();
         await CheckPaintedHudControls();
+        await CheckForestPresentation();
         await CheckOpeningGuide();
         await CheckCombatReadability();
         await CheckArmyDeployment();

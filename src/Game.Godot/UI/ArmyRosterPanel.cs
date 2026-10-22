@@ -105,10 +105,11 @@ public partial class ArmyRosterPanel : VBoxContainer
         {
             int id = unit.Id;
             bool? funded = context.State.Phase is Phase.Building or Phase.Preparation ? city.FoodForecast?.Funded.Contains(id) : city.LastUpkeep?.Funded.Contains(id);
-            _members.Item(_skin, "Member" + id, $"#{id} {unit.Type} L{unit.Level} · HP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)} · service {unit.Experience} battles\nSquad #{unit.SquadId}; " +
+            var row = _members.Item(_skin, "Member" + id, $"#{id} {unit.Type} L{unit.Level} · HP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)} · service {unit.Experience} battles\nSquad #{unit.SquadId}; " +
                 (unit.Assignment is { Stored: true } a ? $"Town Hall {a.HallSlot + 1}, place {a.Tile + 1}" : $"home {(unit.Assignment?.Tile ?? -1) + 1}") +
                 $"; {(funded is null ? "funding unavailable" : funded.Value ? "funded" : "unfunded")}; recovery {(unit.RecoveryEligible ? "eligible" : "ineligible")}",
-                () => { if (_context.City.Soldiers.FirstOrDefault(u => u.Id == id) is { } selected) { _selectedMember = id; _memberSquad = selected.SquadId; UnitSelected?.Invoke(selected); } });
+                () => { if (_context.City.Soldiers.FirstOrDefault(u => u.Id == id) is { } selected) { _selectedMember = id; _memberSquad = selected.SquadId; foreach (var pair in _members.Buttons) pair.Value.SetPressedNoSignal(pair.Key == "Member" + id); UnitSelected?.Invoke(selected); } }, variation: "ForestQuietButton");
+            row.ToggleMode = true; row.SetPressedNoSignal(unit.Id == _selectedMember);
         }
         _members.End();
     }

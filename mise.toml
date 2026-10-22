@@ -257,3 +257,8 @@ run = "bash tools/graphical.sh capture-bosses"
 description = "Actual 2–6-player team layouts, allied pointer input, readiness, reconnect and legal early elimination"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-cooperation"
+
+[tasks.capture-forest]
+description = "Actual 720p/1080p building progression, Watchpost/Berserker mappings and HUD hierarchy in sprites/debug"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-forest"

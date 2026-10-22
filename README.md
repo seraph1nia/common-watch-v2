@@ -92,6 +92,7 @@ mise run capture-opening           # six doctrines, three waves, actual producti
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
+mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
 mise run capture-lobby
 ```
 

@@ -18,8 +18,8 @@ public partial class RewardCard : PanelContainer
     public void Initialize(HudSkin skin, RunCardView card, Action choose)
     {
         SizeFlagsHorizontal = SizeFlags.ExpandFill; skin.Panel(this, "hud/card_frame");
-        var content = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(Margin(content, 8));
-        var title = WrapLabel(card.Title); title.AddThemeFontSizeOverride("font_size", 21); content.AddChild(title);
+        var content = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(Margin(content, 14));
+        var title = WrapLabel(card.Title); title.ThemeTypeVariation = "WatchHeading"; content.AddChild(title);
         _rarity = card.Subtitle;
         _targets = WrapLabel(); _targets.AddThemeFontSizeOverride("font_size", 14); _targets.MaxLinesVisible = 2; content.AddChild(_targets);
         _scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
@@ -32,8 +32,8 @@ public partial class RewardCard : PanelContainer
         {
             _effects.Visible = !_effects.Visible; _description.Visible = !_effects.Visible; _scroll.ScrollVertical = 0;
             EffectsButton.Text = _effects.Visible ? "Reward description" : "Current effects";
-        }); content.AddChild(EffectsButton);
-        _footer = WrapLabel(); _footer.AddThemeFontSizeOverride("font_size", 14); content.AddChild(_footer);
+        }, "ForestQuietButton"); content.AddChild(EffectsButton);
+        _footer = WrapLabel(); _footer.ThemeTypeVariation = "WatchDetail"; content.AddChild(_footer);
         ChooseButton = skin.Button("Choose reward", choose, "ForestPrimaryButton"); ChooseButton.AutowrapMode = TextServer.AutowrapMode.WordSmart; content.AddChild(ChooseButton); Refresh(card);
     }
     public void Present(ChoiceImpact impact)

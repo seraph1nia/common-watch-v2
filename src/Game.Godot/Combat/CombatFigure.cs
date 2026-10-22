@@ -11,6 +11,7 @@ public partial class CombatFigure : Node2D
     readonly Sprite2D sprite = new() { Centered = false, UseParentMaterial = true };
     public override void _Ready() => AddChild(sprite);
     Texture2D? texture;
+    internal bool HasArtwork => texture is not null;
     AssetMetadata meta = AssetMetadata.Default("unit/swordsman");
     UnitType type;
     bool boss;

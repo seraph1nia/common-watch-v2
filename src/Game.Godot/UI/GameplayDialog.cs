@@ -37,7 +37,7 @@ public partial class GameplayDialog : Control
         _panel.OffsetLeft = 30; _panel.OffsetRight = -30; _panel.OffsetTop = 18; _panel.OffsetBottom = -18; skin.Panel(_panel, "modal");
         _panelStyle = _panel.GetThemeStylebox("panel");
         var body = new VBoxContainer(); _bodyMargin = Margin(body, 16); _panel.AddChild(_bodyMargin);
-        _close = skin.Button("Close [Esc] — match continues", Close); body.AddChild(_close);
+        _close = skin.Button("Close [Esc] — match continues", Close, "ForestQuietButton"); body.AddChild(_close);
         var row = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; body.AddChild(row);
         _tabs = new TabContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddChild(_tabs);
         _tabStyle = _tabs.GetThemeStylebox("panel");
@@ -64,7 +64,7 @@ public partial class GameplayDialog : Control
             else { Close(false); PlotRequested?.Invoke(slot); }
         };
         _tabs.TabChanged += tab => { _page = tab == 0 ? DetailsPage.Army : tab == 1 ? DetailsPage.Worldtree : DetailsPage.City; if (_context is not null) Refresh(_context); };
-        _worldtreeClose = skin.Button("Close [Esc]", Close); AddChild(_worldtreeClose);
+        _worldtreeClose = skin.Button("Close [Esc]", Close, "ForestQuietButton"); AddChild(_worldtreeClose);
         _worldtreeClose.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight);
         _worldtreeClose.OffsetLeft = -190; _worldtreeClose.OffsetRight = -12; _worldtreeClose.OffsetTop = 4; _worldtreeClose.OffsetBottom = 48;
         _worldtreeClose.Hide(); Hide();

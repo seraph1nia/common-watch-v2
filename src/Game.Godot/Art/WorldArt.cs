@@ -1,5 +1,6 @@
 using Godot;
 using Game.Core;
+using Game.Shared;
 
 namespace Game.GodotClient;
 
@@ -8,14 +9,8 @@ public sealed class WorldArt(AssetLoader _assets)
 {
     public void Structure(Node2D canvas, StructureState state, Vector2 ground, Color tint)
     {
-        string id = state.Kind switch
-        {
-            ArenaStructureKind.Keep => "arena/keep",
-            ArenaStructureKind.ArrowTower => "arena/defense_tower",
-            ArenaStructureKind.CatapultTower => "building/catapulttower",
-            _ => ""
-        };
-        float size = state.Kind == ArenaStructureKind.Keep ? 111 : 96;
+        string id = VisualAssets.StructureId(state.Kind);
+        float size = state.Kind switch { ArenaStructureKind.Keep => 111, ArenaStructureKind.Watchpost => 82, _ => 96 };
         if (id.Length > 0 && Sprite(canvas, id, ground, Vector2.One * size, tint)) return;
         canvas.DrawRect(new Rect2(ground + new Vector2(-12, -24), new Vector2(24, 29)), new Color("a8a084") * tint);
         canvas.DrawColoredPolygon([ground + new Vector2(-16, -24), ground + new Vector2(0, -36), ground + new Vector2(16, -24)], new Color("586b78") * tint);

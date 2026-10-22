@@ -25,8 +25,8 @@ public partial class DoctrineCard : PanelContainer
         SizeFlagsHorizontal = SizeFlags.ExpandFill; CustomMinimumSize = new(0, 420);
         skin.Panel(this, "hud/card_frame");
         var body = new VBoxContainer(); AddChild(Margin(body, 14)); body.AddThemeConstantOverride("separation", 8);
-        var title = WrapLabel(card.Title); title.AddThemeFontSizeOverride("font_size", 25); body.AddChild(title);
-        var category = WrapLabel(card.Subtitle); category.Modulate = new Color("efd478"); body.AddChild(category);
+        var title = WrapLabel(card.Title); title.ThemeTypeVariation = "WatchHeading"; body.AddChild(title);
+        var category = WrapLabel(card.Subtitle); category.ThemeTypeVariation = "WatchDetail"; category.Modulate = new Color("efd478"); body.AddChild(category);
         var scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsVertical = SizeFlags.ExpandFill, FocusMode = FocusModeEnum.All, MouseFilter = MouseFilterEnum.Pass }; body.AddChild(scroll);
         _scroll = scroll;
@@ -36,8 +36,8 @@ public partial class DoctrineCard : PanelContainer
         var lead = WrapLabel(Introduction); lead.AddThemeFontSizeOverride("font_size", 16); lead.MouseFilter = MouseFilterEnum.Ignore; text.AddChild(lead); _lead = lead;
         _numbers = WrapLabel(card.Description.Replace("\n\n", "\n")); _numbers.AddThemeFontSizeOverride("font_size", 14);
         _numbers.MouseFilter = MouseFilterEnum.Ignore; text.AddChild(_numbers); _numbers.Hide();
-        DetailsButton = skin.Button("Full effects & stock ▾", () => { _numbers.Visible = !_numbers.Visible; DetailsButton.Text = _numbers.Visible ? "Full effects & stock ▴" : "Full effects & stock ▾"; _footer.Visible = _numbers.Visible; });
-        DetailsButton.AddThemeFontSizeOverride("font_size", 14); body.AddChild(DetailsButton);
+        DetailsButton = skin.Button("Full effects & stock ▾", () => { _numbers.Visible = !_numbers.Visible; DetailsButton.Text = _numbers.Visible ? "Full effects & stock ▴" : "Full effects & stock ▾"; _footer.Visible = _numbers.Visible; }, "ForestQuietButton");
+        body.AddChild(DetailsButton);
         _footer = WrapLabel(card.Footer); body.AddChild(_footer);
         _footer.Hide();
         ChooseButton = skin.Button("Select doctrine", choose, "ForestPrimaryButton"); ChooseButton.ToggleMode = true; body.AddChild(ChooseButton);
@@ -50,7 +50,7 @@ public partial class DoctrineCard : PanelContainer
             if (_compact == compact) return;
             _compact = compact;
             CustomMinimumSize = new(0, compact ? 420 : 480);
-            foreach (var label in body.GetChildren().OfType<Label>()) label.AddThemeFontSizeOverride("font_size", label == title ? (compact ? 23 : 25) : 16);
+            foreach (var label in body.GetChildren().OfType<Label>()) label.AddThemeFontSizeOverride("font_size", label == title ? 22 : 16);
         }
         _viewport = GetViewport(); _density = Density; _viewport.SizeChanged += Density; Density();
         Refresh(card, false);

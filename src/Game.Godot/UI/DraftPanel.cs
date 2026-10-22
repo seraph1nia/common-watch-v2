@@ -41,7 +41,7 @@ public partial class DraftPanel : Control
         panel.OffsetLeft = 30; panel.OffsetRight = -30; panel.OffsetTop = 18; panel.OffsetBottom = -18; skin.Panel(panel, "modal");
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true }; panel.AddChild(Margin(scroll, 20));
         var column = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; scroll.AddChild(column);
-        _close = skin.Button("Close rewards — inspect your city / run before choosing", Dismiss); column.AddChild(_close);
+        _close = skin.Button("Close rewards — inspect your city / run before choosing", Dismiss, "ForestQuietButton"); column.AddChild(_close);
         Result = new BattleResultStrip(); column.AddChild(Result); Result.Initialize(skin);
         _summary = WrapLabel(); column.AddChild(_summary);
         _cards = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_cards); Hide();

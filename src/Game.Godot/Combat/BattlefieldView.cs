@@ -31,6 +31,7 @@ public partial class BattlefieldView : Node2D
     public int Resets => _visualResets;
     public int TotalHits => _totalAnimatedHits;
     public int FigureCount => _figures.Count;
+    internal bool FigureHasArtwork(int id) => _figures.TryGetValue(id, out var figure) && figure.HasArtwork;
     public bool Finishing => _finishingCombat;
     public bool Active => _session is { HasState: true } && PresentingCombat;
     public bool ShaderEnabled { get; set; } = true;

@@ -90,7 +90,8 @@ public sealed class ArtTests
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CommonWatch.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
         var catalog = new AssetCatalog(Path.Combine(dir!.FullName, "assets/sprites"));
-        Assert.Null(catalog.Error); Assert.Equal(46, catalog.Entries.Count);
+        Assert.Null(catalog.Error); Assert.Equal(47, catalog.Entries.Count);
+        Assert.Contains(catalog.Entries, e => e.Id == "unit/enemy_berserker");
         Assert.Equal(6, catalog.Metadata("terrain/woodland_hex").GroundUv!.Length);
         Assert.InRange(catalog.Metadata("building/arcanum").Anchor[1], .7f, .85f);
         foreach (var entry in catalog.Entries)
