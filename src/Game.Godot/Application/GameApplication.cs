@@ -151,6 +151,8 @@ public partial class GameApplication : Node
         if (_camera is null) return;
         _assets.Configure(_options);
         if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); _arenaBackdrop.Hide(); return; }
+        _battlefield.SelectedUnit = _gameUi.LiveInspector.SelectedUnit;
+        _battlefield.SelectedStructure = _gameUi.LiveInspector.SelectedStructure;
         _battlefield.Present(_session, _battle);
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
@@ -194,7 +196,7 @@ public partial class GameApplication : Node
         if (_inviteConfirmation.Visible || _steamFriends.Visible || _exitConfirmation.Visible) return;
         if (input.IsActionPressed("ui_cancel"))
         {
-            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else if (_gameUi.Draft.Visible) _gameUi.Draft.Dismiss(); else OpenMenu();
+            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else if (_gameUi.Draft.Visible) _gameUi.Draft.Dismiss(); else if (_gameUi.LiveInspector.Visible) _gameUi.LiveInspector.Close(); else OpenMenu();
             GetViewport().SetInputAsHandled(); return;
         }
         if (_menuPopup.Visible || _settings.Visible || _inviteConfirmation.Visible || GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;

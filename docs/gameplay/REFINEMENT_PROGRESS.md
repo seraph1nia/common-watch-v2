@@ -8,8 +8,8 @@ AGENTS.md ownership, pinned Core/art/audio, native focus and authenticated ident
 | Issue | Implementation / evidence status |
 | --- | --- |
 | #3 Preparation | Complete under local-evidence acceptance; [pacing review](PREPARATION_REVIEW.md), 720p/1080p captures, Core/Shared/session/reconnect and native solo/cooperative observations verified. |
-| #4 Combat readability/results | Next. Compact live inspection, selected squad/target, non-debug cues and authoritative factual recap. |
-| #5 Visual army/deployment | Pending |
+| #4 Combat readability/results | Complete under local-evidence acceptance; [combat review](COMBAT_READABILITY.md), nonmodal inspection, squad/target cues, factual recap, 94 Shared tests and ordinary/debug 720p/1080p + dense cooperative captures verified. |
+| #5 Visual army/deployment | Next |
 | #6 First-battle learning | Pending |
 | #7 Build identity | Pending |
 | #8 Veterans | Pending |

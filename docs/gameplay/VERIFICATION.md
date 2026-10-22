@@ -100,3 +100,10 @@ native Windows/macOS execution, physical GPU/input and real audio hardware remai
 unexecuted. Cross-builds and Linux LAN/offline tests do not qualify them. The known
 intermittent native .NET/JIT crash risk remains unresolved. Remote GitHub Actions
 was not triggered; this task changes the local working tree only.
+
+## Refinement roadmap
+
+The [combat readability review](COMBAT_READABILITY.md) documents issue #4, its
+factual accounting boundaries, native inspection checks and real 720p/1080p
+solo/cooperative captures. The [roadmap checkpoint](REFINEMENT_PROGRESS.md) tracks
+subsequent issue work separately from the original parity verification above.

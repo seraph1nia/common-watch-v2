@@ -1,5 +1,6 @@
 using Godot;
 using Game.Core;
+using Game.Shared;
 
 namespace Game.GodotClient;
 
@@ -27,6 +28,7 @@ public partial class GameplayDialog : Control
     private DetailsPage _page;
     private Label _cityDetails = null!, _events = null!;
     public IReadOnlyList<string> RecentFeedback { get; set; } = [];
+    public BattleOutcome? LastOutcome { get; set; }
     public void Initialize(HudSkin skin, Action submitted)
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Stop;
@@ -100,6 +102,7 @@ public partial class GameplayDialog : Control
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
                 + "\n" + RunPresentation.Inspection(context.City);
+            if (LastOutcome is { } outcome) _cityDetails.Text += "\n\nLast battle\n" + outcome.Summary + "\n" + outcome.Details;
             _events.Text = string.Join("\n\n", RecentFeedback);
         }
         if (_page == DetailsPage.Army) Army.Refresh(context);

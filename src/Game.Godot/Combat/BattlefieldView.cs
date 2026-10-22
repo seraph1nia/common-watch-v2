@@ -52,6 +52,7 @@ public partial class BattlefieldView : Node2D
         _scenery.AnimatedEnvironment = _environment.Settings.Quality != EnvironmentQuality.Off;
         if (Active) _environmentView.SetArena(new ArenaLayout(CombatState.Arena!, _arena));
         _scenery.Present(_assets, Active ? CombatState.Arena : null, _arena);
+        _scenery.Modulate = _options.Mode == RenderMode.Sprites ? new Color(.78f, .83f, .8f) : Colors.White;
         _diagnostics.Visible = Active && _options.DebugOverlay;
         if (!Active) { foreach (var figure in _figures.Values) figure.Hide(); foreach (var structure in _structures.Values) structure.Hide(); if (_combatOverlay is not null) _combatOverlay.Hide(); }
         QueueRedraw();
@@ -61,6 +62,7 @@ public partial class BattlefieldView : Node2D
         foreach (var figure in _figures.Values) figure.QueueFree(); _figures.Clear();
         foreach (var structure in _structures.Values) structure.QueueFree(); _structures.Clear();
         _motion.Clear(); _visualPlayback = null; _finishingCombat = false; _totalAnimatedHits = 0;
+        ClearReadability();
         _session = null!; _battle = null;
         Hide(); _diagnostics?.Hide();
     }
@@ -94,6 +96,7 @@ public partial class BattlefieldView : Node2D
         if (_visualPlayback != Playback || _visualGeneration != Playback.Generation)
         {
             _finishingCombat = CombatState.Phase == Phase.Combat;
+            ClearReadability();
             _visualResets++; _motion.Clear(); _terminalTick = -1;
             foreach (var figure in _figures.Values) figure.QueueFree();
             foreach (var structure in _structures.Values) structure.QueueFree(); _structures.Clear();
@@ -160,7 +163,7 @@ public partial class BattlefieldView : Node2D
             float hp = Math.Clamp((float)structure.Health / Math.Max(1, structure.MaximumHealth), 0, 1);
             _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34, 4)), new Color("111c24") with { A = fade });
             _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34 * hp, 4)), new Color("80bbab") with { A = fade });
-            TextCentered($"P{structure.Owner} {structure.Kind} {HealthPoints.Format(structure.Health)}", p + new Vector2(0, 17), 10, _muted with { A = fade });
+            TextCentered($"P{structure.Owner} {structure.Kind}", p + new Vector2(0, 17), 10, _muted with { A = fade });
         }
         var visible = units.Select(u => u.Id).ToHashSet();
         foreach (int id in _figures.Keys.Where(id => !visible.Contains(id)).ToArray()) { _figures[id].QueueFree(); _figures.Remove(id); }
@@ -184,16 +187,19 @@ public partial class BattlefieldView : Node2D
             if (!_figures.TryGetValue(unit.Id, out var figure)) { figure = new(); _figures[unit.Id] = figure; AddChild(figure); }
             figure.ZIndex = depths[(unit.Id, 0, ArenaStructureKind.Keep, 0)]; figure.Visible = true;
             DrawSetTransform(ground, 0, new Vector2(1, .38f));
-            DrawCircle(Vector2.Zero, 10, new Color(0, 0, 0, .28f * pose.Opacity), true, -1, true);
-            DrawArc(Vector2.Zero, 9, 0, Mathf.Tau, 24, new Color(unit.Faction == Faction.Adventurers ? "54798c" : "885649") with { A = pose.Opacity }, 1, true);
+            DrawCircle(Vector2.Zero, 11, new Color(0, 0, 0, .48f * pose.Opacity), true, -1, true);
+            DrawArc(Vector2.Zero, 10, 0, Mathf.Tau, 24, OwnerColor(unit) with { A = pose.Opacity }, 1.6f, true);
             DrawSetTransform(Vector2.Zero);
             string id = VisualAssets.UnitId(unit);
             figure.Present(_assets.Load(id), _assets.Catalog.Metadata(id), unit.Type, unit.Faction == Faction.Adventurers, pose, ground, CombatShader, _hitShader);
             Vector2 p = ground + V(pose.Offset);
             float hp = Math.Clamp((float)unit.Health / Math.Max(1, unit.Profile.Health), 0, 1);
-            _combatOverlay.Bar(new Rect2(p + new Vector2(-10, -45), new Vector2(20, 3)), new Color("111c24"));
-            _combatOverlay.Bar(new Rect2(p + new Vector2(-10, -45), new Vector2(20 * hp, 3)), new Color(unit.Faction == Faction.Adventurers ? "80bbab" : "ce9382"));
-            TextCentered((unit.Faction == Faction.Adventurers ? "S" : "E") + unit.Id, ground + new Vector2(0, 13), 10, _muted);
+            if (_options.DebugOverlay)
+            {
+                _combatOverlay.Bar(new Rect2(p + new Vector2(-10, -45), new Vector2(20, 3)), new Color("111c24"));
+                _combatOverlay.Bar(new Rect2(p + new Vector2(-10, -45), new Vector2(20 * hp, 3)), OwnerColor(unit));
+                TextCentered((unit.Faction == Faction.Adventurers ? "S" : "E") + unit.Id, ground + new Vector2(0, 13), 10, _muted);
+            }
             DrawStatuses(unit, ground, tick);
             if (unit.Type == UnitType.Mage && tick >= unit.ActionStartTick && tick < unit.ImpactTick && unit.PendingImpact)
                 DrawArc(p + new Vector2(0, -22), (5 + (float)(tick - unit.ActionStartTick) / Math.Max(1, unit.ImpactTick - unit.ActionStartTick) * 7), 0, Mathf.Tau, 24, new Color("a79ce8"), 1.5f, true);
@@ -222,6 +228,8 @@ public partial class BattlefieldView : Node2D
                 TextCentered($"#{unit.Id} sq{unit.SquadId} {unit.Hex!.Action} →{unit.TargetId} a{unit.AttackSequence}", ground + new Vector2(0, 25), 10);
             }
         }
+        DrawReadability(units, positions, Cell, visibleArea);
+        DrawDamageTotals(state, tick, Project, Cell);
         foreach (var entry in _motion.Events)
         {
             float age = (float)(tick - entry.Tick); if (age < 0 || age > 35) continue;
@@ -262,8 +270,6 @@ public partial class BattlefieldView : Node2D
             if ((entry.Type is CombatEventType.Hit or CombatEventType.StructureHit or CombatEventType.StructureDestroyed) && entry.Damage > 0)
             {
                 // Every event retains its sequence, including simultaneous hits on one victim.
-                Vector2 n = p + new Vector2((entry.Sequence % 3 - 1) * 9, -43 - age * .55f);
-                TextCentered("−" + HealthPoints.Format(entry.Damage), n, 13, _gold with { A = Math.Clamp(1 - age / 35, 0, 1) });
                 if (age < 12) for (int i = 0; i < 5; i++)
                 {
                     float angle = i * Mathf.Tau / 5 + entry.Sequence;

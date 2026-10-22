@@ -169,8 +169,27 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         send(1, 'unready')
         send(1, 'speed-2x', accepted=False)
         capture_feedback('rejected', 'Rejected')
+        control(0, 'hold-combat', wave=6)
         for index in range(2):
             control(index, 'policy', enabled='yes')
+        wait(lambda: all(status(i)['state']['Wave'] == 6 and status(i)['state']['Phase'] == 'Combat' and status(i)['state']['Paused'] for i in range(2)), 'dense cooperative battle held by authoritative pause', seconds=100)
+        actors = [u for p in status(1)['state']['Players'] for u in p['Soldiers'] if u['Health'] > 0] + status(1)['state']['Enemies']
+        assert len(actors) >= 16, ('dense battle actor count', len(actors))
+        unit = next(u for u in actors if u['Faction'] == 'Adventurers' and u['Owner'] == 2 and u['Hex']['Lifecycle'] == 'Alive')
+        control(1, 'inspect-combat', unitId=unit['Id'])
+        wait(lambda: status(1)['liveVisible'] and status(1)['liveUnit'] == unit['Id'] and status(1)['highlightedMembers'] > 0, 'read-only live inspection in shared arena')
+        assert not status(1)['blocksWorld'] and 'Effects:' in status(1)['liveText']
+        assert 'Committed' not in status(1)['liveText'] and status(1)['squadCues'] > 1
+        for width, height in ((1280, 720), (1920, 1080)):
+            control(1, 'resize', width=width, height=height)
+            wait(lambda: status(1)['viewportWidth'] == width and status(1)['liveFits'], 'dense battle live inspector layout')
+            art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'
+            path = ROOT / f'artifacts/captures/gameplay/network-{art}/dense-combat-{width}.png'
+            path.unlink(missing_ok=True); control(1, 'capture', path=str(path))
+            wait(lambda: path.exists(), 'dense battle capture')
+        print(f'GODOT_COMBAT_COOP_PASS actors={len(actors)} cues={status(1)["squadCues"]} sizes=1280/1920 read-only ownership', flush=True)
+        control(1, 'close-combat'); control(1, 'resize', width=1280, height=720)
+        send(0, 'resume')
         wait(lambda: all(status(i)['state']['Wave'] == 8 and status(i)['state']['Phase'] == 'Building' for i in range(2)), 'seven legal cooperative waves', seconds=100)
         for index in range(2):
             art = 'forest' if os.getenv('COMMON_WATCH_GAMEPLAY_ART') == 'illustrated' else 'plain'

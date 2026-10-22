@@ -12,6 +12,7 @@ public partial class GameApplication
         await CheckMenuPresentation();
         await CheckArenaFraming();
         await CheckPaintedHudControls();
+        await CheckCombatReadability();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");

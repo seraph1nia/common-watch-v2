@@ -10,6 +10,7 @@ public partial class GameApplication
     private long _controlWrite;
     private bool _pausedAtDeath;
     private bool _gameplayPolicy;
+    private int _captureCombatWave;
     private async void CaptureGameplayNetwork(string path)
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -44,6 +45,12 @@ public partial class GameApplication
                 case "choose-doctrine" when _session is { HasState: true } && _session.Snapshot.Phase == Phase.Lobby:
                     ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
+                case "hold-combat": _captureCombatWave = Number("wave", 6); break;
+                case "inspect-combat" when _session is { HasState: true }:
+                    if (_session.Playback.Units().FirstOrDefault(u => u.Id == Number("unitId")) is { } combatant)
+                        _gameUi.Inspect(combatant);
+                    break;
+                case "close-combat": _gameUi.LiveInspector.Close(); break;
                 case "inspect" when _session is { HasState: true }:
                     _gameUi.Cities.Select(_gameUi.Cities.GetItemIndex(Number("owner")));
                     _gameUi.Cities.EmitSignal(OptionButton.SignalName.ItemSelected, (long)_gameUi.Cities.Selected);
@@ -75,6 +82,9 @@ public partial class GameApplication
         }
         if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
         { _pausedAtDeath = true; _session.Send("pause"); }
+        if (_captureCombatWave > 0 && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
+            && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= 180)
+        { _captureCombatWave = 0; _session.Send("pause"); }
         if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
             for (int i = 0; i < 10; i++) _session.Step();
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
@@ -89,6 +99,12 @@ public partial class GameApplication
             preparationText = _gameUi.PreparationSummary.Text,
             preparationVisible = _gameUi.PreparationSummary.IsVisibleInTree(), viewportWidth = GetWindow().Size.X,
             finishingCombat = _battlefield.Finishing,
+            liveUnit = _gameUi.LiveInspector.SelectedUnit, liveVisible = _gameUi.LiveInspector.Visible,
+            liveText = _gameUi.LiveInspector.Inspector.Details,
+            liveFits = GetViewport().GetVisibleRect().Encloses(_gameUi.LiveInspector.GetGlobalRect()),
+            blocksWorld = _gameUi.BlocksWorld, squadCues = _battlefield.SquadCueCount,
+            highlightedMembers = _battlefield.HighlightedMembers, highlightedTarget = _battlefield.HighlightedTarget,
+            resultSummary = _gameUi.Result.Summary,
             readyFits = GetViewport().GetVisibleRect().Encloses(_gameUi.PhaseArea)
                 && _gameUi.LedgerArea.End.Y + 8 <= _gameUi.PhaseArea.Position.Y
                 && _gameUi.PhaseArea.Encloses(_gameUi.ReadyButton.GetGlobalRect()),

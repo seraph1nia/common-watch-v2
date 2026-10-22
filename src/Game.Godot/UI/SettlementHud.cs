@@ -10,6 +10,12 @@ public partial class SettlementHud : Control
     private Label _phase = null!, _keep = null!;
     private ResourcePanel _economy = null!;
     private PreparationPanel _preparation = null!;
+    private readonly BattleOutcomeJournal _outcomes = new();
+    public LiveCombatInspector LiveInspector { get; private set; } = null!;
+    internal BattleResultStrip Result { get; private set; } = null!;
+    private PanelContainer _resultFrame = null!;
+    private PanelContainer _combatLegend = null!;
+    private bool _combatPresentation;
     private CitySelector _cities = null!;
     private MatchControls _controls = null!;
     private PanelContainer _ribbon = null!, _dock = null!, _action = null!, _palette = null!;
@@ -58,6 +64,7 @@ public partial class SettlementHud : Control
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
+        _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
         _feedbackKey = ""; _recentFeedback.Clear(); _acceptedUntil = 0;
         Inspector?.Construction.ResetSelection(); Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(); }
@@ -66,6 +73,7 @@ public partial class SettlementHud : Control
     private GameplayContext Context => new(_session, Submitted);
     private void OpenDetails(DetailsPage page)
     {
+        LiveInspector.Close(false);
         Draft.Dismiss(false); Details.Open(page, Context, GetViewport().GuiGetFocusOwner()); LayoutHud();
     }
     public void Initialize(HudSkin skin)
@@ -164,6 +172,13 @@ public partial class SettlementHud : Control
         Details = new GameplayDialog(); Details.Initialize(skin, Submitted); AddChild(Details); Details.FallbackFocus = build; Details.Closed += LayoutHud;
         Details.PlotRequested += slot => { _session.SelectSlot(slot); ShowArena = false; ArenaChanged?.Invoke(); Submitted(); };
         Draft = new DraftPanel(); AddChild(Draft); Draft.Initialize(skin, Submitted); Draft.FallbackFocus = build;
+        LiveInspector = new LiveCombatInspector(); AddChild(LiveInspector); LiveInspector.Initialize(skin); LiveInspector.FallbackFocus = _overview;
+        _resultFrame = new PanelContainer(); AddChild(_resultFrame); skin.Panel(_resultFrame);
+        Result = new BattleResultStrip { Compact = true }; _resultFrame.AddChild(Result); Result.Initialize(skin); _resultFrame.Hide();
+        _combatLegend = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_combatLegend);
+        _combatLegend.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(.025f, .045f, .06f, .88f), ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 4, ContentMarginBottom = 4 });
+        var legend = WrapLabel("F frontline · R ranged · M magic\nP# allies · E→# foes · ! low health\nGold: selected · orange: target"); legend.AddThemeFontSizeOverride("font_size", 14); legend.MouseFilter = MouseFilterEnum.Ignore;
+        _combatLegend.AddChild(legend); _combatLegend.Hide();
         Resized += LayoutHud; LayoutHud();
     }
     private void LayoutHud()
@@ -192,6 +207,10 @@ public partial class SettlementHud : Control
         float preparationWidth = wide ? 380 : 276;
         _preparation.Position = new(edge, 92);
         _preparation.Size = new(preparationWidth, _preparation.GetCombinedMinimumSize().Y);
+        LiveInspector.Layout(Size);
+        _resultFrame.Position = new(edge, 92);
+        _resultFrame.Size = new(wide ? 380 : 310, _resultFrame.GetCombinedMinimumSize().Y);
+        _combatLegend.Position = new(edge, Size.Y - 92); _combatLegend.Size = new(310, 80);
         float inspectorWidth = wide ? 330 : 264;
         float inspectorHeight = Mathf.Min(_dock.GetThemeStylebox("panel").GetMinimumSize().Y + 52 + Inspector.GetCombinedMinimumSize().Y, Size.Y * .50f);
         _dock.Size = new(inspectorWidth, inspectorHeight);
@@ -210,12 +229,26 @@ public partial class SettlementHud : Control
 
     public void Inspect(UnitState unit, bool preview = false)
     {
+        if (!preview && (_session.Snapshot.Phase == Phase.Combat || _combatPresentation))
+        { Details.Close(false); LiveInspector.Inspect(unit, _session); return; }
         Details.Inspector.Select(unit, preview, _session.Snapshot.Phase); OpenDetails(DetailsPage.Inspection);
     }
-    public void Inspect(StructureState structure) { Details.Inspector.Select(structure); OpenDetails(DetailsPage.Inspection); }
+    public void Inspect(StructureState structure)
+    {
+        if (_session.Snapshot.Phase == Phase.Combat || _combatPresentation)
+        { Details.Close(false); LiveInspector.Inspect(structure, _session); return; }
+        Details.Inspector.Select(structure); OpenDetails(DetailsPage.Inspection);
+    }
     public void Refresh(GodotSession session, RenderOptions options, bool finishingCombat, bool force = false)
     {
         _session = session; var state = session.Snapshot; var city = session.ViewedCity;
+        _combatPresentation = state.Phase == Phase.Combat || finishingCombat;
+        _outcomes.Observe(state);
+        LiveInspector.Refresh(session, _combatPresentation && !BlocksWorld);
+        Result.Refresh(_outcomes.For(city.Id));
+        Details.LastOutcome = _outcomes.For(city.Id);
+        _resultFrame.Visible = !_combatPresentation && state.Phase is (Phase.RewardDraft or Phase.Victory or Phase.Defeat) && !BlocksWorld && Result.Visible;
+        _combatLegend.Visible = _combatPresentation && !BlocksWorld;
         if (_viewed != city.Id) { _viewed = city.Id; Details.ResetSelection(); }
         SessionFeedback = !session.Connected ? "Disconnected — " + session.Status : session.Pending ? "Pending — waiting for remote authority acknowledgment…" : session.LastResult is { } result ? (result.Accepted ? "Accepted: " : "Rejected: ") + result.Message : session.Status;
         string feedbackKey = $"{state.MatchId}:{session.LastResult?.Sequence}:{SessionFeedback}";
@@ -248,7 +281,7 @@ public partial class SettlementHud : Control
             _uiKey = key;
             Inspector.EmptyHint = _arenaContext ? "Select a combatant to inspect the field." : "Select a clearing to build or manage your settlement.";
             if (!Details.Visible) Inspector.Refresh(Context, _arenaContext ? -1 : session.SelectedSlot);
-            Details.Refresh(Context); Draft.Refresh(session, finishingCombat);
+            Details.Refresh(Context); Draft.Refresh(session, finishingCombat, _outcomes.For(session.PlayerId));
             if (Draft.Visible) Details.Close(false);
         }
         LayoutHud();
