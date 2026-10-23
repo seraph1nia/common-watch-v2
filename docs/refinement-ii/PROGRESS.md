@@ -3,16 +3,16 @@
 Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15)
 and its ten children. Preserve the complete scope, including executable rules
 alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
-Current branch: `refinement/19-squad-workspace`, stacked on
-`refinement/18-combat-framing` (`59fbebf`). Core/Shared source and rules remain unchanged.
+Current branch: `refinement/20-cooperative-context`, stacked on
+`refinement/19-squad-workspace` (`cb8d787`). Core/Shared source and rules remain unchanged.
 
 | Order | Issue | State |
 | --- | --- | --- |
 | 1 | #16 phase-specific HUD | Implemented and locally verified; draft [PR #26](https://github.com/seraph1nia/common-watch-v2/pull/26). Follow-up probe fixes through `23e94a3`; remote CI passed (run 53). See [contract/inventory](16_PHASE_HUD.md). |
 | 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
 | 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck belongs to #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
-| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; final native checks passing, PR preparation. See [contract and routes](19_ARMY_WORKSPACE.md). |
-| 5 | #20 cooperative context | Pending; Gate A follows these five presentation issues. |
+| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), CI pending. See [contract and routes](19_ARMY_WORKSPACE.md). |
+| 5 | #20 cooperative context | Active: compact cooperative status, explicit inspected/command/camera identities, stable observer flow, final maximum-group framing. Gate A follows these five presentation issues. |
 | 6 | #21 immediate battle rewards | Pending; actual one-shot resources/recovery, no research-point substitute. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
 | 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
@@ -115,3 +115,41 @@ Initial PNG-heavy slow instrumentation and variable-offer network attempts are
 retained separately. The recorder double-signal trailer issue was fixed; final
 logs are clean. No new artwork/dependency pins or Core/Shared source changes.
 All final #18 verification handles are terminal and no owned native workers remain.
+
+
+#19 checkpoint: feature `cb8d787ab72436a17c5fef79d95351e64561d9be`, baseline
+probe `fdb4a4e`, draft PR #29 on #28. All final local handles are terminal;
+no owned native workers remain. Source/log manifest is
+`artifacts/refinement-ii/r6/manifest.json`; native before/after task and six-profile
+input/art matrix are under `artifacts/captures/army-workspace/`. The task comparison
+passes exact payments and accepted assignments: 12→8 actions, 4→2 navigation,
+2→0 major Army section changes, both sizes. Before popup input is explicitly
+signal-qualified; after task is all native pointer. Arrow and D-pad traverse all
+six retained homes in all six final cases; mouse/keyboard/controller confirm
+actual placements. Home tower branches pay/refund exact quotes after legal
+producer/production/resale setup. No Core/Shared rules/protocol/assets changed.
+
+#19 local receipts: zero-warning build; Core 46 / Shared 145 / models 106;
+three native session facts; four full illustrated/debug gameplay profiles;
+final default/debug/missing-art matrix at both sizes; both seven-wave remote
+workers with actual delayed authority, retry, rejection and allied ownership;
+1–6-player multiplayer (21 client receipts); private reconnect including death
+and draft; continuous three-wave journey/overlay gates; 14 art/showroom captures.
+Four full profiles precede the last secondary-tab style and shorter unavailable
+text; final matrix/task/remote/lifecycle checks cover the final presentation.
+Diagnostic failed probes/layout/setup attempts and one simultaneous lost Xvfb
+display are retained separately; final native gates were serialized. No physical
+hardware/input, human, native other-OS or live Steam claims. Native runtime risk
+remains. CI #19 must be polled by its full SHA while #20 progresses; isolate any
+required #19 repair in a worktree rather than mixing incomplete #20 changes.
+
+Next: read the complete #20 spec and existing TeamAwareness/TeamPanel/camera
+contract, capture the cooperative baseline before production edits, then keep
+command ownership separate from inspection and explicit camera modes. #18's
+maximum-group 720p gain was modest; reduce routine Team footprint, retain
+inspection, refresh normal group captures and verify final framing for Gate A.
+Gate A also requires full unchanged-rule solo/co-op first-three-wave journeys.
+Before #21, finish #25's exact command/event archival and no-investment baseline
+reproduction from the original sources; existing reports alone are insufficient.
+#21–#25 retain their entire cached specs and executable alternatives, not
+prose-only evaluations or research-point substitutes.
