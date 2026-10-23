@@ -24,8 +24,8 @@ public partial class MatchControls : VBoxContainer
             if (_session is not { HasState: true, Connected: true, Pending: false }) return;
             var state = _session.Snapshot;
             if (state.Phase is Phase.Victory or Phase.Defeat) return;
-            if (action is "ready" or "unready" && (!ReadyButton.IsVisibleInTree() || ReadyButton.Disabled)) return;
-            if (CombatSpeedRates.TryAction(action, out _) && (!_speeds.IsVisibleInTree() || !_session.IsHost)) return;
+            if (action is "ready" or "unready" && (state.Phase is not (Phase.Building or Phase.Preparation) || !ReadyButton.IsVisibleInTree() || ReadyButton.Disabled)) return;
+            if (CombatSpeedRates.TryAction(action, out _) && (state.Phase != Phase.Combat || !_speeds.IsVisibleInTree() || !_session.IsHost)) return;
             if (action is "pause" or "resume" && (!_pause.IsVisibleInTree() || _pause.Disabled)) return;
             _session.Send(action); submitted();
         }
@@ -50,7 +50,7 @@ public partial class MatchControls : VBoxContainer
         bool ended = state.Phase is Phase.Defeat or Phase.Victory;
         bool combat = state.Phase == Phase.Combat || finishingCombat;
         bool preparing = !finishingCombat && state.Phase is Phase.Building or Phase.Preparation;
-        ReadyButton.Visible = preparing && !session.City.Eliminated; _speeds.Visible = combat;
+        ReadyButton.Visible = preparing && !session.City.Eliminated; _speeds.Visible = state.Phase == Phase.Combat;
         string next = state.Phase == Phase.Preparation ? "battle" : $"prep {state.Turn + 1}";
         ReadyButton.Text = session.City.Ready ? "Unready" : $"Ready · {next}";
         if (session.ViewedCity.Id != session.PlayerId) ReadyButton.Text = (session.City.Ready ? "Unready" : "Ready") + $" · P{session.PlayerId}";

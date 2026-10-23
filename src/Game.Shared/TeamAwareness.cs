@@ -19,9 +19,10 @@ public static class TeamAwareness
         int index = cell.Coordinate.Column / SharedArena.SectorWidth;
         return index >= 0 && index < arena.Sectors.Length ? arena.Sectors[index].Owner : 0;
     }
-    public static TeamOverview Project(MatchSnapshot state, int localPlayer, bool connected = true, IReadOnlyList<UnitState>? presented = null, bool localChoiceAccepted = false)
+    public static TeamOverview Project(MatchSnapshot state, int localPlayer, bool connected = true, IReadOnlyList<UnitState>? presented = null, bool localChoiceAccepted = false, bool finishingCombat = false)
     {
         bool combat = state.Phase == Phase.Combat;
+        bool presentedCombat = combat || finishingCombat;
         bool planning = state.Phase is Phase.Building or Phase.Preparation;
         bool ended = state.Phase is Phase.Victory or Phase.Defeat;
         var local = state.Players.Single(p => p.Id == localPlayer);
@@ -29,23 +30,24 @@ public static class TeamAwareness
         var members = state.Players.Select(city =>
         {
             bool away = !city.Connected || city.Id == localPlayer && !connected;
-            string status = city.Eliminated ? "Fallen" : away ? "Away" : ended ? state.Phase.ToString()
+            string status = city.Eliminated ? "Fallen" : away ? "Away" : city.Id == localPlayer && finishingCombat ? "Finishing" : ended ? state.Phase.ToString()
                 : state.Phase == Phase.RewardDraft ? city.Run.Choice is null ? city.Id == localPlayer && localChoiceAccepted ? "Syncing" : "Choosing" : "Selected"
                 : combat ? "Fighting" : city.Ready ? "Ready" : "Preparing";
             var active = units.Where(u => u.Owner == city.Id && u.Faction == Faction.Adventurers && u.Health > 0 && u.Hex?.Lifecycle == UnitLifecycle.Alive && u.Deployed).ToArray();
-            int field = combat ? active.Length : city.Eliminated || ended ? 0 : planning ? city.FoodForecast?.Participating.Length ?? 0
+            int field = presentedCombat ? active.Length : city.Eliminated || ended ? 0 : planning ? city.FoodForecast?.Participating.Length ?? 0
                 : city.Soldiers.Count(u => u.Health > 0 && u.Assignment is { Stored: false });
-            var unfed = ended ? [] : planning ? city.FoodForecast?.Unfed ?? [] : city.LastUpkeep?.Unfed ?? [];
+            var unfed = ended ? [] : planning && !presentedCombat ? city.FoodForecast?.Unfed ?? [] : city.LastUpkeep?.Unfed ?? [];
             int storedUnfed = city.Soldiers.Count(u => u.Assignment is { Stored: true } && unfed.Contains(u.Id));
             int fieldUnfed = unfed.Length - storedUnfed;
-            string contribution = combat ? string.Join(" · ", active.GroupBy(u => Sector(state, u)).Where(g => g.Key > 0).OrderBy(g => g.Key).Select(g => $"{g.Count()} @P{g.Key}")) : "";
+            string contribution = presentedCombat ? string.Join(" · ", active.GroupBy(u => Sector(state, u)).Where(g => g.Key > 0).OrderBy(g => g.Key).Select(g => $"{g.Count()} @P{g.Key}")) : "";
             bool danger = !city.Eliminated && !ended && city.Health <= HealthPoints.FromWhole(state.Rules.CityHealth) * .3;
             string details = $"P{city.Id} · {status}{(state.Paused ? " · match paused" : "")}\nKeep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}{(danger ? " · low Keep" : "")}\n"
-                + (ended ? "Match ended: no future production, recruitment, field participation, Ready or reward choice." : city.Eliminated ? combat ? "Current surviving soldiers can finish this battle; no future army participation." : "Observer: no future production, recruitment, Ready or reward choice."
-                    : $"{field} {(combat ? "currently active" : planning ? "projected to fight" : "surviving field")} · {(!combat && !planning ? "last upkeep: " : "")}{fieldUnfed} field unfunded · {storedUnfed} stored unfunded")
+                + (ended ? "Match ended: no future production, recruitment, field participation, Ready or reward choice." : city.Eliminated ? presentedCombat ? "Current surviving soldiers can finish this battle; no future army participation." : "Observer: no future production, recruitment, Ready or reward choice."
+                    : $"{field} {(presentedCombat ? "currently active" : planning ? "projected to fight" : "surviving field")} · {(!presentedCombat && !planning ? "last upkeep: " : "")}{fieldUnfed} field unfunded · {storedUnfed} stored unfunded")
+                + (status == "Finishing" ? "\nYour playback is finishing; choices open after its last effect. Teammates may already choose." : "")
                 + (contribution.Length == 0 ? "" : "\nObserved logical sectors: " + contribution + ". Ownership stays with this city.")
                 + (away && !ended ? "\nAway cities do not block readiness. Reconnect reclaims the same city; the host must remain running." : "")
-                + (planning && state.Turn < 3 ? "\nFood uses stock now; later income and purchases can change it." : "")
+                + (planning && !presentedCombat && state.Turn < 3 ? "\nFood uses stock now; later income and purchases can change it." : "")
                 + "\nInspect only. Your commands always belong to your authenticated city.";
             return new TeamMember(city.Id, status, city.Health, danger, field, fieldUnfed, storedUnfed, contribution, details);
         }).ToArray();

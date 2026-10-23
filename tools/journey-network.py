@@ -237,6 +237,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
             if wave == 1:
                 wait(lambda: status(1)['finishingCombat'], 'slow client still finishing actual playback')
                 assert status(1)['playbackTick'] == held_tick and status(1)['state']['Tick'] > held_tick
+                wait(lambda: 'Finishing' in status(1)['teamRows'][1], 'local team row reaches the presented finishing boundary')
                 assert not status(1)['draftVisible']
                 capture('slow-client-finishing', 1)
                 request(1, 'hold-presentation', enabled='no')

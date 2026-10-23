@@ -29,7 +29,11 @@ public partial class GameApplication
             {
                 GetWindow().Size = size; _options = _options with { View = view, Mode = RenderMode.Sprites };
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-                _arenaCameraKey = ""; SeekBattle(74); RefreshWorld();
+                PrepareBattleCamera(); SeekBattle(74); RefreshWorld();
+                // Save the pose after the same native layout boundary used by
+                // ordinary battle entry, before exercising manual/F/R input.
+                await JourneyFrames();
+                await JourneyFrames();
                 var projection = new HexProjection(30, _options.GroundCompression);
                 var layout = new ArenaLayout(arena, projection);
                 float localZoom = _camera.Magnification;

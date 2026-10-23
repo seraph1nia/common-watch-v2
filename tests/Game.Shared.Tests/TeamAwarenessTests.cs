@@ -90,10 +90,19 @@ public sealed class TeamAwarenessTests
             }
             Send(id, "ready");
         }
+        var presentedCombat = match.Snapshot().Players.SelectMany(p => p.Soldiers).ToArray();
         for (int n = 0; n < 18000 && match.Phase == Phase.Combat; n++) match.Step();
         Assert.Equal(Phase.RewardDraft, match.Phase);
         Assert.All(TeamAwareness.Project(match.Snapshot(), 1).Members, m => Assert.Equal("Choosing", m.State));
         var beforeChoice = match.Snapshot();
+        // Two real accepted snapshots model a slower presentation, not a new
+        // simulation phase or a fabricated native checkpoint.
+        var finishing = TeamAwareness.Project(beforeChoice, 1, presented: presentedCombat, finishingCombat: true);
+        Assert.Equal("Finishing", finishing.Members[0].State);
+        Assert.Equal("Choosing", finishing.Members[1].State);
+        Assert.Equal(2, finishing.Boundary.Waiting);
+        Assert.Equal(presentedCombat.Count(u => u.Owner == 1 && u.Health > 0 && u.Deployed), finishing.Members[0].Field);
+        Assert.Contains("playback is finishing", finishing.Members[0].Details);
         var survivors = TeamAwareness.Project(beforeChoice, 1);
         foreach (var member in survivors.Members)
         {
@@ -111,6 +120,10 @@ public sealed class TeamAwarenessTests
         Assert.Equal("Selected", team.Members[0].State); Assert.Equal("Choosing", team.Members[1].State);
         Send(2, "reward:" + GameplayScenarios.RewardChoice(match.Snapshot().Players[1].Run));
         Assert.All(TeamAwareness.Project(match.Snapshot(), 1).Members, m => Assert.Equal("Preparing", m.State));
+        var delayed = TeamAwareness.Project(match.Snapshot(), 1, presented: presentedCombat, finishingCombat: true);
+        Assert.Equal("Finishing", delayed.Members[0].State);
+        Assert.Contains("currently active", delayed.Members[0].Details);
+        Assert.DoesNotContain("Food uses stock now", delayed.Members[0].Details);
     }
     [Fact]
     public void TerminalVeteranProfilesDoNotPromiseFuturePurchasesOrRecovery()

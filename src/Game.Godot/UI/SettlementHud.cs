@@ -315,7 +315,8 @@ public partial class SettlementHud : Control
         }
         _combatPresentation = Presentation.LiveCombat;
         var presented = session.Playback.Units();
-        var team = TeamAwareness.Project(state, session.PlayerId, session.Connected, _combatPresentation ? presented : null, awaitingChoice);
+        var team = TeamAwareness.Project(state, session.PlayerId, session.Connected, _combatPresentation ? presented : null,
+            localChoiceAccepted: awaitingChoice, finishingCombat: _combatPresentation && state.Phase != Phase.Combat);
         bool survivingLocal = _combatPresentation && presented.Any(u => u.Owner == session.PlayerId && u.Faction == Faction.Adventurers && u.Health > 0 && u.Deployed);
         if (_observerSelection.Observe(session, state.MatchId, team, session.ViewedCity.Id, session.Connected && !survivingLocal && (!_arenaContext || _cameraMode == ArenaCameraMode.Automatic)) is { } observeCity)
         {
@@ -348,7 +349,7 @@ public partial class SettlementHud : Control
         _feedback.Visible = !session.Connected || session.Pending || session.LastResult is { Accepted: false } || !Presentation.Navigation;
         _reconnect.Visible = !session.Connected;
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
-        _phase.Text = $"Wave {PresentedWave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
+        _phase.Text = $"Wave {PresentedWave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Finishing combat" : state.Phase.ToString())}";
         if (_combatPresentation && state.Paused) _phase.Text += " · PAUSED";
         if (Presentation.Moment == HudMoment.ChoosingReward) _phase.Text = $"Wave {session.City.Run.DraftWave} · choose a reward";
         if (Presentation.Moment == HudMoment.RewardWaiting)

@@ -52,9 +52,10 @@ periodically reframes the camera. The Menu occluder is its actual button, not
 unused HBox space (the HBox already ignores pointer input).
 
 The inspected city persists across battle entry. An explicit city selection during
-combat supersedes the earlier harmless planning return. Reconnect baselines retain
-inspection and an existing live pose; a new battle/size/projection still establishes
-its ordinary default. These refinements preserve the existing HudJourney owner
+combat supersedes the earlier harmless planning return. Ordinary snapshots preserve inspection and manual pose. Explicit leave/rejoin
+creates a fresh session at the current phase, inspecting its authenticated local
+city; old modals and historical receipts do not replay. A new battle, viewed city,
+size or projection establishes the ordinary default. These refinements preserve the existing HudJourney owner
 for screen transitions. ObserverSelection is only a bounded navigation preference.
 
 A fallen player can inspect their own surviving troops or living allies. The
@@ -142,7 +143,7 @@ low-Keep and fall pauses in their actual order. Its observer shortcut uses nativ
 pointer input; the unit inspector uses the development selection API, separately
 qualified. This does not fill the rare fallen-owner-survivor gap. The added
 location line exposed a partly clipped Advanced control; compact live-panel
-spacing and reserved scrollbar width address it, with a focused redraw pending.
+spacing and reserved scrollbar width address it, and the focused redraw passed at both sizes; all basic copy and Advanced now fit.
 Do not fabricate an authoritative state to fill the rare-case gap.
 
 A paid frontline/idle two-client campaign reached W20 Victory in41.65s of
@@ -153,6 +154,15 @@ case reached real Defeat after an early fall. Observed spectator wall time12.09s
 includes6.70s paused capture/input work; accelerated active time5.39s and
 presentation-finish delay0.065s are reported separately. These are not human or
 normal1x timing estimates.
+
+A delayed local player now reads Finishing while teammates may already be
+Choosing, Selected or Preparing. Current field counts and locations use its
+presented units until playback finishes; the actual Core boundary count is
+unchanged. The phase heading states Finishing combat and past-combat speed
+actions disappear. Ready/speed handlers also validate the current authoritative
+phase before dispatch. Fresh model checks and native2p/720 plus6p/1080 three-wave
+runs passed this boundary; the native check waits for UI refresh after the
+authoritative snapshot, then verifies the local Finishing row before capture.
 
 Pure checks passed: zero-warning locked build, Core 46, Shared 145 and session
 models 109. Full native acceptance is still running: final focused matrix,
