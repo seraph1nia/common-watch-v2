@@ -34,8 +34,8 @@ case "$operation" in
     run_probe --battle swordsman --world-art sprites --environment-captures "$output" "$@" 2>&1 | tee -a "$environment_log"
     run_probe --battle swordsman --battle-tick 74 --world-art sprites --environment-effects full --environment-preset rain --environment-time 8 --assets-root "$settings_directory/missing-sprites" --capture "$output/missing-art.png" 2>&1 | tee -a "$environment_log"
     run_probe --battle swordsman --battle-tick 74 --world-art debug --environment-effects full --environment-preset rain --environment-time 8 --capture "$output/debug.png" 2>&1 | tee -a "$environment_log"
-    if rg -n 'SHADER ERROR:|ERROR:|Unhandled exception' "$environment_log"; then exit 1; fi
-    rg -q 'GODOT_ENVIRONMENT_PASS' "$environment_log"
+    if grep -nE 'SHADER ERROR:|ERROR:|Unhandled exception' "$environment_log"; then exit 1; fi
+    grep -q 'GODOT_ENVIRONMENT_PASS' "$environment_log"
     ;;
   capture-arena)
     client_timeout=240

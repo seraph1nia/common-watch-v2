@@ -26,7 +26,7 @@ public partial class GameApplication
             if (!_probeCaptured && _session.Snapshot.Phase == Phase.Lobby && _session.Snapshot.Players.Length == int.Parse(count)
                 && Argument("--lobby-capture") is { } capture)
             { _probeCaptured = true; CaptureLobby(capture); }
-            _networkProbe.Tick(_session.Snapshot, _session.PlayerId, _session.IsHost, int.Parse(count), _session.Pending,
+            _networkProbe.Tick(_session.Snapshot, _session.PlayerId, _session.IsHost, int.Parse(count), _session.AllDoctrinesChosen, _session.Pending,
                 _session.LastResult, (action, slot, building, payment) => _session.Send(action, slot, building, payment: payment));
             if (_session.IsHost && _session.Snapshot.Phase == Phase.Combat) for (int i = 0; i < 10; i++) _session.Step();
             if (_networkProbe.Complete && Argument("--native-verify") == "yes")

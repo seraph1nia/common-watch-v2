@@ -11,4 +11,5 @@
   <ItemGroup><Compile Include="../../src/Game.Godot/Combat/CombatMotion.cs" Link="CombatMotion.cs" /><Compile Include="../../tools/animation-tests/AnimationContract.cs" Link="AnimationContract.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/Environment/EnvironmentSettings.cs" Link="EnvironmentSettings.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/Development/PreparationObservations.cs" Link="PreparationObservations.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../tools/session-probe/OpeningProbe.cs" Link="OpeningProbe.cs" /></ItemGroup>
 </Project>
