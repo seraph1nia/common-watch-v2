@@ -97,7 +97,7 @@ mise run capture-feedback          # native receipts, pause, outcomes and muted-
 mise run capture-lobby
 ```
 
-[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. The session checks include a startup with no presentation flags, exercising the production menu, doctrine selection, purchases, combat, rewards and resizing. Gameplay checks run those same production Controls in default and explicit debug presentation. Capture checkpoints replay legal commands into real snapshots; they do not replace the gameplay UI.
+[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/`; logs are under `artifacts/test-logs/`. The session checks include a startup with no presentation flags, exercising the production menu, doctrine selection, purchases, combat, rewards and resizing. Gameplay checks run those same production Controls in default and explicit debug presentation. Capture checkpoints replay legal commands into real snapshots; they do not replace the gameplay UI.
 
 Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the authoritative rules, with seed `20261018`.
 
@@ -133,7 +133,7 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
 
-The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
+The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings. See that guide for annotations and picking. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
 
 The [painted forest HUD](docs/PAINTED_FOREST_HUD.md) adds authored RGBA paintings to
 the preserved supplied theme. Settings, a vertical resource ledger, selected context,

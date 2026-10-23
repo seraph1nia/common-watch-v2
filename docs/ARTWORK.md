@@ -193,7 +193,7 @@ The current settlement uses proportional full-viewport cover with protected clea
 - `after/settlement-{angled,topdown}-{1280,1920}.png`: final defaults, overlays off.
 - `after/settlement-{angled,topdown}-{1280,1920}-close-anchors.png`: diagnostic bounds/anchors at closer zoom.
 - `after/showroom-{1,2,3}.png`: every installed asset, all 15 additions, actual Godot drawing without authority.
-- `after/combat-{ranged,structures}.png`: legal battle showcases; unprovided figures retain fallbacks and combat structures retain their existing geometric presentation.
+- `after/combat-{ranged,structures}.png`: legal battle showcases using the [current mappings and fallbacks](#explicit-battle-presentation-paths).
 
 The full original assets/catalog, manifests and previews are backed up in `artifacts/art-backups/detailed-forest-v2-original/`; the reviewed installer also backed up the prior catalog in `artifacts/art-backups/detailed-forest-v2-20261018T205302Z-6e937efe/`. To roll back the import, restore the original extraction manifest and catalog/previews, remove only the fifteen new runtime PNG paths listed in the new source metadata, and restore the original assets tree. Original presentation/text files are also retained at matching paths in that backup tree, with step-by-step `ROLLBACK.txt`; review and preserve unrelated later edits before restoring them. Source preservation may remain, or remove only `art/source/detailed_forest_v2/` and its new provenance file. Run the ordinary art pipeline after restoring the original manifest. Backups are local ignored artifacts, not a substitute for a release archive.
 
