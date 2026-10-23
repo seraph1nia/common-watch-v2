@@ -293,7 +293,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         # A foreign ownership request remains rejected by authority, not just by the UI.
         old = status(1)['result']['Sequence']
         control(1, 'probe', action='ready', owner=1)
-        wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] > old, 'foreign ownership rejection')
+        wait(lambda: (current := status(1))['result'] and current['result']['Sequence'] > old and not current['pending'], 'foreign ownership rejection')
         assert not status(1)['result']['Accepted']
         control(0, 'leave')
         wait(lambda: not status(1)['connected'], 'original host closed')
