@@ -1,117 +1,206 @@
+// SPDX-License-Identifier: GPL-3.0-only
 using Game.Core;
 using Game.Shared;
 using Godot;
 
 namespace Game.GodotClient;
 
+/// <summary>One owner for spatial selection, recruitment and optional member/storage depth.</summary>
 public partial class ArmyRosterPanel : VBoxContainer
 {
+    private readonly ArmySelection _selection = new();
     private HudSkin _skin = null!;
     private GameplayContext _context = null!;
-    private Label _summary = null!;
-    private ActionList _members = null!;
-    private OptionButton _trainer = null!;
+    private Label _summary = null!, _notice = null!, _trainerMissing = null!, _selectedHome = null!, _placementReason = null!, _info = null!;
+    private OptionButton _trainer = null!, _halls = null!;
     private RecruitmentPanel _recruitment = null!;
     private TownHallPanel _hall = null!;
-    private OptionButton _halls = null!;
-    private OptionButton _squads = null!;
-    private Label _squadDetails = null!;
-    private TabContainer _sections = null!;
-    private int _selectedMember, _memberSquad;
-    public bool HomesVisible => _sections.CurrentTab == 3;
-    public int SelectedSquad => _squads.ItemCount > 0 ? _squads.GetSelectedId() : 0;
-    internal TabBar SectionTabs => _sections.GetTabBar();
-    internal RecruitmentPanel Recruitment => _recruitment;
-    internal OptionButton SquadSelector => _squads;
-    internal ScrollContainer HomeViewport => Deployment.GetParent<ScrollContainer>();
-    public event Action? SectionChanged;
-    public void ResetSelection() { _selectedMember = _memberSquad = 0; if (_squads.ItemCount > 0) _squads.Select(0); _sections.CurrentTab = 0; }
-    public void SelectSquad(int squad)
-    {
-        int index = _squads.GetItemIndex(squad); if (index < 0) return;
-        _squads.Select(index); _recruitment.SelectSquad(squad); if (_context is not null) Refresh(_context);
-    }
+    private ActionList _members = null!;
+    private ScrollContainer _memberScroll = null!;
+    private Button _memberToggle = null!, _preview = null!, _deploy = null!;
+    private TabContainer _details = null!;
+    private int _recruitSquad = -1;
+    private bool _refreshing;
+    private DeployIntent? _armed;
+    private sealed record DeployIntent(object Session, string Match, int City, int Home, int Squad, int Cell, int Turn);
     public DeploymentPanel Deployment { get; private set; } = null!;
-    public void ShowManagementFor(int slot, GameplayContext context)
-    {
-        Refresh(context); bool hall = context.City.Slots[slot].Type == Building.TownHall;
-        var selector = hall ? _halls : _trainer;
-        int index = selector.GetItemIndex(slot); if (index >= 0) selector.Select(index);
-        _sections.CurrentTab = hall ? 2 : 1; Refresh(context);
-    }
-    public void ShowHomes()
-    {
-        if (SelectedSquad == 0 && _squads.ItemCount > 1) SelectSquad(_squads.GetItemId(1));
-        _sections.CurrentTab = 3;
-    }
-    public void ShowManagement() => _sections.CurrentTab = 2;
-    public void ShowRoster() => _sections.CurrentTab = 0;
-    public event Action<UnitState>? UnitSelected;
+    public BuildingInspector HomeInspector { get; private set; } = null!;
+    public UnitInspector MemberInspector { get; private set; } = null!;
+    public int SelectedSquad => _selection.Squad;
+    public bool HomesVisible => IsVisibleInTree();
+    public event Action? PreviewRequested;
+    public event Action<int>? PlotRequested;
     public IReadOnlyDictionary<string, Button> MemberButtons => _members.Buttons;
-    internal ScrollContainer RosterScroll => _members.GetParent<ScrollContainer>();
+    internal RecruitmentPanel Recruitment => _recruitment;
+    internal ScrollContainer RosterScroll => _memberScroll;
+    internal Control HomeViewport => Deployment;
+    internal Button DeployButton => _deploy;
+    internal Button PreviewButton => _preview;
+    internal OptionButton TrainerSelector => _trainer;
+    internal string Notice => _notice.Text;
+    internal bool DetailTabsFit => Enumerable.Range(0, _details.GetTabCount()).All(i =>
+    {
+        var bar = _details.GetTabBar(); var rect = bar.GetTabRect(i);
+        return bar.GetGlobalRect().Encloses(new Rect2(bar.GlobalPosition + rect.Position, rect.Size));
+    });
+    internal bool PlacementLocked => _context is null || _context.EditReason.Length > 0;
+
     public void Initialize(HudSkin skin, Action submitted)
     {
-        _skin = skin; AddThemeConstantOverride("separation", 4); _summary = WrapLabel(); AddChild(_summary);
-        _squads = new OptionButton { FitToLongestItem = false, ClipText = true }; AddChild(_squads); _squads.ItemSelected += _ => SelectSquad(SelectedSquad);
-        _squadDetails = WrapLabel(); AddChild(_squadDetails);
-        _sections = new TabContainer { CustomMinimumSize = new(0, 360), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; AddChild(_sections);
-        _sections.TabChanged += _ =>
-        {
-            if (HomesVisible && SelectedSquad == 0 && _squads.ItemCount > 1) SelectSquad(_squads.GetItemId(1));
-            SectionChanged?.Invoke();
-        };
-        var rosterScroll = new ScrollContainer { Name = "Roster", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(rosterScroll);
-        _members = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill }; rosterScroll.AddChild(_members);
-        var managementScroll = new ScrollContainer { Name = "Recruit", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(managementScroll);
-        var management = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; managementScroll.AddChild(management);
-        _trainer = new OptionButton(); management.AddChild(_trainer); _trainer.ItemSelected += _ => Refresh(_context);
-        _recruitment = new RecruitmentPanel(); management.AddChild(_recruitment); _recruitment.Initialize(skin);
-        _recruitment.DestinationChanged += squad => { if (squad > 0) SelectSquad(squad); };
-        var hallScroll = new ScrollContainer { Name = "Town Halls", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(hallScroll);
-        var halls = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; hallScroll.AddChild(halls);
-        halls.AddChild(WrapLabel("Town Halls — select a hall; choose a veteran in Roster to store or return."));
-        _halls = new OptionButton(); halls.AddChild(_halls); _halls.ItemSelected += _ => Refresh(_context);
-        _hall = new TownHallPanel(); halls.AddChild(_hall); _hall.Initialize(skin);
-        var homes = new ScrollContainer { Name = "6 homes & towers", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _sections.AddChild(homes);
-        Deployment = new DeploymentPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill }; homes.AddChild(Deployment); Deployment.Initialize(skin, submitted);
+        _skin = skin; AddThemeConstantOverride("separation", 6);
+        _summary = WrapLabel(); _summary.AddThemeFontSizeOverride("font_size", 14); AddChild(_summary);
+        var row = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddThemeConstantOverride("separation", 16); AddChild(row);
+        var board = new VBoxContainer { CustomMinimumSize = new(510, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; row.AddChild(board);
+        Deployment = new DeploymentPanel(); board.AddChild(Deployment); Deployment.Initialize(skin); Deployment.HomeSelected += SelectHome;
+        _preview = skin.Button("Preview actual field", () => { if (_preview.IsVisibleInTree()) PreviewRequested?.Invoke(); }, "ForestQuietButton"); board.AddChild(_preview);
+        _memberToggle = skin.Button("Members ▾", () => { _memberScroll.Visible = !_memberScroll.Visible; }, "ForestQuietButton"); board.AddChild(_memberToggle);
+        _memberScroll = new ScrollContainer { CustomMinimumSize = new(0, 90), SizeFlagsVertical = SizeFlags.ExpandFill,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Reserve, FollowFocus = true }; board.AddChild(_memberScroll);
+        _members = new ActionList { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _memberScroll.AddChild(_members); _memberScroll.Hide();
+        var context = new VBoxContainer { CustomMinimumSize = new(390, 0), SizeFlagsHorizontal = SizeFlags.Fill, SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddChild(context);
+        _notice = WrapLabel(); _notice.AddThemeFontSizeOverride("font_size", 14); context.AddChild(_notice);
+        _selectedHome = WrapLabel(); _selectedHome.AddThemeFontSizeOverride("font_size", 18); context.AddChild(_selectedHome);
+        _deploy = skin.Button("Move selected squad", Deploy, "ForestPrimaryButton"); context.AddChild(_deploy); _deploy.ButtonDown += ArmDeployment;
+        _placementReason = WrapLabel(); _placementReason.AddThemeFontSizeOverride("font_size", 14); context.AddChild(_placementReason);
+        _trainer = new OptionButton { FitToLongestItem = false, ClipText = true }; context.AddChild(_trainer); _trainer.ItemSelected += TrainerChanged;
+        _recruitment = new RecruitmentPanel(); context.AddChild(_recruitment); _recruitment.Initialize(skin, compact: true);
+        _recruitment.DestinationChanged += RecruitDestinationChanged; _recruitment.DetailsRequested += ShowDetails;
+        _trainerMissing = WrapLabel("Build a trainer in the settlement to recruit here."); context.AddChild(_trainerMissing);
+        _details = new TabContainer { CustomMinimumSize = new(0, 110), SizeFlagsVertical = SizeFlags.ExpandFill }; context.AddChild(_details);
+        // TabContainer owns the theme forwarded to its internal TabBar.
+        _details.AddThemeFontSizeOverride("font_size", 14);
+        foreach (var (tab, button) in new[] { ("tab_selected", "pressed"), ("tab_unselected", "normal"), ("tab_hovered", "hover"), ("tab_disabled", "disabled"), ("focus", "focus") })
+            _details.AddThemeStyleboxOverride(tab, skin.Theme.GetStylebox(button, skin.Illustrated ? "ForestQuietButton" : "Button"));
+        var home = DetailPage("Home"); HomeInspector = new BuildingInspector { Compact = true, SharedNotice = true, SizeFlagsHorizontal = SizeFlags.ExpandFill }; home.AddChild(HomeInspector); HomeInspector.Initialize(skin, submitted);
+        var member = DetailPage("Member"); MemberInspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; member.AddChild(MemberInspector); MemberInspector.Initialize(skin); MemberInspector.PlotRequested += ForwardPlot;
+        var storage = DetailPage("Storage"); var storageBody = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; storage.AddChild(storageBody);
+        _halls = new OptionButton { FitToLongestItem = false, ClipText = true }; storageBody.AddChild(_halls); _halls.ItemSelected += HallChanged;
+        _hall = new TownHallPanel(); storageBody.AddChild(_hall); _hall.Initialize(skin);
+        var information = DetailPage("Quotes"); _info = WrapLabel(); information.AddChild(_info);
+    }
+    private ScrollContainer DetailPage(string name)
+    {
+        var page = new ScrollContainer { Name = name, FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Reserve };
+        _details.AddChild(page); return page;
+    }
+    public void SelectHome(int plot) { CancelIntents(); _selection.SelectHome(plot); _details.CurrentTab = 0; Refresh(_context); }
+    public void SelectSquad(int squad) { CancelIntents(); _selection.SelectSquad(squad); Refresh(_context); }
+    public void ShowHomes() { _details.CurrentTab = 0; FocusHome(); }
+    public void ShowRoster() { _memberScroll.Show(); }
+    public void ShowManagement() { _details.CurrentTab = 2; }
+    public void ShowManagementFor(int slot, GameplayContext context)
+    {
+        Refresh(context);
+        var selector = context.City.Slots[slot].Type == Building.TownHall ? _halls : _trainer;
+        int index = selector.GetItemIndex(slot); if (index >= 0) selector.Select(index);
+        if (selector == _halls) _details.CurrentTab = 2;
+        Refresh(context);
+    }
+    private void SelectMember(int id)
+    {
+        CancelIntents(); _selection.SelectMember(id); _details.CurrentTab = 1; Refresh(_context);
+    }
+    private void TrainerChanged(long _) { if (!_refreshing) Refresh(_context); }
+    private void HallChanged(long _) { if (!_refreshing) Refresh(_context); }
+    private void RecruitDestinationChanged(int squad) { if (squad > 0) SelectSquad(squad); }
+    private void ShowDetails(string text) { _info.Text = text; }
+    private void ForwardPlot(int slot) => PlotRequested?.Invoke(slot);
+    public void CancelIntents() { _armed = null; HomeInspector?.Construction.ResetSelection(); MemberInspector?.CancelRetirement(); }
+    public void ResetSelection() { CancelIntents(); _selection.Reset(); _recruitSquad = -1; _memberScroll?.Hide(); }
+    private void FocusHome()
+    {
+        if (Deployment.HomeButtons.TryGetValue("Home" + _selection.Home, out var button) && button.IsVisibleInTree()) button.GrabFocus();
     }
     public void Refresh(GameplayContext context)
     {
-        _context = context; var city = context.City;
-        _summary.Text = $"P{city.Id} ARMY · {city.Soldiers.Length} members · {city.Army?.PurchasedHomes}/6 homes"
-            + (context.EditReason.Length > 0 && !HomesVisible ? "\n" + context.EditReason : "");
-        NativeOptions.Update(_squads, new[] { (0, "All roster members — select a squad for deployment") }.Concat(city.Soldiers
-            .Where(u => u.Health > 0 && u.Assignment is { Stored: false }).GroupBy(u => u.SquadId)
-            .OrderBy(g => g.First().Assignment!.Tile).Select(g => (g.Key, ArmyDeploymentView.SquadLabel(g, city.Army?.SquadCapacity ?? 3)))));
-        if (city.Soldiers.FirstOrDefault(u => u.Id == _selectedMember) is { } followed && followed.SquadId != _memberSquad)
+        if (_refreshing) return;
+        _refreshing = true;
+        try
         {
-            _memberSquad = followed.SquadId;
-            int index = _squads.GetItemIndex(followed.SquadId);
-            if (followed.Assignment is { Stored: false } && index >= 0) { _squads.Select(index); _recruitment.SelectSquad(followed.SquadId); }
+            var previousFocus = GetViewport().GuiGetFocusOwner(); bool ownedFocus = previousFocus is not null && IsAncestorOf(previousFocus);
+            _context = context; var city = context.City; ShareRestriction(this, context.EditReason);
+            _selection.Observe(context.Session, context.State, city.Id);
+            Deployment.Refresh(context, _selection.Home, _selection.Squad);
+            _summary.Text = $"P{city.Id} ARMY · {city.Soldiers.Count(u => u.Assignment is { Stored: false })} field / {city.Soldiers.Count(u => u.Assignment is { Stored: true })} stored · {city.Army?.PurchasedHomes}/6 homes";
+            _notice.Text = context.EditReason.Length > 0 ? context.EditReason : context.Session.LastResult is { Accepted: false } rejected ? "Rejected: " + rejected.Message : "";
+            _notice.Visible = _notice.Text.Length > 0;
+            var home = Deployment.Homes.FirstOrDefault(h => h.Home.PlotId == _selection.Home);
+            _selectedHome.Text = home is null ? "Select an army home" : $"Home {home.Home.Number} · {home.Occupancy}";
+            bool current = home?.Members.Any(u => u.SquadId == _selection.Squad) == true;
+            string blocked = context.Block(reason: home?.Restriction ?? "Select a home.");
+            _deploy.Visible = _selection.Squad > 0 && !current;
+            _deploy.Disabled = blocked.Length > 0;
+            _deploy.Text = home is null ? "Move selected squad" : $"Move selected squad → Home {home.Home.Number}";
+            _deploy.TooltipText = blocked;
+            _placementReason.Text = _deploy.Visible && context.EditReason.Length == 0 ? blocked : "";
+            _placementReason.Visible = _placementReason.Text.Length > 0;
+            NativeOptions.Update(_trainer, city.Slots.Select((slot, i) => (slot, i)).Where(x => context.State.BuildingCatalog.FirstOrDefault(b => b.Type == x.slot.Type)?.Recruits is not null)
+                .Select(x => (x.i, $"{GameplayContext.BuildingName(x.slot.Type)} L{x.slot.Level} · plot {x.i + 1}")));
+            if (_recruitSquad != _selection.Squad)
+            {
+                _recruitSquad = _selection.Squad;
+                var type = city.Soldiers.FirstOrDefault(u => u.SquadId == _selection.Squad && u.Assignment is { Stored: false })?.Type;
+                _recruitment.SelectSquad(_selection.Squad, type);
+                if (type is { } compatible)
+                    for (int i = 0; i < _trainer.ItemCount; i++)
+                        if (context.State.BuildingCatalog.First(b => b.Type == city.Slots[_trainer.GetItemId(i)].Type).Recruits!.Contains(compatible)) { _trainer.Select(i); break; }
+            }
+            bool planning = context.State.Phase is Phase.Building or Phase.Preparation;
+            _preview.Visible = planning;
+            _trainerMissing.Visible = planning && _trainer.ItemCount == 0 && context.EditReason.Length == 0;
+            _trainer.Visible = _recruitment.Visible = planning && _trainer.ItemCount > 0 && home?.Home.Purchased == true && home.Home.Plot.Type == Building.Empty;
+            if (_recruitment.Visible) _recruitment.Refresh(context, _trainer.GetSelectedId());
+            _memberToggle.Text = $"Members ({city.Soldiers.Length}) ▾";
+            _members.Begin((context.Session, context.State.MatchId, city.Id));
+            foreach (var unit in city.Soldiers.OrderBy(u => u.Assignment?.Stored).ThenBy(u => u.SquadId).ThenBy(u => u.Id))
+            {
+                int id = unit.Id;
+                var row = _members.Item(_skin, "Member" + id, $"{unit.Type} L{unit.Level} · HP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)} · "
+                    + (unit.Assignment is { Stored: true } a ? $"stored in Town Hall {a.HallSlot + 1}" : $"Home {(unit.Assignment?.Tile ?? -1) + 1}"), () => SelectMember(id), variation: "ForestQuietButton");
+                row.ToggleMode = true; row.SetPressedNoSignal(_selection.Member == id);
+            }
+            _members.End();
+            HomeInspector.Refresh(context, _selection.Home);
+            MemberInspector.FallbackFocus = Deployment.HomeButtons.GetValueOrDefault("Home" + _selection.Home);
+            if (city.Soldiers.FirstOrDefault(u => u.Id == _selection.Member) is { } selected)
+            { MemberInspector.Select(selected, false, context.State.Phase); MemberInspector.Refresh(context); }
+            else MemberInspector.Clear();
+            NativeOptions.Update(_halls, city.Army?.Halls.Select(h => (h.Slot, $"Town Hall plot {h.Slot + 1}")) ?? []);
+            if (_details.CurrentTab == 1 && _selection.Member == 0 || _details.CurrentTab == 2 && _halls.ItemCount == 0) _details.CurrentTab = 0;
+            _details.SetTabDisabled(1, _selection.Member == 0); _details.SetTabDisabled(2, _halls.ItemCount == 0);
+            if (_halls.ItemCount > 0) _hall.Refresh(context, _halls.GetSelectedId());
+            var currentFocus = GetViewport().GuiGetFocusOwner();
+            if (ownedFocus && (currentFocus is null || !currentFocus.IsVisibleInTree())) FocusHome();
         }
-        Deployment.Refresh(context, SelectedSquad);
-        NativeOptions.Update(_trainer, city.Slots.Select((slot, i) => (slot, i)).Where(x => context.State.BuildingCatalog.FirstOrDefault(b => b.Type == x.slot.Type)?.Recruits is not null)
-            .Select(x => (x.i, $"Plot {x.i + 1} — {GameplayContext.BuildingName(x.slot.Type)} L{x.slot.Level}")));
-        _recruitment.Visible = _trainer.ItemCount > 0;
-        if (_recruitment.Visible) _recruitment.Refresh(context, _trainer.GetSelectedId());
-        NativeOptions.Update(_halls, city.Army?.Halls.Select(h => (h.Slot, $"Town Hall plot {h.Slot + 1}")) ?? []);
-        _hall.Visible = _halls.ItemCount > 0; if (_hall.Visible) _hall.Refresh(context, _halls.GetSelectedId());
-        var inspected = context.State.Squads.FirstOrDefault(s => s.Id == _squads.GetSelectedId() && s.Owner == city.Id);
-        _squadDetails.Text = inspected is null ? "Select a squad to inspect its members; choose a soldier for individual actions." :
-            $"{inspected.Type}: {city.Soldiers.Count(u => u.SquadId == inspected.Id)} members · "
-            + $"{city.Soldiers.Count(u => u.SquadId == inspected.Id && city.FoodForecast?.Participating.Contains(u.Id) == true)} projected to fight. Select a member to regroup/store/return.";
-        _squadDetails.Visible = !HomesVisible;
-        _members.Begin();
-        foreach (var unit in city.Soldiers.Where(u => inspected is null || u.SquadId == inspected.Id).OrderBy(u => u.Assignment?.Stored).ThenBy(u => u.SquadId).ThenBy(u => u.Id))
-        {
-            int id = unit.Id;
-            bool? funded = context.State.Phase is Phase.Building or Phase.Preparation ? city.FoodForecast?.Funded.Contains(id) : city.LastUpkeep?.Funded.Contains(id);
-            var row = _members.Item(_skin, "Member" + id, $"#{id} {unit.Type} L{unit.Level} · HP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)} · service {unit.Experience} battles\nSquad #{unit.SquadId}; " +
-                (unit.Assignment is { Stored: true } a ? $"Town Hall {a.HallSlot + 1}, place {a.Tile + 1}" : $"home {(unit.Assignment?.Tile ?? -1) + 1}") +
-                $"; {(funded is null ? "funding unavailable" : funded.Value ? "funded" : "unfunded")}; recovery {(unit.RecoveryEligible ? "eligible" : "ineligible")}",
-                () => { if (_context.City.Soldiers.FirstOrDefault(u => u.Id == id) is { } selected) { _selectedMember = id; _memberSquad = selected.SquadId; foreach (var pair in _members.Buttons) pair.Value.SetPressedNoSignal(pair.Key == "Member" + id); UnitSelected?.Invoke(selected); } }, variation: "ForestQuietButton");
-            row.ToggleMode = true; row.SetPressedNoSignal(unit.Id == _selectedMember);
-        }
-        _members.End();
+        finally { _refreshing = false; }
+    }
+    private static void ShareRestriction(Node node, string reason)
+    {
+        if (node is ActionList list) list.SharedRestriction = reason;
+        foreach (Node child in node.GetChildren()) ShareRestriction(child, reason);
+    }
+    private void ArmDeployment()
+    {
+        _armed = null;
+        if (!_deploy.IsVisibleInTree() || _deploy.Disabled || _context.EditReason.Length > 0) return;
+        var home = ArmyDeploymentView.Homes(_context.State, _context.City.Id, _selection.Squad).Single(h => h.Home.PlotId == _selection.Home);
+        if (home.CanDeploy) _armed = new(_context.Session, _context.State.MatchId, _context.City.Id, _selection.Home, _selection.Squad, home.BattlefieldCell, _context.State.TurnSerial);
+    }
+    private void Deploy()
+    {
+        var intent = _armed; _armed = null;
+        if (intent is null || !_deploy.IsVisibleInTree() || _deploy.Disabled || _context.EditReason.Length > 0
+            || !ReferenceEquals(intent.Session, _context.Session) || intent.Match != _context.State.MatchId || intent.City != _context.City.Id
+            || intent.Home != _selection.Home || intent.Squad != _selection.Squad || intent.Turn != _context.State.TurnSerial) return;
+        var home = ArmyDeploymentView.Homes(_context.State, _context.City.Id, intent.Squad).Single(h => h.Home.PlotId == intent.Home);
+        if (home.CanDeploy && home.BattlefieldCell == intent.Cell) _context.Submit(new(GameplayAction.Deploy, SquadId: intent.Squad, Cell: intent.Cell));
+    }
+    public override void _ExitTree()
+    {
+        Deployment.HomeSelected -= SelectHome; _trainer.ItemSelected -= TrainerChanged; _halls.ItemSelected -= HallChanged;
+        _recruitment.DestinationChanged -= RecruitDestinationChanged; _recruitment.DetailsRequested -= ShowDetails;
+        MemberInspector.PlotRequested -= ForwardPlot; _deploy.ButtonDown -= ArmDeployment;
+        _selection.Reset(); _armed = null; PreviewRequested = null; PlotRequested = null;
     }
 }

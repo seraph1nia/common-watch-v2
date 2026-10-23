@@ -7,10 +7,13 @@ namespace Game.GodotClient;
 /// <summary>Read-only presentation context. Commands always use the session's authenticated player.</summary>
 public sealed class GameplayContext(GodotSession session, Action submitted)
 {
+    private readonly int _viewedCity = session.HasState ? session.ViewedCity.Id : 0;
     public GodotSession Session => session;
     public MatchSnapshot State => session.Snapshot;
     public CityState City => session.ViewedCity;
     public string EditReason => !session.Connected ? "Disconnected — reconnect to act."
+        : !session.HasState ? "Waiting for match state."
+        : session.ViewedCity.Id != _viewedCity ? "Inspection changed — select an action again."
         : session.Pending ? "Waiting for authority acknowledgment."
         : City.Id != session.PlayerId ? "Allied city — read-only."
         : City.Eliminated ? "Fallen city — read-only."
@@ -46,19 +49,36 @@ public partial class ActionList : BoxContainer
 {
     private readonly Dictionary<string, Button> _buttons = [];
     private readonly HashSet<string> _used = [];
+    private object? _frameKey;
+    public string SharedRestriction { get; set; } = "";
+    public bool ExplainRestrictions { get; set; } = true;
+    public string DefaultVariation { get; set; } = "";
     public IReadOnlyDictionary<string, Button> Buttons => _buttons;
     public ActionList() { Vertical = true; }
-    public void Begin() => _used.Clear();
+    public void Begin(object? frameKey = null)
+    {
+        if (!Equals(frameKey, _frameKey))
+        {
+            foreach (var old in _buttons.Values) { old.Hide(); RemoveChild(old); old.QueueFree(); }
+            _buttons.Clear(); _frameKey = frameKey;
+        }
+        _used.Clear();
+    }
     public Button Item(HudSkin skin, string key, string text, Action action, string unavailable = "", string variation = "")
     {
         _used.Add(key);
         if (!_buttons.TryGetValue(key, out var button))
         {
-            button = skin.Button(text, action, variation); button.Name = key;
+            object? frame = _frameKey; Button? created = null;
+            created = skin.Button(text, () =>
+            {
+                if (IsInstanceValid(created) && created!.IsVisibleInTree() && !created.Disabled && Equals(frame, _frameKey)) action();
+            }, variation.Length > 0 ? variation : DefaultVariation);
+            button = created; button.Name = key;
             button.AutowrapMode = TextServer.AutowrapMode.WordSmart; button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             AddChild(button); _buttons.Add(key, button);
         }
-        button.Visible = true; button.Text = text + (unavailable.Length > 0 ? "\n" + unavailable : "");
+        button.Visible = true; button.Text = text + (ExplainRestrictions && unavailable.Length > 0 && unavailable != SharedRestriction ? "\n" + unavailable : "");
         button.Disabled = unavailable.Length > 0; button.TooltipText = unavailable;
         return button;
     }

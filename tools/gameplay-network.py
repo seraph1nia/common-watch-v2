@@ -226,7 +226,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
             assert f'P{status(index)["player"]}' in status(index)['readyText']
         # Home inspection keeps the foreign roster visible but submits no local command.
         control(1, 'show-homes')
-        wait(lambda: status(1)['homesVisible'] and status(1)['homeTargetsDisabled'] and 'read-only' in status(1)['homeNotice'], 'allied home targets disabled')
+        wait(lambda: status(1)['homesVisible'] and status(1)['homePlacementLocked'] and 'read-only' in status(1)['homeNotice'], 'allied workspace placement locked; inspection available')
         old_sequence = status(1)['result']['Sequence']
         control(1, 'deploy-home', slot=9)
         capture_homes('allied-homes')
@@ -266,18 +266,29 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         # Remote home placement retains selection through pending and rejected commands.
         members = city(1)['Soldiers']
         squad = next(u for u in members if u['Type'] == 'Swordsman')
-        home = squad['Assignment']['Tile']
+        # Relocate to a different legal home: the workspace intentionally has no
+        # redundant "deploy where you already stand" action. Free another actual
+        # squad's home through authoritative retirement only if every home is used.
+        destination = next((h for h in city(1)['Army']['Homes'] if h['Purchased'] and h['Plot']['Type'] == 'Empty' and h['Used'] == 0), None)
+        if destination is None:
+            occupied = next(h for h in city(1)['Army']['Homes'] if h['Purchased'] and h['Plot']['Type'] == 'Empty' and h['Cell'] != squad['Assignment']['Tile'])
+            for member in list(city(1)['Soldiers']):
+                if not member['Assignment']['Stored'] and member['Assignment']['Tile'] == occupied['Cell']:
+                    send(1, 'retire', unitId=member['Id'])
+            wait(lambda: next(h for h in city(1)['Army']['Homes'] if h['PlotId'] == occupied['PlotId'])['Used'] == 0, 'legal free destination')
+            destination = occupied
         control(1, 'show-homes'); control(1, 'select-squad', squadId=squad['SquadId'])
         wait(lambda: status(1)['homesVisible'] and status(1)['homeSquad'] == squad['SquadId'], 'shared selected squad on remote home board')
         old_sequence = status(1)['result']['Sequence']
         os.killpg(processes[0].pid, signal.SIGSTOP)
         try:
-            control(1, 'deploy-home', slot=home + 9)
-            wait(lambda: status(1)['pending'] and status(1)['homeTargetsDisabled'] and 'acknowledgment' in status(1)['homeNotice'], 'remote placement pending locks home targets')
+            control(1, 'deploy-home', slot=destination['PlotId'])
+            wait(lambda: status(1)['pending'] and status(1)['homePlacementLocked'] and 'acknowledgment' in status(1)['homeNotice'], 'remote placement pending locks confirmation')
             capture_homes('pending-homes')
         finally:
             os.killpg(processes[0].pid, signal.SIGCONT)
         wait(lambda: not status(1)['pending'] and status(1)['result']['Sequence'] > old_sequence and status(1)['result']['Accepted'], 'home UI deployment accepted by authority')
+        wait(lambda: next(u for u in city(1)['Soldiers'] if u['Id'] == squad['Id'])['Assignment']['Tile'] == destination['Cell'], 'accepted move reaches selected home')
         assert status(1)['homeSquad'] == squad['SquadId']
         send(1, 'regroup-member', accepted=False, unitId=squad['Id'], squadId=99999)
         wait(lambda: 'Rejected:' in status(1)['homeNotice'], 'rejection retained inside home board')

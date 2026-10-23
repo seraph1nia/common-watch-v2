@@ -131,7 +131,7 @@ public partial class GameApplication
             case GameplayAction.BuyHome:
                 OpenDetails(DetailsPage.Army); _gameUi.Details.Army.ShowHomes();
                 var home = _gameUi.Details.Deployment.Homes.First(h => !h.Home.Purchased);
-                Press(_gameUi.Details.Deployment.HomeButtons["Inspect" + home.Home.PlotId]); Press(_gameUi.Details.Deployment.Inspector.Actions["Buy"]); break;
+                Press(_gameUi.Details.Deployment.HomeButtons["Home" + home.Home.PlotId]); Press(_gameUi.Details.Army.HomeInspector.Actions["Buy"]); break;
             case GameplayAction.Trade:
                 _gameUi.Inspector.Market.Bundles.Value = intent.Bundles; Press(_gameUi.Inspector.Market.Buttons["Trade" + intent.Resource]); break;
             case GameplayAction.Retire:

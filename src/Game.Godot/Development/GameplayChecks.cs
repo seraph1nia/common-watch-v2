@@ -105,7 +105,18 @@ public partial class GameApplication
         ReplaceSession(GameplayScenarios.CreateAt("army")); _frozen = true; RefreshUi(true);
         Require(Enum.GetValues<UnitType>().All(t => _session.City.Soldiers.Any(u => u.Type == t)), "all four legally recruited classes");
         OpenDetails(DetailsPage.Army);
+        foreach (UnitType role in Enum.GetValues<UnitType>())
+        {
+            var fighter = _session.City.Soldiers.First(u => u.Type == role && u.Assignment is { Stored: false });
+            await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Home" + (fighter.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
+            var recruit = _gameUi.Details.Army.Recruitment.Buttons["Recruit" + role];
+            Require(recruit.IsVisibleInTree(), "selecting a home exposes its compatible trainer and role: " + role);
+            int trainer = _gameUi.Details.Army.TrainerSelector.GetSelectedId();
+            var actualQuote = _session.City.RecruitmentQuotes.Single(q => q.Type == role && q.Level == _session.City.Slots[trainer].Level);
+            Require(recruit.Text.Contains(GameplayContext.Cost(actualQuote.Cost)), "workspace uses actual equipment/doctrine price for " + role);
+        }
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
+        _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
         Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -121,19 +132,27 @@ public partial class GameApplication
         await CheckMenuPopup("army");
         OpenDetails(DetailsPage.Army);
         _gameUi.Details.Army.ShowHomes();
-        Require(_gameUi.Details.Deployment.HomeButtons.Count == 12, "six numbered homes with inspect and deployment controls");
+        Require(_gameUi.Details.Deployment.HomeButtons.Count == 6, "six numbered persistent home controls");
         var chosenSquad = _session.City.Soldiers.First(u => u.Assignment is { Stored: false });
         _gameUi.Details.Army.SelectSquad(chosenSquad.SquadId);
-        Press(_gameUi.Details.Deployment.HomeButtons["Deploy" + (chosenSquad.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
-        Require(_session.LastResult?.Accepted == true, "native squad and arena-cell command");
+        var destination = _gameUi.Details.Deployment.Homes.FirstOrDefault(h => h.CanDeploy && !h.Members.Any(u => u.SquadId == chosenSquad.SquadId));
+        if (destination is not null)
+        {
+            await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Home" + destination.Home.PlotId]);
+            await JourneyClick(_gameUi.Details.Army.DeployButton); _frozen = true;
+            Require(_session.LastResult?.Accepted == true && _session.City.Soldiers.First(u => u.Id == chosenSquad.Id).Assignment!.Tile == destination.Home.PlotId - ArmyConfiguration.PlotOffset, "native selected-home placement command");
+        }
+        else Require(!_gameUi.Details.Army.DeployButton.Visible && _gameUi.Details.Deployment.Homes.All(h => h.Members.Any(u => u.SquadId == chosenSquad.SquadId) || !h.CanDeploy), "full occupied army exposes no fake relocation target or redundant current-home command");
         await GameplayCapture("army-deployment");
         _gameUi.Details.Close();
 
         ReplaceSession(GameplayScenarios.CreateAt("town-hall")); _frozen = true; RefreshUi(true); OpenDetails(DetailsPage.Army);
         var stored = _session.City.Soldiers.First(u => u.Assignment is { Stored: true });
+        _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
         Require(_gameUi.Details.Inspector.Details.Contains("paid recovery eligible"), "paid recovery shown from real roster");
         _gameUi.Details.Army.ShowManagement(); await GameplayCapture("town-hall");
+        _gameUi.Details.Army.ShowRoster(); Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
         int health = stored.Health;
         Press(_gameUi.Details.Inspector.Buttons["Return"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Assignment is { Stored: false }, "native veteran return");
@@ -182,7 +201,7 @@ public partial class GameApplication
         var homeTower = _session.Snapshot.Structures.Single(structure => structure.Slot == 9);
         _gameUi.Inspect(homeTower); Press(_gameUi.Details.Inspector.Buttons["ManageTower"]);
         Require(_gameUi.Details.Visible && _gameUi.Details.Deployment.SelectedPlot == 9, "army-home tower routes to contextual Homes, without a settlement plot override");
-        Press(_gameUi.Details.Deployment.Inspector.Actions["Sell"]);
+        Press(_gameUi.Details.Army.HomeInspector.Actions["Sell"]);
         Require(_session.LastResult?.Accepted == true && _session.City.Army!.Homes[0].Plot.Type == Building.Empty, "contextual army-home tower sale remains authoritative");
         _gameUi.Details.Close();
 

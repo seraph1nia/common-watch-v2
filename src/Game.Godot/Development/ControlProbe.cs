@@ -78,8 +78,8 @@ public partial class GameApplication
                     _gameUi.Details.Army.ShowHomes(); RefreshUi(true); break;
                 case "select-squad": _gameUi.Details.Army.SelectSquad(Number("squadId")); break;
                 case "deploy-home":
-                    if (_gameUi.Details.Deployment.HomeButtons.TryGetValue("Deploy" + Number("slot"), out var target))
-                        target.EmitSignal(BaseButton.SignalName.Pressed);
+                    if (_gameUi.Details.Deployment.HomeButtons.TryGetValue("Home" + Number("slot"), out var target))
+                        NativeRequest(async () => { await JourneyClick(target); if (!_gameUi.Details.Army.DeployButton.Disabled && _gameUi.Details.Army.DeployButton.IsVisibleInTree()) await JourneyClick(_gameUi.Details.Army.DeployButton); });
                     break;
                 case "inspect-combat" when _session is { HasState: true }:
                     if (_session.Playback.Units().FirstOrDefault(u => u.Id == Number("unitId")) is { } combatant)
@@ -161,8 +161,8 @@ public partial class GameApplication
             preparationText = _gameUi.PreparationSummary.Text,
             preparationVisible = _gameUi.PreparationSummary.IsVisibleInTree(), viewportWidth = GetWindow().Size.X,
             homesVisible = _gameUi.Details.Visible && _gameUi.Details.Army.HomesVisible,
-            homeSquad = _gameUi.Details.Army.SelectedSquad, homeNotice = _gameUi.Details.Deployment.Notice,
-            homeTargetsDisabled = _gameUi.Details.Deployment.HomeButtons.Where(p => p.Key.StartsWith("Deploy")).All(p => p.Value.Disabled),
+            homeSquad = _gameUi.Details.Army.SelectedSquad, homeNotice = _gameUi.Details.Army.Notice,
+            homePlacementLocked = _gameUi.Details.Army.PlacementLocked,
             homeTargetsFit = _gameUi.Details.Deployment.HomeButtons.Values.All(b => _gameUi.Details.Army.HomeViewport.GetGlobalRect().Encloses(b.GetGlobalRect()) && GetViewport().GetVisibleRect().Encloses(b.GetGlobalRect())),
             homeLayout = new {
                 viewport = _gameUi.Details.Army.HomeViewport.GetGlobalRect().ToString(),

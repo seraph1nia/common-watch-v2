@@ -14,11 +14,13 @@ public partial class GameplayDialog : Control
     public ArmyRosterPanel Army { get; private set; } = null!;
     public DeploymentPanel Deployment => Army.Deployment;
     public ResearchTreePanel Research { get; private set; } = null!;
-    public UnitInspector Inspector { get; private set; } = null!;
+    public UnitInspector WorldInspector { get; private set; } = null!;
+    public UnitInspector Inspector => _page == DetailsPage.Army ? Army.MemberInspector : WorldInspector;
     private ScrollContainer _unitPane = null!;
     public Control? FallbackFocus { get; set; }
     public event Action? Closed;
     public event Action<int>? PlotRequested;
+    public event Action? PreviewRequested;
     private Button _close = null!, _worldtreeClose = null!;
     internal Rect2[] FeedbackAreas => new Control[] { _close, _worldtreeClose, _tabs.GetTabBar() }
         .Where(c => c.IsVisibleInTree()).Select(c => c.GetGlobalRect()).ToArray();
@@ -43,7 +45,7 @@ public partial class GameplayDialog : Control
         var row = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; body.AddChild(row);
         _tabs = new TabContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; row.AddChild(_tabs);
         _tabStyle = _tabs.GetThemeStylebox("panel");
-        var armyScroll = new ScrollContainer { Name = "Troops & homes", FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(armyScroll);
+        var armyScroll = new VBoxContainer { Name = "Troops & homes" }; _tabs.AddChild(armyScroll);
         Army = new ArmyRosterPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; armyScroll.AddChild(Army); Army.Initialize(skin, submitted);
         Research = new ResearchTreePanel { Name = "Worldtree" }; _tabs.AddChild(Research); Research.Initialize(skin);
         var cityScroll = new ScrollContainer { Name = "City details", FollowFocus = true, FocusMode = FocusModeEnum.All, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _tabs.AddChild(cityScroll);
@@ -56,17 +58,10 @@ public partial class GameplayDialog : Control
         // boundary otherwise oscillates between the two available widths.
         _unitPane = new ScrollContainer { FollowFocus = true, CustomMinimumSize = new(350, 0), SizeFlagsHorizontal = SizeFlags.Fill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Reserve }; row.AddChild(_unitPane);
         Resized += () => _unitPane.CustomMinimumSize = new(Mathf.Max(350, Size.X * .32f), 0);
-        Inspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _unitPane.AddChild(Inspector); Inspector.Initialize(skin);
-        Army.UnitSelected += unit => { Inspector.Select(unit, false, _context.State.Phase); Inspector.Refresh(_context); };
-        Army.SectionChanged += () => { if (_context is not null) Refresh(_context); };
-        Inspector.PlotRequested += slot =>
-        {
-            if (ArmyConfiguration.IsArmyPlot(slot))
-            {
-                Open(DetailsPage.Army, _context); Army.ShowHomes(); Deployment.InspectHome(slot, _context);
-            }
-            else { Close(false); PlotRequested?.Invoke(slot); }
-        };
+        WorldInspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _unitPane.AddChild(WorldInspector); WorldInspector.Initialize(skin);
+        WorldInspector.PlotRequested += InspectPlot;
+        Army.PlotRequested += InspectPlot;
+        Army.PreviewRequested += Preview;
         _tabs.TabChanged += tab => { _page = tab == 0 ? DetailsPage.Army : tab == 1 ? DetailsPage.Worldtree : DetailsPage.City; if (_context is not null) Refresh(_context); };
         _worldtreeClose = skin.Button("Close [Esc]", Close, "ForestQuietButton"); AddChild(_worldtreeClose);
         _worldtreeClose.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight);
@@ -84,13 +79,29 @@ public partial class GameplayDialog : Control
     public void Close() => Close(true);
     public void Close(bool restoreFocus)
     {
-        bool wasVisible = Visible; Inspector.CancelRetirement(); Hide();
+        bool wasVisible = Visible; WorldInspector.CancelRetirement(); Army.CancelIntents(); Hide();
         if (wasVisible) Closed?.Invoke();
         if (!restoreFocus) return;
         if (wasVisible && _invoker is { } control && IsInstanceValid(control) && control.IsVisibleInTree()) control.GrabFocus();
         else if (wasVisible && IsInstanceValid(FallbackFocus) && FallbackFocus!.IsVisibleInTree()) FallbackFocus.GrabFocus();
     }
-    public void ResetSelection() { Inspector.Clear(); Army.ResetSelection(); Deployment.ResetSelection(); Research.ResetSelection(); }
+    public void ResetSelection(bool newSession = false)
+    {
+        WorldInspector.Clear(); Army.CancelIntents();
+        if (newSession) Army.ResetSelection();
+        Research.ResetSelection();
+    }
+    private void Preview() { Close(false); PreviewRequested?.Invoke(); }
+    private void InspectPlot(int slot)
+    {
+        if (ArmyConfiguration.IsArmyPlot(slot)) { Open(DetailsPage.Army, _context); Army.SelectHome(slot); }
+        else { Close(false); PlotRequested?.Invoke(slot); }
+    }
+    public override void _ExitTree()
+    {
+        WorldInspector.PlotRequested -= InspectPlot; Army.PlotRequested -= InspectPlot; Army.PreviewRequested -= Preview;
+        Closed = null; PlotRequested = null; PreviewRequested = null;
+    }
     public void Refresh(GameplayContext context)
     {
         _context = context; if (!Visible) return;
@@ -101,7 +112,7 @@ public partial class GameplayDialog : Control
         _tabs.AddThemeStyleboxOverride("panel", worldtree ? _emptyStyle : _tabStyle);
         foreach (string side in new[] { "left", "right", "top", "bottom" }) _bodyMargin.AddThemeConstantOverride("margin_" + side, worldtree ? 0 : 16);
         _tabs.Visible = _page != DetailsPage.Inspection;
-        _unitPane.Visible = _page == DetailsPage.Inspection || _page == DetailsPage.Army && !Army.HomesVisible;
+        _unitPane.Visible = _page == DetailsPage.Inspection;
         if (_page == DetailsPage.City)
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
@@ -123,7 +134,7 @@ public partial class GameplayDialog : Control
         if (_page == DetailsPage.Army) Army.Refresh(context);
         if (_page == DetailsPage.Worldtree) Research.Refresh(context);
         _unitPane.SizeFlagsHorizontal = _page == DetailsPage.Inspection ? SizeFlags.ExpandFill : SizeFlags.Fill;
-        Inspector.FallbackFocus = _tabs.Visible ? _tabs.GetTabBar() : _close;
-        Inspector.Refresh(context);
+        WorldInspector.FallbackFocus = _tabs.Visible ? _tabs.GetTabBar() : _close;
+        if (_page == DetailsPage.Inspection) WorldInspector.Refresh(context);
     }
 }

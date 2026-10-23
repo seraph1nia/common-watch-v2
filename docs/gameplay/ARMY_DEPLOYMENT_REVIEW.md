@@ -1,5 +1,7 @@
 # Visual army homes and deployment — issue #5
 
+Historical issue #5 evidence follows. The current interface is the [spatial army workspace](../refinement-ii/19_ARMY_WORKSPACE.md), which replaces the squad selector and twelve home/manage controls with six retained inspection targets and one placement confirmation.
+
 The army uses one retained squad selector across its roster and six-home board.
 The board orders the six actual deployment cells by their authoritative row and
 column: homes 1–3 in front, 4–6 behind, enemy approach above and Keep behind.

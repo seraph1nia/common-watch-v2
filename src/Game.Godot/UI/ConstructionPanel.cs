@@ -6,6 +6,8 @@ namespace Game.GodotClient;
 
 public partial class ConstructionPanel : VBoxContainer
 {
+    public bool Compact { get; init; }
+    public bool SharedNotice { get; init; }
     private HudSkin _skin = null!;
     private GameplayContext _context = null!;
     private readonly Dictionary<Building, Button> _buttons = [];
@@ -13,6 +15,7 @@ public partial class ConstructionPanel : VBoxContainer
     private int _category;
     private readonly List<Button> _categories = [];
     private int _slot, _city;
+    private object? _scope;
     private Building? _selected;
     private ConstructionPayment _payment;
     public Button? RecoveryButton { get; private set; }
@@ -58,11 +61,11 @@ public partial class ConstructionPanel : VBoxContainer
         }
         RecoveryButton.ToggleMode = true; RecoveryButton.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         skin.Painted?.IndicateSelection(RecoveryButton);
-        var choice = new HBoxContainer(); AddChild(choice);
+        BoxContainer choice = Compact ? new VBoxContainer() : new HBoxContainer(); AddChild(choice);
         choice.AddChild(RecoveryButton); RecoveryButton.Hide(); RecoveryButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _confirm = skin.Button("Select a building", () =>
         {
-            if (_selected is { } type) _context.Submit(new(GameplayAction.Build, _slot, type, Payment: _payment));
+            if (_confirm.IsVisibleInTree() && !_confirm.Disabled && _context.EditReason.Length == 0 && _selected is { } type) _context.Submit(new(GameplayAction.Build, _slot, type, Payment: _payment));
         }, "ForestPrimaryButton");
         _confirm.AutowrapMode = TextServer.AutowrapMode.WordSmart; _confirm.SizeFlagsHorizontal = SizeFlags.ShrinkEnd;
         _confirm.CustomMinimumSize = new(300, 48); choice.AddChild(_confirm);
@@ -80,7 +83,7 @@ public partial class ConstructionPanel : VBoxContainer
     private Button CreateCard(Action choose)
     {
         var button = new ConstructionCard { Theme = _skin.Theme, ThemeTypeVariation = _skin.Illustrated ? "ForestCard" : "" };
-        button.Pressed += choose;
+        button.Pressed += () => { if (button.IsVisibleInTree() && !button.Disabled) choose(); };
         _cards.AddChild(button); button.Initialize(_skin.Painted is not null); _skin.Painted?.IndicateSelection(button); return button;
     }
     private static string Availability(GameplayContext context, ResourceCost cost, string plotReason = "")
@@ -99,8 +102,12 @@ public partial class ConstructionPanel : VBoxContainer
     public void ResetSelection() { _selected = null; _category = 0; }
     public void Refresh(GameplayContext context, int slot)
     {
-        if (_slot != slot || _city != context.City.Id) ResetSelection();
-        for (int i = 0; i < _categories.Count; i++) _categories[i].SetPressedNoSignal(i == _category);
+        var plot = ArmyConfiguration.IsArmyPlot(slot) ? context.City.Army!.Homes.Single(h => h.PlotId == slot).Plot : context.City.Slots[slot];
+        object scope = (context.Session, context.State.MatchId, context.City.Id, slot, plot.Generation);
+        if (!Equals(_scope, scope)) ResetSelection();
+        _scope = scope;
+        if (ArmyConfiguration.IsArmyPlot(slot)) _category = 2;
+        for (int i = 0; i < _categories.Count; i++) { _categories[i].SetPressedNoSignal(i == _category); _categories[i].Visible = !ArmyConfiguration.IsArmyPlot(slot); }
         _context = context; _slot = slot; _city = context.City.Id;
         foreach (var definition in context.State.BuildingCatalog)
         {
@@ -117,7 +124,7 @@ public partial class ConstructionPanel : VBoxContainer
                 { Building.TownHall => "Veterans & recovery", Building.ResearchTower => "Research progress", Building.Market => "Trade for Gold", _ => "Automatic defense" },
                 GameplayContext.Cost(definition.Construction),
                 Availability(context, definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""), Function(definition),
-                _selected == type && _payment == ConstructionPayment.Standard);
+                _selected == type && _payment == ConstructionPayment.Standard, showReason: !SharedNotice || context.EditReason.Length == 0);
             ((ConstructionCard)button).SetThumbnail(_skin.BuildingSprite(type), _skin.Painted?.Texture("portrait"));
             if (context.EditReason.Length == 0 && context.CostReason(definition.Construction) is { Length: > 0 } shortage)
                 button.TooltipText += "\n" + shortage;
@@ -141,7 +148,7 @@ public partial class ConstructionPanel : VBoxContainer
         _confirm.Text = selected is null ? "Build selected" : $"Build {GameplayContext.BuildingName(selected.Type)} · {GameplayContext.Cost(selectedCost ?? default)}";
         _confirm.Visible = selected is not null;
         _confirm.TooltipText = selected is null ? "" : $"Build {GameplayContext.BuildingName(selected.Type)}{(_payment == ConstructionPayment.GoldRecovery ? " (Gold recovery)" : "")} — {GameplayContext.Cost(selectedCost ?? default)}";
-        _confirm.Disabled = selected is null || blocked.Length > 0; _reason.Text = blocked; _reason.TooltipText = blocked; _reason.Visible = blocked.Length > 0;
+        _confirm.Disabled = selected is null || blocked.Length > 0; _reason.Text = blocked; _reason.TooltipText = blocked; _reason.Visible = blocked.Length > 0 && !(SharedNotice && blocked == context.EditReason);
     }
     public static int CategoryOf(BuildingDefinition definition) => definition.Produces is not null ? 0 : definition.Recruits is not null ? 1 : ArmyConfiguration.IsTower(definition.Type) ? 2 : definition.Type == Building.Market ? 3 : 4;
     public static string Function(BuildingDefinition definition) => definition.Produces is { } resource ? $"Output {definition.LevelOneOutput}/{definition.LevelTwoOutput} {resource}/production (base); max L{definition.MaximumLevel}."

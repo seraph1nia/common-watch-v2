@@ -3,15 +3,15 @@
 Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15)
 and its ten children. Preserve the complete scope, including executable rules
 alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
-Current branch: `refinement/18-combat-framing`, stacked on
-`refinement/17-screen-journey` (`583ec3a`). Core/Shared source and rules remain unchanged.
+Current branch: `refinement/19-squad-workspace`, stacked on
+`refinement/18-combat-framing` (`59fbebf`). Core/Shared source and rules remain unchanged.
 
 | Order | Issue | State |
 | --- | --- | --- |
 | 1 | #16 phase-specific HUD | Implemented and locally verified; draft [PR #26](https://github.com/seraph1nia/common-watch-v2/pull/26). Follow-up probe fixes through `23e94a3`; remote CI passed (run 53). See [contract/inventory](16_PHASE_HUD.md). |
 | 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
-| 3 | #18 combat framing/cues | Implemented and locally verified; final maximum-group 720p framing recheck belongs to #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
-| 4 | #19 spatial squad-first army | Pending. |
+| 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck belongs to #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
+| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; final native checks passing, PR preparation. See [contract and routes](19_ARMY_WORKSPACE.md). |
 | 5 | #20 cooperative context | Pending; Gate A follows these five presentation issues. |
 | 6 | #21 immediate battle rewards | Pending; actual one-shot resources/recovery, no research-point substitute. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |

@@ -72,7 +72,7 @@ public partial class UnitInspector : VBoxContainer
     public void Select(StructureState structure) { if (_structure != (structure.Owner, structure.Kind, structure.Slot)) ResetAdvanced(); _veteranScroll.Hide(); _id = 0; _structure = (structure.Owner, structure.Kind, structure.Slot); }
     public void Refresh(GameplayContext context, CombatPlayback? playback = null)
     {
-        _context = context; _veteranScroll.Visible &= !_preview && !ReadOnlyLive && _structure is null; _actions.Begin(); _hall.Hide(); _squad.Hide(); _destination.Hide(); VeteranButton.Hide();
+        _context = context; _veteranScroll.Visible &= !_preview && !ReadOnlyLive && _structure is null; _actions.Begin((context.Session, context.State.MatchId, context.City.Id, _id, _structure, _preview)); _hall.Hide(); _squad.Hide(); _destination.Hide(); VeteranButton.Hide();
         AdvancedButton.Visible = _id != 0 || _structure is not null;
         var units = playback?.Units() ?? context.State.Players.SelectMany(p => p.Soldiers).Concat(context.State.Enemies).Concat(context.State.DyingBodies).ToArray();
         double tick = playback?.Tick ?? context.State.Tick;

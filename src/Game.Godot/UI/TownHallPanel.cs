@@ -21,7 +21,7 @@ public partial class TownHallPanel : VBoxContainer
         var hall = context.City.Army?.Halls.FirstOrDefault(h => h.Slot == slot); if (hall is null) return;
         var stored = context.City.Soldiers.Where(u => u.Assignment is { Stored: true } a && a.HallSlot == slot && a.HallGeneration == hall.Generation).ToArray();
         _summary.Text = $"Town Hall: {stored.Length}/{hall.Capacity} individual storage slots\nCapacity L{hall.CapacityLevel}/3; healing L{hall.HealingLevel}/3 ({hall.HealingPercent}% max HP per production)\nStored soldiers never fight but still need funded Food upkeep. Recovery requires food paid in a completed battle; storage alone grants no healing. Select a soldier in Roster → Compare recovery / replacement for exact next-production HP and current recruit prices. Equipment stays fixed; service is history, not a stat bonus.";
-        _actions.Begin();
+        _actions.Begin((context.Session, context.State.MatchId, context.City.Id, slot, hall.Generation));
         Track("Capacity", GameplayAction.Capacity, hall.CapacityQuote, $"Upgrade capacity → {ArmyConfiguration.Capacity(Math.Min(3, hall.CapacityLevel + 1))} places");
         Track("Healing", GameplayAction.Healing, hall.HealingQuote, $"Upgrade healing → {ArmyConfiguration.HealingPercent(Math.Min(3, hall.HealingLevel + 1))}% per production");
         _actions.End();

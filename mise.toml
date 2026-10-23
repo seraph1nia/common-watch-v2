@@ -308,3 +308,9 @@ raw_args = true
 description = "Complete solo and 2/4/6-player native transition matrix, default/debug and 720p/1080p"
 depends = ["build"]
 run = ["bash tools/graphical.sh capture-journey", "bash tools/journey-matrix.sh"]
+
+[tasks.test-army-workspace]
+description = "Six-home native workspace: paid placement, towers, input and art fallback at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh test-army-workspace"
+raw_args = true

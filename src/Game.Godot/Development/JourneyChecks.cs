@@ -85,13 +85,12 @@ public partial class GameApplication
                 await JourneyClick(_gameUi.Inspector.Market.Buttons["Trade" + intent.Resource]); break;
             case GameplayAction.BuyHome:
                 await JourneyClick(_gameUi.ArmyNavigationButton); Current();
-                var tabs = _gameUi.Details.Army.SectionTabs;
-                WorldtreeClick(tabs.GlobalPosition + tabs.GetTabRect(3).GetCenter()); await JourneyFrames(); Current();
                 var home = _gameUi.Details.Deployment.Homes.First(h => !h.Home.Purchased);
-                await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Inspect" + home.Home.PlotId]); Current();
-                await JourneyClick(_gameUi.Details.Deployment.Inspector.Actions["Buy"]); break;
+                await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Home" + home.Home.PlotId]); Current();
+                await JourneyClick(_gameUi.Details.Army.HomeInspector.Actions["Buy"]); break;
             case GameplayAction.Retire:
                 await JourneyClick(_gameUi.ArmyNavigationButton); Current();
+                _gameUi.Details.Army.ShowRoster(); await JourneyFrames();
                 await JourneyClick(_gameUi.Details.Army.MemberButtons["Member" + intent.UnitId]); Current();
                 await JourneyClick(_gameUi.Details.Inspector.Buttons["Retire"]); Current();
                 await JourneyClick(_gameUi.Details.Inspector.Buttons["ConfirmRetire"]); break;
@@ -155,6 +154,7 @@ public partial class GameApplication
                 await JourneyClick(_gameUi.ArmyNavigationButton);
                 if (overlay == "retirement")
                 {
+                    _gameUi.Details.Army.ShowRoster(); await JourneyFrames();
                     await JourneyClick(_gameUi.Details.Army.MemberButtons.Values.First(b => b.Visible));
                     await JourneyClick(_gameUi.Details.Inspector.Buttons["Retire"]);
                 }

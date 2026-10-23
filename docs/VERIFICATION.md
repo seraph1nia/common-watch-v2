@@ -1,5 +1,19 @@
 # Verification
 
+## Refinement II spatial army workspace (2026-10-23)
+
+The [workspace contract and capability routes](refinement-ii/19_ARMY_WORKSPACE.md)
+record six retained home selectors, one placement confirmation, adjacent actual
+recruitment quotes and bounded optional member/storage/home/profile details.
+`mise run test-army-workspace` checks both sizes with default, debug/plain and
+missing artwork. `mise run capture-army-workspace` records the ordinary paid task;
+`python3 tools/compare-army-workspaces.py` compares it to the retained baseline.
+The paired task drops from 12 to 8 actions, 4 to 2 navigation changes and 2 to 0
+changes between major Army sections; both versions pay the same resources and
+accept the same assignments. The baseline popup's signal qualification and lack
+of human timing/comprehension evidence are retained explicitly in the report.
+
+
 ## Refinement II combat framing and cues (2026-10-23)
 
 [The combat contract](refinement-ii/18_COMBAT_READABILITY.md) records stable

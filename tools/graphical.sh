@@ -104,6 +104,17 @@ PYFIXTURE
     client_timeout=240
     run_client --journey-test "$@"
     ;;
+  test-army-workspace)
+    client_timeout=240
+    for presentation in default debug missing; do
+      presentation_options=()
+      if [[ $presentation == debug ]]; then presentation_options=(--world-art debug --hud-art plain --view topdown --debug-overlay off); fi
+      if [[ $presentation == missing ]]; then presentation_options=(--assets-root "$settings_directory/missing-art"); fi
+      for width in 1280 1920; do
+        run_client "${presentation_options[@]}" --army-workspace-test --journey-test --gameplay-captures "$(pwd)/artifacts/captures/army-workspace/checks/$presentation/$width" --width "$width" --height "$((width * 9 / 16))" "$@"
+      done
+    done
+    ;;
   capture-army-workspace)
     client_timeout=240
     label=${COMMON_WATCH_ARMY_REVIEW_LABEL:-after}

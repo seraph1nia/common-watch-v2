@@ -97,7 +97,7 @@ public partial class SettlementHud : Control
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
         _feedbackKey = ""; _recentFeedback.Clear();
-        Inspector?.Construction.ResetSelection(); Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(); }
+        Inspector?.Construction.ResetSelection(); Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(newSession: true); }
     }
     private void Submitted() => CommandSubmitted?.Invoke();
     private GameplayContext Context => new(_session, Submitted);
@@ -204,7 +204,7 @@ public partial class SettlementHud : Control
             art.Attach(_action, "mushrooms-small", new(54, 60), Vector2.One, new(-6, -10));
         }
         Details = new GameplayDialog(); Details.Initialize(skin, Submitted); AddChild(Details); Details.FallbackFocus = build; Details.Closed += LayoutHud;
-        Details.PlotRequested += slot => { _session.SelectSlot(slot); ShowArena = false; ArenaChanged?.Invoke(); Submitted(); };
+        Details.PlotRequested += InspectPlot; Details.PreviewRequested += PreviewArmy;
         Draft = new DraftPanel(); AddChild(Draft); Draft.Initialize(skin, Submitted); Draft.FallbackFocus = build;
         LiveInspector = new LiveCombatInspector(); AddChild(LiveInspector); LiveInspector.Initialize(skin); LiveInspector.FallbackFocus = _overview;
         _resultFrame = new PanelContainer(); AddChild(_resultFrame); skin.Panel(_resultFrame);
@@ -269,13 +269,13 @@ public partial class SettlementHud : Control
     {
         if (!preview && (_session.Snapshot.Phase == Phase.Combat || _combatPresentation))
         { Details.Close(false); LiveInspector.Inspect(unit, _session); return; }
-        Details.Inspector.Select(unit, preview, _session.Snapshot.Phase); OpenDetails(DetailsPage.Inspection);
+        Details.WorldInspector.Select(unit, preview, _session.Snapshot.Phase); OpenDetails(DetailsPage.Inspection);
     }
     public void Inspect(StructureState structure)
     {
         if (_session.Snapshot.Phase == Phase.Combat || _combatPresentation)
         { Details.Close(false); LiveInspector.Inspect(structure, _session); return; }
-        Details.Inspector.Select(structure); OpenDetails(DetailsPage.Inspection);
+        Details.WorldInspector.Select(structure); OpenDetails(DetailsPage.Inspection);
     }
     public void Refresh(GodotSession session, RenderOptions options, bool finishingCombat, bool force = false)
     {
@@ -396,7 +396,12 @@ public partial class SettlementHud : Control
         };
         session.CommandAcknowledged += _rewardAcknowledged;
     }
-    public override void _ExitTree() => BindRewardReceipts(null);
+    private void InspectPlot(int slot) { _session.SelectSlot(slot); ShowArena = false; ArenaChanged?.Invoke(); Submitted(); }
+    private void PreviewArmy() { OpenArena(); LayoutHud(); }
+    public override void _ExitTree()
+    {
+        BindRewardReceipts(null); Details.PlotRequested -= InspectPlot; Details.PreviewRequested -= PreviewArmy; Details.Closed -= LayoutHud;
+    }
     internal void ReturnToBattle()
     {
         if (!Presentation.LiveCombat) return;
