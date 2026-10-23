@@ -87,6 +87,9 @@ with open(sys.argv[1], 'w') as target:
 PYFIXTURE
     run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
     ;;
+  capture-hud)
+    timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/hud-phases.py --output "$(pwd)/artifacts/captures/hud-phases" "$@"
+    ;;
   capture-cooperation)
     timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/cooperation.py
     ;;

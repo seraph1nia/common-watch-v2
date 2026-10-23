@@ -268,7 +268,7 @@ public partial class GameApplication : Node
         if (_menuPopup is not null) _menuPopup.QuitRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.QuitRequested -= RequestQuit;
         if (_exitConfirmation is not null) _exitConfirmation.Clear();
-        if (_settings is not null) { _settings.Opened -= StopCameraDrag; if (_gameUi is not null) _gameUi.SettingsRequested -= _settings.Open; }
+        if (_settings is not null) _settings.Opened -= StopCameraDrag;
         _audio?.Stop();
         _sessions.Close();
         _steam?.Shutdown();

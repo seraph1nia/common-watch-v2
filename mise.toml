@@ -267,3 +267,9 @@ run = "bash tools/graphical.sh capture-forest-consistency"
 description = "Native action/playback feedback at both sizes, pause/retry/baseline checks and actual muted-music mixer audition"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-feedback"
+
+[tasks.capture-hud]
+description = "Native two-client planning, Ready, combat, reward and accepted-waiting views at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-hud"
+raw_args = true

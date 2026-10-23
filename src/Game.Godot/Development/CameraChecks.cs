@@ -70,7 +70,9 @@ public partial class GameApplication
         Require(_camera.Magnification == before, "scrolling native inspector does not zoom world");
         before = _camera.Magnification;
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
-        Click(_settingsButton.GetGlobalRect().GetCenter());
+        Click(_gameUi.MenuButton.GetGlobalRect().GetCenter());
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Click(_menuPopup.SettingsButton.GetGlobalRect().GetCenter());
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Require(_settings.Visible && _settings.Slider.HasFocus(), $"mouse opens native modal with keyboard focus (visible={_settings.Visible}, focus={GetViewport().GuiGetFocusOwner()?.Name}, button={_settingsButton.GetGlobalRect()})");
         Vector2 coveredPlot = new(10, 300);

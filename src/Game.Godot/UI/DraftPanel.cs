@@ -54,7 +54,7 @@ public partial class DraftPanel : Control
         string draftKey = session.Snapshot.MatchId + ":" + session.City.Run.DraftWave;
         if (_draftKey != draftKey) { _draftKey = draftKey; _dismissed = false; }
         bool opening = !Visible;
-        Visible = !_dismissed && session.Snapshot.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated;
+        Visible = !_dismissed && session.Snapshot.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated && session.City.Run.Choice is null;
         if (!Visible) { if (!opening) RestoreFocus(); return; }
         Result.Refresh(outcome);
         if (opening) { _invoker ??= GetViewport().GuiGetFocusOwner(); _close.GrabFocus(); }
@@ -68,7 +68,7 @@ public partial class DraftPanel : Control
             foreach (var card in view.Cards)
             {
                 string id = card.Id; var control = new RewardCard(); _cards.AddChild(control);
-                control.Initialize(_skin, card, () => { if (_session.Connected && !_session.Pending && _session.City.Run.Choice is null) _session.ChooseReward(id); _submitted(); });
+                control.Initialize(_skin, card, () => { if (IsVisibleInTree() && _session.Connected && !_session.Pending && _session.Snapshot.Phase == Phase.RewardDraft && !_session.City.Eliminated && _session.City.Run.Choice is null) _session.ChooseReward(id); _submitted(); });
                 _views.Add(id, control);
             }
         }

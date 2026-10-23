@@ -47,6 +47,10 @@ public partial class GameApplication
                     ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
                 case "team-city" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var teamButton): teamButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "team-pointer" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var pointerButton): WorldtreeClick(pointerButton.GetGlobalRect().GetCenter()); break;
+                case "reward-pointer" when _gameUi.Draft.IsVisibleInTree():
+                    if (_gameUi.Draft.RewardButtons.ElementAtOrDefault(Number("index", 0)) is { Disabled: false } rewardButton)
+                        WorldtreeClick(rewardButton.GetGlobalRect().GetCenter());
+                    break;
                 case "ready-pointer": WorldtreeClick(_gameUi.ReadyButton.GetGlobalRect().GetCenter()); break;
                 case "watch-ally": _gameUi.Team.WatchButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
@@ -116,6 +120,10 @@ public partial class GameApplication
         _controlWrite = System.Environment.TickCount64;
         var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
+            hudMoment = _gameUi.Presentation.Moment.ToString(),
+            hudRegions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
+            draftVisible = _gameUi.Draft.IsVisibleInTree(),
+            hudFocusVisible = GetViewport().GuiGetFocusOwner() is { } hudFocus && hudFocus.IsVisibleInTree(),
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),

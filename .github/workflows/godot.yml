@@ -63,6 +63,9 @@ jobs:
           --no-build --no-restore --nologo
           --logger 'trx;LogFileName=godot.trx' --results-directory artifacts/test-results
 
+      - name: Test native phase-specific HUD and accepted reward waiting
+        run: mise run capture-hud
+
       - name: Test and capture deterministic combat animation
         run: mise run test-animation
 

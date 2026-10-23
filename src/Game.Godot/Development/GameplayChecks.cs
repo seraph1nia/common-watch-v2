@@ -29,7 +29,7 @@ public partial class GameApplication
             Require(label.Text.StartsWith(expected + " / "), "ribbon income uses authoritative production: " + resource);
         }
         Require(GetViewport().GetVisibleRect().Encloses(_gameUi.Resources.GetGlobalRect()), "complete resource ribbon fits viewport");
-        Press(_gameUi.FeedbackButton); await GameplayCapture("city-details");
+        Press(_gameUi.CityDetailsButton); await GameplayCapture("city-details");
         Require(_gameUi.Details.Visible && _gameUi.Details.RecentFeedback.Contains(_gameUi.SessionFeedback), "visible recent feedback routes to read-only city details");
         _gameUi.Details.Close();
         _session.SelectSlot(0); RefreshUi(true); await GameplayCapture("hud-build");
@@ -187,7 +187,13 @@ public partial class GameApplication
         _gameUi.Details.Close();
 
         ReplaceSession(ScenarioRunner.CreateAt("combat")); _frozen = true; RefreshUi(true);
-        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness"); await GameplayCapture("hud-combat"); await CheckMenuPopup("combat");
+        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness");
+        foreach (string region in new[] { "ledger", "threat", "guide", "selected-plot", "navigation/build", "preparation-track" })
+            Require(!_gameUi.Regions[region].IsVisibleInTree(), "combat removes irrelevant region: " + region);
+        Require(!_gameUi.ArenaButton.IsVisibleInTree(), "live battle has no misleading arena toggle");
+        long combatSequence = _session.LastResult?.Sequence ?? 0;
+        _gameUi.ReadyButton.EmitSignal(BaseButton.SignalName.Pressed);
+        Require((_session.LastResult?.Sequence ?? 0) == combatSequence, "stale hidden Ready cannot submit"); await GameplayCapture("hud-combat"); await CheckMenuPopup("combat");
         ReplaceSession(GameplayScenarios.CreateAt("reward")); _frozen = true; RefreshUi(true);
         Require(_gameUi.Draft.RewardButtons.Count == 3, "actual three-card draft");
         long draftRevision = _session.Snapshot.Revision;
@@ -252,7 +258,7 @@ public partial class GameApplication
             Require(before.GetPixelv(point) == after.GetPixelv(point), "popup adds no backdrop or dimming outside its square over " + screen);
         if (screen == "settlement")
         {
-            Click(_gameUi.SettingsButton.GetGlobalRect().End - new Vector2(2, 2));
+            Click(_gameUi.MenuButton.GetGlobalRect().End - new Vector2(2, 2));
             Require(_settings.Visible == settings, "popup also blocks underlying HUD buttons at the viewport edge");
         }
         Click(screen == "settlement" && _settlementView.HasMap ? _camera.ToScreen(_settlementView.PlotPosition(7)) : new Vector2(12, 180));
@@ -316,6 +322,25 @@ public partial class GameApplication
         System.IO.Directory.CreateDirectory(directory);
         string path = System.IO.Path.Combine(directory, name + ".png");
         using var image = GetViewport().GetTexture().GetImage(); Require(image.SavePng(path) == Error.Ok, "gameplay capture " + name);
+        var snapshot = _session is { HasState: true } ? _session.Snapshot : null;
+        var inventory = new
+        {
+            match = snapshot?.MatchId, phase = snapshot?.Phase, wave = snapshot?.Wave,
+            moment = _gameUi.Presentation.Moment.ToString(),
+            regions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
+            actions = VisibleHudActions(_gameUi).Select(b => new { text = b.Text, enabled = !b.Disabled }).ToArray()
+        };
+        System.IO.File.WriteAllText(System.IO.Path.ChangeExtension(path, ".json"), System.Text.Json.JsonSerializer.Serialize(inventory, WireJson.Options));
         GD.Print("GODOT_GAMEPLAY_CAPTURE " + path);
     }
+    private static IEnumerable<Button> VisibleHudActions(Node node)
+    {
+        foreach (var child in node.GetChildren())
+        {
+            if (child is Control control && !control.IsVisibleInTree()) continue;
+            if (child is Button button) yield return button;
+            foreach (var descendant in VisibleHudActions(child)) yield return descendant;
+        }
+    }
+
 }

@@ -68,7 +68,7 @@ public partial class GameApplication
         {
             if (IsInstanceValid(_menuInvoker) && _menuInvoker!.IsVisibleInTree()) _menuInvoker.GrabFocus();
             else if (_settings.Visible) _settings.Slider.GrabFocus();
-            else if (_gameUi.Visible) _gameUi.SettingsButton.GrabFocus();
+            else if (_gameUi.Visible) _gameUi.MenuButton.GrabFocus();
             else _sessionMenu.FocusDefault();
         }
         _menuInvoker = null;

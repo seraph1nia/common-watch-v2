@@ -77,6 +77,9 @@ for count in range(2, 7):
                 path.unlink(missing_ok=True)
                 control(i, 'capture', path=str(path))
                 wait(lambda: path.exists(), name + ' screenshot')
+                if name in ('fallen-observer', 'terminal'):
+                    assert not set(status(i)['hudRegions']) & {'ledger', 'threat', 'guide', 'selected-plot', 'preparation-track'}
+                    assert not status(i)['readyVisible']
             control(i, 'resize', width=1280, height=720)
 
         try:

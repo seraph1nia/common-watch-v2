@@ -25,8 +25,7 @@ public partial class GameApplication
         _settings = GD.Load<PackedScene>("res://Scenes/UI/SettingsPanel.tscn").Instantiate<SettingsPanel>();
         root.AddChild(_settings); _settings.Bind(_audio, _skin.MenuBackground, _environment);
         _settings.Opened += StopCameraDrag;
-        _settingsButton = _gameUi.SettingsButton;
-        _gameUi.SettingsRequested += _settings.Open;
+        _settingsButton = _gameUi.MenuButton;
         _settings.Theme = _skin.Theme; _skin.Panel(_settings.Panel, "modal");
         _settings.FallbackFocus = _settingsButton;
         root.MoveChild(_settings, -1);

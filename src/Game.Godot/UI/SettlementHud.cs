@@ -7,7 +7,7 @@ namespace Game.GodotClient;
 public partial class SettlementHud : Control
 {
     private GodotSession _session = null!;
-    private Label _phase = null!, _keep = null!;
+    private Label _phase = null!, _keep = null!, _danger = null!;
     private ResourcePanel _economy = null!;
     public ActionFeedback Feedback { get; private set; } = null!;
     private TeamPanel _team = null!;
@@ -34,7 +34,6 @@ public partial class SettlementHud : Control
     private HFlowContainer _contextNav = null!;
     private Button _feedback = null!, _clear = null!, _reconnect = null!;
     private string _feedbackKey = "";
-    private double _acceptedUntil;
     private readonly Queue<string> _recentFeedback = new();
     private bool _arenaContext;
     private bool? _wideLayout;
@@ -42,7 +41,10 @@ public partial class SettlementHud : Control
     private int _viewed;
     private Button _rewards = null!, _arena = null!;
     private Button _overview = null!;
-    public Button SettingsButton { get; private set; } = null!;
+    public Button MenuButton { get; private set; } = null!;
+    private Button _build = null!, _cityDetails = null!;
+    internal Button CityDetailsButton => _cityDetails;
+    internal HudPresentation Presentation { get; private set; } = new(HudMoment.Planning, false, false);
     public BuildingInspector Inspector { get; private set; } = null!;
     public DraftPanel Draft { get; private set; } = null!;
     public GameplayDialog Details { get; private set; } = null!;
@@ -61,13 +63,20 @@ public partial class SettlementHud : Control
     internal Button ClearSelectionButton => _clear;
     internal Button ArenaButton => _arena;
     internal Button FeedbackButton => _feedback;
+    internal IReadOnlyDictionary<string, Control> Regions => new Dictionary<string, Control>
+    {
+        ["ledger"] = _ribbon, ["threat"] = _preparation, ["guide"] = _opening,
+        ["selected-plot"] = _dock, ["navigation/build"] = _palette, ["phase"] = _action,
+        ["preparation-track"] = _phaseTrack, ["team"] = _team, ["result"] = _resultFrame,
+        ["rewards"] = Draft, ["details"] = Details
+    };
     internal Button ReconnectButton => _reconnect;
     public bool ShowArena { get; private set; }
     internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
     public bool BlocksWorld => Details.Visible || Draft.Visible;
     public Rect2 WorldArea => new(Vector2.Zero, Size);
     public Rect2 SettlementFramingArea => new(new Vector2(0, 24), new Vector2(Size.X - (Size.X >= 1600 ? 420 : 382), Size.Y - 108));
-    public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged, SettingsRequested;
+    public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged;
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
@@ -75,7 +84,7 @@ public partial class SettlementHud : Control
         _openingHomesReviewed = false; _opening?.Hide();
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
-        _feedbackKey = ""; _recentFeedback.Clear(); _acceptedUntil = 0;
+        _feedbackKey = ""; _recentFeedback.Clear();
         Inspector?.Construction.ResetSelection(); Draft?.Reset(); if (Details is not null) { Details.Close(); Details.ResetSelection(); }
     }
     private void Submitted() => CommandSubmitted?.Invoke();
@@ -93,18 +102,16 @@ public partial class SettlementHud : Control
         _ribbonBody = new VBoxContainer(); _ribbonBody.AddThemeConstantOverride("separation", 4); _ribbon.AddChild(_ribbonBody);
         _nav = new HBoxContainer(); _ribbonBody.AddChild(_nav);
         _cities = new CitySelector { CustomMinimumSize = new(200, 44), SizeFlagsHorizontal = SizeFlags.ExpandFill, FitToLongestItem = false, ClipText = true }; _nav.AddChild(_cities); _cities.Initialize();
-        _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, false, true); };
+        _cities.CityChanged += () => { Details.ResetSelection(); _uiKey = ""; Refresh(_session, default!, _combatPresentation, true); };
         _keep = new Label(); _keep.AddThemeFontSizeOverride("font_size", 14); _ribbonBody.AddChild(_keep);
         _economy = new ResourcePanel(); _ribbonBody.AddChild(_economy); _economy.Initialize(skin);
         _team = new TeamPanel(); AddChild(_team); _team.Initialize(skin);
         _team.CityChanged += () => { Details.ResetSelection(); LiveInspector.Close(false); _uiKey = ""; Refresh(_session, default!, _combatPresentation, true); };
         _preparation = new PreparationPanel(); AddChild(_preparation); _preparation.Initialize(skin);
-        _opening = new OpeningGuidePanel(); AddChild(_opening); _opening.Initialize(skin); _opening.Navigate += NavigateOpening;
+        _opening = new OpeningGuidePanel(); AddChild(_opening); _opening.Initialize(skin); _opening.Navigate += NavigateOpening; _opening.LayoutRequested += LayoutHud;
         _menu = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_menu);
-        SettingsButton = skin.Button("Settings", () => SettingsRequested?.Invoke()); _menu.AddChild(SettingsButton);
-        SettingsButton.CustomMinimumSize = new(126, 48);
-        _menu.AddChild(new Control { CustomMinimumSize = new(44, 0), MouseFilter = MouseFilterEnum.Ignore });
-        _menu.AddChild(skin.Button("Menu", () => MenuRequested?.Invoke()));
+        MenuButton = skin.Button("Menu", () => MenuRequested?.Invoke()); _menu.AddChild(MenuButton);
+        MenuButton.CustomMinimumSize = new(126, 48);
 
         _dock = new PanelContainer(); AddChild(_dock); skin.Panel(_dock);
         var column = new VBoxContainer(); _dock.AddChild(column);
@@ -121,10 +128,11 @@ public partial class SettlementHud : Control
         }
         var paletteColumn = new VBoxContainer(); _palette.AddChild(paletteColumn);
         var navigation = new HFlowContainer(); _contextNav = navigation; paletteColumn.AddChild(navigation);
-        var build = skin.Button("Build", () => { Details.Close(); Draft.Dismiss(); LayoutHud(); }); navigation.AddChild(build);
+        var build = _build = skin.Button("Build", () => { Details.Close(); Draft.Dismiss(); LayoutHud(); }); navigation.AddChild(build);
         navigation.AddChild(skin.Button("Worldtree", () => OpenDetails(DetailsPage.Worldtree)));
         navigation.AddChild(skin.Button("Troops & homes", () => OpenDetails(DetailsPage.Army)));
-        navigation.AddChild(skin.Button("City details", () => OpenDetails(DetailsPage.City), skin.Painted is null ? "" : "PaintedDetails"));
+        _cityDetails = skin.Button("City details", () => OpenDetails(DetailsPage.City), skin.Painted is null ? "" : "PaintedDetails");
+        navigation.AddChild(_cityDetails);
         foreach (var button in navigation.GetChildren().OfType<Button>())
             foreach (string state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
             {
@@ -142,15 +150,16 @@ public partial class SettlementHud : Control
         _action = new PanelContainer(); AddChild(_action); skin.Panel(_action);
         var actions = new VBoxContainer(); _action.AddChild(actions);
         _phase = WrapLabel(); _phase.AddThemeFontSizeOverride("font_size", 18); actions.AddChild(_phase);
+        _danger = WrapLabel(); actions.AddChild(_danger);
         _phaseTrack = new PhaseTrack { Illustrated = skin.Painted is not null }; actions.AddChild(_phaseTrack);
         _overview = skin.Button("Field overview  [F]", () => ArenaOverviewRequested?.Invoke()); actions.AddChild(_overview);
         var links = new HBoxContainer();
-        _rewards = skin.Button("Rewards", () => { Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
+        _rewards = skin.Button("Rewards", () => { if (!_rewards.IsVisibleInTree() || _combatPresentation || !Presentation.CanChooseReward) return; Details.Close(false); Draft.Open(GetViewport().GuiGetFocusOwner()); Refresh(_session, default!, false, true); }); actions.AddChild(_rewards);
         _feedback = skin.Button("Recent feedback", () => OpenDetails(DetailsPage.City), "ForestQuietButton");
         _feedback.ClipText = true;
         _feedback.AddThemeFontSizeOverride("font_size", 14); _feedback.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         actions.AddChild(links);
-        _arena = skin.Button("Show arena", () => { ShowArena = !ShowArena; ArenaChanged?.Invoke(); }, "ForestQuietButton"); links.AddChild(_arena);
+        _arena = skin.Button("Show arena", () => { if (Presentation.LiveCombat) return; ShowArena = !ShowArena; ArenaChanged?.Invoke(); }, "ForestQuietButton"); links.AddChild(_arena);
         var reconnect = skin.Button("↻", () => ReconnectRequested?.Invoke(), "ForestQuietButton"); _reconnect = reconnect; reconnect.TooltipText = "Reconnect";
         reconnect.CustomMinimumSize = new(44, 44);
         links.AddChild(reconnect); links.AddChild(_feedback);
@@ -164,7 +173,7 @@ public partial class SettlementHud : Control
         _controls = new MatchControls(); actions.AddChild(_controls); _controls.Initialize(skin, Submitted);
         if (skin.Painted is { } art)
         {
-            art.Attach(SettingsButton, "owl", new(58, 54), Vector2.One, new(8, -5), new(.5f, .95f));
+            art.Attach(MenuButton, "owl", new(58, 54), Vector2.One, new(8, -5), new(.5f, .95f));
             art.Attach(_menu, "mushrooms-small", new(50, 66), Vector2.Zero, new(-4, 48));
             art.Attach(_ribbon, "rabbit", new(60, 54), new(1, 0), new(-48, 24), new(.5f, .95f));
             art.Attach(_ribbon, "crescent", new(50, 50), Vector2.Zero, new(20, 30), new(.5f, .5f));
@@ -192,18 +201,22 @@ public partial class SettlementHud : Control
         var legend = WrapLabel("F frontline · R ranged · M magic\nP# allies · E→# foes · ! low health\nGold: selected · orange: target"); legend.AddThemeFontSizeOverride("font_size", 14); legend.MouseFilter = MouseFilterEnum.Ignore;
         _combatLegend.AddChild(legend); _combatLegend.Hide();
         Feedback = new ActionFeedback(); AddChild(Feedback);
+        foreach (var region in new Control[] { _ribbon, _dock, _palette, _action, _preparation, _team })
+            region.MinimumSizeChanged += LayoutHud;
         Resized += LayoutHud; LayoutHud();
     }
     private void LayoutHud()
     {
         if (_ribbon is null || Draft is null) return;
         bool selected = _session is not null && _session.SelectedSlot >= 0;
-        bool construction = selected && Inspector.Construction.Visible && !BlocksWorld && !_arenaContext;
-        _contextBody.Visible = selected && !BlocksWorld;
+        bool construction = selected && Inspector.Construction.Visible && !BlocksWorld && Presentation.Management;
+        _contextBody.Visible = selected && !BlocksWorld && Presentation.Management;
         _constructionBody.Visible = construction;
         _clear.Visible = selected;
-        _dock.Visible = selected && !_arenaContext && !BlocksWorld;
-        _palette.Visible = !_arenaContext && !BlocksWorld;
+        _dock.Visible = selected && Presentation.Management && !BlocksWorld;
+        _palette.Visible = Presentation.Navigation && !BlocksWorld;
+        _build.Visible = Presentation.Management;
+        _ribbon.Visible = Presentation.Ledger && !BlocksWorld;
         bool wide = Size.X >= 1600;
         float edge = wide ? 24 : 12;
         float ledgerWidth = wide ? 380 : 350;
@@ -258,8 +271,10 @@ public partial class SettlementHud : Control
     }
     public void Refresh(GodotSession session, RenderOptions options, bool finishingCombat, bool force = false)
     {
+        var previousFocus = GetViewport().GuiGetFocusOwner();
         _session = session; var state = session.Snapshot; var city = session.ViewedCity;
-        _combatPresentation = state.Phase == Phase.Combat || finishingCombat;
+        Presentation = HudPresentation.Project(state, session.PlayerId, finishingCombat, ShowArena);
+        _combatPresentation = Presentation.LiveCombat;
         _outcomes.Observe(state);
         LiveInspector.Refresh(session, _combatPresentation && !BlocksWorld);
         Result.Refresh(_outcomes.For(city.Id));
@@ -274,29 +289,40 @@ public partial class SettlementHud : Control
             _feedbackKey = feedbackKey;
             _recentFeedback.Enqueue(SessionFeedback); while (_recentFeedback.Count > 8) _recentFeedback.Dequeue();
             Details.RecentFeedback = _recentFeedback.Reverse().ToArray();
-            _acceptedUntil = Time.GetTicksMsec() + 4500;
             _feedback.AddThemeColorOverride("font_color", !session.Connected || session.LastResult is { Accepted: false }
                 ? new Color("f0bc9d") : session.Pending ? new Color("efd478") : new Color("f5ecd4"));
         }
         _feedback.Text = !session.Connected ? "Disconnected · details" : session.Pending ? "Pending · details"
             : session.LastResult is { Accepted: false } ? "Rejected · details"
-            : session.LastResult is { Accepted: true } && Time.GetTicksMsec() < _acceptedUntil ? "Accepted ✓" : "Recent feedback";
+            : "City details";
+        _feedback.Visible = !session.Connected || session.Pending || session.LastResult is { Accepted: false } || !Presentation.Navigation;
         _reconnect.Visible = !session.Connected;
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
         _phase.Text = $"Wave {state.Wave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
+        if (Presentation.Moment == HudMoment.RewardWaiting)
+        {
+            int choosing = state.Players.Count(p => p.Connected && !p.Eliminated && p.Run.Choice is null);
+            _phase.Text = $"Wave {session.City.Run.DraftWave} · {RunCatalog.Card(session.City.Run.Choice!).Name} accepted\n{choosing} still choosing";
+        }
+        else if (Presentation.Moment == HudMoment.ReadyWaiting)
+            _phase.Text = $"Wave {state.Wave} · plan committed";
         _phaseTrack.Refresh(state, finishingCombat);
+        _phaseTrack.Visible = Presentation.PreparationTrack;
+        _danger.Visible = Presentation.LiveCombat && city.Health < state.Rules.CityHealth;
+        _danger.Text = $"P{city.Id} Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _keep.Text = $"Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
-        _rewards.Visible = state.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated;
+        _rewards.Visible = Presentation.CanChooseReward;
         _team.Refresh(session);
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);
         _preparation.Refresh(Context, finishingCombat);
-        _preparation.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0;
+        _preparation.Visible &= Presentation.Threat && !BlocksWorld && (session.SelectedSlot < 0 || !Presentation.Management);
         if (Details.Visible && Details.Army.IsVisibleInTree() && Details.Army.HomesVisible && city.Id == session.PlayerId) _openingHomesReviewed = true;
         _opening.Refresh(state, city, _openingHomesReviewed, _outcomes.For(city.Id));
-        _opening.Visible &= !BlocksWorld && !ShowArena && session.SelectedSlot < 0 && city.Id == session.PlayerId;
-        _arena.Text = ShowArena ? "Show settlement" : "Show arena";
+        _opening.Visible &= Presentation.Moment == HudMoment.Planning && !BlocksWorld && !ShowArena && session.SelectedSlot < 0 && city.Id == session.PlayerId;
+        _arena.Text = Presentation.Arena ? "Show settlement" : "Show arena";
+        _arena.Visible = !Presentation.LiveCombat && Presentation.Moment != HudMoment.ChoosingReward;
         string key = $"{state.MatchId}:{state.Revision}:{_feedbackKey}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}";
-        _arenaContext = ShowArena || state.Phase == Phase.Combat || finishingCombat;
+        _arenaContext = Presentation.Arena;
         _overview.Visible = _arenaContext;
         if (force || key != _uiKey)
         {
@@ -305,8 +331,19 @@ public partial class SettlementHud : Control
             if (!Details.Visible) Inspector.Refresh(Context, _arenaContext ? -1 : session.SelectedSlot);
             Details.Refresh(Context); Draft.Refresh(session, finishingCombat, _outcomes.For(session.PlayerId));
             if (Draft.Visible) Details.Close(false);
+            LayoutHud();
         }
-        LayoutHud();
+        // A hidden retained region must not keep keyboard/controller activation.
+        var focus = GetViewport().GuiGetFocusOwner();
+        bool lostFocus = focus is null && previousFocus is not null
+            && (!IsInstanceValid(previousFocus) || !previousFocus.IsVisibleInTree());
+        if (lostFocus || focus is not null && !focus.IsVisibleInTree())
+        {
+            focus?.ReleaseFocus();
+            if (ReadyButton.IsVisibleInTree() && !ReadyButton.Disabled) ReadyButton.GrabFocus();
+            else if (_overview.IsVisibleInTree()) _overview.GrabFocus();
+            else MenuButton.GrabFocus();
+        }
     }
     private void NavigateOpening(Game.Shared.OpeningDestination destination)
     {

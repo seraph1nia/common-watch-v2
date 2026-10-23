@@ -23,20 +23,17 @@ public partial class PreparationPanel : PanelContainer
         string composition = brief.Composition;
         Summary.TooltipText = brief.Details + "\n\nFull campaign purposes and clear rewards: City details.\nStored soldiers never fight.\nUnfunded field soldiers sit out; Food shortage permits Ready.\nEach production advances research and eligible stored-soldier recovery.";
         Summary.Text = $"Wave {state.Wave} → P{city.Id}: {threat.Length} enemies"
-            + (city.Id != context.Session.PlayerId ? " · Allied forecast" : " · Your forecast")
-            + "\n" + brief.Purpose + (composition.Length > 0 ? "\n" + composition : "");
+            + (composition.Length > 0 ? "\n" + composition : "");
         if (city.Eliminated) { Summary.Text += "\nFallen city · no participating army."; return; }
-        Summary.Text += "\nNext income: " + (city.ProductionIncome is { } income ? GameplayContext.Cost(income) : "Unavailable");
         if (city.FoodForecast is not { } food) { Summary.Text += "\nArmy / Food forecast unavailable."; return; }
         int stored = city.Soldiers.Count(u => u.Assignment is { Stored: true });
         int unfedStored = city.Soldiers.Count(u => u.Assignment is { Stored: true } && food.Unfed.Contains(u.Id));
         int sittingOut = food.Unfed.Length - unfedStored;
-        Summary.Text += $"\nArmy: {food.Participating.Length} fight · {sittingOut} sit out · {stored} stored";
-        Summary.Text += $"\nFood payment: {food.Paid}/{food.Demand} · {food.Available - food.Paid} left";
-        Summary.Text += state.Phase == Phase.Preparation
-            ? "\nIncludes final income · Food paid when battle starts"
-            : "\nStock now · later income and purchases can change this";
-        if (unfedStored > 0) Summary.Text += $"\n{unfedStored} stored unfunded for next battle's recovery";
-
+        Summary.Text += $"\nArmy: {food.Participating.Length} fight";
+        if (sittingOut > 0) Summary.Text += $" · {sittingOut} sit out";
+        if (unfedStored > 0) Summary.Text += $" · {unfedStored} stored unfunded";
+        Summary.TooltipText += $"\n\nFood payment: {food.Paid}/{food.Demand} · {food.Available - food.Paid} left"
+            + $"\n{stored} stored (never fight)"
+            + (state.Phase == Phase.Preparation ? "\nIncludes final income" : "\nStock now; later income and purchases can change this");
     }
 }

@@ -38,8 +38,8 @@ public partial class GameApplication
         Require(guide.Text.Contains("4/4") && guide.Text.Contains("Food"), "home review leads to the actual final Ready transition");
         DriveOpening(new(GameplayAction.Ready)); FinishOpeningBattle();
         CancelUi(); RefreshUi(true); await GameplayCapture("opening-guide-outcome");
-        Require(guide.Text.Contains("4 fought") && guide.Text.Contains("4 Food paid") && guide.ContentFits, "first battle report explicitly connects a preparation payment and participation");
-        Click(guide.ActionButton.GetGlobalRect().GetCenter()); await GameplayCapture("opening-guide-report");
+        Require(!guide.IsVisibleInTree(), "completed opening guidance leaves the reward view");
+        Click(_gameUi.FeedbackButton.GetGlobalRect().GetCenter()); await GameplayCapture("opening-guide-report");
         Require(_gameUi.Details.Visible && _gameUi.Details.LastOutcome?.Participants == 4, "optional outcome link opens factual preparation and battle details");
         GD.Print("GODOT_OPENING_GUIDE_PASS optional collapse retained-preference no-gate recovery navigation funding placement outcome native-pointer");
     }

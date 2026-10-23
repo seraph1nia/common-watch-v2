@@ -11,9 +11,10 @@ public partial class OpeningGuidePanel : PanelContainer
     private VBoxContainer _body = null!;
     private HBoxContainer _row = null!;
     private Label _objective = null!, _message = null!;
-    private bool _expanded = true, _effective;
+    private bool _expanded, _effective;
     private OpeningHint? _hint;
     public event Action<OpeningDestination>? Navigate;
+    public event Action? LayoutRequested;
     internal Button ToggleButton => _toggle;
     internal Button ActionButton => _action;
     internal bool Expanded => _body.Visible;
@@ -28,7 +29,7 @@ public partial class OpeningGuidePanel : PanelContainer
             BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
             ContentMarginLeft = 10, ContentMarginRight = 10, ContentMarginTop = 8, ContentMarginBottom = 8 });
         _row = new HBoxContainer(); _row.AddThemeConstantOverride("separation", 4); AddChild(_row);
-        _toggle = skin.Button("Guide ▾", () => { _expanded = !_expanded; QueueSort(); }); _toggle.AddThemeFontSizeOverride("font_size", 14);
+        _toggle = skin.Button("Guide ▾", () => { _expanded = !_expanded; QueueSort(); LayoutRequested?.Invoke(); }); _toggle.AddThemeFontSizeOverride("font_size", 14);
         _toggle.CustomMinimumSize = new(104, 44); _toggle.SizeFlagsVertical = SizeFlags.ShrinkCenter; _row.AddChild(_toggle);
         _body = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _body.AddThemeConstantOverride("separation", 4); _row.AddChild(_body);
         _objective = WrapLabel(); _objective.AddThemeFontSizeOverride("font_size", 13); _objective.MaxLinesVisible = 1; _objective.AddThemeColorOverride("font_color", new Color("efd478")); _body.AddChild(_objective);
@@ -62,5 +63,5 @@ public partial class OpeningGuidePanel : PanelContainer
         Size = new(_effective ? width : 104 + padding, GetCombinedMinimumSize().Y);
         Visible &= Size.Y <= available;
     }
-    public override void _ExitTree() => Navigate = null;
+    public override void _ExitTree() { Navigate = null; LayoutRequested = null; }
 }

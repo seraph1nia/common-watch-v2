@@ -19,7 +19,16 @@ public partial class MatchControls : VBoxContainer
     {
         _illustrated = skin.Illustrated;
         AddThemeConstantOverride("separation", 4);
-        void Send(string action) { _session.Send(action); submitted(); }
+        void Send(string action)
+        {
+            if (_session is not { HasState: true, Connected: true, Pending: false }) return;
+            var state = _session.Snapshot;
+            if (state.Phase is Phase.Victory or Phase.Defeat) return;
+            if (action is "ready" or "unready" && (!ReadyButton.IsVisibleInTree() || ReadyButton.Disabled)) return;
+            if (CombatSpeedRates.TryAction(action, out _) && (!_speeds.IsVisibleInTree() || !_session.IsHost)) return;
+            if (action is "pause" or "resume" && (!_pause.IsVisibleInTree() || _pause.Disabled)) return;
+            _session.Send(action); submitted();
+        }
         var ready = new HBoxContainer(); AddChild(ready);
         ReadyButton = skin.Button("Ready", () => Send(_session.City.Ready ? "unready" : "ready"), "ForestPrimaryButton");
         ReadyButton.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -68,7 +77,7 @@ public partial class MatchControls : VBoxContainer
             pair.Value.Text = (pair.Key == state.CombatSpeed ? "✓ " : "") + CombatSpeedRates.Label(pair.Key);
             pair.Value.TooltipText = session.IsHost ? "Authoritative combat pace" : "Only the original playing host controls combat speed.";
         }
-        _status.Text = state.Paused && preparing ? "PAUSED" : (state.Paused ? "PAUSED · " : "") +
+        _status.Text = state.Paused && !ended ? "PAUSED" : (state.Paused ? "PAUSED · " : "") +
             (ended ? $"{state.Phase} · {(state.Phase == Phase.Defeat ? PresentationLimits.DefeatText(state.DefeatReason) : "All waves held")}" :
             "Waiting: " + string.Join(", ", state.Players.Where(p => p.Connected && !p.Eliminated && !p.Ready).Select(p => $"P{p.Id}")));
         _status.Visible = state.Paused && !preparing || ended;

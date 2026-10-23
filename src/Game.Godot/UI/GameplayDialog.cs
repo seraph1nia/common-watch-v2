@@ -106,6 +106,13 @@ public partial class GameplayDialog : Control
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
                 + "\nNext encounter\n" + EncounterBriefing.Project(context.State, context.City.Id).Details
                 + "\n\n" + BuildDirection.Inspection(context.City) + "\n\n" + BuildImpact.Inspection(context.City);
+            if (context.City.FoodForecast is { } food)
+                _cityDetails.Text += $"\n\nExact Food manifest · payment {food.Paid}/{food.Demand} · {food.Available - food.Paid} left"
+                    + "\nParticipating: " + string.Join(", ", food.Participating.Select(id => "#" + id))
+                    + "\nFunded: " + string.Join(", ", food.Funded.Select(id => "#" + id))
+                    + "\nUnfunded: " + string.Join(", ", food.Unfed.Select(id => "#" + id));
+            if (context.City.LastUpkeep is { } paid)
+                _cityDetails.Text += $"\n\nLast upkeep · wave {paid.Wave}: {paid.Paid} Food paid · {paid.Unfed.Length} unfunded";
             if (LastOutcome is { } outcome) _cityDetails.Text += "\n\nLast battle\n" + outcome.Summary + "\n" + outcome.Details;
             _cityDetails.Text += "\n\nCampaign · allocations per original city; fallen allocations are redistributed\n" + EncounterBriefing.Project(context.State, context.City.Id).Schedule;
             _events.Text = string.Join("\n\n", RecentFeedback);

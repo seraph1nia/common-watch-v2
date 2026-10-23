@@ -11,7 +11,7 @@ public partial class GameApplication
     {
         ReplaceSession(ScenarioRunner.CreateAt("settlement")); _frozen = true; _session.SelectSlot(-1);
         await GameplayCapture("forest-levels-1"); CheckLevelCues();
-        Require(!_gameUi.ReconnectButton.Visible && _gameUi.FeedbackButton.Visible, "connected utilities are quiet; feedback remains accessible");
+        Require(!_gameUi.ReconnectButton.Visible && !_gameUi.FeedbackButton.Visible && _gameUi.CityDetailsButton.IsVisibleInTree(), "routine acceptance leaves no permanent notice; feedback is in City details");
         if (_skin.Illustrated)
             Require(_gameUi.FeedbackButton.ThemeTypeVariation == "ForestQuietButton" && _gameUi.ReadyButton.ThemeTypeVariation == "ForestPrimaryButton", "primary Ready hierarchy retains native secondary material");
         _session.Send("ready"); Require(_session.LastResult is { Accepted: true }, "first actual production");

@@ -27,10 +27,11 @@ then its portrait was separated from the stretchable face after the wide-size
 review exposed socket distortion. Portrait frames and thumbnails now keep fixed
 dimensions and aspect ratios.
 
-- Upper-left: wooden Settings and Menu plaques, with an independently perched owl.
+- Upper-left: one wooden Menu plaque (Settings is in the menu), with an independently perched owl.
 - Upper-right: rabbit, crescent, lantern, mushrooms and a native four-column ledger
-  for six resources. Stock, signed production, expected Food payment, remaining
-  Food, funding and completed upkeep are distinguished using existing snapshots.
+  for six resources during planning. Stock and signed production stay together;
+  funding exceptions live in the threat summary, with exact manifests in City details.
+  The ledger and its ornaments leave during combat, rewards and terminal observation.
 - Lower-left: selected context with the existing building thumbnail, clear-selection
   control, stacked actions and bounded native scrolling. It disappears on clear.
 - Bottom-center: native navigation and a separately retained construction palette.
@@ -39,7 +40,7 @@ dimensions and aspect ratios.
   only after activation; Gold recovery retains its selected mode and exact quote.
 - Lower-right: clock, squirrel, mushrooms, wave, the three actual preparations and
   Combat. Compact layouts use a phase row; wider layouts use a vertical list. Ready
-  and Pause remain side by side. Allied inspection labels Ready with the local
+  and Pause remain side by side during preparation; combat hides the completed ladder. Allied inspection labels Ready with the local
   player's identity. Food shortage warns without blocking readiness.
 
 `SettlementHud`, `ResourcePanel`, `MatchControls`, `ConstructionPanel/Card` and

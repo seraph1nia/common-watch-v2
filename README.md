@@ -35,6 +35,8 @@ The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Ga
 
 Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Troops & homes** opens roster, squad, veteran and six-home management directly from the dock; selected military buildings and Town Halls also expose contextual management. **Worldtree** opens research. The city selector inspects allies read-only. Ready/Unready, whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with closer local camera framing and an optional sharp forest arena over a soft viewport backdrop. Successful nonfinal combat opens three reward cards. Resource income is visible beside stocks, and construction cards reflow with the floating dock. **City details** inspects doctrine, rewards, progression and recent feedback; the match controls retain important notices until resolved. **×** clears plot selection. **Esc**, **Menu**, F10 or controller Start opens only a menu square over the current view, with no backdrop or dimming; Continue/Esc closes it without leaving or pausing. There is no permanent Run dashboard or history footer. See [gameplay controls](docs/gameplay/PLAYING.md).
 
+The phase-specific HUD keeps stocks and income in planning, removes the ledger and completed preparation track in combat, and replaces chosen reward cards with a compact accepted-choice/team-waiting view. **Menu → Settings** opens preferences. **City details** retains funding manifests, completed upkeep and feedback history. The optional Guide starts collapsed. See the [HUD contract](docs/refinement-ii/16_PHASE_HUD.md).
+
 The menu offers **Return to main menu** and **Exit Game**, each with a confirmation explaining session loss. Solo progress is not saved; a host leaving ends the match for everyone; a guest disconnects and can reconnect only while the same host session remains running. Cancel/Esc keeps the session open. Opening the menu does not pause the match. Esc first closes an open Settings, details or rewards panel. A fresh match gets a new identity and personal doctrine offers. Offers derive from match/player identity independently of simulation RNG, remain stable through resize/settings/reconnect, and require a fresh explicit selection after restarting the client. The seven-column board is incompatible with this topology: board version **2**, combat rules **8**, wire protocol **17** reject older sessions/snapshots rather than migrating combat positions.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
@@ -91,6 +93,7 @@ mise run capture-settlement        # nine-pad map picking, purchase and actual s
 mise run capture-opening           # six doctrines, three waves, actual production controls
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
+mise run capture-hud               # native Ready, combat and acknowledged reward-waiting at both sizes
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
 mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition
@@ -136,7 +139,7 @@ Ordinary development edits C#, text scenes/resources and scripts, then runs mise
 The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings. See that guide for annotations and picking. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
 
 The [painted forest HUD](docs/PAINTED_FOREST_HUD.md) adds authored RGBA paintings to
-the preserved supplied theme. Settings, a vertical resource ledger, selected context,
+the preserved supplied theme. Menu, a planning resource ledger, selected context,
 construction/navigation and the wave/Ready/Pause panel frame the settlement. The
 same native composition also works in plain mode.
 Selected buildings expose recruitment, squads, Town Hall management and the six homes/towers.
