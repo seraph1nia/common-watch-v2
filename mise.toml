@@ -292,6 +292,12 @@ depends = ["build"]
 run = "bash tools/combat-cooperation.sh"
 raw_args = true
 
+[tasks.capture-army-workspace]
+description = "Native recruit/reinforce/deploy/purchase/preview/battle task trace at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-army-workspace"
+raw_args = true
+
 [tasks.test-journey-network]
 description = "Continuous three-wave native co-op journey with real waiting, delayed acknowledgment and reconnect"
 depends = ["build"]

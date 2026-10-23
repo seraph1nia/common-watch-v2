@@ -104,6 +104,13 @@ PYFIXTURE
     client_timeout=240
     run_client --journey-test "$@"
     ;;
+  capture-army-workspace)
+    client_timeout=240
+    label=${COMMON_WATCH_ARMY_REVIEW_LABEL:-after}
+    for width in 1280 1920; do
+      run_client --army-workspace-trace --journey-test --gameplay-captures "$(pwd)/artifacts/captures/army-workspace/$label/$width" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
   capture-journey)
     client_timeout=240
     for presentation in default debug; do
