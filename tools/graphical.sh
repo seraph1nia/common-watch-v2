@@ -66,7 +66,7 @@ case "$operation" in
       run_probe --feedback-review --gameplay-captures "$(pwd)/artifacts/captures/feedback/debug-$width" --width "$width" --height "$height" "$@"
     done
     ;;
-  capture-forest)
+  capture-forest-consistency)
     client_timeout=180
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi

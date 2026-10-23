@@ -163,6 +163,7 @@ for count in range(2, 7):
                 log.seek(0)
                 transcript = log.read()
                 path = ROOT / f'artifacts/test-logs/cooperation-{count}p-{index}.log'
+                path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(transcript)
                 if 'ERROR:' in transcript or 'Unhandled exception' in transcript:
                     diagnostics.append(transcript[-4000:])
