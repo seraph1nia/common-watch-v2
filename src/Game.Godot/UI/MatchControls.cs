@@ -82,7 +82,7 @@ public partial class MatchControls : VBoxContainer
             "Waiting: " + string.Join(", ", state.Players.Where(p => p.Connected && !p.Eliminated && !p.Ready).Select(p => $"P{p.Id}")));
         // Combat already exposes Resume and a paused phase heading. Keep its
         // speed and pause controls together instead of stacking three rows.
-        _status.Visible = ended;
+        _status.Visible = ended || state.Paused && !preparing && !combat;
         _status.AddThemeFontSizeOverride("font_size", ended ? 22 : 16);
         ReadyButton.TooltipText = $"Ready controls your city P{session.PlayerId}; Unready unlocks editing.\nAll connected, standing cities must be Ready\nto settle production {state.Turn}/3.\nEach settlement advances research and eligible paid recovery.\nOnly the final settlement pays battle Food.\nFood shortage permits Ready; unfunded field soldiers sit out.";
     }
