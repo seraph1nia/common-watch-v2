@@ -16,8 +16,12 @@ AGENTS.md ownership, pinned Core/art/audio, native focus and authenticated ident
 | #9 Campaign/bosses | Complete under local-evidence acceptance; [campaign review](CAMPAIGN_REVIEW.md), actual tactical briefs/schedule, crowned enlarged bosses with playback health/windup/death, 400 legal battles across five policies/two seeds, 131 Shared + 12 animation contracts, four native UI passes, five-size picking and both renderer sequences verified. Existing curve/one-boss constraint retained. |
 | #10 Cooperation/elimination | Complete under local-evidence acceptance; [cooperation review](COOPERATION_REVIEW.md), persistent team state, authentic allied navigation, playback sector cues, low-Keep/observer flow, unavailable fallen/terminal veteran purchases, 20 legal uneven runs / 220 battles, 135 Shared tests, 2–6-city native pointer/Ready captures at both sizes and full session/co-op/reconnect/art/combat gates. Existing failure curve retained with spectator tradeoffs recorded. |
 | #11 Forest consistency/assets | Complete under local-evidence acceptance; [forest review](FOREST_PRESENTATION_REVIEW.md), approved-sheet enemy Berserker crop registered as entry 47, explicit Watchpost path, consistent secondary materials/selection, native L1/L2/L5 building cues, 137 Shared + 19 Pillow tests, six focused asset/fallback cases and full UI/settlement/session/art/combat gates. Existing 46 records/PNGs and all source paintings preserved. |
-| #12 Sound/action feedback | Next |
+| #12 Sound/action feedback | Complete under local-evidence acceptance; [feedback review](FEEDBACK_REVIEW.md), 16 in-memory technical earcons on six bounded UI/SFX voices, authoritative receipts/presented events, retry/reconnect/resume baselines, input-free labels, four native mode/size cases, actual muted-music Master PCM/audition, 145 Shared / 274 total .NET-process / 19 Pillow tests and final UI/art/combat gates. Human/physical listening remains explicitly unexecuted under the accepted local substitute. |
 
 Checkpoint boundary: retain one verified commit per issue and update the issue
 and parent checklist only after auditing all acceptance criteria. Work remains
 active until every listed issue and the parent are actually complete.
+
+All ten child implementations are verified. Next boundary: audit current GitHub
+child closures/checklists, the first-three-wave milestone, pushed PR head and
+remaining qualification limits before closing the parent roadmap.

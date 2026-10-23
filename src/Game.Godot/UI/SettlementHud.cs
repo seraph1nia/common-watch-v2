@@ -9,6 +9,7 @@ public partial class SettlementHud : Control
     private GodotSession _session = null!;
     private Label _phase = null!, _keep = null!;
     private ResourcePanel _economy = null!;
+    public ActionFeedback Feedback { get; private set; } = null!;
     private TeamPanel _team = null!;
     internal TeamPanel Team => _team;
     private PreparationPanel _preparation = null!;
@@ -190,6 +191,7 @@ public partial class SettlementHud : Control
         _combatLegend.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(.025f, .045f, .06f, .88f), ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 4, ContentMarginBottom = 4 });
         var legend = WrapLabel("F frontline · R ranged · M magic\nP# allies · E→# foes · ! low health\nGold: selected · orange: target"); legend.AddThemeFontSizeOverride("font_size", 14); legend.MouseFilter = MouseFilterEnum.Ignore;
         _combatLegend.AddChild(legend); _combatLegend.Hide();
+        Feedback = new ActionFeedback(); AddChild(Feedback);
         Resized += LayoutHud; LayoutHud();
     }
     private void LayoutHud()

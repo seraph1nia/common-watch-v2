@@ -64,7 +64,7 @@ tooltip_text = "Music volume. Set to zero to mute."
 
 [node name="Help" type="Label" parent="Center/Panel/Margin/Content"]
 layout_mode = 2
-text = "0% mutes music. Changes apply immediately."
+text = "0% mutes music; UI and battle cues remain audible."
 
 [node name="EnvironmentLabel" type="Label" parent="Center/Panel/Margin/Content"]
 layout_mode = 2

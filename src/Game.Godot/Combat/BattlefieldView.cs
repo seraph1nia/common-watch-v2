@@ -26,6 +26,7 @@ public partial class BattlefieldView : Node2D
     private static readonly Color _gold = new("efd478"), _muted = new("a9bcc7");
     private Label _diagnostics = null!;
     public event Action? FramePresented;
+    public event Action<CombatEvent>? CombatEventPresented;
     internal EnvironmentView Atmosphere => _environmentView;
     public CombatMotion Motion => _motion;
     public int Resets => _visualResets;
@@ -68,7 +69,7 @@ public partial class BattlefieldView : Node2D
         Hide(); _diagnostics?.Hide();
     }
     public override void _Draw() { if (Active) { DrawAnimatedCombat(); FramePresented?.Invoke(); } }
-    public override void _ExitTree() { Reset(); _hitShader.Dispose(); FramePresented = null; }
+    public override void _ExitTree() { Reset(); _hitShader.Dispose(); FramePresented = null; CombatEventPresented = null; }
     bool _finishingCombat;
     bool PresentingCombat => _battle is not null || _session.Snapshot.Phase == Phase.Combat || _finishingCombat;
     MatchSnapshot CombatState => _battle?.Snapshot ?? _session.Snapshot;
@@ -106,6 +107,7 @@ public partial class BattlefieldView : Node2D
         foreach (var entry in Playback.Drain())
         {
             _motion.Observe(entry);
+            CombatEventPresented?.Invoke(entry);
             if (entry.Type == CombatEventType.Hit && entry.Damage > 0) _totalAnimatedHits++;
         }
         _motion.Trim(AnimationTick);

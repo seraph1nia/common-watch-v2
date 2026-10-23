@@ -61,6 +61,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-network-') as temporary:
                         time.sleep(.1)
                         continue
                     assert all(r['animation']['effects'] <= 4096 for r in records)
+                    assert all(r['feedback']['voices'] == 6 and r['feedback']['active'] <= 6 and r['feedback']['played'] > 0 for r in records)
                     assert len({record['player'] for record in records}) == args.players
                     if not all(record['state'] == records[0]['state'] for record in records):
                         if time.monotonic() > deadline:

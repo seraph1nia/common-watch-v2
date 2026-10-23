@@ -1,5 +1,49 @@
 # Verification
 
+## Action and milestone feedback — roadmap #13 / issue #12 (2026-10-23)
+
+The [feedback review](gameplay/FEEDBACK_REVIEW.md) records the cue map, accepted
+identity contract, budgets, technical sound provenance, reproduction commands
+and evidence limits. Six retained native UI/SFX players use 16 cached in-memory
+technical earcons; no external sound pack or new game artwork is introduced.
+Factual labels accompany transactions, production and milestones without taking
+input. High-frequency hits reuse the existing combat visuals. Core rules, music
+WAV/import/authored loop, preferences JSON, private resume format, pins and the
+published root session RPC path remain unchanged.
+
+Local evidence:
+
+- Locked build: zero warnings/errors; Core 46 and Shared 145 tests passed.
+- `mise run test`: 274 .NET/process tests (46 Core, 145 Shared, 77 Godot contracts,
+  six real process integrations), 19 Pillow tests and native animation captures
+  passed with no skipped tests.
+- `capture-feedback`: actual sprites/illustrated/angled and debug/plain/topdown
+  captures at 1280×720 / 1920×1080 verify receipt/rejection, retry suppression,
+  production, input-free pointer selection, retained paused SFX positions, all
+  supported speeds, resumed/replaced baselines and boss/clear/defeat/victory.
+- Real 1–6-client multiplayer, private reconnect/fault/process restart and the
+  seven-wave cooperative UI worker passed with cue/voice/retry assertions.
+- Fourteen art views and both battle renderers passed 19 phases / 22 ordered
+  frames each, plus missing-art/shader fallback. Final ordinary UI captures at
+  720p/1080p and the seven-wave cooperative worker passed after the final
+  baseline/deployment corrections; debug/plain native UI also passed in the full
+  suite. The focused baseline probe checks both update-first and event-first
+  generation resets.
+- `tools/feedback-review.py`: 16 distinct actual cached native WAV exports and
+  a stereo recording of the actual Master mix with Music muted. Recorded peak
+  3,096 / −20.49 dBFS; no clipping in this sequential recording. An HTML audition
+  and technical waveforms are in `artifacts/feedback/index.html`.
+
+Logs use `artifacts/test-logs/roadmap-12-*`; native feedback screenshots are under
+`artifacts/captures/feedback/`. The native sound/presentation probe and the
+measured PCM audit are separate from human listening: **human/physical listening
+was not executed**. The user explicitly accepted local tests/legal replays/
+screenshots as the substitute for roadmap acceptance. The Dummy driver's real
+PCM establishes routing and headroom for that recording, not subjective audio
+recognition or dense-mix listening quality. Physical hardware, live Steam and
+other-OS runtime remain unqualified; the known intermittent native .NET/JIT
+crash risk remains.
+
 ## Forest consistency and approved mappings — roadmap #13 / issue #11 (2026-10-23)
 
 The [forest presentation review](gameplay/FOREST_PRESENTATION_REVIEW.md) records

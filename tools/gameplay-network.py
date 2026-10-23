@@ -253,9 +253,14 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         before = city(1)['Metal']
         result = send(1, 'trade', slot=market, resource='Metal', bundles=2)
         wait(lambda: city(1)['Metal'] == before - 10, 'remote trade snapshot')
+        cue_count = status(1)['feedbackTransactions']
+        request_count = status(1)['processedRequests']
         control(1, 'retry')
+        wait(lambda: status(1)['processedRequests'] > request_count, 'retry consumed by native client')
         wait(lambda: status(1)['result'] and status(1)['result']['Sequence'] == result['Sequence'] and not status(1)['pending'], 'exact retry')
         assert city(1)['Metal'] == before - 10
+        assert status(1)['feedbackTransactions'] == cue_count, 'retry never repeats an old transaction cue'
+        assert status(1)['feedbackActive'] <= 6
         send(1, 'trade', accepted=False, slot=market, resource='Metal', bundles=0)
         # Remote home placement retains selection through pending and rejected commands.
         members = city(1)['Soldiers']

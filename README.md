@@ -39,7 +39,7 @@ The menu offers **Return to main menu** and **Exit Game**, each with a confirmat
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
-Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
+Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. UI and battle earcons remain audible when music is muted; accepted actions, production and outcomes also get brief input-free labels. See [music provenance](assets/audio/README.md) and the [feedback review](docs/gameplay/FEEDBACK_REVIEW.md).
 
 Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
@@ -93,6 +93,7 @@ mise run capture-veterans          # history, recovery/recruit comparison and re
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
+mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition
 mise run capture-lobby
 ```
 

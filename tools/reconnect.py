@@ -84,6 +84,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
 
     def reconnect(expected_phase):
         before = status(1)
+        cue_count = before['feedbackTransactions']
         player = before['player']
         match = before['state']['MatchId']
         last_sequence = before['result']['Sequence'] if before['result'] else 0
@@ -94,6 +95,11 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         after = wait(lambda: (current := status(1)) and current['connected'] and current, 'Resume admission')
         assert after['player'] == player and after['state']['MatchId'] == match
         assert after['state']['Phase'] == expected_phase
+        assert after['feedbackTransactions'] == cue_count, 'admission does not replay old transaction feedback'
+        requests = after['processedRequests']
+        control(1, 'retry')
+        wait(lambda: status(1)['processedRequests'] > requests and status(1)['result'] and not status(1)['pending'], 'cached retry after private resume')
+        assert status(1)['feedbackTransactions'] == cue_count, 'private resume floor suppresses prior accepted/rejected receipts'
         saved = json.loads((work / '1' / 'resume.json').read_text())
         assert saved['NextSequence'] > last_sequence
         if os.name != 'nt':
@@ -132,6 +138,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         guest = launch(1)
         wait(lambda: (current := status(1)) and current['connected'], 'Process restart resume')
         assert status(1)['player'] == 2
+        assert status(1)['feedbackTransactions'] == 0 and status(1)['feedbackPlayed'] == 0, 'process restart baselines old receipts silently'
         for index in (0, 1):
             for slot, building in enumerate(['Farm', 'Barracks', 'MetalMine', 'Lumbermill']):
                 send(index, 'build', slot=slot, building=building, payment='GoldRecovery' if slot == 3 else 'Standard')

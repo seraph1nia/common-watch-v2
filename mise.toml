@@ -262,3 +262,8 @@ run = "bash tools/graphical.sh capture-cooperation"
 description = "Actual 720p/1080p building progression, Watchpost/Berserker mappings and HUD hierarchy in sprites/debug"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-forest"
+
+[tasks.capture-feedback]
+description = "Native action/playback feedback at both sizes, pause/retry/baseline checks and actual muted-music mixer audition"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-feedback"

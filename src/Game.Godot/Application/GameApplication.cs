@@ -13,6 +13,7 @@ public partial class GameApplication : Node
     private AssetLoader _assets = null!;
     private HudSkin _skin = null!;
     private EnvironmentController _environment = null!;
+    private FeedbackCoordinator _feedback = null!;
     private bool _frozen;
     private string[] _args = [];
 
@@ -42,6 +43,8 @@ public partial class GameApplication : Node
             _frozen = checkpoint is not null;
             CreateUi();
             CreateSessionMenu();
+            _feedback = GetNode<FeedbackCoordinator>("Feedback");
+            _feedback.Initialize(_audio, _gameUi, _settlementView, _battlefield); _feedback.Bind(_session);
             if (Argument("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
             else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
             else if (_session is null) ReturnToMenu(); else RefreshUi(true);
@@ -87,8 +90,8 @@ public partial class GameApplication : Node
         _frozen = false; RefreshUi(true); RefreshWorld();
     }
     private GodotSession WrapSolo(SoloSession solo) => _sessions.Open(session => session.Solo(solo));
-    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
-    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
+    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
+    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ResetCamera() => _camera?.Reset();
 
     public override void _Process(double delta)
@@ -107,6 +110,7 @@ public partial class GameApplication : Node
         RefreshWorld();
         RunNetworkProbe();
         RefreshUi();
+        _feedback.Update(_session, _battle is null);
     }
 
     private void RefreshUi(bool force = false)

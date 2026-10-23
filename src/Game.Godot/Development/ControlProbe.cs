@@ -8,6 +8,7 @@ namespace Game.GodotClient;
 public partial class GameApplication
 {
     private long _controlWrite;
+    private int _controlRequests;
     private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
     private bool _gameplayPolicy;
     private int _captureCombatWave;
@@ -28,7 +29,7 @@ public partial class GameApplication
             var root = request.RootElement;
             string Text(string name, string fallback = "") => root.TryGetProperty(name, out var value) ? value.GetString() ?? fallback : fallback;
             int Number(string name, int fallback = -1) => root.TryGetProperty(name, out var value) ? value.GetInt32() : fallback;
-            System.IO.File.Delete(path);
+            System.IO.File.Delete(path); _controlRequests++;
             switch (Text("kind"))
             {
                 case "single-player": _sessionMenu.SoloButton.EmitSignal(BaseButton.SignalName.Pressed); break;
@@ -107,7 +108,7 @@ public partial class GameApplication
             for (int i = 0; i < 10; i++) _session.Step();
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
-        var status = new { connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
+        var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
@@ -116,6 +117,9 @@ public partial class GameApplication
             teamRows = _gameUi.Team.CityButtons.Values.Select(b => b.Text).ToArray(), teamTargetsFit = _gameUi.Team.TargetsFit,
             teamObserver = _gameUi.Team.Overview?.Observer ?? false, readyVisible = _gameUi.ReadyButton.IsVisibleInTree(),
             teamBounds = _gameUi.Team.GetGlobalRect().ToString(),
+            feedbackTransactions = _feedback.Transactions, feedbackCombat = _feedback.CombatCues, feedbackMilestones = _feedback.Milestones,
+            feedbackPlayed = _audio.Feedback.Played, feedbackSuppressed = _audio.Feedback.Suppressed, feedbackActive = _audio.Feedback.Active,
+            feedbackPulses = _gameUi.Feedback.Count, feedbackFits = _gameUi.Feedback.Fits && _gameUi.Feedback.AvoidsGameplay,
             hudNotice = _gameUi.SessionFeedback, readyDisabled = _gameUi.ReadyButton.Disabled,
             readyText = _gameUi.ReadyButton.Text, transitionText = _gameUi.TransitionText,
             preparationText = _gameUi.PreparationSummary.Text,

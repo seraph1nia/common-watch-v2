@@ -58,6 +58,8 @@ public partial class GodotSession : Node, IDisposable
     private readonly CombatPlayback _playback = new();
     public CombatPlayback Playback => _solo?.Playback ?? _playback;
     public CommandResult? LastResult { get; private set; }
+    public event Action<Command, CommandResult>? CommandAcknowledged;
+    internal long FeedbackSequence => _solo?.LastCommand?.Sequence ?? (_resume?.Value is { } saved ? saved.NextSequence - 1 : _sequence);
     internal Command? ObservedCommand => _solo?.LastCommand ?? _lastCommand;
     public string Status { get; private set; } = "Connecting…";
     internal bool ProbeDuplicates { get; set; }
@@ -171,7 +173,11 @@ public partial class GodotSession : Node, IDisposable
     {
         if (_disposed || IsHost || !HasState || match != Snapshot.MatchId || json.Length > 4096) return;
         var result = JsonSerializer.Deserialize<CommandResult>(json, WireJson.Options);
-        if (result is not null && _pending.Remove(result.Sequence)) LastResult = result;
+        if (result is not null && _pending.Remove(result.Sequence, out var request))
+        {
+            LastResult = result;
+            if (JsonSerializer.Deserialize<Command>(request.Json, WireJson.Options) is { } command) CommandAcknowledged?.Invoke(command, result);
+        }
     }
     [Rpc(TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, TransferChannel = 1)]
     private void State(string match, string payload)
@@ -224,8 +230,8 @@ public partial class GodotSession : Node, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (!Connected || !HasState || Pending) return;
-        if (_solo is not null) { LastResult = _solo.RetryLast(); SetState(_solo.Snapshot); return; }
-        if (_authority is not null && _lastCommand is { } last) { LastResult = _authority.ExecuteLocal(last); SetState(_authority.Snapshot()); return; }
+        if (_solo is not null) { LastResult = _solo.RetryLast(); SetState(_solo.Snapshot); if (_solo.LastCommand is { } replayedCommand && LastResult is { } result) CommandAcknowledged?.Invoke(replayedCommand, result); return; }
+        if (_authority is not null && _lastCommand is { } last) { LastResult = _authority.ExecuteLocal(last); SetState(_authority.Snapshot()); CommandAcknowledged?.Invoke(last, LastResult); return; }
         if (_resume?.Value?.LastCommand is not { } json) return;
         var command = JsonSerializer.Deserialize<Command>(json, WireJson.Options);
         if (command is null || command.MatchId != Snapshot.MatchId) return;
@@ -249,14 +255,16 @@ public partial class GodotSession : Node, IDisposable
         {
             LastResult = _solo.Send(action, slot, building, soldierType, payment, technology, resource, bundles, unitId, squadId, cell);
             ObserveDoctrineChoice(_solo.LastCommand, LastResult);
-            SetState(_solo.Snapshot); return;
+            SetState(_solo.Snapshot);
+            if (_solo.LastCommand is { } observed) CommandAcknowledged?.Invoke(observed, LastResult);
+            return;
         }
         if (_pending.Count >= 16) { Status = "Waiting for authority acknowledgments."; return; }
         long sequence = _authority is null ? _resume!.Reserve() : ++_sequence;
         var command = Command.FromSnapshot(Snapshot, sequence, action, PlayerId, slot, building, soldierType,
             technology, resource, bundles, payment, unitId, squadId, cell);
         _lastCommand = command;
-        if (_authority is not null) { LastResult = _authority.ExecuteLocal(command); ObserveDoctrineChoice(command, LastResult); SetState(_authority.Snapshot()); }
+        if (_authority is not null) { LastResult = _authority.ExecuteLocal(command); ObserveDoctrineChoice(command, LastResult); SetState(_authority.Snapshot()); CommandAcknowledged?.Invoke(command, LastResult); }
         else
         {
             string json = JsonSerializer.Serialize(command, WireJson.Options);
@@ -294,7 +302,7 @@ public partial class GodotSession : Node, IDisposable
     {
         if (_disposed) return;
         if (_authority is not null && IsInsideTree()) foreach (int peer in _admitted) RpcId(peer, MethodName.Ended, Snapshot.MatchId);
-        _disposed = true; Connected = false; _pending.Clear(); _authority?.Dispose(); _solo?.Dispose();
+        _disposed = true; CommandAcknowledged = null; Connected = false; _pending.Clear(); _authority?.Dispose(); _solo?.Dispose();
         if (_peer is not null)
         {
             _api!.PeerDisconnected -= OnDisconnected; _api.ConnectedToServer -= OnConnected;

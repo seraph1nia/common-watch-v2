@@ -23,3 +23,18 @@ Godot's Ogg loop-offset API.
 
 Only the WAV and its import settings are needed at build time. Runtime uses the
 bundled `res://Assets/Music/` resource, including in offline client exports.
+
+## Event feedback
+
+UI and SFX buses now play short technical earcons synthesized in memory from
+GPL-3.0-only `src/Game.Shared/FeedbackTones.cs`. No external sound pack or new
+audio asset is required. Six retained players and per-kind/rolling limits bound
+repetition; a −1 dB Master limiter protects combined headroom. Music volume zero
+mutes only Music, leaving these cues audible. The WAV, import, authored loop and
+music settings format above are unchanged.
+
+[Feedback review](../../docs/gameplay/FEEDBACK_REVIEW.md) records trigger identity,
+pause/reconnect behavior, native PCM measurements and the separate unexecuted
+human listening review. `mise run capture-feedback` followed by
+`mise exec -- python3 tools/feedback-review.py` creates an ignored native WAV
+audition at `artifacts/feedback/index.html`; it is not a game asset dependency.
