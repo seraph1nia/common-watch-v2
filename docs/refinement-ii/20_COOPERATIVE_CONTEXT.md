@@ -26,6 +26,22 @@ required players and read-only Army/Worldtree routes. Ordinary accepted actions
 already coalesce by kind/city/slot and exact command sequence; rejected/disconnected
 notices and actual team exceptions keep their existing persistent routes.
 
+| Previous default surface | Current primary home / retained route |
+| --- | --- |
+| Every city repeats healthy HP, field count and funded text | City identity/state stays visible; exact healthy details move into the bounded disclosure. Low Keep, funding exceptions and empty field stay visible. |
+| Three equal-height roster rows for six cities | Two rows of three compact native city targets, with no loss of city navigation. |
+| No explicit physical camera mode in Team | The existing heading reports inspected sector, Manual or Overview; Focus appears only for the latter two. One disclosure trigger replaces the static heading. |
+| Ally Army/Worldtree reached through general planning navigation | Optional Team disclosure supplies the same read-only inspection during combat/observation. |
+| Overview, details, speeds, paused status and Pause stack vertically | Two action rows retain the same six combat controls. PAUSED shares the phase heading; noncombat paused status remains visible. |
+| Fallen city remains a manual observation destination | One deferred automatic ally choice plus retained own-city/ally/manual routes; no recurring health-driven camera changes. |
+
+For six healthy cities the Team surface still has six city controls and adds one
+deliberate disclosure trigger; its repeated detail and three-row footprint shrink.
+Manual/overview adds one contextual Focus control, not another permanent panel.
+This is an information and layout consolidation, not a claim that every local
+surface has fewer clickable targets. The phase-wide control subtraction is
+recorded in the #16 inventory.
+
 Selecting a city explicitly focuses its sector and clears the old live selection.
 The own-city button returns locally; R restores the current inspected sector;
 F retains inspection while showing the complete field. Manual gestures persist
@@ -68,8 +84,15 @@ sizes. Host, P2 and final-guest command owners were exercised. Receipts cover
 actual projected sector shift P1→P2, cleared old selection, wheel/pan retained
 through real paused speed changes, Focus city, F/R, bounded team disclosure,
 allied Army/Worldtree, keyboard/controller local return, slow finishing playback,
-delayed acknowledgment and private ready/draft reconnect. Those profiles are
-running again on the final grouped controls.
+delayed acknowledgment and private ready/draft reconnect. Seven complete profiles passed again on the final grouped controls. Six-player
+1080p passed focus, then exposed a weak slow-client probe: suppressing Advance
+did not stop Playback.Accept from catching up to arriving snapshots. A
+development-only hold now delays playback acceptance while authority/RPC receipt
+continues and retains only the existing latest snapshot. Release accepts that
+snapshot, and admission baselines clear the hold. The repaired six-player 1080p
+run passed all three waves, including a held playback tick behind the actual
+authoritative reward boundary. Normal acceptance remains unchanged. The final
+small-profile rerun and broad native gates are still running.
 
 Eighteen matched native preparing/ready/local-ready boundaries retain exact
 phase, command owner and roster. Default panel heights shrink at both sizes:
@@ -131,3 +154,14 @@ Gate A remains pending. After these presentation gates, finish the original #25
 exact command/event/no-investment archive BEFORE changing any #21 rules.
 No physical/human, live Steam or native other-platform qualification is claimed.
 The separately recorded intermittent native runtime risk remains unproven.
+
+## Experiential validation
+
+Actual default six-player local-framing PNGs were inspected at 720p and 1080p:
+the inspected sector's soldiers, defenses and incoming enemies remain visible,
+the two combat action rows fit, and Team retains all six identities. Native
+geometry establishes the stated sizes/intersections; scripted input establishes
+navigation, ownership and transitions. These are distinct evidence categories.
+No participant study, physical controller/audio/GPU trial, comprehension finding
+or enjoyment/balance conclusion has been conducted. Accelerated setup and
+artificial paused captures do not establish natural decision or spectator time.

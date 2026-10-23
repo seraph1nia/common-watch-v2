@@ -35,7 +35,8 @@ public partial class GameApplication
             System.IO.File.Delete(path); _controlRequests++;
             switch (Text("kind"))
             {
-                case "hold-presentation": _frozen = Text("enabled") == "yes"; break;
+                case "hold-presentation":
+                    _frozen = Text("enabled") == "yes"; _session?.HoldPlaybackForProbe(_frozen); break;
                 case "normal-combat": _normalCombatProbe = true; break;
                 case "combat-metrics": NativeRequest(() => SaveCombatSequenceSample(Text("path"))); break;
                 case "camera-native":
@@ -220,6 +221,7 @@ public partial class GameApplication
                 viewport = _gameUi.Details.Army.HomeViewport.GetGlobalRect().ToString(),
                 targets = _gameUi.Details.Deployment.HomeButtons.ToDictionary(p => p.Key, p => p.Value.GetGlobalRect().ToString()) },
             finishingCombat = _battlefield.Finishing,
+            presentationHeld = _session?.PlaybackHeldForProbe ?? false, playbackTick = _session?.Playback.Tick,
             liveUnit = _gameUi.LiveInspector.SelectedUnit, liveVisible = _gameUi.LiveInspector.Visible,
             liveText = _gameUi.LiveInspector.Inspector.Details,
             observedUnits = _session is { HasState: true } ? _session.Playback.Units().Where(u => u.Health > 0 && u.Deployed)

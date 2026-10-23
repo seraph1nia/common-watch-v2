@@ -13,9 +13,10 @@ ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / os.getenv('COMMON_WATCH_COOP_OUTPUT', 'artifacts/captures/cooperation')
 OUTPUT.mkdir(parents=True, exist_ok=True)
 receipts = []
+terminal_campaign = os.getenv('COMMON_WATCH_COOP_TERMINAL') == '1'
 signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
 
-for count in range(2, 7):
+for count in ((2,) if terminal_campaign else range(2, 7)):
     processes, logs = [], []
     serial = 0
     capture_seconds = 0.0
@@ -34,7 +35,8 @@ for count in range(2, 7):
             command = ['bash', 'tools/client.sh', '--settings-path', str(directory / 'settings.json'),
                        '--data-path', str(directory), '--control-dir', str(directory / 'control'),
                        '--test-fast-combat', 'yes', '--gameplay-stop-wave', '21',
-                       '--gameplay-family', 'limited' if index == 0 else 'idle', '--hold-on-fall', 'yes', '--hold-on-low-keep', 'yes']
+                       '--gameplay-family', ('frontline' if terminal_campaign else 'limited') if index == 0 else 'idle',
+                       '--hold-on-fall', 'no' if terminal_campaign else 'yes', '--hold-on-low-keep', 'no' if terminal_campaign else 'yes']
             command += ['--host', str(port)] if index == 0 else ['--join', f'127.0.0.1:{port}']
             processes.append(subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
 
@@ -106,6 +108,22 @@ for count in range(2, 7):
                 send(i, 'doctrine:warden')
             send(0, 'start')
             wait(lambda: all(status(i)['teamVisible'] and len(status(i)['teamRows']) == count for i in range(count)), 'persistent team')
+            if terminal_campaign:
+                started = time.monotonic()
+                for i in range(count): control(i, 'policy', enabled='yes')
+                wait(lambda: status(0)['state']['Phase'] == 'Victory', 'paid full uneven group campaign reaches Victory', seconds=240)
+                wait(lambda: all(status(i)['hudMoment'] == 'Terminal' and not status(i)['finishingCombat'] for i in range(count)), 'living/fallen group terminal playback settles')
+                for i in range(count):
+                    current = status(i)
+                    assert current['state']['Wave'] == 20 and not current['teamObserver']
+                    assert not current['readyVisible'] and not current['draftVisible'] and not current['detailsVisible']
+                    assert not set(current['hudRegions']) & {'ledger', 'threat', 'guide', 'selected-plot', 'preparation-track'}
+                    capture('victory-living' if not city(i)['Eliminated'] else 'victory-fallen', i)
+                receipts.append(dict(players=count, result='Victory', wave=20, acceleratedWallSecondsIncludingCaptures=round(time.monotonic()-started, 3),
+                                     artificialCaptureSeconds=round(capture_seconds, 3), snapshots=[status(i)['state'] for i in range(count)],
+                                     qualification='Paid accelerated uneven group campaign, no injected state; terminal captures are not ordinary viewing or human timing.'))
+                print('GODOT_COOP_VICTORY_PASS real uneven W20 living/fallen terminal both sizes no new draft or management', flush=True)
+                continue
             capture('preparing')
             for width, height in ((1280, 720), (1920, 1080)):
                 control(0, 'resize', width=width, height=height)

@@ -230,10 +230,13 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                 camera_checks()
             if wave == 1:
                 request(1, 'hold-presentation', enabled='yes')
+                wait(lambda: status(1)['presentationHeld'], 'slow client holds accepted playback while RPC receipt continues')
+                held_tick = status(1)['playbackTick']
             send(0, 'resume')
             wait(lambda: all(status(i)['state']['Phase'] == 'RewardDraft' for i in range(args.players)), 'authoritative outcome')
             if wave == 1:
                 wait(lambda: status(1)['finishingCombat'], 'slow client still finishing actual playback')
+                assert status(1)['playbackTick'] == held_tick and status(1)['state']['Tick'] > held_tick
                 assert not status(1)['draftVisible']
                 capture('slow-client-finishing', 1)
                 request(1, 'hold-presentation', enabled='no')

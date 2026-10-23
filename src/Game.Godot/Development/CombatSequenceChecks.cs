@@ -38,6 +38,10 @@ public partial class GameApplication
             Require(_session.Snapshot.Phase == Phase.Combat, "normal sequence starts at a legal combat boundary");
             _session.Send("speed-1x"); Require(_session.LastResult!.Accepted, "ordinary 1x speed accepted");
             RefreshWorld(); RefreshUi(true);
+            // The camera saves a requested default after native HUD layout.
+            // Keep simulation frozen until that initial measured pose settles.
+            await JourneyFrames();
+            await JourneyFrames();
             var samples = new List<object>(); var watch = Stopwatch.StartNew();
             long startTick = _session.Snapshot.Tick; int frame = 0, screenshots = 0; double nextCapture = 0;
             bool inspected = false;

@@ -207,9 +207,21 @@ public partial class GodotSession : Node, IDisposable
     {
         if (HasState && (Snapshot.MatchId != state.MatchId || state.Revision < Snapshot.Revision)) return;
         bool gap = HasState && state.OldestEventSequence > Snapshot.EventSequence + 1;
-        Playback.Accept(state, baseline); Snapshot = state;
+        if (baseline) PlaybackHeldForProbe = false;
+        if (!PlaybackHeldForProbe) Playback.Accept(state, baseline);
+        Snapshot = state;
         if (!state.Players.Any(p => p.Id == ViewedPlayerId)) ViewedPlayerId = PlayerId;
         if (gap) Status = "Recovered current combat baseline after history gap.";
+    }
+    // Development's slow-client check must hold accepted playback as well as its
+    // clock: Accept legitimately catches up to incoming ticks. Authority and RPC
+    // receipt continue normally, retaining only the existing latest snapshot.
+    internal bool PlaybackHeldForProbe { get; private set; }
+    internal void HoldPlaybackForProbe(bool held)
+    {
+        if (_disposed) return;
+        PlaybackHeldForProbe = held;
+        if (!held && HasState) Playback.Accept(Snapshot);
     }
     internal void ProbeCommand(string action, int owner, bool duplicate = false)
     {

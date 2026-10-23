@@ -219,3 +219,55 @@ fallen-owner-survivor native gap and physical/human/GPU/audio/other-OS/liveSteam
 limits. Before ANY #21 Core rules, finish original #25 exact command/event and
 no-investment archives at b4fa3f7. All five remaining specs and executable
 alternatives remain mandatory. Overall goal active/unbounded; no pending approval.
+
+Latest checkpoint (supersedes live-handle notes above): #20 feature is committed
+at f600aa4, paused noncombat status correction at44b7d85; draft PR30 targets #29.
+Remote Godot run63 (40037398965) on full44b7d8567a45f7256695f654663f553959df0139
+is running, previously through native integration and HUD with success.
+Local final queue41489 is TERMINAL1. Seven complete focus/three-wave profiles
+passed;6p1080 focus passed, then its slow-playback observation timed out with all
+clients already ChoosingReward. Diagnosis: `_frozen` suppresses Advance but Core
+Playback.Accept legitimately catches up to received ticks. It never guaranteed
+held playback. Do not blame this on authority/rendering or weaken that assertion.
+
+A bounded DEVELOPMENT-only session hold now skips feeding new snapshots into
+Playback while still accepting authority/RPC receipts; release feeds the existing
+latest snapshot. Admission baselines clear the hold. The worker asserts both held
+playbackTick and a newer authoritative tick before its finishing capture. No Core
+edits, synthetic state or transport identity change. This repair and a normal
+sequence layout-settle await are currently uncommitted. The latter waits four
+native process frames with simulation frozen before timing/capturing normal solo
+fixtures; it avoids measuring an obsolete pre-layout default.
+
+LIVE native queue90540 (/tmp/common-watch-r10-repair-gates.sh): repaired6p1080,
+2p720; final full cooperation exception/cross-sector worker; new optional real
+uneven20-wave Victory worker; then session/full gameplay/multiplayer1–6/reconnect,
+24arena cases/art/animation/four solo journeys; finally normal solo sequences and
+comparison. Current first worker uses build9 (zero-warning); later mise tasks
+rebuild after the new capture-only await. Do not run a second Xvfb worker or
+rebuild externally while this queue is active. Per-task /tmp/common-watch-r10-*
+logs. Source .cs edits do not hot-reload a running client; record evidence scopes.
+The new COMMON_WATCH_COOP_TERMINAL=1 route captures living/fallen group Victory at
+both sizes after a paid frontline/idle campaign; it has NOT passed yet.
+
+Early #25 original archival is now COMPLETE locally before any rules change:
+artifacts/refinement-ii/baseline/trace-archive (and16MB trace-archive.tar.gz),
+manifest.json, trace-generation.log, trace-replay.log, trace-tamper.log.
+20campaigns/400battles + no-investment Defeat at tick1003;3470accepted commands,
+844exact snapshot checkpoints,41512combat events independently reproduce in fresh
+Matches. Aggregate campaign.json byte-identical to old6ef56ec5aa145a892fdd69e4c84c87ea2add5d57ed5606fe22d2b401f3505414.
+All83 original Core/Shared files in the isolated legacy tree match original Git
+blobs. A copied event with changed damage is rejected at sequence1 (expected
+exit1). Actual rendered wall time is explicitly null in headless timing files;
+nominal1x conversion uses factor.5 and cleanup ticks separately. No human claim.
+Archive/tamper handles96254/93827/32349 are terminal, not live work.
+
+Reproducible instrumentation source is currently /tmp/common-watch-baseline-tools/
+(prepare-archive.py, ArchiveRecorder.cs, ArchiveRunner.cs, README.md), also copied
+to artifacts/refinement-ii/baseline/instrumentation. The legacy source was extracted
+by git archive into artifacts/refinement-ii/baseline/trace-source; it adds a
+mechanically instrumented COPY of the original CampaignReview, never changes Core
+or the original policy. Integrate these tools in a separate early-#25 commit on
+the next branch before #21 rules; do not silently lose the reproduction route.
+Only #25's original archival is done; controlled decisions, elite formation,
+held-out seeds and final selected-economy calibration still remain.
