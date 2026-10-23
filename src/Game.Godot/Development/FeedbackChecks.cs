@@ -103,6 +103,7 @@ public partial class GameApplication
         for (int n = 0; n < 6; n++)
         { _session.Playback.Advance(.1, connected: true); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); }
         await GameplayCapture("feedback-" + name); CheckFeedbackBounds();
+        Require(_gameUi.Feedback.Count == 1, "outcomes replace stale transaction labels before rewards or terminal inspection");
         Require(_audio.Feedback.PlayedKinds.GetValueOrDefault(expected) == before + 1, "presented outcome plays exactly once: " + expected);
     }
     private void CheckFeedbackBounds() => Require(_gameUi.Feedback.Count > 0 && _gameUi.Feedback.Fits && _gameUi.Feedback.AvoidsGameplay,

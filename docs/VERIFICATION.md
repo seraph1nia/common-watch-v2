@@ -1,5 +1,32 @@
 # Verification
 
+## Roadmap #13 final audit (2026-10-23)
+
+[Completion review](gameplay/ROADMAP_REVIEW.md) maps all ten closed children and
+69 accepted criteria to the five first-three-wave requirements, concrete native
+frames, contract/process tests and recorded legal comparisons. Core, tracked
+source art, tool/dependency locks and the previous 46 installed asset records/PNGs
+match the reviewed baseline; only the approved enemy crop is added. The original
+music SHA, loop, preferences/private credential formats and root RPC/session
+ownership remain intact.
+
+The final screenshot audit caught stale preparation labels over the reward Close
+control. Clear/defeat/victory now replace earlier transient labels; draft controls/
+content and details Close/tab navigation reserve their actual native geometry.
+Four focused feedback cases at both sizes/modes require one outcome label and
+verify those bounds. Final locked build, 46 Core / 145 Shared tests, actual PCM
+review, ordinary 720p/1080p UI plus seven-wave cooperative checks, three native
+session facts and 14 refreshed art views pass. Feature-checkpoint CI at `20343f7`
+also passed Linux/Windows release cross-builds ([run](https://github.com/seraph1nia/common-watch-v2/actions/runs/39879550536)). Logs
+use `artifacts/test-logs/roadmap-13-*`; the prior full 274 .NET/process + 19 Pillow
+suite and art/ordered battle gates remain recorded below. The final targeted
+checks cover the modal-label refinement after that full-suite checkpoint.
+
+This closes functional implementation under the user's accepted local evidence,
+without claiming human comprehension/listening/balance, live Steam, physical
+hardware or native other-OS qualification. PR/CI status is checked on GitHub;
+CI and cross-builds do not substitute for those native/human observations.
+
 ## Action and milestone feedback — roadmap #13 / issue #12 (2026-10-23)
 
 The [feedback review](gameplay/FEEDBACK_REVIEW.md) records the cue map, accepted

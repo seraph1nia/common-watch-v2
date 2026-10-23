@@ -22,6 +22,8 @@ Checkpoint boundary: retain one verified commit per issue and update the issue
 and parent checklist only after auditing all acceptance criteria. Work remains
 active until every listed issue and the parent are actually complete.
 
-All ten child implementations are verified. Next boundary: audit current GitHub
-child closures/checklists, the first-three-wave milestone, pushed PR head and
-remaining qualification limits before closing the parent roadmap.
+All ten child implementations and their 69 criteria are verified under the
+accepted local-evidence policy. The [final roadmap review](ROADMAP_REVIEW.md)
+maps the first-three-wave milestone, preserved boundaries, final modal-label
+refinement and remaining human/native-platform qualification limits. PR #14
+contains the complete implementation; review/merge status remains on GitHub.

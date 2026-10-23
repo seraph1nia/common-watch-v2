@@ -59,7 +59,8 @@ voice bound. The queues and per-kind history remain bounded. A native Master
 hard limiter has a −1 dB ceiling for the combined mix.
 
 At most four input-free labels remain for 1.5 seconds, coalesced by kind/city/
-slot. They avoid the ledger, phase controls, team/preparation/guide/live inspector
+slot. Clear/defeat/victory replace earlier transaction labels. Native draft
+controls/content and details Close/tab navigation reserve their actual bounds. They avoid the ledger, phase controls, team/preparation/guide/live inspector
 and bottom navigation/boss band. Labels never intercept clicks; production also
 briefly outlines the existing resource ledger. Ordinary high-frequency combat
 hits add no text. Transaction fades use UI time; combat fades use playback time.

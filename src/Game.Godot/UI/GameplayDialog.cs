@@ -20,6 +20,8 @@ public partial class GameplayDialog : Control
     public event Action? Closed;
     public event Action<int>? PlotRequested;
     private Button _close = null!, _worldtreeClose = null!;
+    internal Rect2[] FeedbackAreas => new Control[] { _close, _worldtreeClose, _tabs.GetTabBar() }
+        .Where(c => c.IsVisibleInTree()).Select(c => c.GetGlobalRect()).ToArray();
     private PanelContainer _panel = null!;
     private MarginContainer _bodyMargin = null!;
     private StyleBox _panelStyle = null!, _tabStyle = null!;

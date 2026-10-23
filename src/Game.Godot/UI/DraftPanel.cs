@@ -16,6 +16,8 @@ public partial class DraftPanel : Control
     private bool _dismissed;
     private Control? _invoker;
     private Button _close = null!;
+    internal Rect2[] FeedbackAreas => new Control[] { _close, Result, _summary, _cards }
+        .Where(c => c.IsVisibleInTree()).Select(c => c.GetGlobalRect()).ToArray();
     public Control? FallbackFocus { get; set; }
     public void Dismiss() => Dismiss(true);
     public void Dismiss(bool restoreFocus)

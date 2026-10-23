@@ -17,7 +17,9 @@ public partial class ActionFeedback : Control
     public int Count => _pulses.Count;
     public string Text => string.Join(" · ", _pulses.Select(p => p.Cue.Text));
     public bool AvoidsGameplay => _bounds.All(r => !ProtectedAreas().Any(p => p.Intersects(r)));
-    private Rect2[] ProtectedAreas() => _hud.BlocksWorld ? [] : new[] { _hud.LedgerArea, _hud.PhaseArea, new Rect2(0, Size.Y - 104, Size.X, 104) }
+    private Rect2[] ProtectedAreas() => _hud.Draft.IsVisibleInTree() ? _hud.Draft.FeedbackAreas
+        : _hud.Details.IsVisibleInTree() ? _hud.Details.FeedbackAreas
+        : new[] { _hud.LedgerArea, _hud.PhaseArea, new Rect2(0, Size.Y - 104, Size.X, 104) }
         .Concat(_hud.PreparationSummary.IsVisibleInTree() ? new[] { _hud.PreparationArea } : [])
         .Concat(_hud.OpeningGuide.IsVisibleInTree() ? new[] { _hud.OpeningGuide.GetGlobalRect() } : [])
         .Concat(_hud.Team.IsVisibleInTree() ? new[] { _hud.Team.GetGlobalRect() } : [])
@@ -31,6 +33,7 @@ public partial class ActionFeedback : Control
     public void Show(FeedbackCue cue)
     {
         if (!cue.Visual) return;
+        if (cue.Kind is FeedbackKind.WaveClear or FeedbackKind.Defeat or FeedbackKind.Victory) _pulses.Clear();
         _pulses.RemoveAll(p => p.Cue.Kind == cue.Kind && p.Cue.City == cue.City && p.Cue.Slot == cue.Slot);
         if (_pulses.Count == 4) _pulses.RemoveAt(_pulses.Select((p, i) => (p, i)).OrderBy(x => x.p.Cue.Priority).First().i);
         _pulses.Add(new(cue, cue.Combat ? _playback() : _clock, cue.Combat)); QueueRedraw();

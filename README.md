@@ -41,7 +41,7 @@ A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then 
 
 Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. UI and battle earcons remain audible when music is muted; accepted actions, production and outcomes also get brief input-free labels. See [music provenance](assets/audio/README.md) and the [feedback review](docs/gameplay/FEEDBACK_REVIEW.md).
 
-Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
+Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. The supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine), arena components and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
 ## Battle and artwork development tools
 
@@ -150,3 +150,7 @@ verifies native input and captures empty, hovered, locked, available and acquire
 states at 720p/1080p. Plain mode and missing artwork retain the text tree.
 
 Optional [dynamic environment effects](docs/DYNAMIC_ENVIRONMENT.md) bring the existing illustrated scenery to life. Settings offers **Off / Subtle / Full** (Off by default) and a saved **Weather preset** selector with Scene default plus all seven presets, or launch with `--environment-effects full --environment-preset rain`. See the linked guide for all presets, scene effects and timing controls. `mise run test-environment` captures repeatable animated frames and Off/Full frame timings with the existing renderer and artwork.
+
+The [roadmap completion review](docs/gameplay/ROADMAP_REVIEW.md) maps all ten
+refinement issues to the first-three-wave milestone, verified local evidence,
+retained-rule decisions and remaining qualification limits.
