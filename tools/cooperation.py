@@ -10,7 +10,7 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT = ROOT / 'artifacts/captures/cooperation'
+OUTPUT = ROOT / os.getenv('COMMON_WATCH_COOP_OUTPUT', 'artifacts/captures/cooperation')
 OUTPUT.mkdir(parents=True, exist_ok=True)
 receipts = []
 signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
@@ -18,6 +18,7 @@ signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
 for count in range(2, 7):
     processes, logs = [], []
     serial = 0
+    capture_seconds = 0.0
     with tempfile.TemporaryDirectory(prefix='common-watch-team-') as temporary:
         work = Path(temporary)
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -70,6 +71,8 @@ for count in range(2, 7):
             return next(p for p in status(i)['state']['Players'] if p['Id'] == status(i)['player'])
 
         def capture(name, i=0):
+            global capture_seconds
+            capture_started = time.monotonic()
             for width, height in ((1280, 720), (1920, 1080)):
                 control(i, 'resize', width=width, height=height)
                 wait(lambda: status(i)['viewportWidth'] == width and status(i)['teamTargetsFit'], name + ' fitting native targets')
@@ -77,10 +80,16 @@ for count in range(2, 7):
                 path.unlink(missing_ok=True)
                 control(i, 'capture', path=str(path))
                 wait(lambda: path.exists(), name + ' screenshot')
+                current = status(i)
+                metadata = {key: current.get(key) for key in ('player', 'viewed', 'teamHeading', 'teamRows', 'teamRect', 'cameraMode', 'cameraZoom', 'cameraPan', 'hudMoment', 'readyText', 'readyVisible')}
+                metadata.update(players=count, phase=current['state']['Phase'], wave=current['state']['Wave'], turn=current['state']['Turn'], tick=current['state']['Tick'], paused=current['state']['Paused'], width=width, height=height,
+                                qualification='Actual scripted native session; captures and accelerated setup are not human decision/waiting time.')
+                path.with_suffix('.json').write_text(json.dumps(metadata, indent=2))
                 if name in ('fallen-observer', 'terminal'):
                     assert not set(status(i)['hudRegions']) & {'ledger', 'threat', 'guide', 'selected-plot', 'preparation-track'}
                     assert not status(i)['readyVisible']
             control(i, 'resize', width=1280, height=720)
+            capture_seconds += time.monotonic() - capture_started
 
         try:
             launch(0)
@@ -104,11 +113,12 @@ for count in range(2, 7):
                 wait(lambda: city(0)['Ready'] and 'Ready' in status(0)['teamRows'][0], 'Ready still belongs to local city')
                 assert not next(p for p in status(0)['state']['Players'] if p['Id'] == count)['Ready']
                 send(0, 'unready')
-            started = time.monotonic()
+            started = time.monotonic(); captured_before_wait = capture_seconds
             send(0, 'ready')
             wait(lambda: 'Ready' in status(count - 1)['teamRows'][0] and 'Preparing' in status(count - 1)['teamRows'][-1], 'visible split readiness')
             capture('ready-waiting', count - 1)
-            receipts.append(dict(players=count, readyWaitSeconds=round(time.monotonic() - started, 3), rows=status(count - 1)['teamRows']))
+            capture('local-ready-waiting', 0)
+            receipts.append(dict(players=count, readyWaitSeconds=round(time.monotonic() - started, 3), artificialCaptureSeconds=round(capture_seconds-captured_before_wait, 3), qualification='Scripted waiting includes native input and artificial captures; not human timing.', rows=status(count - 1)['teamRows']))
             send(0, 'unready')
             if count != 2:
                 print(f'GODOT_COOP_LAYOUT_PASS {count}p native pointer allied read-only local Ready at 720p/1080p', flush=True)
