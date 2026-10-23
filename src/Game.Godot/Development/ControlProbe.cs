@@ -7,6 +7,7 @@ namespace Game.GodotClient;
 
 public partial class GameApplication
 {
+    private bool _normalCombatProbe;
     private long _controlWrite;
     private int _controlRequests;
     private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
@@ -34,6 +35,14 @@ public partial class GameApplication
             switch (Text("kind"))
             {
                 case "hold-presentation": _frozen = Text("enabled") == "yes"; break;
+                case "normal-combat": _normalCombatProbe = true; break;
+                case "combat-metrics": NativeRequest(() => SaveCombatSequenceSample(Text("path"))); break;
+                case "camera-native":
+                    GetWindow().GrabFocus(); GetViewport().GuiReleaseFocus();
+                    var cameraKey = Enum.Parse<Key>(Text("key", "F"));
+                    GetViewport().PushInput(new InputEventKey { Keycode = cameraKey, PhysicalKeycode = cameraKey, Pressed = true }, true);
+                    GetViewport().PushInput(new InputEventKey { Keycode = cameraKey, PhysicalKeycode = cameraKey, Pressed = false }, true);
+                    break;
                 case "opening-step-native": NativeOpeningStep(); break;
                 case "journey-overlay": NativeRequest(() => OpenJourneyOverlay(Text("overlay"))); break;
                 case "cancel-native": CancelUi(); break;
@@ -114,7 +123,7 @@ public partial class GameApplication
         { _pausedOnFall = true; _session.Send("pause"); }
         if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
         { _pausedAtDeath = true; _session.Send("pause"); }
-        if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
+        if (!_normalCombatProbe && Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
         {
             // Reach an armed capture boundary in this call, before normal frame
             // advancement can cross it and finish the requested battle.

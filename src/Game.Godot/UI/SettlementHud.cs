@@ -28,7 +28,6 @@ public partial class SettlementHud : Control
     public LiveCombatInspector LiveInspector { get; private set; } = null!;
     internal BattleResultStrip Result { get; private set; } = null!;
     private PanelContainer _resultFrame = null!;
-    private PanelContainer _combatLegend = null!;
     private bool _combatPresentation;
     private CitySelector _cities = null!;
     private MatchControls _controls = null!;
@@ -86,6 +85,8 @@ public partial class SettlementHud : Control
     public bool BlocksWorld => Details.Visible || Draft.Visible;
     public Rect2 WorldArea => new(Vector2.Zero, Size);
     public Rect2 SettlementFramingArea => new(new Vector2(0, 24), new Vector2(Size.X - (Size.X >= 1600 ? 420 : 382), Size.Y - 108));
+    internal IEnumerable<Rect2> CombatOccluders => new Control[] { _menu, _action, _team, LiveInspector }
+        .Where(c => c.IsVisibleInTree()).Select(c => c.GetGlobalRect());
     public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged, CombatFramingRequested;
     public event Action? ArenaOverviewRequested;
     public void Reset()
@@ -208,10 +209,6 @@ public partial class SettlementHud : Control
         LiveInspector = new LiveCombatInspector(); AddChild(LiveInspector); LiveInspector.Initialize(skin); LiveInspector.FallbackFocus = _overview;
         _resultFrame = new PanelContainer(); AddChild(_resultFrame); skin.Panel(_resultFrame);
         Result = new BattleResultStrip { Compact = true }; _resultFrame.AddChild(Result); Result.Initialize(skin); _resultFrame.Hide();
-        _combatLegend = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore }; AddChild(_combatLegend);
-        _combatLegend.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(.025f, .045f, .06f, .88f), ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 4, ContentMarginBottom = 4 });
-        var legend = WrapLabel("F frontline · R ranged · M magic\nP# allies · E→# foes · ! low health\nGold: selected · orange: target"); legend.AddThemeFontSizeOverride("font_size", 14); legend.MouseFilter = MouseFilterEnum.Ignore;
-        _combatLegend.AddChild(legend); _combatLegend.Hide();
         Feedback = new ActionFeedback(); AddChild(Feedback);
         foreach (var region in new Control[] { _ribbon, _dock, _palette, _action, _preparation, _team })
             region.MinimumSizeChanged += LayoutHud;
@@ -251,7 +248,6 @@ public partial class SettlementHud : Control
         LiveInspector.Layout(Size, _team.Visible ? _team.GetGlobalRect().End.Y + 8 : 92);
         _resultFrame.Position = new(edge, _team.Visible ? _team.GetGlobalRect().End.Y + 8 : 92);
         _resultFrame.Size = new(wide ? 380 : 310, _resultFrame.GetCombinedMinimumSize().Y);
-        _combatLegend.Position = new(edge, Size.Y - 92); _combatLegend.Size = new(310, 80);
         float inspectorWidth = wide ? 330 : 264;
         float inspectorHeight = Mathf.Min(_dock.GetThemeStylebox("panel").GetMinimumSize().Y + 52 + Inspector.GetCombinedMinimumSize().Y, Size.Y * .50f);
         if (_team.Visible) inspectorHeight = Mathf.Min(inspectorHeight, Size.Y - _team.GetGlobalRect().End.Y - edge - 8);
@@ -320,7 +316,6 @@ public partial class SettlementHud : Control
         Result.Refresh(_outcomes.For(city.Id));
         Details.LastOutcome = _outcomes.For(city.Id);
         _resultFrame.Visible = !_combatPresentation && state.Phase is (Phase.RewardDraft or Phase.Victory or Phase.Defeat) && !BlocksWorld && Result.Visible;
-        _combatLegend.Visible = _combatPresentation && !BlocksWorld;
         if (_viewed != city.Id) { _viewed = city.Id; Details.ResetSelection(); }
         SessionFeedback = !session.Connected ? "Disconnected — " + session.Status : session.Pending ? "Pending — waiting for remote authority acknowledgment…" : session.LastResult is { } result ? (result.Accepted ? "Accepted: " : "Rejected: ") + result.Message : session.Status;
         string feedbackKey = $"{state.MatchId}:{session.LastResult?.Sequence}:{SessionFeedback}";

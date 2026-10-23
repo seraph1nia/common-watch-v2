@@ -24,6 +24,7 @@ public partial class GameApplication
         if (_args.Contains("--steam-friends-test")) { await CheckSteamFriendsPresentation(); await QuitAfterAudioDrain(); return; }
         if (Argument("--environment-captures") is { } environmentOutput) { await CaptureEnvironment(environmentOutput); await QuitAfterAudioDrain(); return; }
         if (Argument("--arena-captures") is { } arenaOutput) { await CaptureModularArena(arenaOutput); await QuitAfterAudioDrain(); return; }
+        if (Argument("--combat-sequences") is { } sequenceOutput) { await CaptureCombatSequences(sequenceOutput); await QuitAfterAudioDrain(); return; }
         // Presentation-only comparison controls. No scenario or authoritative state edits.
         if (Argument("--settlement-radius") is { } radius)
         {

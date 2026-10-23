@@ -100,11 +100,16 @@ public partial class UnitInspector : VBoxContainer
         var funded = planning ? city?.FoodForecast?.Funded : city?.LastUpkeep?.Funded;
         string funding = funded is null ? "Funding unavailable" : funded.Contains(unit.Id) ? "Funded" : "Unfunded";
         var p = unit.Profile;
-        _text.Text = CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
+        _text.Text = ReadOnlyLive
+            ? $"{CombatInspection.Owner(unit)} · {unit.Type}{(unit.IsBoss ? " · BOSS" : "")}\n{CombatInspection.Role(unit)} · L{unit.Level}"
+                + $"\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)}"
+                + $"\nNow: {(unit.Health <= 0 ? "Fallen" : unit.Hex?.Action.ToString() ?? "Preparing")} · Effects: {CombatInspection.Effects(unit, tick)}"
+                + "\nTarget: " + LiveTarget(unit, units, playback?.Structures() ?? context.State.Structures, context.Session.PlayerId)
+            : CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
         if (!ReadOnlyLive && city is not null) _text.Text += $"\nService history: {unit.Experience} battles (no stat or equipment gain)\n" +
             (unit.Assignment is { Stored: true } stored ? $"Stored: Town Hall plot {stored.HallSlot + 1}; never fights" : unit.Assignment is { } basicHome ? $"Army home {basicHome.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home")
             + $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}";
-        _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
+        if (!ReadOnlyLive) _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
         _advanced.Text = $"#{unit.Id} {unit.Type} · {unit.Class}\n{unit.Faction} · owner P{unit.Owner} · L{unit.Level}, rank {unit.Rank}{(unit.IsBoss ? " BOSS" : "")}\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(p.Health)}; Service history: {unit.Experience} battles (no stat or equipment gain)\nDamage direct/secondary {HealthPoints.Format(p.Damage)}/{HealthPoints.Format(p.SecondaryDamage)}\nStructure damage {HealthPoints.Format(p.StructureDamage)}; range {p.HexRange}\nMovement {p.MoveTicks}, windup {p.WindupTicks}, cadence {p.CadenceTicks} ticks\nSquad #{unit.SquadId}, member slot {unit.FormationSlot}\n" +
             (unit.Assignment is { Stored: true } a ? $"Stored: Town Hall plot {a.HallSlot + 1}, place {a.Tile + 1}; never fights" : unit.Assignment is { } home ? $"Army home {home.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home") +
             $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}\nCapabilities: {Capabilities(unit.Capabilities)}\n{Statuses(unit.Statuses, context.State.Tick)}\nTarget {unit.TargetKind} #{unit.TargetId}; action {unit.Hex?.Action}\nCommitted start {unit.ActionStartTick}, impact {unit.ImpactTick}, ready {unit.ReadyTick}";
@@ -146,7 +151,7 @@ public partial class UnitInspector : VBoxContainer
                 _actions.Item(_skin, "CancelRetire", "Keep soldier / cancel retirement", () => { _reviewRetirement = false; Refresh(_context); _retireInvoker?.GrabFocus(); });
             }
         }
-        else _text.Text += "\nInspection only.";
+        else if (!ReadOnlyLive) _text.Text += "\nInspection only.";
         _actions.End();
     }
     public void CancelRetirement()
@@ -154,6 +159,14 @@ public partial class UnitInspector : VBoxContainer
         _reviewRetirement = false; _retireSession = null; SetProcess(false);
         foreach (string key in new[] { "ConfirmRetire", "CancelRetire" })
             if (_actions.Buttons.TryGetValue(key, out var button)) button.Hide();
+    }
+    private static string LiveTarget(UnitState unit, UnitState[] units, StructureState[] structures, int local)
+    {
+        string Ally(int owner) => owner == local ? "Your" : "Ally " + owner;
+        if (CombatInspection.TargetMembers(unit, units).FirstOrDefault(u => u.Health > 0) is { } target)
+            return $"{(target.Faction == Faction.Adventurers ? Ally(target.Owner) : "Enemy")} {target.Type}";
+        if (CombatInspection.TargetStructure(unit, structures) is { } structure) return $"{Ally(structure.Owner)} {structure.Kind}";
+        return "None";
     }
     private void ReviewRetirement()
     {

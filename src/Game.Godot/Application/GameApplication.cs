@@ -163,6 +163,7 @@ public partial class GameApplication : Node
         if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); _arenaBackdrop.Hide(); return; }
         _battlefield.SelectedUnit = _gameUi.LiveInspector.SelectedUnit;
         _battlefield.SelectedStructure = _gameUi.LiveInspector.SelectedStructure;
+        _battlefield.HudOccluders = _gameUi.CombatOccluders.ToArray();
         _battlefield.Present(_session, _battle);
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
@@ -176,14 +177,25 @@ public partial class GameApplication : Node
         else if (_battlefield.Active || preview)
         {
             var state = _battle?.Snapshot ?? _session.Snapshot;
-            string key = $"{state.MatchId}:{state.Arena!.Sectors.Length}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
+            string key = $"{state.MatchId}:{state.WaveStartedTick}:{state.Arena!.Sectors.Length}:{_session.ViewedCity.Id}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
             if (_camera.Fixed || key != _arenaCameraKey)
             {
                 _arenaCameraKey = key;
                 var layout = new ArenaLayout(state.Arena, new HexProjection(30, _options.GroundCompression));
-                var focus = layout.SectorCenter(_session.PlayerId);
-                _camera.FrameArena(_battlefield.Active ? _battlefield.RenderBounds : _arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch);
+                var focus = layout.SectorCenter(_session.ViewedCity.Id);
+                if (_battlefield.Active)
+                {
+                    var engagement = BattleFraming.Engagement(state, new HexProjection(30, _options.GroundCompression), _session.ViewedCity.Id);
+                    _camera.FrameBattle(engagement, BattleFraming.SafeArea(WorldArea, engagement, _gameUi.CombatOccluders));
+                }
+                else _camera.FrameArena(_arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch);
             }
+        }
+        if (_battlefield.Active && _gameUi.LiveInspector.Visible)
+        {
+            var inspector = _gameUi.LiveInspector;
+            inspector.KeepSubjectVisible(WorldArea.Size, _battlefield.InspectionPoints().Select(_camera.ToScreen).ToArray(),
+                _gameUi.CombatOccluders.Where(r => r != inspector.GetGlobalRect()), _battlefield.AnimationTick);
         }
         Vector2 mouse = GetViewport().GetMousePosition();
         _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && !_steamFriends.Visible && !_exitConfirmation.Visible && !_menuPopup.Visible && WorldArea.HasPoint(mouse)

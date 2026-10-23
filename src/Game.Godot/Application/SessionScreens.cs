@@ -121,7 +121,7 @@ public partial class GameApplication
     private void BeginHost(int port)
     {
         ReturnToMenu();
-        try { _sessions.Open(session => session.Host(port)); _frozen = false; RefreshUi(true); }
+        try { _sessions.Open(session => session.Host(port, Argument("--control-dir") is not null ? Argument("--test-match-id") : null)); _frozen = false; RefreshUi(true); }
         catch (Exception e) { ReturnToMenu(); _sessionMenu.ShowError(e.Message); }
     }
     private void BeginJoin(string endpoint)

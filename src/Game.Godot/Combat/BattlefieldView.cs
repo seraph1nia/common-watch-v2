@@ -145,7 +145,7 @@ public partial class BattlefieldView : Node2D
         foreach (var cell in arena.Board.Cells)
         {
             var corners = _arena.Corners(cell.Coordinate).Select(c => V(c) - center).ToArray();
-            if (visibleArea.Grow(30).HasPoint(Cell(cell.Id))) DrawPolyline(corners.Append(corners[0]).ToArray(), modular ? new Color(.65f, .73f, .78f, .22f) : new Color("6d7955"), 1, true);
+            if (visibleArea.Grow(30).HasPoint(Cell(cell.Id))) DrawPolyline(corners.Append(corners[0]).ToArray(), _options.DebugOverlay ? new Color("6d7955") : modular ? new Color(.65f, .73f, .78f, .09f) : new Color(.43f, .47f, .33f, .30f), 1, true);
         }
         foreach (var visual in _structures.Values) visual.Hide();
         var structureKeys = Playback.Structures().Select(s => (s.Owner, s.Kind, s.Slot)).ToHashSet();
@@ -164,9 +164,14 @@ public partial class BattlefieldView : Node2D
             float flash = hit is null ? 0 : Math.Clamp(1 - (float)(tick - hit.Tick) / 12, 0, 1);
             visual.Present(_assets, structure, p, depths[(0, structure.Owner, structure.Kind, structure.Slot)], fade, flash);
             float hp = Math.Clamp((float)structure.Health / Math.Max(1, structure.MaximumHealth), 0, 1);
-            _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34, 4)), new Color("111c24") with { A = fade });
-            _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34 * hp, 4)), new Color("80bbab") with { A = fade });
-            TextCentered($"P{structure.Owner} {structure.Kind}", p + new Vector2(0, 17), 10, _muted with { A = fade });
+            bool chosenStructure = SelectedStructure == (structure.Owner, structure.Kind, structure.Slot);
+            if (hp < .99f || chosenStructure || flash > 0)
+            {
+                _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34, 4)), new Color("111c24") with { A = fade });
+                _combatOverlay.Bar(new Rect2(p + new Vector2(-17, -53), new Vector2(34 * hp, 4)), new Color(hp <= .3f ? "ffc48d" : "80bbab") with { A = fade });
+            }
+            if (structure.Kind == ArenaStructureKind.Keep || chosenStructure || hp < .99f)
+                TextCentered($"{(structure.Owner == _session.PlayerId ? "Your" : "Ally " + structure.Owner)} {structure.Kind}", p + new Vector2(0, 17), Math.Max(1, (int)Math.Round(11 / GetGlobalTransformWithCanvas().Scale.Y)), _muted with { A = fade });
         }
         var visible = units.Select(u => u.Id).ToHashSet();
         foreach (int id in _figures.Keys.Where(id => !visible.Contains(id)).ToArray()) { _figures[id].QueueFree(); _figures.Remove(id); }
@@ -191,7 +196,15 @@ public partial class BattlefieldView : Node2D
             figure.ZIndex = depths[(unit.Id, 0, ArenaStructureKind.Keep, 0)]; figure.Visible = true;
             DrawSetTransform(ground, 0, new Vector2(1, .38f));
             DrawCircle(Vector2.Zero, unit.IsBoss ? 16 : 11, new Color(0, 0, 0, .48f * pose.Opacity), true, -1, true);
-            DrawArc(Vector2.Zero, unit.IsBoss ? 15 : 10, 0, Mathf.Tau, 24, OwnerColor(unit) with { A = pose.Opacity }, 1.6f, true);
+            var ownership = OwnerColor(unit) with { A = pose.Opacity };
+            if (unit.Faction != Faction.Adventurers)
+                DrawPolyline([new(-12, 7), new(0, -13), new(12, 7), new(-12, 7)], ownership, 1.6f, true);
+            else if (unit.Owner == _session.PlayerId) DrawArc(Vector2.Zero, 10, 0, Mathf.Tau, 24, ownership, 1.6f, true);
+            else
+            {
+                DrawArc(Vector2.Zero, 11, -.8f, .8f, 12, ownership, 1.6f, true);
+                DrawArc(Vector2.Zero, 11, Mathf.Pi - .8f, Mathf.Pi + .8f, 12, ownership, 1.6f, true);
+            }
             DrawSetTransform(Vector2.Zero);
             string id = VisualAssets.UnitId(unit);
             figure.Present(_assets.Load(id), _assets.Catalog.Metadata(id), unit.Type, unit.Faction == Faction.Adventurers, pose, ground, CombatShader, _hitShader, unit.IsBoss);

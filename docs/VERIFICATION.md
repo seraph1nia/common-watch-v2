@@ -1,5 +1,33 @@
 # Verification
 
+## Refinement II combat framing and cues (2026-10-23)
+
+[The combat contract](refinement-ii/18_COMBAT_READABILITY.md) records stable
+engagement framing, retained manual/overview poses, selective ownership/health
+cues and compact body-aware inspection. Eight paired native normal-speed solo
+fixtures at 720p/1080p preserve outcomes and final ticks. Initial median actor
+heights grow 9–15% / 22–28%; initial text/actor bounds intersections fall from
+3/8/4/3 to zero. All 470 recorded selected-body/target checks avoid the inspector.
+Those geometry observations do not establish human comprehension or balance.
+
+Locked zero-warning build, Core 46 / Shared 145 / models 102, three native session
+process tests, four complete default/debug gameplay profiles plus seven paid
+cooperative waves, private reconnect, 24 sector/projection/size native camera
+cases, animation/fallback captures and nine repeated FPS/speed cases passed.
+All repeated-battle effects cleared. Target FPS was 30/60/120; software-rendered
+measured FPS was 29.6–98.9. Default/debug normal-speed early/mixed/W10/W20 captures
+and real six-player normal-speed encounters at both sizes passed. Overview
+persisted in the later network observations. Core/Shared source, protocol, pins
+and supplied artwork/audio remain unchanged.
+
+Network setup interleaving changes unit IDs/tie breaks, so exact counterfactual
+outcome evidence uses the solo fixtures. PNGs/geometry are native pixel size;
+optional desktop videos are half-scale proxies. Maximum-group 720p still has a
+modest framing gain with the retained Team surface: #20 / Gate A must refresh
+that integration after reducing routine combat monitoring. Physical hardware,
+human findings, native other-OS and live Steam remain unqualified; the earlier
+intermittent native runtime risk is not claimed solved.
+
 ## Refinement II HUD and screen journey (2026-10-23)
 
 The [HUD inventory](refinement-ii/16_PHASE_HUD.md) and

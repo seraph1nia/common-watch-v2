@@ -70,12 +70,12 @@ public partial class GodotSession : Node, IDisposable
         _solo = solo; PlayerId = solo.PlayerId; SelectedSlot = solo.SelectedSlot;
         Connected = true; Status = "Single player"; SetState(solo.Snapshot, true);
     }
-    public void Host(int port)
+    public void Host(int port, string? replayMatchId = null)
     {
         var peer = new ENetMultiplayerPeer();
         if (peer.CreateServer(port, 8, 2) != Error.Ok) { peer.Dispose(); throw new IOException("Cannot listen on LAN port."); }
         Attach(peer);
-        _authority = new(AuthorityPolicy.PlayingHost, matchId: Guid.NewGuid().ToString("N"), combatSeed: SoloSession.DefaultSeed);
+        _authority = new(AuthorityPolicy.PlayingHost, matchId: replayMatchId ?? Guid.NewGuid().ToString("N"), combatSeed: SoloSession.DefaultSeed);
         PlayerId = _authority.LocalPlayerId; Connected = true; Status = $"Hosting LAN :{port}";
         SetState(_authority.Snapshot(), true);
     }

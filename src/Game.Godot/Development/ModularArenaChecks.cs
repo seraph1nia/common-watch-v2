@@ -36,7 +36,8 @@ public partial class GameApplication
                 Vector2 localOrigin = _camera.ToScreen(Vector2.Zero);
                 var renderBounds = _battlefield.RenderBounds;
                 float priorZoom = Mathf.Min(size.X * .8f / (layout.Pitch * 1.7f), size.Y * .8f / renderBounds.Size.Y);
-                Require(Mathf.IsEqualApprox(localZoom, priorZoom * 1.25f), "local default is 25 percent closer");
+                var engagement = BattleFraming.Engagement(_battle.Snapshot, projection, _session.PlayerId);
+                Require(WorldArea.Encloses(new Rect2(_camera.ToScreen(engagement.Position), engagement.Size * localZoom)), "logical local sector, defenses and headroom fit without decorative caps");
                 if (players == 1) localZooms[(view, size.X)] = localZoom;
                 else Require(Mathf.IsEqualApprox(localZoom, localZooms[(view, size.X)]), "more sectors never zoom out the local default");
                 string prefix = $"{players}-sectors-{view.ToString().ToLowerInvariant()}-{size.X}";
@@ -94,7 +95,7 @@ public partial class GameApplication
                 }
                 receipts.Add(new { players, columns = layout.Columns, cells = cells.Count, view = view.ToString(), width = size.X, height = size.Y,
                     hitTick = hit.Tick, destroyedTick = destroyed.Tick, crossingTick = crossing?.Tick, nativePanZoom = true, picking = true,
-                    localZoom, zoomIncrease = 1.25f, resetAfterOverview = true, fixedBackdrop = players is 1 or 6 });
+                    localZoom, zoomIncreaseFromPriorLocal = localZoom / (priorZoom * 1.25f), resetAfterOverview = true, fixedBackdrop = players is 1 or 6 });
                 GD.Print($"GODOT_MODULAR_ARENA_PASS players={players} cells={cells.Count} view={view} size={size} cross={crossing?.Tick}");
 
                 void CheckPicking()

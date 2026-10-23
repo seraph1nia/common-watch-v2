@@ -73,6 +73,12 @@ All snapshot cells remain playable (this branch uses 6×9 per sector). The camer
 starts near your sector; drag with middle/right mouse, zoom with the wheel and
 choose **Field overview** or F for the complete field. `mise run capture-arena`
 checks 1–6 sectors in both projections at 720p/1080p using legal combat replays.
+The [combat readability pass](docs/refinement-ii/18_COMBAT_READABILITY.md) frames
+the useful engagement around native HUD controls, protects manual poses and
+keeps selected bodies/targets clear of a compact inspector. Short ownership/count
+labels and non-color base shapes replace the acronym legend. Normal-speed
+production sequences and actual six-player captures are available with
+`capture-combat-sequences` and `capture-combat-cooperation`.
 
 ## Verification
 

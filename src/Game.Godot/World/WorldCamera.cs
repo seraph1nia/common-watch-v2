@@ -2,12 +2,15 @@ using Godot;
 
 namespace Game.GodotClient;
 
+public enum ArenaCameraMode { Automatic, Manual, Overview }
+
 /// <summary>Camera transforms only. Logical angled hex projection remains independent.</summary>
 public partial class WorldCamera : Camera2D
 {
     public bool Fixed { get; set; }
     public float Magnification { get; private set; } = 1;
     public Vector2 PanPixels { get; private set; }
+    public ArenaCameraMode ArenaMode { get; private set; }
     private Vector2 _origin;
     private bool _dragging;
     private float _defaultMagnification = 1;
@@ -29,7 +32,7 @@ public partial class WorldCamera : Camera2D
     public Vector2 ToScreen(Vector2 world) => GetViewport().CanvasTransform * world;
     public void SetPose(float zoom, Vector2 pan)
     {
-        Magnification = Math.Clamp(zoom, .25f, 2.2f);
+        Magnification = Math.Clamp(zoom, .25f, 3.3f); ArenaMode = ArenaCameraMode.Manual;
         PanPixels = pan;
         Layout(_origin);
     }
@@ -55,13 +58,20 @@ public partial class WorldCamera : Camera2D
             Layout(viewport / 2 - frame.GetCenter() * zoom);
         }
         Fixed = false;
+        ArenaMode = local ? ArenaCameraMode.Automatic : ArenaCameraMode.Overview;
     }
-    public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; Layout(_defaultOrigin); }
+    public void FrameBattle(Rect2 engagement, Rect2 safeArea)
+    {
+        float zoom = Mathf.Clamp(Mathf.Min(safeArea.Size.X / engagement.Size.X, safeArea.Size.Y / engagement.Size.Y) * .96f, .25f, 3.3f);
+        Frame(safeArea.GetCenter() - engagement.GetCenter() * zoom, zoom);
+        Fixed = false; ArenaMode = ArenaCameraMode.Automatic;
+    }
+    public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; ArenaMode = ArenaCameraMode.Automatic; Layout(_defaultOrigin); }
     public void StopDrag() => _dragging = false;
     public void ZoomAt(Vector2 cursor, bool inward)
     {
         Vector2 before = ToWorld(cursor);
-        Magnification = Math.Clamp(Magnification * (inward ? 1.12f : 1 / 1.12f), .25f, 2.2f);
+        Magnification = Math.Clamp(Magnification * (inward ? 1.12f : 1 / 1.12f), .25f, 3.3f); ArenaMode = ArenaCameraMode.Manual;
         PanPixels = cursor - _origin - before * Magnification;
         Layout(_origin);
     }

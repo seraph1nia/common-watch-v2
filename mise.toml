@@ -280,6 +280,18 @@ depends = ["build"]
 run = "bash tools/graphical.sh capture-journey"
 raw_args = true
 
+[tasks.capture-combat-sequences]
+description = "Observe normal 1x early/mixed/boss combat, actual pixels and wall/tick durations at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-combat-sequences"
+raw_args = true
+
+[tasks.capture-combat-cooperation]
+description = "Real six-player paid mixed-army encounter at normal 1x, both sizes and native local/overview cameras"
+depends = ["build"]
+run = "bash tools/combat-cooperation.sh"
+raw_args = true
+
 [tasks.test-journey-network]
 description = "Continuous three-wave native co-op journey with real waiting, delayed acknowledgment and reconnect"
 depends = ["build"]

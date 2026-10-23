@@ -90,6 +90,16 @@ PYFIXTURE
   test-journey-network)
     timeout --kill-after=5s 360s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
     ;;
+  capture-combat-sequences)
+    client_timeout=480
+    label=${COMMON_WATCH_COMBAT_REVIEW_LABEL:-after}
+    for width in 1280 1920; do
+      output="$(pwd)/artifacts/captures/combat-review/$label/$width"
+      timeout --kill-after=5s "${client_timeout}s" xvfb-run -a -s '-screen 0 2560x1440x24' \
+        bash tools/record-client.sh "$output.mkv" --settings-path "$settings_directory/audio-settings.json" \
+        --combat-sequences "$output" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
   test-journey)
     client_timeout=240
     run_client --journey-test "$@"
