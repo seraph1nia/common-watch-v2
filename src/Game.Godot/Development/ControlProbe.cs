@@ -11,7 +11,7 @@ public partial class GameApplication
     private long _controlWrite;
     private int _controlRequests;
     private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
-    private bool _captureCrossSector;
+    private bool _captureCrossSector, _pausedOnCrossSector;
     private bool _gameplayPolicy;
     private int _captureCombatWave;
     private int _captureCombatTick = 180;
@@ -114,7 +114,7 @@ public partial class GameApplication
                         WorldtreeClick(rewardButton.GetGlobalRect().GetCenter());
                     break;
                 case "ready-pointer": WorldtreeClick(_gameUi.ReadyButton.GetGlobalRect().GetCenter()); break;
-                case "watch-ally": _gameUi.Team.WatchButton.EmitSignal(BaseButton.SignalName.Pressed); break;
+                case "watch-ally": NativeRequest(() => JourneyClick(_gameUi.Team.WatchButton)); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
                 case "hold-combat": _captureCombatWave = Number("wave", 6); _captureCombatTick = Math.Clamp(Number("tick", 180), 1, 180); break;
                 case "hold-cross-sector": _captureCrossSector = true; break;
@@ -171,7 +171,7 @@ public partial class GameApplication
         if (_captureCrossSector && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
             && !_session.Snapshot.Paused && _session.Snapshot.Players.SelectMany(p => p.Soldiers).Any(u =>
                 u.Health > 0 && u.Deployed && TeamAwareness.Sector(_session.Snapshot, u) is > 0 and var sector && sector != u.Owner))
-        { _captureCrossSector = false; _session.Send("pause"); }
+        { _captureCrossSector = false; _pausedOnCrossSector = true; _session.Send("pause"); }
         if (!_normalCombatProbe && Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
         {
             // Reach an armed capture boundary in this call, before normal frame
@@ -221,6 +221,7 @@ public partial class GameApplication
                 viewport = _gameUi.Details.Army.HomeViewport.GetGlobalRect().ToString(),
                 targets = _gameUi.Details.Deployment.HomeButtons.ToDictionary(p => p.Key, p => p.Value.GetGlobalRect().ToString()) },
             finishingCombat = _battlefield.Finishing,
+            captureStops = new { lowKeep = _pausedOnLowKeep, fallen = _pausedOnFall, crossSector = _pausedOnCrossSector },
             presentationHeld = _session?.PlaybackHeldForProbe ?? false, playbackTick = _session?.Playback.Tick,
             liveUnit = _gameUi.LiveInspector.SelectedUnit, liveVisible = _gameUi.LiveInspector.Visible,
             liveText = _gameUi.LiveInspector.Inspector.Details,

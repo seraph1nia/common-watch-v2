@@ -88,7 +88,7 @@ depends = ["test-graphics"]
 [tasks.test-cooperative-context]
 description = "Native 2/4/6-player owner, inspection, camera and three-wave transitions; real team exceptions"
 depends = ["build"]
-run = ["bash tools/journey-matrix.sh --cooperative-focus", "bash tools/graphical.sh capture-cooperation"]
+run = ["bash tools/journey-matrix.sh --cooperative-focus", "bash tools/graphical.sh capture-cooperation", "COMMON_WATCH_COOP_TERMINAL=1 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation/victory bash tools/graphical.sh capture-cooperation"]
 
 [tasks.test-multiplayer]
 description = "Actual godot LAN processes: one through six players through combat and drafting"

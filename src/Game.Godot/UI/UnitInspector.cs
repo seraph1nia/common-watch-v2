@@ -45,7 +45,7 @@ public partial class UnitInspector : VBoxContainer
     public void Initialize(HudSkin skin)
     {
         _skin = skin; _text = WrapLabel("Select a soldier, enemy or structure."); AddChild(_text);
-        if (ReadOnlyLive) _text.AddThemeFontSizeOverride("font_size", 14);
+        if (ReadOnlyLive) { _text.AddThemeFontSizeOverride("font_size", 14); AddThemeConstantOverride("separation", 2); }
         AdvancedButton = skin.Button("Advanced details ▾", () => { _advanced.Visible = !_advanced.Visible; AdvancedButton.Text = _advanced.Visible ? "Advanced details ▴" : "Advanced details ▾"; }, "ForestQuietButton");
         AddChild(AdvancedButton);
         _advanced = WrapLabel(); _advanced.AddThemeFontSizeOverride("font_size", 13); AddChild(_advanced); _advanced.Hide();

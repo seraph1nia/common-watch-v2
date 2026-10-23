@@ -77,6 +77,8 @@ jobs:
           for players in 2 6; do
             mise exec -- bash tools/graphical.sh test-journey-network --cooperative-focus --players "$players" --width 1280 --output "$(pwd)/artifacts/captures/cooperation-review/ci-${players}p"
           done
+          COMMON_WATCH_COOP_PLAYERS=2 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation-review/ci-exceptions mise exec -- bash tools/graphical.sh capture-cooperation
+          COMMON_WATCH_COOP_TERMINAL=1 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation-review/ci-victory mise exec -- bash tools/graphical.sh capture-cooperation
 
       - name: Test and capture deterministic combat animation
         run: mise run test-animation

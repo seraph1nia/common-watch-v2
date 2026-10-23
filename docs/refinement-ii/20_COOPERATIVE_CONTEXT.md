@@ -91,8 +91,8 @@ development-only hold now delays playback acceptance while authority/RPC receipt
 continues and retains only the existing latest snapshot. Release accepts that
 snapshot, and admission baselines clear the hold. The repaired six-player 1080p
 run passed all three waves, including a held playback tick behind the actual
-authoritative reward boundary. Normal acceptance remains unchanged. The final
-small-profile rerun and broad native gates are still running.
+authoritative reward boundary. Normal acceptance remains unchanged. The repaired 2p/720 run also passed all three waves. Broad native gates are
+still running.
 
 Eighteen matched native preparing/ready/local-ready boundaries retain exact
 phase, command owner and roster. Default panel heights shrink at both sizes:
@@ -133,9 +133,26 @@ are negative discovery evidence. Sources are retained under
 positive native fallen-owner-survivor checkpoint. The presentation preference
 fixtures verify deferral while own survivors exist, one automatic choice,
 explicit own/ally choice and session/match reset; they are not campaign captures.
-The final native exception worker additionally checks a fallen guest's explicit
-own/manual choice through genuine updates and live cross-sector owner/location
-inspection. Do not fabricate an authoritative state to fill the rare-case gap.
+The final native exception worker passed a fallen guest's explicit own/manual
+choice through genuine updates at both sizes. It inspected actual P1 Swordsman
+#1 in physical P2 sector, cell43, at2.5/40HP; owner and Location remain distinct.
+The initial probe armed cross-sector capture only after the fall and missed
+earlier movement. The corrected probe arms at combat start and handles cross,
+low-Keep and fall pauses in their actual order. Its observer shortcut uses native
+pointer input; the unit inspector uses the development selection API, separately
+qualified. This does not fill the rare fallen-owner-survivor gap. The added
+location line exposed a partly clipped Advanced control; compact live-panel
+spacing and reserved scrollbar width address it, with a focused redraw pending.
+Do not fabricate an authoritative state to fill the rare-case gap.
+
+A paid frontline/idle two-client campaign reached W20 Victory in41.65s of
+accelerated scripted wall time including3.08s of artificial captures. Both cities
+remained standing through support; terminal captures for P1/P2 at both sizes
+showed no draft, Ready or personal-management regions. The separate limited/idle
+case reached real Defeat after an early fall. Observed spectator wall time12.09s
+includes6.70s paused capture/input work; accelerated active time5.39s and
+presentation-finish delay0.065s are reported separately. These are not human or
+normal1x timing estimates.
 
 Pure checks passed: zero-warning locked build, Core 46, Shared 145 and session
 models 109. Full native acceptance is still running: final focused matrix,
@@ -144,8 +161,9 @@ reconnect/fault, art, animation, camera and solo journeys. Their final receipts,
 source manifest and CI result must be recorded before declaring Gate A.
 
 `mise run test-cooperative-context` runs the eight-profile focus/three-wave
-matrix and the legal exception worker. CI runs focused 2p/6p 720p profiles in
-addition to existing session, gameplay, solo journey, animation and exports.
+matrix and the legal exception worker plus an accelerated full uneven Victory. CI runs
+focused 2p/6p720 profiles, real2p exceptions and full Victory, in addition to
+existing session, gameplay, solo journey, animation and exports.
 The normal framing comparison is `tools/compare-cooperative-framing.py` against
 `r10-before` and the final normal-speed capture directory. It compares geometry,
 not counterfactual network outcomes.

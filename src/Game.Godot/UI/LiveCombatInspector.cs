@@ -20,10 +20,11 @@ public partial class LiveCombatInspector : PanelContainer
     public void Initialize(HudSkin skin)
     {
         skin.Panel(this);
-        var column = new VBoxContainer(); AddChild(column);
+        var column = new VBoxContainer(); column.AddThemeConstantOverride("separation", 2); AddChild(column);
         CloseButton = skin.Button("Close inspection [Esc]", () => Close(), "ForestQuietButton"); column.AddChild(CloseButton);
         CloseButton.TooltipText = "Your troops: circle bases. Allies: split circles. Enemies: triangular bases. Names, roles and targets appear here on selection; advanced details are optional.";
-        _scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_scroll);
+        _scroll = new ScrollContainer { FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Reserve, SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_scroll);
         Inspector = new UnitInspector { ReadOnlyLive = true, SizeFlagsHorizontal = SizeFlags.ExpandFill }; _scroll.AddChild(Inspector); Inspector.Initialize(skin);
         Hide();
     }

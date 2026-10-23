@@ -16,7 +16,7 @@ receipts = []
 terminal_campaign = os.getenv('COMMON_WATCH_COOP_TERMINAL') == '1'
 signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(SystemExit(143)))
 
-for count in ((2,) if terminal_campaign else range(2, 7)):
+for count in ((2,) if terminal_campaign or os.getenv('COMMON_WATCH_COOP_PLAYERS') == '2' else range(2, 7)):
     processes, logs = [], []
     serial = 0
     capture_seconds = 0.0
@@ -57,10 +57,15 @@ for count in ((2,) if terminal_campaign else range(2, 7)):
 
         def control(i, kind, **values):
             global serial
+            previous = status(i)['processedRequests']
             serial += 1
             path = work / str(i) / 'control' / f'request-{serial:06}.json'
             path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
             path.with_suffix('.tmp').replace(path)
+            wait(lambda: status(i)['processedRequests'] > previous, kind + ' processed')
+            if kind in ('team-pointer', 'team-activate-native', 'watch-ally', 'combat-metrics'):
+                wait(lambda: not status(i)['nativeBusy'], kind + ' completed')
+                assert not status(i)['nativeError'], status(i)['nativeError']
 
         def send(i, action, **values):
             old = status(i)['result']
@@ -76,10 +81,10 @@ for count in ((2,) if terminal_campaign else range(2, 7)):
         def city(i):
             return next(p for p in status(i)['state']['Players'] if p['Id'] == status(i)['player'])
 
-        def capture(name, i=0):
+        def capture(name, i=0, sizes=((1280, 720), (1920, 1080))):
             global capture_seconds
             capture_started = time.monotonic()
-            for width, height in ((1280, 720), (1920, 1080)):
+            for width, height in sizes:
                 control(i, 'resize', width=width, height=height)
                 wait(lambda: status(i)['viewportWidth'] == width and status(i)['teamTargetsFit'], name + ' fitting native targets')
                 path = OUTPUT / f'{count}p-{name}-{width}.png'
@@ -118,11 +123,11 @@ for count in ((2,) if terminal_campaign else range(2, 7)):
                     assert current['state']['Wave'] == 20 and not current['teamObserver']
                     assert not current['readyVisible'] and not current['draftVisible'] and not current['detailsVisible']
                     assert not set(current['hudRegions']) & {'ledger', 'threat', 'guide', 'selected-plot', 'preparation-track'}
-                    capture('victory-living' if not city(i)['Eliminated'] else 'victory-fallen', i)
+                    capture(f"victory-p{current['player']}-" + ('living' if not city(i)['Eliminated'] else 'fallen'), i)
                 receipts.append(dict(players=count, result='Victory', wave=20, acceleratedWallSecondsIncludingCaptures=round(time.monotonic()-started, 3),
                                      artificialCaptureSeconds=round(capture_seconds, 3), snapshots=[status(i)['state'] for i in range(count)],
                                      qualification='Paid accelerated uneven group campaign, no injected state; terminal captures are not ordinary viewing or human timing.'))
-                print('GODOT_COOP_VICTORY_PASS real uneven W20 living/fallen terminal both sizes no new draft or management', flush=True)
+                print('GODOT_COOP_VICTORY_PASS real uneven W20 terminal both local owners/sizes no new draft or management', flush=True)
                 continue
             capture('preparing')
             for width, height in ((1280, 720), (1920, 1080)):
@@ -158,64 +163,78 @@ for count in ((2,) if terminal_campaign else range(2, 7)):
             control(1, 'reconnect')
             wait(lambda: status(1)['connected'] and 'Preparing' in status(0)['teamRows'][1], 'same city reconnect')
             assert status(1)['player'] == 2
+            control(0, 'hold-cross-sector')
             for i in range(2):
                 control(i, 'team-city', owner=i + 1)
                 control(i, 'policy', enabled='yes')
-            wait(lambda: status(0)['state']['Paused'] and 'LOW KEEP' in status(0)['teamWarnings'], 'endangered city during real combat', seconds=120)
-            capture('endangered')
-            send(0, 'resume')
-            wait(lambda: status(0)['state']['Paused'] and any(p['Eliminated'] for p in status(0)['state']['Players']), 'legal early elimination', seconds=120)
-            wait(lambda: any(city(i)['Eliminated'] for i in range(2)), 'fallen owner receives authoritative snapshot')
-            fallen = next(i for i in range(2) if city(i)['Eliminated'])
-            fall = time.monotonic()
-            wait(lambda: status(fallen)['teamObserver'] and not status(fallen)['readyVisible'], 'fallen observer has no Ready')
-            capture('fallen-observer', fallen)
-            control(fallen, 'watch-ally')
-            wait(lambda: status(fallen)['viewed'] != status(fallen)['player'] and 'read-only' in status(fallen)['readOnly'], 'watch living ally')
-            capture('watch-living-ally', fallen)
-            # A fallen guest can deliberately return to their own sector and
-            # keep a free camera through genuine authoritative updates.
-            control(fallen, 'team-activate-native', owner=status(fallen)['player'], input='controller')
-            wait(lambda: status(fallen)['viewed'] == status(fallen)['player'] and status(fallen)['cameraMode'] == 'Automatic', 'explicit fallen own-sector choice')
-            control(fallen, 'camera-wheel-native')
-            wait(lambda: status(fallen)['cameraMode'] == 'Manual', 'fallen manual camera')
-            pose = (status(fallen)['cameraZoom'], status(fallen)['cameraPan'])
-            send(0, 'speed-2x')
-            wait(lambda: status(fallen)['state']['CombatSpeed'] == 'Two', 'fallen receives unrelated speed update')
-            send(0, 'speed-1x')
-            wait(lambda: status(fallen)['state']['CombatSpeed'] == 'One', 'fallen receives second unrelated update')
-            assert status(fallen)['viewed'] == status(fallen)['player']
-            assert (status(fallen)['cameraZoom'], status(fallen)['cameraPan']) == pose
-            capture('fallen-explicit-manual', fallen)
-            control(fallen, 'team-pointer', owner=1 if status(fallen)['player'] == 2 else 2)
-            wait(lambda: status(fallen)['viewed'] != status(fallen)['player'] and status(fallen)['cameraMode'] == 'Automatic', 'fallen deliberately returns to living ally')
-            fall_wave = status(0)['state']['Wave']
-            capture_pause = time.monotonic() - fall
-            control(0, 'hold-cross-sector')
-            send(0, 'resume')
-            resumed = time.monotonic()
-            wait(lambda: status(0)['state']['Paused'] or status(0)['state']['Phase'] in ('Victory', 'Defeat'), 'actual cross-sector hold', seconds=120)
-            cross_pause_started = time.monotonic()
-            assert status(0)['state']['Phase'] == 'Combat', 'legal replay must exercise live cross-sector help'
-            def crossed():
-                return next((u for u in status(fallen)['observedUnits'] if u['owner'] > 0 and u['sector'] > 0 and u['owner'] != u['sector']), None)
-            actor = wait(crossed, 'playback reaches actual cross-sector cell')
-            control(fallen, 'team-pointer', owner=actor['sector'])
-            wait(lambda: status(fallen)['viewed'] == actor['sector'] and status(fallen)['cameraMode'] == 'Automatic', 'focus actual observed sector')
-            control(fallen, 'inspect-combat', unitId=actor['id'])
-            wait(lambda: status(fallen)['liveUnit'] == actor['id'] and f"Location: P{actor['sector']} sector" in status(fallen)['liveText'], 'live location text follows accepted playback cell')
-            assert f"P{actor['owner']}" in status(fallen)['liveText']
-            capture('cross-sector-owner', fallen)
-            cross_pause_seconds = time.monotonic() - cross_pause_started
-            receipts.append(dict(players=2, crossSectorUnit=actor, liveText=status(fallen)['liveText'],
-                                 qualification='Actual accepted playback; inspector selected through development inspection API. Native team/camera input is separate evidence.'))
-            send(0, 'resume')
+            seen = set()
+            fallen = None
+            fall = None
+            paused_after_fall = 0.0
+            for boundary in range(4):
+                wait(lambda: status(0)['state']['Paused'] or status(0)['state']['Phase'] in ('Victory', 'Defeat'), 'legal exception boundary', seconds=150)
+                if status(0)['state']['Phase'] in ('Victory', 'Defeat'):
+                    break
+                pause_started = time.monotonic()
+                stops = status(0)['captureStops']
+                if stops['crossSector'] and 'cross' not in seen:
+                    def crossed():
+                        return next((u for u in status(1)['observedUnits'] if u['owner'] > 0 and u['sector'] > 0 and u['owner'] != u['sector']), None)
+                    actor = wait(crossed, 'playback reaches actual cross-sector cell')
+                    control(1, 'team-pointer', owner=actor['sector'])
+                    wait(lambda: status(1)['viewed'] == actor['sector'] and status(1)['cameraFocusCity'] == actor['sector'] and status(1)['cameraMode'] == 'Automatic', 'focus actual observed sector')
+                    control(1, 'inspect-combat', unitId=actor['id'])
+                    wait(lambda: status(1)['liveUnit'] == actor['id'] and f"Location: P{actor['sector']} sector" in status(1)['liveText'], 'live location follows accepted playback cell')
+                    assert f"P{actor['owner']}" in status(1)['liveText']
+                    capture('cross-sector-owner', 1)
+                    receipts.append(dict(players=2, crossSectorUnit=actor, liveText=status(1)['liveText'],
+                                         qualification='Actual accepted playback; inspector selected through development inspection API. Native team/camera input is separate evidence.'))
+                    control(1, 'close-combat')
+                    for i in range(2): control(i, 'team-city', owner=i + 1)
+                    seen.add('cross')
+                if stops['lowKeep'] and 'low' not in seen:
+                    assert 'LOW KEEP' in status(0)['teamWarnings']
+                    capture('endangered')
+                    seen.add('low')
+                if stops['fallen'] and fallen is None:
+                    wait(lambda: any(city(i)['Eliminated'] for i in range(2)), 'fallen owner receives authoritative snapshot')
+                    fallen = next(i for i in range(2) if city(i)['Eliminated'])
+                    fall = pause_started = time.monotonic()
+                    fall_wave = status(0)['state']['Wave']
+                    wait(lambda: status(fallen)['teamObserver'] and not status(fallen)['readyVisible'], 'fallen observer has no Ready')
+                    capture('fallen-observer', fallen)
+                    control(fallen, 'watch-ally')
+                    wait(lambda: status(fallen)['viewed'] != status(fallen)['player'] and 'read-only' in status(fallen)['readOnly'], 'watch living ally')
+                    capture('watch-living-ally', fallen)
+                    for width, height in ((1280, 720), (1920, 1080)):
+                        control(fallen, 'resize', width=width, height=height)
+                        wait(lambda: status(fallen)['viewportWidth'] == width, 'fallen manual viewport')
+                        control(fallen, 'team-activate-native', owner=status(fallen)['player'], input='controller')
+                        wait(lambda: status(fallen)['viewed'] == status(fallen)['player'] and status(fallen)['cameraMode'] == 'Automatic', 'explicit fallen own-sector choice')
+                        control(fallen, 'camera-wheel-native')
+                        wait(lambda: status(fallen)['cameraMode'] == 'Manual', 'fallen manual camera')
+                        pose = (status(fallen)['cameraZoom'], status(fallen)['cameraPan'])
+                        send(0, 'speed-2x')
+                        wait(lambda: status(fallen)['state']['CombatSpeed'] == 'Two', 'fallen receives unrelated speed update')
+                        send(0, 'speed-1x')
+                        wait(lambda: status(fallen)['state']['CombatSpeed'] == 'One', 'fallen receives second unrelated update')
+                        assert status(fallen)['viewed'] == status(fallen)['player']
+                        assert (status(fallen)['cameraZoom'], status(fallen)['cameraPan']) == pose
+                        capture('fallen-explicit-manual', fallen, sizes=((width, height),))
+                    control(fallen, 'team-pointer', owner=1 if status(fallen)['player'] == 2 else 2)
+                    wait(lambda: status(fallen)['viewed'] != status(fallen)['player'] and status(fallen)['cameraMode'] == 'Automatic', 'fallen deliberately returns to living ally')
+                    seen.add('fallen')
+                if fall is not None:
+                    paused_after_fall += time.monotonic() - pause_started
+                send(0, 'resume')
             wait(lambda: status(0)['state']['Phase'] in ('Victory', 'Defeat'), 'uneven group terminal outcome', seconds=150)
+            assert seen == {'cross', 'low', 'fallen'}, ('legal replay did not cover all real exceptions', seen)
+            assert fallen is not None and fall is not None
             wait(lambda: status(fallen)['state']['Phase'] == status(0)['state']['Phase'], 'observer terminal snapshot')
             core_terminal = time.monotonic()
             wait(lambda: not status(fallen)['finishingCombat'] and status(fallen)['hudMoment'] == 'Terminal', 'terminal presentation completes without a false future boundary')
             receipts.append(dict(players=2, fallWave=fall_wave, spectatorWallSecondsIncludingCapturePause=round(core_terminal-fall, 3),
-                                 capturePauseSeconds=round(capture_pause + cross_pause_seconds, 3), acceleratedActiveSpectatorSeconds=round(core_terminal-resumed-cross_pause_seconds, 3),
+                                 capturePauseSeconds=round(paused_after_fall, 3), acceleratedActiveSpectatorSeconds=round(core_terminal-fall-paused_after_fall, 3),
                                  presentationFinishDelaySeconds=round(time.monotonic()-core_terminal, 3),
                                  finalWave=status(0)['state']['Wave'], result=status(0)['state']['Phase'], team=status(fallen)['teamRows']))
             capture('terminal', fallen)
