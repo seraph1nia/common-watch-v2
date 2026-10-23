@@ -20,6 +20,7 @@ public partial class ArmyRosterPanel : VBoxContainer
     private int _selectedMember, _memberSquad;
     public bool HomesVisible => _sections.CurrentTab == 3;
     public int SelectedSquad => _squads.ItemCount > 0 ? _squads.GetSelectedId() : 0;
+    internal TabBar SectionTabs => _sections.GetTabBar();
     internal RecruitmentPanel Recruitment => _recruitment;
     internal OptionButton SquadSelector => _squads;
     internal ScrollContainer HomeViewport => Deployment.GetParent<ScrollContainer>();

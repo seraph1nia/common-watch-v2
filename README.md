@@ -37,6 +37,8 @@ Left-click selects a settlement clearing. The illustrated map covers the viewpor
 
 The phase-specific HUD keeps stocks and income in planning, removes the ledger and completed preparation track in combat, and replaces chosen reward cards with a compact accepted-choice/team-waiting view. **Menu → Settings** opens preferences. **City details** retains funding manifests, completed upkeep and feedback history. The optional Guide starts collapsed. See the [HUD contract](docs/refinement-ii/16_PHASE_HUD.md).
 
+Actual combat entry closes preparation details and cancels unconfirmed retirement/construction intent. Settings and exit consent remain usable with a live-phase notice and a safe **Return to battle** route. Rewards wait for the final playback boundary; accepted choices leave a compact receipt (hover for the effect and observed changes), then follow authority into waiting or the next preparation without an extra Continue. Reopening details is deliberate; only harmless city/clearing context returns automatically. See the [screen journey](docs/refinement-ii/17_SCREEN_JOURNEY.md).
+
 The menu offers **Return to main menu** and **Exit Game**, each with a confirmation explaining session loss. Solo progress is not saved; a host leaving ends the match for everyone; a guest disconnects and can reconnect only while the same host session remains running. Cancel/Esc keeps the session open. Opening the menu does not pause the match. Esc first closes an open Settings, details or rewards panel. A fresh match gets a new identity and personal doctrine offers. Offers derive from match/player identity independently of simulation RNG, remain stable through resize/settings/reconnect, and require a fresh explicit selection after restarting the client. The seven-column board is incompatible with this topology: board version **2**, combat rules **8**, wire protocol **17** reject older sessions/snapshots rather than migrating combat positions.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
@@ -94,6 +96,7 @@ mise run capture-opening           # six doctrines, three waves, actual producti
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
 mise run capture-hud               # native Ready, combat and acknowledged reward-waiting at both sizes
+mise run test-journey              # continuous native three-wave solo and 2/4/6-player journeys
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
 mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition

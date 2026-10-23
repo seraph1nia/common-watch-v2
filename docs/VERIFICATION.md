@@ -1,5 +1,37 @@
 # Verification
 
+## Refinement II HUD and screen journey (2026-10-23)
+
+The [HUD inventory](refinement-ii/16_PHASE_HUD.md) and
+[journey contract](refinement-ii/17_SCREEN_JOURNEY.md) document authority-derived
+visibility, deterministic local entry effects, safe Settings/exit exceptions,
+accepted reward receipts and reconnect baselines. Core/Shared source, rules,
+compatibility versions, pins and supplied art/audio remain unchanged.
+
+Local evidence includes locked zero-warning build, Core 46 / Shared 145 /
+session-model 102 tests, three native session process checks, four full gameplay
+profiles plus seven cooperative waves, animation, private reconnect and 1–6-player
+multiplayer checks. New continuous three-wave journeys pass in all four solo
+profiles and the eight-profile cooperative matrix: 2-player default/debug at
+720p/1080p, and 4/6-player default at both sizes. Focused follow-ups cover
+Settings focus during an arriving choice acknowledgment and compact syncing
+before inventory delivery. See the journey contract for final checkpoint detail.
+
+The matrix exposed reproducible native wrapped-text/automatic-scrollbar layout
+oscillation, now prevented by reserving width in the inspector and selected
+building/construction scrolls. A separate native case reproduced focus moving
+from Settings to an old chooser invoker; restoration now applies only when the
+chooser owned focus. These fixes do not establish that the earlier intermittent
+native .NET/JIT/allocator risk is solved.
+
+#16's [Godot run 53](https://github.com/seraph1nia/common-watch-v2/actions/runs/40013031985)
+passed every step, including native integration/phase/animation checks and both
+release cross-builds. Earlier runs 49/51 diagnosed capture-budget, missing-host
+startup observation and double-status-read defects in the development probes;
+their corrected local checks also passed. Cross-builds and accelerated native
+automation do not qualify human pacing/comprehension, native Windows/macOS,
+physical hardware or live Steam.
+
 ## Cooperative CI capture boundary (2026-10-23)
 
 [PR workflow 39880793409](https://github.com/seraph1nia/common-watch-v2/actions/runs/39880793409)

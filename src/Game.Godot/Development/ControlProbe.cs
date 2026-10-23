@@ -33,6 +33,14 @@ public partial class GameApplication
             System.IO.File.Delete(path); _controlRequests++;
             switch (Text("kind"))
             {
+                case "hold-presentation": _frozen = Text("enabled") == "yes"; break;
+                case "opening-step-native": NativeOpeningStep(); break;
+                case "journey-overlay": NativeRequest(() => OpenJourneyOverlay(Text("overlay"))); break;
+                case "cancel-native": CancelUi(); break;
+                case "single-player-native": NativeRequest(() => JourneyClick(_sessionMenu.SoloButton)); break;
+                case "doctrine-native" when _session is { HasState: true }:
+                    NativeRequest(() => JourneyClick(_sessionMenu.Doctrines.GetChildren().OfType<DoctrineCard>().ElementAt(Number("index", 0)).ChooseButton)); break;
+                case "start-native": NativeRequest(() => JourneyClick(_sessionMenu.StartButton)); break;
                 case "single-player": _sessionMenu.SoloButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "leave": ReturnToMenu(); break;
                 case "reconnect": BeginJoin(Argument("--join") ?? ""); break;
@@ -121,6 +129,10 @@ public partial class GameApplication
         _controlWrite = System.Environment.TickCount64;
         var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
+            nativeBusy = _nativeJourneyBusy, nativeError = _nativeJourneyError, nativeActions = _nativeJourneyActions,
+            receiptCount = _gameUi.Journey.ReceiptCount, rewardReceipt = _gameUi.Journey.Receipt,
+            detailsVisible = _gameUi.Details.IsVisibleInTree(), previewVisible = _arenaPreview.Visible,
+            settingsVisible = _settings.Visible, menuVisible = _menuPopup.Visible,
             hudMoment = _gameUi.Presentation.Moment.ToString(),
             hudRegions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
             draftVisible = _gameUi.Draft.IsVisibleInTree(),

@@ -81,6 +81,7 @@ public partial class GameApplication : Node
         _gameUi.CommandSubmitted += ResumeAfterCommand;
         _gameUi.ArenaChanged += RefreshWorld;
         _gameUi.ArenaOverviewRequested += OverviewArena;
+        _gameUi.CombatFramingRequested += PrepareBattleCamera;
         CreateAudioUi();
     }
     private void ResumeAfterCommand() { _frozen = false; RefreshUi(true); RefreshWorld(); }
@@ -90,7 +91,7 @@ public partial class GameApplication : Node
         _frozen = false; RefreshUi(true); RefreshWorld();
     }
     private GodotSession WrapSolo(SoloSession solo) => _sessions.Open(session => session.Solo(solo));
-    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
+    private void OnSessionChanged() { _settings?.SetLivePhase(false, ""); _menuPopup?.SetLivePhase(false, ""); _exitConfirmation?.SetLivePhase(false, ""); _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ResetCamera() => _camera?.Reset();
 
@@ -118,7 +119,12 @@ public partial class GameApplication : Node
         if (_session is null || !_session.HasState) { RefreshSessionMenu(); return; }
         if (_battle is not null) { _gameUi.Hide(); _sessionMenu.Hide(); UpdateBattleHud(); return; }
         RefreshSessionMenu();
-        if (_gameUi.Visible) _gameUi.Refresh(_session, _options, _battlefield.Finishing, force);
+        if (_gameUi.Visible)
+        {
+            _gameUi.OverlayCovered = _settings.Visible || _menuPopup.Visible || _exitConfirmation.Visible;
+            _gameUi.Refresh(_session, _options, _battlefield.Finishing, force);
+            RefreshLivePhaseNotice();
+        }
     }
 
     private WorldCamera _camera = null!;
@@ -158,7 +164,7 @@ public partial class GameApplication : Node
         _battlefield.SelectedUnit = _gameUi.LiveInspector.SelectedUnit;
         _battlefield.SelectedStructure = _gameUi.LiveInspector.SelectedStructure;
         _battlefield.Present(_session, _battle);
-        bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
+        bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _arenaBackdrop.Present(_assets, _battlefield.Active || preview);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
@@ -223,6 +229,7 @@ public partial class GameApplication : Node
     }
     private Rect2 WorldArea => GetViewport().GetVisibleRect();
     private string _arenaCameraKey = "";
+    private void PrepareBattleCamera() { _arenaCameraKey = ""; _camera.StopDrag(); }
     private void OverviewArena()
     {
         if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
@@ -259,6 +266,7 @@ public partial class GameApplication : Node
             _gameUi.MenuRequested -= OpenMenu; _gameUi.ReconnectRequested -= ReconnectCurrent;
             _gameUi.CommandSubmitted -= ResumeAfterCommand; _gameUi.ArenaChanged -= RefreshWorld;
             _gameUi.ArenaOverviewRequested -= OverviewArena;
+            _gameUi.CombatFramingRequested -= PrepareBattleCamera;
         }
         if (_closeSubscribed) GetWindow().CloseRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.SettingsRequested -= OpenMenuSettings;
@@ -268,7 +276,8 @@ public partial class GameApplication : Node
         if (_menuPopup is not null) _menuPopup.QuitRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.QuitRequested -= RequestQuit;
         if (_exitConfirmation is not null) _exitConfirmation.Clear();
-        if (_settings is not null) _settings.Opened -= StopCameraDrag;
+        if (_settings is not null) { _settings.Opened -= StopCameraDrag; _settings.ReturnToBattleRequested -= ReturnToBattle; }
+        if (_exitConfirmation is not null) _exitConfirmation.ReturnToBattleRequested -= ReturnToBattle;
         _audio?.Stop();
         _sessions.Close();
         _steam?.Shutdown();

@@ -38,6 +38,7 @@ public partial class GameApplication
         if (_args.Contains("--feedback-review")) { await CheckFeedbackPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--forest-review")) { await CheckForestPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--opening-review")) { await CheckOpeningCampaigns(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--journey-test")) { await CheckJourneyTransitions(); await CheckNativeSoloJourney(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--gameplay-test")) { await GameplayUiChecks(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--boss-review")) { await CheckBossPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--veteran-review")) { await CheckVeteranChoices(); await QuitAfterAudioDrain(); return; }

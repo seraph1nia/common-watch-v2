@@ -66,6 +66,9 @@ jobs:
       - name: Test native phase-specific HUD and accepted reward waiting
         run: mise run capture-hud
 
+      - name: Test native three-wave journey and overlay transitions
+        run: mise run capture-journey
+
       - name: Test and capture deterministic combat animation
         run: mise run test-animation
 
@@ -130,6 +133,7 @@ jobs:
             artifacts/test-logs/
             artifacts/test-results/
             artifacts/captures/godot/
+            artifacts/captures/journey/
             artifacts/profiles/
           if-no-files-found: ignore
           retention-days: 7

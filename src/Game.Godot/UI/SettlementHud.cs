@@ -16,6 +16,14 @@ public partial class SettlementHud : Control
     private OpeningGuidePanel _opening = null!;
     private bool _openingHomesReviewed;
     internal OpeningGuidePanel OpeningGuide => _opening;
+    private GodotSession? _receiptSession;
+    private Action<Command, CommandResult>? _rewardAcknowledged;
+    private readonly HudJourney _journey = new();
+    private int _planningCity, _planningSlot = -1;
+    private Label _rewardReceipt = null!;
+    public bool OverlayCovered { get; set; }
+    internal HudJourney Journey => _journey;
+    internal int PresentedWave { get; private set; }
     private readonly BattleOutcomeJournal _outcomes = new();
     public LiveCombatInspector LiveInspector { get; private set; } = null!;
     internal BattleResultStrip Result { get; private set; } = null!;
@@ -42,7 +50,9 @@ public partial class SettlementHud : Control
     private Button _rewards = null!, _arena = null!;
     private Button _overview = null!;
     public Button MenuButton { get; private set; } = null!;
-    private Button _build = null!, _cityDetails = null!;
+    private Button _build = null!, _cityDetails = null!, _armyNavigation = null!, _worldtreeNavigation = null!;
+    internal Button ArmyNavigationButton => _armyNavigation;
+    internal Button WorldtreeNavigationButton => _worldtreeNavigation;
     internal Button CityDetailsButton => _cityDetails;
     internal HudPresentation Presentation { get; private set; } = new(HudMoment.Planning, false, false);
     public BuildingInspector Inspector { get; private set; } = null!;
@@ -72,14 +82,15 @@ public partial class SettlementHud : Control
     };
     internal Button ReconnectButton => _reconnect;
     public bool ShowArena { get; private set; }
-    internal void OpenArena() { ShowArena = true; ArenaChanged?.Invoke(); }
+    internal void OpenArena() { if (_session is { HasState: true } && _session.Snapshot.Phase is not (Phase.Building or Phase.Preparation)) return; ShowArena = true; ArenaChanged?.Invoke(); }
     public bool BlocksWorld => Details.Visible || Draft.Visible;
     public Rect2 WorldArea => new(Vector2.Zero, Size);
     public Rect2 SettlementFramingArea => new(new Vector2(0, 24), new Vector2(Size.X - (Size.X >= 1600 ? 420 : 382), Size.Y - 108));
-    public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged;
+    public event Action? CommandSubmitted, MenuRequested, ReconnectRequested, ArenaChanged, CombatFramingRequested;
     public event Action? ArenaOverviewRequested;
     public void Reset()
     {
+        BindRewardReceipts(null); _journey.Reset(); Presentation = new(HudMoment.Planning, false, false); OverlayCovered = false; _combatPresentation = _arenaContext = false; _planningCity = 0; _planningSlot = -1;
         _team?.Reset();
         _openingHomesReviewed = false; _opening?.Hide();
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
@@ -129,8 +140,8 @@ public partial class SettlementHud : Control
         var paletteColumn = new VBoxContainer(); _palette.AddChild(paletteColumn);
         var navigation = new HFlowContainer(); _contextNav = navigation; paletteColumn.AddChild(navigation);
         var build = _build = skin.Button("Build", () => { Details.Close(); Draft.Dismiss(); LayoutHud(); }); navigation.AddChild(build);
-        navigation.AddChild(skin.Button("Worldtree", () => OpenDetails(DetailsPage.Worldtree)));
-        navigation.AddChild(skin.Button("Troops & homes", () => OpenDetails(DetailsPage.Army)));
+        _worldtreeNavigation = skin.Button("Worldtree", () => OpenDetails(DetailsPage.Worldtree)); navigation.AddChild(_worldtreeNavigation);
+        _armyNavigation = skin.Button("Troops & homes", () => OpenDetails(DetailsPage.Army)); navigation.AddChild(_armyNavigation);
         _cityDetails = skin.Button("City details", () => OpenDetails(DetailsPage.City), skin.Painted is null ? "" : "PaintedDetails");
         navigation.AddChild(_cityDetails);
         foreach (var button in navigation.GetChildren().OfType<Button>())
@@ -140,9 +151,9 @@ public partial class SettlementHud : Control
                 style.ContentMarginLeft = style.ContentMarginRight = 12;
                 button.AddThemeStyleboxOverride(state, style);
             }
-        _contextBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; column.AddChild(_contextBody);
+        _contextBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Reserve }; column.AddChild(_contextBody);
         Inspector = new BuildingInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _contextBody.AddChild(Inspector); Inspector.Initialize(skin, Submitted); Inspector.Compact = true;
-        _constructionBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; paletteColumn.AddChild(_constructionBody);
+        _constructionBody = new ScrollContainer { FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Reserve }; paletteColumn.AddChild(_constructionBody);
         Inspector.Construction.Reparent(_constructionBody); Inspector.Construction.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         Inspector.ArmyRequested += () => { OpenDetails(DetailsPage.Army); if (_session.SelectedSlot is >= 0 and < 9 && (_session.ViewedCity.Slots[_session.SelectedSlot].Type == Building.TownHall || _session.Snapshot.BuildingCatalog.Any(b => b.Type == _session.ViewedCity.Slots[_session.SelectedSlot].Type && b.Recruits is not null))) Details.Army.ShowManagementFor(_session.SelectedSlot, Context); };
         skin.Ornament(_dock, "branch_sprig", new Vector2(-6, -20), new Vector2(72, 32));
@@ -151,6 +162,7 @@ public partial class SettlementHud : Control
         var actions = new VBoxContainer(); _action.AddChild(actions);
         _phase = WrapLabel(); _phase.AddThemeFontSizeOverride("font_size", 18); actions.AddChild(_phase);
         _danger = WrapLabel(); actions.AddChild(_danger);
+        _rewardReceipt = WrapLabel(); _rewardReceipt.AddThemeFontSizeOverride("font_size", 14); actions.AddChild(_rewardReceipt);
         _phaseTrack = new PhaseTrack { Illustrated = skin.Painted is not null }; actions.AddChild(_phaseTrack);
         _overview = skin.Button("Field overview  [F]", () => ArenaOverviewRequested?.Invoke()); actions.AddChild(_overview);
         var links = new HBoxContainer();
@@ -272,9 +284,37 @@ public partial class SettlementHud : Control
     public void Refresh(GodotSession session, RenderOptions options, bool finishingCombat, bool force = false)
     {
         var previousFocus = GetViewport().GuiGetFocusOwner();
-        _session = session; var state = session.Snapshot; var city = session.ViewedCity;
-        Presentation = HudPresentation.Project(state, session.PlayerId, finishingCombat, ShowArena);
+        _session = session; BindRewardReceipts(session); var state = session.Snapshot; var city = session.ViewedCity;
+        PresentedWave = HudPresentation.DisplayedWave(state, finishingCombat);
+        bool awaitingChoice = _journey.AwaitingChoiceSnapshot(state, session.PlayerId);
+        Presentation = HudPresentation.Project(state, session.PlayerId, finishingCombat, ShowArena, awaitingChoice);
+        var transition = _journey.Observe(session, state, session.PlayerId, session.Playback.Generation, Presentation);
+        if (transition.Baseline) { Draft.Reset(); _uiKey = ""; }
+        if (transition.EnterCombat)
+        {
+            CombatFramingRequested?.Invoke();
+            if (!transition.Baseline) { _planningCity = city.Id; _planningSlot = session.SelectedSlot; }
+            if (!session.City.Eliminated && session.ViewedCity.Id != session.PlayerId) session.ViewCity(session.PlayerId);
+        }
+        if (transition.SuspendManagement)
+        {
+            Details.Close(false); LiveInspector.Close(false); Inspector.Construction.ResetSelection();
+            ShowArena = false;
+            Feedback.ClearForJourney(Presentation.LiveCombat);
+            if (transition.EnterPlanning && !transition.Baseline && _planningCity != 0)
+            {
+                if (state.Players.Any(p => p.Id == _planningCity)) { session.ViewCity(_planningCity); session.SelectSlot(_planningSlot); }
+                _planningCity = 0; _planningSlot = -1;
+            }
+            city = session.ViewedCity;
+            awaitingChoice = _journey.AwaitingChoiceSnapshot(state, session.PlayerId);
+            Presentation = HudPresentation.Project(state, session.PlayerId, finishingCombat, ShowArena, awaitingChoice);
+        }
         _combatPresentation = Presentation.LiveCombat;
+        _rewardReceipt.Visible = awaitingChoice || _journey.Receipt is not null && Presentation.Moment is HudMoment.Planning or HudMoment.ReadyWaiting or HudMoment.RewardWaiting;
+        _rewardReceipt.Text = awaitingChoice ? "Reward accepted · synchronizing inventory…"
+            : _journey.Receipt is { } receipt ? $"W{receipt.Wave} · {receipt.Name} accepted" : "";
+        _rewardReceipt.TooltipText = awaitingChoice ? "Authority accepted your choice. Actual stock/effect details follow with its snapshot." : _journey.Receipt?.Details ?? "";
         _outcomes.Observe(state);
         LiveInspector.Refresh(session, _combatPresentation && !BlocksWorld);
         Result.Refresh(_outcomes.For(city.Id));
@@ -298,11 +338,12 @@ public partial class SettlementHud : Control
         _feedback.Visible = !session.Connected || session.Pending || session.LastResult is { Accepted: false } || !Presentation.Navigation;
         _reconnect.Visible = !session.Connected;
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
-        _phase.Text = $"Wave {state.Wave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
+        _phase.Text = $"Wave {PresentedWave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Combat" : state.Phase.ToString())}";
+        if (Presentation.Moment == HudMoment.ChoosingReward) _phase.Text = $"Wave {session.City.Run.DraftWave} · choose a reward";
         if (Presentation.Moment == HudMoment.RewardWaiting)
         {
-            int choosing = state.Players.Count(p => p.Connected && !p.Eliminated && p.Run.Choice is null);
-            _phase.Text = $"Wave {session.City.Run.DraftWave} · {RunCatalog.Card(session.City.Run.Choice!).Name} accepted\n{choosing} still choosing";
+            int choosing = state.Players.Count(p => p.Connected && !p.Eliminated && p.Run.Choice is null && (!awaitingChoice || p.Id != session.PlayerId));
+            _phase.Text = $"Wave {session.City.Run.DraftWave} · {choosing} still choosing";
         }
         else if (Presentation.Moment == HudMoment.ReadyWaiting)
             _phase.Text = $"Wave {state.Wave} · plan committed";
@@ -320,8 +361,8 @@ public partial class SettlementHud : Control
         _opening.Refresh(state, city, _openingHomesReviewed, _outcomes.For(city.Id));
         _opening.Visible &= Presentation.Moment == HudMoment.Planning && !BlocksWorld && !ShowArena && session.SelectedSlot < 0 && city.Id == session.PlayerId;
         _arena.Text = Presentation.Arena ? "Show settlement" : "Show arena";
-        _arena.Visible = !Presentation.LiveCombat && Presentation.Moment != HudMoment.ChoosingReward;
-        string key = $"{state.MatchId}:{state.Revision}:{_feedbackKey}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}";
+        _arena.Visible = Presentation.Moment is HudMoment.Planning or HudMoment.ReadyWaiting;
+        string key = $"{state.MatchId}:{state.Revision}:{_feedbackKey}:{session.ViewedCity.Id}:{session.SelectedSlot}:{Details.Visible}:{Draft.Visible}:{ShowArena}:{finishingCombat}:{OverlayCovered}";
         _arenaContext = Presentation.Arena;
         _overview.Visible = _arenaContext;
         if (force || key != _uiKey)
@@ -329,7 +370,9 @@ public partial class SettlementHud : Control
             _uiKey = key;
             Inspector.EmptyHint = _arenaContext ? "Select a combatant to inspect the field." : "Select a clearing to build or manage your settlement.";
             if (!Details.Visible) Inspector.Refresh(Context, _arenaContext ? -1 : session.SelectedSlot);
-            Details.Refresh(Context); Draft.Refresh(session, finishingCombat, _outcomes.For(session.PlayerId));
+            // Preserve an already-open chooser behind a deliberately opened menu.
+            // Only postpone automatic arrival while an explicit overlay is open.
+            Details.Refresh(Context); Draft.Refresh(session, finishingCombat, _outcomes.For(session.PlayerId), Presentation.CanChooseReward && (!OverlayCovered || Draft.Visible), _journey.AwaitingChoiceSnapshot(state, session.PlayerId));
             if (Draft.Visible) Details.Close(false);
             LayoutHud();
         }
@@ -337,13 +380,33 @@ public partial class SettlementHud : Control
         var focus = GetViewport().GuiGetFocusOwner();
         bool lostFocus = focus is null && previousFocus is not null
             && (!IsInstanceValid(previousFocus) || !previousFocus.IsVisibleInTree());
-        if (lostFocus || focus is not null && !focus.IsVisibleInTree())
+        if (lostFocus || focus is not null && !focus.IsVisibleInTree() || transition.Baseline && focus is null && !OverlayCovered)
         {
             focus?.ReleaseFocus();
             if (ReadyButton.IsVisibleInTree() && !ReadyButton.Disabled) ReadyButton.GrabFocus();
             else if (_overview.IsVisibleInTree()) _overview.GrabFocus();
             else MenuButton.GrabFocus();
         }
+    }
+    private void BindRewardReceipts(GodotSession? session)
+    {
+        if (ReferenceEquals(_receiptSession, session)) return;
+        if (_receiptSession is not null && _rewardAcknowledged is not null) _receiptSession.CommandAcknowledged -= _rewardAcknowledged;
+        _receiptSession = session; _rewardAcknowledged = null;
+        if (session is null) return;
+        _rewardAcknowledged = (command, result) =>
+        {
+            if (!ReferenceEquals(_receiptSession, session) || !ReferenceEquals(_session, session)) return;
+            _journey.Acknowledge(command, result); _uiKey = "";
+        };
+        session.CommandAcknowledged += _rewardAcknowledged;
+    }
+    public override void _ExitTree() => BindRewardReceipts(null);
+    internal void ReturnToBattle()
+    {
+        if (!Presentation.LiveCombat) return;
+        Details.Close(false); LiveInspector.Close(false); Draft.Dismiss(false);
+        _overview.GrabFocus();
     }
     private void NavigateOpening(Game.Shared.OpeningDestination destination)
     {

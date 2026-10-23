@@ -2,6 +2,16 @@
 
 Commands and detached authoritative snapshots still own prices, soldiers, technologies and phase. The explicitly changed combat topology uses six columns per player, up to six players; damage and unit counts are unchanged.
 
+When combat actually starts, preparation details close and unconfirmed purchases
+or retirement are cancelled. Settings, Menu and explicit exit consent remain
+usable with the current phase stated; **Return to battle** cancels exit consent
+safely. A reward opens after the last playback effect completes. Its accepted
+receipt names the chosen card; hover for its effect and observed stock/healing
+changes. The chooser leaves only after acceptance, including an immediate solo
+return to planning. Teammate waiting permits read-only inspection, without a
+next-wave army preview. No extra Continue is required. Details reopen only when
+requested; the prior inspected city and clearing return as harmless context.
+
 - **Single Player** opens three distinct random doctrine cards. Select one, then press **Start Match**. Offers stay stable through settings, resizing and reconnection; a new match identity creates new offers. **Multiplayer** holds LAN, reconnect and Steam operations, with personal doctrine selection and host-only start after every connected player chooses. **Settings** preserves audio preferences. **Exit Game** asks for confirmation before normal shutdown.
 - Planning shows the inspected city, Keep and six stocks beside signed production income. One short threat summary groups incoming enemies and names participating soldiers; only funding exceptions stay prominent. Hover it for exact Food payment/timing, or use **City details** for the full manifest and completed upkeep. Selecting a clearing yields the summary to its building context; **×** clears selection. **Menu → Settings** opens preferences. Ready/waiting retains the committed ledger and read-only inspection routes, with **Unready** reopening editing. Combat removes the ledger, completed preparation track and building controls; the actual live arena has no redundant Show arena button. Damaged Keep health remains visible. Chosen rewards leave the three-card chooser for a compact accepted-choice/team-waiting view. Fallen/terminal views hide personal management. Fixed settlement framing and all nine clearing targets remain unchanged.
 - **Team** stays below Menu in multiplayer: Preparing/Ready, reward Choosing/Selected, Away, Fallen, Keep HP and army/Food warnings. Click a city for allied read-only inspection; Ready still belongs to you. Low Keep is highlighted at 30% or less. After your Keep falls, current survivors may finish the battle, but later waves exclude your army. **Watch living ally** selects a standing city; its original enemies are still redistributed among survivors. There is no shared control or resurrection. Fallen/terminal veteran profiles describe history without promising future recovery or purchases.

@@ -52,7 +52,9 @@ public partial class GameplayDialog : Control
         cityBody.AddChild(new HSeparator());
         var eventsHeading = WrapLabel("Recent session feedback"); eventsHeading.AddThemeFontSizeOverride("font_size", 22); cityBody.AddChild(eventsHeading);
         _events = WrapLabel(); cityBody.AddChild(_events);
-        _unitPane = new ScrollContainer { FollowFocus = true, CustomMinimumSize = new(350, 0), SizeFlagsHorizontal = SizeFlags.Fill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; row.AddChild(_unitPane);
+        // Reserve the scrollbar width: wrapped inspector text near the height
+        // boundary otherwise oscillates between the two available widths.
+        _unitPane = new ScrollContainer { FollowFocus = true, CustomMinimumSize = new(350, 0), SizeFlagsHorizontal = SizeFlags.Fill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Reserve }; row.AddChild(_unitPane);
         Resized += () => _unitPane.CustomMinimumSize = new(Mathf.Max(350, Size.X * .32f), 0);
         Inspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _unitPane.AddChild(Inspector); Inspector.Initialize(skin);
         Army.UnitSelected += unit => { Inspector.Select(unit, false, _context.State.Phase); Inspector.Refresh(_context); };
@@ -104,6 +106,7 @@ public partial class GameplayDialog : Control
         {
             _cityDetails.Text = $"P{context.City.Id} · Wave {context.State.Wave}/{context.State.TotalWaves} · {context.State.Phase}\n"
                 + (context.City.Id != context.Session.PlayerId ? "Allied city · read-only\n" : "")
+                + "\nStocks · " + GameplayContext.Cost(context.City.Resources)
                 + "\nNext encounter\n" + EncounterBriefing.Project(context.State, context.City.Id).Details
                 + "\n\n" + BuildDirection.Inspection(context.City) + "\n\n" + BuildImpact.Inspection(context.City);
             if (context.City.FoodForecast is { } food)

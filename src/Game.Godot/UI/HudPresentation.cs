@@ -15,15 +15,19 @@ public sealed record HudPresentation(HudMoment Moment, bool Arena, bool LiveComb
     public bool Navigation => !Arena && Moment is HudMoment.Planning or HudMoment.ReadyWaiting or HudMoment.RewardWaiting;
     public bool CanChooseReward => Moment == HudMoment.ChoosingReward;
 
-    public static HudPresentation Project(MatchSnapshot state, int localPlayer, bool finishingCombat, bool previewArena)
+    public static int DisplayedWave(MatchSnapshot state, bool finishingCombat)
+        => finishingCombat && state.Phase == Phase.RewardDraft ? state.LastRewardedWave : state.Wave;
+
+    public static HudPresentation Project(MatchSnapshot state, int localPlayer, bool finishingCombat, bool previewArena, bool acceptedChoiceAwaitingSnapshot = false)
     {
         var local = state.Players.Single(p => p.Id == localPlayer);
         bool combat = state.Phase == Phase.Combat || finishingCombat;
         var moment = combat ? local.Eliminated ? HudMoment.Observer : HudMoment.Combat
             : state.Phase is Phase.Victory or Phase.Defeat ? HudMoment.Terminal
             : local.Eliminated ? HudMoment.Observer
-            : state.Phase == Phase.RewardDraft ? local.Run.Choice is null ? HudMoment.ChoosingReward : HudMoment.RewardWaiting
+            : state.Phase == Phase.RewardDraft ? local.Run.Choice is null && !acceptedChoiceAwaitingSnapshot ? HudMoment.ChoosingReward : HudMoment.RewardWaiting
             : local.Ready ? HudMoment.ReadyWaiting : HudMoment.Planning;
-        return new(moment, combat || previewArena, combat);
+        bool planning = moment is HudMoment.Planning or HudMoment.ReadyWaiting;
+        return new(moment, combat || previewArena && planning, combat);
     }
 }

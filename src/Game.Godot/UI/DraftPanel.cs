@@ -13,7 +13,7 @@ public partial class DraftPanel : Control
     public BattleResultStrip Result { get; private set; } = null!;
     private GodotSession _session = null!;
     private string _shape = "", _draftKey = "";
-    private bool _dismissed;
+    private bool _dismissed, _awaitingChoiceState;
     private Control? _invoker;
     private Button _close = null!;
     internal Rect2[] FeedbackAreas => new Control[] { _close, Result, _summary, _cards }
@@ -31,7 +31,7 @@ public partial class DraftPanel : Control
         else if (IsInstanceValid(FallbackFocus) && FallbackFocus!.IsVisibleInTree()) FallbackFocus.GrabFocus();
     }
     public void Open(Control? invoker = null) { _invoker = invoker ?? GetViewport().GuiGetFocusOwner(); _dismissed = false; }
-    public void Reset() { _draftKey = ""; _dismissed = false; _invoker = null; }
+    public void Reset() { Hide(); _draftKey = _shape = ""; _dismissed = false; _invoker = null; }
     private readonly Dictionary<string, RewardCard> _views = [];
     internal IReadOnlyCollection<RewardCard> Cards => _views.Values;
     public IReadOnlyList<Button> RewardButtons => _views.Values.Select(v => v.ChooseButton).ToArray();
@@ -48,18 +48,28 @@ public partial class DraftPanel : Control
         _summary = WrapLabel(); column.AddChild(_summary);
         _cards = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_cards); Hide();
     }
-    public void Refresh(GodotSession session, bool finishingCombat, BattleOutcome? outcome = null)
+    private void Choose(RewardCard control, string shape, string id)
     {
-        _session = session;
+        if (_shape != shape || !IsInstanceValid(control) || !control.IsVisibleInTree() || control.ChooseButton.Disabled
+            || !IsVisibleInTree() || _awaitingChoiceState || !_session.Connected || _session.Pending
+            || _session.Snapshot.Phase != Phase.RewardDraft || _session.City.Eliminated || _session.City.Run.Choice is not null) return;
+        _session.ChooseReward(id); _submitted();
+    }
+    public void Refresh(GodotSession session, bool finishingCombat, BattleOutcome? outcome = null, bool allowed = true, bool awaitingChoiceState = false)
+    {
+        _session = session; _awaitingChoiceState = awaitingChoiceState;
         string draftKey = session.Snapshot.MatchId + ":" + session.City.Run.DraftWave;
         if (_draftKey != draftKey) { _draftKey = draftKey; _dismissed = false; }
         bool opening = !Visible;
-        Visible = !_dismissed && session.Snapshot.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated && session.City.Run.Choice is null;
-        if (!Visible) { if (!opening) RestoreFocus(); return; }
+        var focus = GetViewport().GuiGetFocusOwner();
+        bool ownedFocus = focus is not null && IsAncestorOf(focus);
+        Visible = allowed && !_dismissed && session.Snapshot.Phase == Phase.RewardDraft && !finishingCombat && !session.City.Eliminated && session.City.Run.Choice is null;
+        if (!Visible) { if (!opening && ownedFocus) RestoreFocus(); return; }
         Result.Refresh(outcome);
         if (opening) { _invoker ??= GetViewport().GuiGetFocusOwner(); _close.GrabFocus(); }
-        var view = RunPresentation.Project(session.Snapshot, session.City, session.PlayerId, session.Connected && !session.Pending, false);
+        var view = RunPresentation.Project(session.Snapshot, session.City, session.PlayerId, session.Connected && !session.Pending && !_awaitingChoiceState, false);
         _summary.Text = view.Title + " · " + view.Status.Split('\n')[0] + "\n" + BuildDirection.Summary(session.City);
+        if (_awaitingChoiceState) _summary.Text = "Reward accepted · waiting for the current inventory snapshot…";
         _summary.TooltipText = view.Status + "\n" + view.Forecast;
         string shape = session.Snapshot.MatchId + ":" + session.City.Run.DraftWave + ":" + string.Join(',', view.Cards.Select(c => c.Id));
         if (_shape != shape)
@@ -68,7 +78,7 @@ public partial class DraftPanel : Control
             foreach (var card in view.Cards)
             {
                 string id = card.Id; var control = new RewardCard(); _cards.AddChild(control);
-                control.Initialize(_skin, card, () => { if (IsVisibleInTree() && _session.Connected && !_session.Pending && _session.Snapshot.Phase == Phase.RewardDraft && !_session.City.Eliminated && _session.City.Run.Choice is null) _session.ChooseReward(id); _submitted(); });
+                control.Initialize(_skin, card, () => Choose(control, shape, id));
                 _views.Add(id, control);
             }
         }

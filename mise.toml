@@ -273,3 +273,20 @@ description = "Native two-client planning, Ready, combat, reward and accepted-wa
 depends = ["build"]
 run = "bash tools/graphical.sh capture-hud"
 raw_args = true
+
+[tasks.capture-journey]
+description = "Continuous native three-wave solo journey and overlay transitions in default/debug at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-journey"
+raw_args = true
+
+[tasks.test-journey-network]
+description = "Continuous three-wave native co-op journey with real waiting, delayed acknowledgment and reconnect"
+depends = ["build"]
+run = "bash tools/graphical.sh test-journey-network"
+raw_args = true
+
+[tasks.test-journey]
+description = "Complete solo and 2/4/6-player native transition matrix, default/debug and 720p/1080p"
+depends = ["build"]
+run = ["bash tools/graphical.sh capture-journey", "bash tools/journey-matrix.sh"]

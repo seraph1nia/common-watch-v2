@@ -13,4 +13,5 @@
   <ItemGroup><Compile Include="../../src/Game.Godot/Development/PreparationObservations.cs" Link="PreparationObservations.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../tools/session-probe/OpeningProbe.cs" Link="OpeningProbe.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/UI/HudPresentation.cs" Link="HudPresentation.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/UI/HudJourney.cs" Link="HudJourney.cs" /></ItemGroup>
 </Project>

@@ -87,6 +87,24 @@ with open(sys.argv[1], 'w') as target:
 PYFIXTURE
     run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
     ;;
+  test-journey-network)
+    timeout --kill-after=5s 360s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
+    ;;
+  test-journey)
+    client_timeout=240
+    run_client --journey-test "$@"
+    ;;
+  capture-journey)
+    client_timeout=240
+    for presentation in default debug; do
+      presentation_options=()
+      if [[ $presentation == debug ]]; then presentation_options=(--world-art debug --hud-art plain --view topdown --debug-overlay off); fi
+      for width in 1280 1920; do
+        height=$((width * 9 / 16))
+        run_client "${presentation_options[@]}" --journey-test --gameplay-captures "$(pwd)/artifacts/captures/journey/$presentation/$width" --width "$width" --height "$height" "$@"
+      done
+    done
+    ;;
   capture-hud)
     timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/hud-phases.py --output "$(pwd)/artifacts/captures/hud-phases" "$@"
     ;;

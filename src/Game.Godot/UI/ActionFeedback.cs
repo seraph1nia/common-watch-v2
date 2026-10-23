@@ -33,10 +33,18 @@ public partial class ActionFeedback : Control
     public void Show(FeedbackCue cue)
     {
         if (!cue.Visual) return;
+        if (_hud.Presentation.LiveCombat && cue.Kind is FeedbackKind.Construction or FeedbackKind.Recruitment or FeedbackKind.Upgrade or FeedbackKind.Research or FeedbackKind.Production) return;
         if (cue.Kind is FeedbackKind.WaveClear or FeedbackKind.Defeat or FeedbackKind.Victory) _pulses.Clear();
         _pulses.RemoveAll(p => p.Cue.Kind == cue.Kind && p.Cue.City == cue.City && p.Cue.Slot == cue.Slot);
         if (_pulses.Count == 4) _pulses.RemoveAt(_pulses.Select((p, i) => (p, i)).OrderBy(x => x.p.Cue.Priority).First().i);
         _pulses.Add(new(cue, cue.Combat ? _playback() : _clock, cue.Combat)); QueueRedraw();
+    }
+    public void ClearForJourney(bool combat)
+    {
+        _pulses.RemoveAll(p => p.Cue.Kind != FeedbackKind.Rejected && (combat
+            ? p.Cue.Kind != FeedbackKind.BattleStart && !(p.Cue.Kind == FeedbackKind.Action && p.Cue.Text is "Match paused" or "Match resumed")
+            : p.Cue.Combat || p.Cue.Kind == FeedbackKind.BattleStart));
+        _bounds.Clear(); QueueRedraw();
     }
     public void Clear() { _pulses.Clear(); _bounds.Clear(); QueueRedraw(); }
     public override void _Process(double delta)
