@@ -101,11 +101,17 @@ public partial class GameApplication
         { _pausedOnFall = true; _session.Send("pause"); }
         if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
         { _pausedAtDeath = true; _session.Send("pause"); }
+        if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
+        {
+            // Reach an armed capture boundary in this call, before normal frame
+            // advancement can cross it and finish the requested battle.
+            int steps = _captureCombatWave > 0 && _session.Snapshot.Wave >= _captureCombatWave
+                ? (int)Math.Clamp(180 - (_session.Snapshot.Tick - _session.Snapshot.WaveStartedTick), 0, 180) : 10;
+            for (int i = 0; i < steps && _session.Snapshot.Phase == Phase.Combat && !_session.Snapshot.Paused; i++) _session.Step();
+        }
         if (_captureCombatWave > 0 && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
             && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= 180)
         { _captureCombatWave = 0; _session.Send("pause"); }
-        if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
-            for (int i = 0; i < 10; i++) _session.Step();
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
         var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,

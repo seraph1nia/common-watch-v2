@@ -1,5 +1,27 @@
 # Verification
 
+## Cooperative CI capture boundary (2026-10-23)
+
+[PR workflow 39880793409](https://github.com/seraph1nia/common-watch-v2/actions/runs/39880793409)
+failed the cooperative native worker: both clients had reached wave seven while
+it waited for a paused wave-six battle. The CLI probe checked its 180-tick hold
+between batches, then normal frame advancement could cross the boundary and
+complete that short battle before the next check.
+
+With `--test-fast-combat`, an armed capture now advances a bounded number of
+legal steps to the requested 180-tick point in the same probe call and submits
+an authoritative pause before normal frame advancement. Fast stepping stops if
+the battle ends or pauses. The real two-client worker asserts both authoritative
+snapshots are held at exactly that elapsed tick before inspecting/capturing the
+dense battle. This changes development supervision only; Core, ordinary play,
+network protocol, artwork, music and tool/dependency pins are retained. The
+existing outer process deadlines and cleanup remain active.
+
+Local verification passed: locked zero-warning build, 46 Core tests, 145 Shared
+tests and all six actual native integration tests, including the exact-tick
+cooperative capture, 1–6-client sessions and private reconnect/fault checks.
+Logs use `artifacts/test-logs/ci-capture-*`.
+
 ## Roadmap #13 final audit (2026-10-23)
 
 [Completion review](gameplay/ROADMAP_REVIEW.md) maps all ten closed children and
