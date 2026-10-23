@@ -72,6 +72,12 @@ jobs:
       - name: Test native three-wave journey and overlay transitions
         run: mise run capture-journey
 
+      - name: Test cooperative city focus and unchanged command ownership
+        run: |
+          for players in 2 6; do
+            mise exec -- bash tools/graphical.sh test-journey-network --cooperative-focus --players "$players" --width 1280 --output "$(pwd)/artifacts/captures/cooperation-review/ci-${players}p"
+          done
+
       - name: Test and capture deterministic combat animation
         run: mise run test-animation
 
@@ -138,6 +144,7 @@ jobs:
             artifacts/captures/godot/
             artifacts/captures/journey/
             artifacts/captures/army-workspace/
+            artifacts/captures/cooperation-review/
             artifacts/profiles/
           if-no-files-found: ignore
           retention-days: 7

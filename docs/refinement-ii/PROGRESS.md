@@ -4,14 +4,14 @@ Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/iss
 and its ten children. Preserve the complete scope, including executable rules
 alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
 Current branch: `refinement/20-cooperative-context`, stacked on
-`refinement/19-squad-workspace` (`cb8d787`). Core/Shared source and rules remain unchanged.
+`refinement/19-squad-workspace` (`cb8d787`). Core source/rules and Shared simulation rules remain unchanged; #20 changes the Shared team presentation projection.
 
 | Order | Issue | State |
 | --- | --- | --- |
 | 1 | #16 phase-specific HUD | Implemented and locally verified; draft [PR #26](https://github.com/seraph1nia/common-watch-v2/pull/26). Follow-up probe fixes through `23e94a3`; remote CI passed (run 53). See [contract/inventory](16_PHASE_HUD.md). |
 | 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
 | 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck belongs to #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
-| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), CI pending. See [contract and routes](19_ARMY_WORKSPACE.md). |
+| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
 | 5 | #20 cooperative context | Active: compact cooperative status, explicit inspected/command/camera identities, stable observer flow, final maximum-group framing. Gate A follows these five presentation issues. |
 | 6 | #21 immediate battle rewards | Pending; actual one-shot resources/recovery, no research-point substitute. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
@@ -153,3 +153,69 @@ Before #21, finish #25's exact command/event archival and no-investment baseline
 reproduction from the original sources; existing reports alone are insufficient.
 #21–#25 retain their entire cached specs and executable alternatives, not
 prose-only evaluations or research-point substitutes.
+
+
+#20 active checkpoint (2026-10-24)
+
+Branch `refinement/20-cooperative-context`, on #19 `cb8d787`; probe baseline
+`2bba5fd` changes no presentation. Production implements compact native team
+boundaries/exceptions with bounded details and read-only Army/Worldtree; explicit
+command owner / inspected city / physical camera focus; playback-sector live
+location labels; one harmless observer choice with own-survivor/manual/explicit
+choice deferral; typed unsubscribed events and old-session guards. Core rules,
+transport, settings, assets, dependency pins and credentials remain unchanged.
+Shared changes only its team presentation projection. The implementation/evidence
+contract is [20_COOPERATIVE_CONTEXT.md](20_COOPERATIVE_CONTEXT.md).
+
+Accepted checks: build8 zero warnings; Core46 / Shared145 / models109. All eight
+focused native cooperative three-wave profiles passed on build5: 2p default/debug
+both sizes and4/6p default both sizes, with host/P2/final guest identities, actual
+P1→P2 canvas shift, old selection clearing, wheel/pan across real paused speed
+updates, F/R/Focus city, bounded disclosure, read-only allied overlays,
+keyboard/controller return, delayed ACK, slow finishing and ready/draft reconnect.
+The final full native exception/layout worker before the new cross-sector checks
+also passed. Eighteen paired prep/ready/local-ready panel states retain players
+and exact boundaries while shrinking all panels: 2p87→84,4p146→126,6p205→147px.
+
+Final normal 6p captures at both sizes pass under
+`artifacts/captures/combat-review/r10-final`. Routine combat action height is
+207px rather than336 at720. Speeds/Pause share a row, Overview/details another;
+combat controls use the left with Team, yielding one wide field. Requested default
+framing waits one native layout pass, then remains stable. Height reduction alone
+and layout waiting alone did not improve figures; opposing corners were limiting.
+Final median actors59.8→73.5px (720,+22.9%) and106.5→111.0px (1080,+4.2%), zero
+initial text/body intersections. Comparator enforces >15% at the outstanding720
+case and positive zoom/size with no collision regression at1080. Its provisional
+5%-at-both-sizes requirement had rejected1080; that was not a product criterion.
+Both final encounters270ticks, wall8.83/12.88s, normal1x factor.5 after paid
+accelerated setup. Network histories are unpaired; do not claim causal outcomes.
+
+Bounded paid own-survivor searches are terminal negative discovery results:
+ordinary families54cases and capped armies81cases, plus earlier single-Crossbow
+cases. Retain source copies in artifacts/refinement-ii/r10/ObserverCases-*-negative.cs
+and /tmp/common-watch-r10-owned-search*.log. Search code was removed from the
+production tools project; it found no positive native fallen-owner-survivor case.
+Do NOT fabricate one or substitute preference fixtures for that evidence. The
+three pure ObserverSelection fixtures establish only presentation deferral,
+one-choice/explicit-choice stability and session/match resets. Final native
+exception worker now also tests a fallen guest's explicit own/manual choice
+through real unrelated updates, and actual cross-sector owner/location inspection.
+That inspection uses the development selection API, not OS pointer qualification.
+
+LIVE final serial native queue: exec41489, script
+/tmp/common-watch-r10-gates-rest.sh. Poll with write_stdin. Do NOT rebuild Godot,
+edit the live queue/worker files or launch another Xvfb job while it runs. It runs
+full test-cooperative-context (8focus profiles + legal exceptions), test-session,
+full gameplay, multiplayer1–6, reconnect/fault,24arena cases, art, animation and
+four solo journeys. Per-task logs /tmp/common-watch-r10-*-final.log; inspect actual
+process state if a handle is uncertain. Earlier72845 is terminal1: normal captures
+passed, then the provisional comparator rejected1080; corrected comparison passes.
+
+Remaining: finish final queue and receipts/source manifest; update verification,
+refresh #18 Gate A obligation with real geometry, deliver #20 draft PR on #29 and
+poll exact-SHA remote CI. Gate A requires final solo/co-op first-three-wave native
+gates and unchanged rules, not just compilation. Accurately retain the rare
+fallen-owner-survivor native gap and physical/human/GPU/audio/other-OS/liveSteam
+limits. Before ANY #21 Core rules, finish original #25 exact command/event and
+no-investment archives at b4fa3f7. All five remaining specs and executable
+alternatives remain mandatory. Overall goal active/unbounded; no pending approval.

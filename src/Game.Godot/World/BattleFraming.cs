@@ -8,23 +8,26 @@ namespace Game.GodotClient;
 /// <summary>Stable sector geometry and available native canvas space; no actor chasing.</summary>
 public static class BattleFraming
 {
-    public static Rect2 Engagement(MatchSnapshot state, HexProjection projection, int owner)
+    public static Rect2 Engagement(MatchSnapshot state, HexProjection projection, int focusedCity, IReadOnlyList<UnitState>? presented = null, double? tick = null)
     {
         var arena = state.Arena!;
         var layout = new ArenaLayout(arena, projection);
-        var sector = arena.Sectors.FirstOrDefault(s => s.Owner == owner) ?? arena.Sectors[0];
+        var sector = arena.Sectors.FirstOrDefault(s => s.Owner == focusedCity) ?? arena.Sectors[0];
         var footprints = arena.Footprints.Where(f => f.Owner == sector.Owner).Select(f => f.Cell).ToHashSet();
         var points = arena.Board.Cells.Where(c => footprints.Contains(c.Id)).SelectMany(c => projection.Corners(c.Coordinate))
             .Select(p => new Vector2(p.X - layout.Center.X, p.Y - layout.Center.Y)).ToList();
-        var anticipated = state.Players.Where(p => p.Id == sector.Owner).SelectMany(p => p.Soldiers).Where(u => u.Deployed)
-            .Concat(state.Enemies.Where(u => u.Destination == sector.Owner))
-            .Concat(state.DyingBodies.Where(u => u.Owner == sector.Owner || u.Destination == sector.Owner)).ToArray();
-        foreach (var unit in anticipated.Where(u => u.Hex is not null))
+        // Focus means the physical sector. A city's troops can be helping
+        // elsewhere, and incoming enemies can already have crossed their target.
+        var actors = presented ?? state.Players.SelectMany(p => p.Soldiers).Where(u => u.Deployed)
+            .Concat(state.Enemies).Concat(state.DyingBodies).DistinctBy(u => u.Id).ToArray();
+        var anticipated = actors.Where(u => TeamAwareness.Sector(state, u) is var location && (location > 0
+            ? location == sector.Owner : u.Owner == sector.Owner || u.Destination == sector.Owner)).ToArray();
+        foreach (var unit in anticipated.Where(u => u.Hex is { Position.Cell: > 0 }))
         {
-            var at = CombatVisuals.Position(unit, state, state.Tick);
+            var at = CombatVisuals.Position(unit, state, tick ?? state.Tick);
             points.Add(new(at.X - layout.Center.X, at.Y * (float)projection.Compression - layout.Center.Y));
         }
-        if (anticipated.Length == 0 || anticipated.Any(u => u.Hex is null))
+        if (anticipated.Length == 0 || anticipated.Any(u => u.Hex is not { Position.Cell: > 0 }))
         {
             var ids = sector.DeploymentCells.Concat(sector.EnemyCells).ToHashSet();
             points.AddRange(arena.Board.Cells.Where(c => ids.Contains(c.Id)).SelectMany(c => projection.Corners(c.Coordinate))

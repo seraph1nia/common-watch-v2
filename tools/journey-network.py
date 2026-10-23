@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--players', type=int, choices=(2, 4, 6), default=2)
 parser.add_argument('--width', type=int, choices=(1280, 1920), default=1280)
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--cooperative-focus', action='store_true')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 ROOT = Path(__file__).resolve().parent.parent
@@ -55,7 +56,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
         path.with_suffix('.tmp').write_text(json.dumps(dict(kind=kind, **values)))
         path.with_suffix('.tmp').replace(path)
         wait(lambda: status(i) and status(i)['processedRequests'] >= counts[i], kind)
-        if complete and kind in ('opening-step-native', 'doctrine-native', 'start-native', 'journey-overlay'):
+        if complete and kind in ('opening-step-native', 'doctrine-native', 'start-native', 'journey-overlay', 'team-details-native', 'focus-city-native', 'team-inspect-native', 'team-activate-native'):
             wait(lambda: not status(i)['nativeBusy'], kind + ' completed')
         assert not status(i).get('nativeError'), status(i).get('nativeError')
 
@@ -83,7 +84,66 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                              phase=current['state']['Phase'], moment=current['hudMoment'],
                              receipt=current['rewardReceipt'], receiptCount=current['receiptCount'],
                              stock=city(i)['Resources'], tick=current['state']['Tick'],
-                             speed=current['state']['CombatSpeed'], nativeActions=current['nativeActions']))
+                             speed=current['state']['CombatSpeed'], nativeActions=current['nativeActions'],
+                             teamHeading=current['teamHeading'], teamRows=current['teamRows'], teamWarnings=current.get('teamWarnings'), teamRect=current['teamRect'],
+                             cameraMode=current['cameraMode'], cameraFocusCity=current.get('cameraFocusCity'), cameraZoom=current['cameraZoom'], cameraPan=current['cameraPan'],
+                             qualification='Scripted native controls; paused captures and accelerated simulation are not human decision/waiting time.'))
+
+    def camera_checks():
+        # Real native gestures and distinct command/view/focus identities. No
+        # resources, readiness or simulation state are edited by navigation.
+        for i in sorted({0, 1, args.players - 1}):
+            current = status(i); local = current['player']; target = 2 if local == 1 else 1
+            stock = city(i)['Resources']; sequence = (current['result'] or {}).get('Sequence', 0)
+            unit = next((u for u in city(i)['Soldiers'] if u['Health'] > 0 and u['Deployed']), None)
+            if unit:
+                request(i, 'inspect-combat', unitId=unit['Id'])
+                wait(lambda: status(i)['liveVisible'], 'actual selected unit before city change')
+            old_x = next(p['x'] for p in status(i)['cameraSectors'] if p['owner'] == local)
+            request(i, 'team-pointer', owner=target)
+            wait(lambda: status(i)['viewed'] == target and status(i)['cameraFocusCity'] == target and status(i)['cameraMode'] == 'Automatic', 'inspected ally and actual automatic focus agree')
+            assert status(i)['player'] == local and 'read-only' in status(i)['readOnly'] and not status(i)['liveVisible']
+            if local == 1:
+                moved = next(p['x'] for p in status(i)['cameraSectors'] if p['owner'] == local)
+                assert moved < old_x - 60, ('actual native canvas follows P2 rather than command owner P1', old_x, moved)
+            assert city(i)['Resources'] == stock and (status(i)['result'] or {}).get('Sequence', 0) == sequence
+            capture(f'focus-ally-local-{local}', i)
+            request(i, 'camera-wheel-native'); request(i, 'camera-pan-native', dx=70, dy=30)
+            wait(lambda: status(i)['cameraMode'] == 'Manual' and 'Manual' in status(i)['teamHeading'], 'manual mode is visible')
+            pose = (status(i)['cameraZoom'], status(i)['cameraPan'])
+            # Two genuine unrelated snapshots while paused, with the original
+            # speed restored before any combat ticks resume.
+            send(0, 'speed-2x'); send(0, 'speed-1x')
+            wait(lambda: status(i)['state']['CombatSpeed'] == 'One', 'restored authoritative normal speed')
+            assert status(i)['cameraMode'] == 'Manual' and (status(i)['cameraZoom'], status(i)['cameraPan']) == pose
+            capture(f'manual-retained-local-{local}', i)
+            request(i, 'focus-city-native')
+            wait(lambda: status(i)['cameraMode'] == 'Automatic' and status(i)['cameraFocusCity'] == target, 'explicit Focus city restores inspected sector')
+            auto = (status(i)['cameraZoom'], status(i)['cameraPan'])
+            request(i, 'camera-native', key='F')
+            wait(lambda: status(i)['cameraMode'] == 'Overview' and 'overview' in status(i)['teamHeading'], 'field overview explicitly named')
+            capture(f'overview-local-{local}', i)
+            request(i, 'camera-native', key='R')
+            wait(lambda: status(i)['cameraMode'] == 'Automatic', 'native R restores current inspected sector')
+            assert status(i)['cameraFocusCity'] == target and (status(i)['cameraZoom'], status(i)['cameraPan']) == auto
+            request(i, 'team-details-native')
+            wait(lambda: status(i)['teamExpanded'] and status(i)['teamTargetsFit'], 'bounded deliberate team details')
+            capture(f'team-details-local-{local}', i)
+            for page in ('Army', 'Worldtree'):
+                request(i, 'team-inspect-native', page=page)
+                wait(lambda: status(i)['detailsVisible'] and 'read-only' in status(i)['readOnly'], 'actual allied ' + page)
+                if page == 'Army':
+                    assert status(i)['homePlacementLocked'] and status(i)['homeTargetsFit']
+                else:
+                    assert status(i)['disabledResearch']
+                capture(f'allied-{page.lower()}-local-{local}', i)
+                request(i, 'cancel-native')
+                wait(lambda: not status(i)['detailsVisible'], 'native allied inspector close')
+            request(i, 'team-details-native')
+            request(i, 'team-activate-native', owner=local, input='keyboard' if local == 1 else 'controller')
+            wait(lambda: status(i)['viewed'] == local and status(i)['cameraFocusCity'] == local and status(i)['cameraMode'] == 'Automatic', 'native keyboard/controller return to local city')
+            assert city(i)['Resources'] == stock
+        print(f'GODOT_COOP_FOCUS_PASS players={args.players} width={args.width} local-ids=host/guest/final keyboard controller manual snapshot-retention overview reset read-only-inspectors', flush=True)
 
     def choose(i):
         old = status(i)['receiptCount']
@@ -166,6 +226,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                 request(0, 'cancel-native')
                 wait(lambda: not status(0)['settingsVisible'], 'native Settings cancel')
             capture(f'w{wave}-combat')
+            if args.cooperative_focus and wave == 1:
+                camera_checks()
             if wave == 1:
                 request(1, 'hold-presentation', enabled='yes')
             send(0, 'resume')

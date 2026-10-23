@@ -36,7 +36,7 @@ public partial class MatchControls : VBoxContainer
         _pause = skin.Button("Pause", () => Send(_session.Snapshot.Paused ? "resume" : "pause"), "ForestArcaneButton");
         _pause.SizeFlagsHorizontal = SizeFlags.ExpandFill; _pause.CustomMinimumSize = new(0, 44); ready.AddChild(_pause);
         _consequence = WrapLabel(); _consequence.AddThemeFontSizeOverride("font_size", 14); AddChild(_consequence);
-        _speeds = new HBoxContainer(); AddChild(_speeds);
+        _speeds = new HBoxContainer(); ready.AddChild(_speeds); ready.MoveChild(_speeds, 0);
         foreach (CombatSpeed speed in Enum.GetValues<CombatSpeed>())
         {
             var button = skin.Button(CombatSpeedRates.Label(speed), () => Send(CombatSpeedRates.Action(speed))); _speeds.AddChild(button); _speedButtons.Add(speed, button);
@@ -80,7 +80,9 @@ public partial class MatchControls : VBoxContainer
         _status.Text = state.Paused && !ended ? "PAUSED" : (state.Paused ? "PAUSED · " : "") +
             (ended ? $"{state.Phase} · {(state.Phase == Phase.Defeat ? PresentationLimits.DefeatText(state.DefeatReason) : "All waves held")}" :
             "Waiting: " + string.Join(", ", state.Players.Where(p => p.Connected && !p.Eliminated && !p.Ready).Select(p => $"P{p.Id}")));
-        _status.Visible = state.Paused && !preparing || ended;
+        // Combat already exposes Resume and a paused phase heading. Keep its
+        // speed and pause controls together instead of stacking three rows.
+        _status.Visible = ended;
         _status.AddThemeFontSizeOverride("font_size", ended ? 22 : 16);
         ReadyButton.TooltipText = $"Ready controls your city P{session.PlayerId}; Unready unlocks editing.\nAll connected, standing cities must be Ready\nto settle production {state.Turn}/3.\nEach settlement advances research and eligible paid recovery.\nOnly the final settlement pays battle Food.\nFood shortage permits Ready; unfunded field soldiers sit out.";
     }

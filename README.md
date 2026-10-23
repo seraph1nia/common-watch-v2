@@ -105,6 +105,7 @@ mise run capture-veterans          # history, recovery/recruit comparison and re
 mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
 mise run capture-hud               # native Ready, combat and acknowledged reward-waiting at both sizes
 mise run test-journey              # continuous native three-wave solo and 2/4/6-player journeys
+mise run test-cooperative-context  # city focus, owner guards, manual camera and three-wave co-op matrix
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
 mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition

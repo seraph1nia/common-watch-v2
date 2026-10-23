@@ -11,6 +11,7 @@ public partial class WorldCamera : Camera2D
     public float Magnification { get; private set; } = 1;
     public Vector2 PanPixels { get; private set; }
     public ArenaCameraMode ArenaMode { get; private set; }
+    public int FocusCity { get; private set; }
     private Vector2 _origin;
     private bool _dragging;
     private float _defaultMagnification = 1;
@@ -40,7 +41,7 @@ public partial class WorldCamera : Camera2D
     {
         Fixed = true; _defaultOrigin = origin; _defaultMagnification = zoom; Magnification = zoom; PanPixels = Vector2.Zero; StopDrag(); Layout(origin);
     }
-    public void FrameArena(Rect2 bounds, Vector2 viewport, Vector2? focus = null, float? sectorPitch = null)
+    public void FrameArena(Rect2 bounds, Vector2 viewport, Vector2? focus = null, float? sectorPitch = null, int city = 0)
     {
         bool local = focus is not null && sectorPitch is not null;
         var frame = focus is { } center && sectorPitch is { } pitch
@@ -58,14 +59,16 @@ public partial class WorldCamera : Camera2D
             Layout(viewport / 2 - frame.GetCenter() * zoom);
         }
         Fixed = false;
+        if (local) FocusCity = city;
         ArenaMode = local ? ArenaCameraMode.Automatic : ArenaCameraMode.Overview;
     }
-    public void FrameBattle(Rect2 engagement, Rect2 safeArea)
+    public void FrameBattle(Rect2 engagement, Rect2 safeArea, int city = 0)
     {
         float zoom = Mathf.Clamp(Mathf.Min(safeArea.Size.X / engagement.Size.X, safeArea.Size.Y / engagement.Size.Y) * .96f, .25f, 3.3f);
         Frame(safeArea.GetCenter() - engagement.GetCenter() * zoom, zoom);
-        Fixed = false; ArenaMode = ArenaCameraMode.Automatic;
+        Fixed = false; ArenaMode = ArenaCameraMode.Automatic; FocusCity = city;
     }
+    public void PrepareFrame() { StopDrag(); ArenaMode = ArenaCameraMode.Automatic; }
     public void Reset() { StopDrag(); Magnification = _defaultMagnification; PanPixels = Vector2.Zero; ArenaMode = ArenaCameraMode.Automatic; Layout(_defaultOrigin); }
     public void StopDrag() => _dragging = false;
     public void ZoomAt(Vector2 cursor, bool inward)

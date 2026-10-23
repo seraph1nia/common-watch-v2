@@ -104,6 +104,7 @@ public partial class UnitInspector : VBoxContainer
             ? $"{CombatInspection.Owner(unit)} · {unit.Type}{(unit.IsBoss ? " · BOSS" : "")}\n{CombatInspection.Role(unit)} · L{unit.Level}"
                 + $"\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)}"
                 + $"\nNow: {(unit.Health <= 0 ? "Fallen" : unit.Hex?.Action.ToString() ?? "Preparing")} · Effects: {CombatInspection.Effects(unit, tick)}"
+                + (TeamAwareness.Sector(context.State, unit) is > 0 and var sector ? $"\nLocation: P{sector} sector" : "")
                 + "\nTarget: " + LiveTarget(unit, units, playback?.Structures() ?? context.State.Structures, context.Session.PlayerId)
             : CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
         if (!ReadOnlyLive && city is not null) _text.Text += $"\nService history: {unit.Experience} battles (no stat or equipment gain)\n" +

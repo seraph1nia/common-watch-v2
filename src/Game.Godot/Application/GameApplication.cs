@@ -180,17 +180,28 @@ public partial class GameApplication : Node
             string key = $"{state.MatchId}:{state.WaveStartedTick}:{state.Arena!.Sectors.Length}:{_session.ViewedCity.Id}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
             if (_camera.Fixed || key != _arenaCameraKey)
             {
+                if (_arenaFrameRequestKey != key)
+                {
+                    _arenaFrameRequestKey = key; _arenaFrameRequestFrame = Engine.GetProcessFrames();
+                    _camera.PrepareFrame();
+                }
+                // A new battle changes retained native containers after this
+                // world's presentation pass. Let that layout settle once before
+                // saving the default pose; later HUD/actor updates never reframe.
+                if (Engine.GetProcessFrames() <= _arenaFrameRequestFrame) return;
                 _arenaCameraKey = key;
+                if (_camera.ArenaMode != ArenaCameraMode.Automatic) return;
                 var layout = new ArenaLayout(state.Arena, new HexProjection(30, _options.GroundCompression));
                 var focus = layout.SectorCenter(_session.ViewedCity.Id);
                 if (_battlefield.Active)
                 {
-                    var engagement = BattleFraming.Engagement(state, new HexProjection(30, _options.GroundCompression), _session.ViewedCity.Id);
-                    _camera.FrameBattle(engagement, BattleFraming.SafeArea(WorldArea, engagement, _gameUi.CombatOccluders));
+                    var engagement = BattleFraming.Engagement(state, new HexProjection(30, _options.GroundCompression), _session.ViewedCity.Id, _battlefield.Playback?.Units(), _battlefield.Playback?.Tick);
+                    _camera.FrameBattle(engagement, BattleFraming.SafeArea(WorldArea, engagement, _gameUi.CombatOccluders), _session.ViewedCity.Id);
                 }
-                else _camera.FrameArena(_arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch);
+                else _camera.FrameArena(_arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch, _session.ViewedCity.Id);
             }
         }
+        _gameUi.CameraContext(_camera.ArenaMode, _battlefield.Active || preview, _camera.FocusCity);
         if (_battlefield.Active && _gameUi.LiveInspector.Visible)
         {
             var inspector = _gameUi.LiveInspector;
@@ -233,15 +244,22 @@ public partial class GameApplication : Node
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
         if (!_settlementView.Visible && input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F })
-        { OverviewArena(); GetViewport().SetInputAsHandled(); return; }
+        { _gameUi.CameraNavigated(); OverviewArena(); GetViewport().SetInputAsHandled(); return; }
         var area = WorldArea;
-        if (!_settlementView.Visible) _camera.Handle(input, area);
+        if (!_settlementView.Visible)
+        {
+            _camera.Handle(input, area);
+            if (input.IsActionPressed("camera_reset") || _camera.ArenaMode != ArenaCameraMode.Automatic)
+                _gameUi.CameraNavigated();
+        }
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
     private Rect2 WorldArea => GetViewport().GetVisibleRect();
     private string _arenaCameraKey = "";
-    private void PrepareBattleCamera() { _arenaCameraKey = ""; _camera.StopDrag(); }
+    private string _arenaFrameRequestKey = "";
+    private ulong _arenaFrameRequestFrame;
+    private void PrepareBattleCamera() { _arenaCameraKey = _arenaFrameRequestKey = ""; _camera.PrepareFrame(); }
     private void OverviewArena()
     {
         if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
