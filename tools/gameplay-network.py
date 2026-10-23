@@ -181,11 +181,11 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         send(1, 'unready')
         send(1, 'speed-2x', accepted=False)
         capture_feedback('rejected', 'Rejected')
-        control(0, 'hold-combat', wave=6)
+        control(0, 'hold-combat', wave=6, tick=60)
         for index in range(2):
             control(index, 'policy', enabled='yes')
         wait(lambda: all(status(i)['state']['Wave'] == 6 and status(i)['state']['Phase'] == 'Combat' and status(i)['state']['Paused'] for i in range(2)), 'dense cooperative battle held by authoritative pause', seconds=100)
-        assert all(status(i)['state']['Tick'] - status(i)['state']['WaveStartedTick'] == 180 for i in range(2)), 'capture pauses both clients at the exact authoritative tick'
+        assert all(status(i)['state']['Tick'] - status(i)['state']['WaveStartedTick'] == 60 for i in range(2)), 'capture pauses both clients at the exact authoritative tick'
         actors = [u for p in status(1)['state']['Players'] for u in p['Soldiers'] if u['Health'] > 0] + status(1)['state']['Enemies']
         assert len(actors) >= 16, ('dense battle actor count', len(actors))
         unit = next(u for u in actors if u['Faction'] == 'Adventurers' and u['Owner'] == 2 and u['Hex']['Lifecycle'] == 'Alive')

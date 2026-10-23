@@ -128,3 +128,13 @@ No human comprehension/playtest claim is made. There is no physical audio/contro
 or GPU qualification, native Windows/macOS execution, or live Steam qualification.
 The known intermittent native .NET/JIT crash risk remains. These limits do not turn
 unexecuted observations into completed evidence.
+
+Remote CI run 49 found two timing assumptions in inherited probes: the selected
+wave can legally finish before tick 180 with different personal reward offers,
+and a missing-host wait of 22 seconds included native startup as well as the
+unchanged 15-second admission deadline. The dense native capture now requests
+an exact tick 60 boundary while preserving its actor/read-only assertions; the
+probe accepts a bounded explicit capture tick and keeps 180 as its default.
+The absent-host observation budget is 45 seconds, without changing transport's
+admission timeout. Both seven-wave native network checks and reconnect passed
+with these probe repairs before pushing the CI follow-up.

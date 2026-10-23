@@ -227,7 +227,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-reconnect-') as temporary:
         control(0, 'quit'); host.wait(timeout=8)
         wait(lambda: not status(2)['connected'], 'Host leaving lobby')
         absent = launch(7)
-        wait(lambda: (current := status(7)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=22)
+        wait(lambda: (current := status(7)) and ('timed out' in current['status'].lower() or 'unavailable' in current['status'].lower()), 'Missing authority fails connection', seconds=45)
         refused = status(7)
         assert not refused['connected'] and refused['state'] is None
         print('godot', 'PASS: ownership, duplicates, protocol refusal, restart, preparation/combat/death/draft resume, animation reset, sequence continuity, private files, invalid/expired credentials, locked roster and host shutdown', flush=True)

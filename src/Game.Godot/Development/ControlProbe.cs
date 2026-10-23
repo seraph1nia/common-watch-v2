@@ -12,6 +12,7 @@ public partial class GameApplication
     private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
     private bool _gameplayPolicy;
     private int _captureCombatWave;
+    private int _captureCombatTick = 180;
     private async void CaptureGameplayNetwork(string path)
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -54,7 +55,7 @@ public partial class GameApplication
                 case "ready-pointer": WorldtreeClick(_gameUi.ReadyButton.GetGlobalRect().GetCenter()); break;
                 case "watch-ally": _gameUi.Team.WatchButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
-                case "hold-combat": _captureCombatWave = Number("wave", 6); break;
+                case "hold-combat": _captureCombatWave = Number("wave", 6); _captureCombatTick = Math.Clamp(Number("tick", 180), 1, 180); break;
                 case "show-homes" when _session is { HasState: true }:
                     _gameUi.Details.Open(DetailsPage.Army, new GameplayContext(_session, ResumeAfterCommand));
                     _gameUi.Details.Army.ShowHomes(); RefreshUi(true); break;
@@ -110,11 +111,11 @@ public partial class GameApplication
             // Reach an armed capture boundary in this call, before normal frame
             // advancement can cross it and finish the requested battle.
             int steps = _captureCombatWave > 0 && _session.Snapshot.Wave >= _captureCombatWave
-                ? (int)Math.Clamp(180 - (_session.Snapshot.Tick - _session.Snapshot.WaveStartedTick), 0, 180) : 10;
+                ? (int)Math.Clamp(_captureCombatTick - (_session.Snapshot.Tick - _session.Snapshot.WaveStartedTick), 0, _captureCombatTick) : 10;
             for (int i = 0; i < steps && _session.Snapshot.Phase == Phase.Combat && !_session.Snapshot.Paused; i++) _session.Step();
         }
         if (_captureCombatWave > 0 && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
-            && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= 180)
+            && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= _captureCombatTick)
         { _captureCombatWave = 0; _session.Send("pause"); }
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
