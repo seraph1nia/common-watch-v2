@@ -34,8 +34,8 @@ case "$operation" in
     run_probe --battle swordsman --world-art sprites --environment-captures "$output" "$@" 2>&1 | tee -a "$environment_log"
     run_probe --battle swordsman --battle-tick 74 --world-art sprites --environment-effects full --environment-preset rain --environment-time 8 --assets-root "$settings_directory/missing-sprites" --capture "$output/missing-art.png" 2>&1 | tee -a "$environment_log"
     run_probe --battle swordsman --battle-tick 74 --world-art debug --environment-effects full --environment-preset rain --environment-time 8 --capture "$output/debug.png" 2>&1 | tee -a "$environment_log"
-    if rg -n 'SHADER ERROR:|ERROR:|Unhandled exception' "$environment_log"; then exit 1; fi
-    rg -q 'GODOT_ENVIRONMENT_PASS' "$environment_log"
+    if grep -nE 'SHADER ERROR:|ERROR:|Unhandled exception' "$environment_log"; then exit 1; fi
+    grep -q 'GODOT_ENVIRONMENT_PASS' "$environment_log"
     ;;
   capture-arena)
     client_timeout=240
@@ -56,6 +56,60 @@ case "$operation" in
     ;;
   test-gameplay-network)
     timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/gameplay-network.py
+    ;;
+  capture-feedback)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      audition=(); if [[ $width == 1280 ]]; then audition=(--feedback-audition "$(pwd)/artifacts/feedback/audio"); fi
+      run_client --feedback-review --gameplay-captures "$(pwd)/artifacts/captures/feedback/$width" --width "$width" --height "$height" "${audition[@]}" "$@"
+      run_probe --feedback-review --gameplay-captures "$(pwd)/artifacts/captures/feedback/debug-$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
+  capture-forest-consistency)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --forest-review --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/$width" --width "$width" --height "$height" "$@"
+      run_probe --forest-review --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/debug-$width" --width "$width" --height "$height" "$@"
+    done
+    # Textual invalid files exercise native decode rejection without authoring artwork.
+    mkdir -p "$settings_directory/forest-fixture/sprites/units" "$settings_directory/forest-fixture/sprites/arena"
+    run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/missing" "$@"
+    printf '%s' 'invalid PNG fixture' > "$settings_directory/forest-fixture/sprites/units/enemy_berserker.png"
+    printf '%s' 'invalid PNG fixture' > "$settings_directory/forest-fixture/sprites/arena/defense_tower.png"
+    python3 - "$settings_directory/forest-fixture/catalog.json" <<'PYFIXTURE'
+import json, sys
+catalog = json.load(open('assets/catalog.json'))
+catalog['assets'] = [a for a in catalog['assets'] if a['id'] in ('unit/enemy_berserker', 'arena/defense_tower')]
+with open(sys.argv[1], 'w') as target:
+    json.dump(catalog, target)
+PYFIXTURE
+    run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
+    ;;
+  capture-cooperation)
+    timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/cooperation.py
+    ;;
+  capture-bosses)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --boss-review --gameplay-captures "$(pwd)/artifacts/captures/bosses/$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
+  capture-veterans)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --veteran-review --gameplay-captures "$(pwd)/artifacts/captures/veterans/$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
+  capture-opening)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --opening-review --gameplay-captures "$(pwd)/artifacts/captures/opening/$width" --width "$width" --height "$height" "$@"
+    done
     ;;
   test-gameplay|capture-gameplay)
     client_timeout=180

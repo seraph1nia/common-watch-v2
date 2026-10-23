@@ -94,6 +94,7 @@ public partial class SettlementView : Node2D
     }
     public override void _Draw()
     {
+        _levelCues.Clear();
         if (_map is { } map) { DrawMap(map.Texture, map.Layout); return; }
         for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
         {
@@ -117,6 +118,8 @@ public partial class SettlementView : Node2D
                 }
             }
         }
+        for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
+            DrawBuildingProgress(i, LocalPosition(Projection.Project(SettlementLayout.Coordinates[i])));
     }
 
     private void DrawMap(Texture2D texture, SettlementMapLayout layout)
@@ -159,6 +162,8 @@ public partial class SettlementView : Node2D
             else if (!slot.Purchased)
                 _art.Sprite(this, "resource/gold", ground, Vector2.One * 46);
         }
+        // Annotations finish after every tall sprite, so rear-building levels stay visible.
+        foreach (var spot in layout.Spots) DrawBuildingProgress(spot.Slot, MapPosition(spot.BuildingAnchor));
     }
 
     private void DrawRing(SettlementMapSpot spot, Color color, float width)

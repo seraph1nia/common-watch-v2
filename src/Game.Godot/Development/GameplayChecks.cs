@@ -12,6 +12,12 @@ public partial class GameApplication
         await CheckMenuPresentation();
         await CheckArenaFraming();
         await CheckPaintedHudControls();
+        await CheckForestPresentation();
+        await CheckOpeningGuide();
+        await CheckCombatReadability();
+        await CheckArmyDeployment();
+        await CheckVeteranChoices();
+        await CheckBossPresentation();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
         _session.SelectSlot(-1); RefreshUi(true); await GameplayCapture("hud-idle");
@@ -101,7 +107,7 @@ public partial class GameApplication
         OpenDetails(DetailsPage.Army);
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
-        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("service XP"), "reusable persistent member inspector");
+        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var rosterScroll = _gameUi.Details.Army.RosterScroll;
         rosterScroll.ScrollVertical = 80;
@@ -117,6 +123,7 @@ public partial class GameApplication
         _gameUi.Details.Army.ShowHomes();
         Require(_gameUi.Details.Deployment.HomeButtons.Count == 12, "six numbered homes with inspect and deployment controls");
         var chosenSquad = _session.City.Soldiers.First(u => u.Assignment is { Stored: false });
+        _gameUi.Details.Army.SelectSquad(chosenSquad.SquadId);
         Press(_gameUi.Details.Deployment.HomeButtons["Deploy" + (chosenSquad.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
         Require(_session.LastResult?.Accepted == true, "native squad and arena-cell command");
         await GameplayCapture("army-deployment");
@@ -130,8 +137,10 @@ public partial class GameApplication
         int health = stored.Health;
         Press(_gameUi.Details.Inspector.Buttons["Return"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Assignment is { Stored: false }, "native veteran return");
+        Require(_gameUi.Details.Inspector.SelectedUnit == stored.Id && _gameUi.Details.Army.SelectedSquad == _session.City.Soldiers.Single(u => u.Id == stored.Id).SquadId, "return retains the member and follows the accepted destination squad");
         Press(_gameUi.Details.Inspector.Buttons["Store"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Health == health, "native storage cannot heal independently");
+        Require(_gameUi.Details.Inspector.SelectedUnit == stored.Id, "storage retains the selected veteran context");
 
         ReplaceSession(GameplayScenarios.CreateAt("research")); _frozen = true; RefreshUi(true); OpenDetails(DetailsPage.Worldtree);
         Require(_gameUi.Details.Research.TechnologyButtons.Count == _session.Snapshot.TechnologyCatalog.Length, "every canonical technology inspectable");
@@ -157,7 +166,10 @@ public partial class GameApplication
         SelectAt(_camera.ToScreen(_arenaPreview.UnitPosition(forecastEnemy.Id)));
         Require(_gameUi.Details.Visible && _gameUi.Details.Inspector.SelectedUnit == forecastEnemy.Id, "native world forecast picking opens same inspector");
         Require(_session.Snapshot.Revision == forecastRevision, "forecast picking is read-only");
-        _gameUi.Details.Close(); await GameplayCapture("food-shortage");
+        _gameUi.Details.Close(); Press(_gameUi.ArenaButton); await GameplayCapture("food-shortage");
+        CheckPreparationSummary();
+        int unfedField = _session.City.Soldiers.Count(u => u.Assignment is not { Stored: true } && _session.City.FoodForecast!.Unfed.Contains(u.Id));
+        Require(_gameUi.PreparationSummary.Text.Contains($"{unfedField} sit out"), "shortage counts field soldiers separately from stored soldiers");
         var defense = _session.Snapshot.Structures.Single(s => s.Owner == _session.PlayerId && s.Slot == 7);
         _gameUi.Inspect(defense);
         Press(_gameUi.Details.Inspector.Buttons["ManageTower"]);
@@ -182,7 +194,21 @@ public partial class GameApplication
         _gameUi.Draft.Dismiss();
         Require(_session.Snapshot.Revision == draftRevision && _session.City.Run.Choice is null, "dismissing rewards does not choose or pause");
         _gameUi.Details.Close(); _gameUi.Draft.Open(); RefreshUi(true);
+        if (_gameUi.Draft.Result.Expanded) Press(_gameUi.Draft.Result.ExpandButton);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        var cards = _gameUi.Draft.Cards.ToArray();
+        Require(cards.All(c => c.TargetsText.Length > 0 && c.EffectsText.Length > 0), "every offered reward explains current targets or a deliberate pivot");
         await GameplayCapture("reward-draft");
+        long effectRevision = _session.Snapshot.Revision;
+        WorldtreeClick(cards[0].EffectsButton.GetGlobalRect().GetCenter());
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(cards[0].EffectsVisible && cards[0].CopyArea.Size.Y >= 64 && _session.Snapshot.Revision == effectRevision, "native reward effects inspection spends nothing and leaves the offer intact");
+        await GameplayCapture("reward-current-effects");
+        cards[0].EffectsButton.GrabFocus();
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = true }, true);
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = false }, true);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(!cards[0].EffectsVisible && _session.City.Run.Choice is null, "keyboard closes effects without choosing a reward");
         await CheckMenuPopup("rewards");
         Press(_gameUi.Draft.RewardButtons[0]);
         Require(_session.City.Run.Cards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
@@ -193,7 +219,7 @@ public partial class GameApplication
         ReplaceSession(ScenarioRunner.CreateAt("settlement")); _frozen = true; _session.SelectSlot(4); RefreshUi(true);
         var recovery = _gameUi.Inspector.Construction.RecoveryButton!;
         await GameplayCapture("build-gold-recovery");
-        Require(recovery.Visible && _gameUi.ContextArea.Encloses(recovery.GetGlobalRect()), "Gold recovery fits alongside every production option");
+        Require(recovery.Visible && _gameUi.ContextArea.Encloses(recovery.GetGlobalRect()), $"Gold recovery fits alongside every production option: viewport={_gameUi.ContextArea} card={recovery.GetGlobalRect()}");
         long recoveryRevision = _session.Snapshot.Revision;
         Press(recovery); Require(_session.Snapshot.Revision == recoveryRevision, "recovery card selection spends nothing");
         await GameplayCapture("build-gold-recovery-selected");
@@ -270,6 +296,7 @@ public partial class GameApplication
             _settings.Open();
             await CheckMenuPopup("settings-" + size.X);
             CancelUi(); Require(!_settings.Visible && _gameUi.Details.Visible, "Esc closes nested settings before details");
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             CancelUi(); Require(!_gameUi.Details.Visible, "Esc closes details");
             Require(GetViewport().GuiGetFocusOwner() is { } restored && restored.IsVisibleInTree(), "details restores a visible native focus target");
         }

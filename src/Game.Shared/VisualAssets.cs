@@ -54,6 +54,13 @@ public static class VisualAssets
         .Concat(new[] { "terrain/hex", "terrain/woodland_hex", "terrain/settlement_map", "resource/gold", "resource/wood", "resource/stone", "hud/panel", "hud/card_frame", "hud/button", "hud/tooltip" }).ToHashSet(StringComparer.Ordinal);
     public static string BuildingId(Building type) => "building/" + type.ToString().ToLowerInvariant();
     public static string UnitId(UnitState unit) => "unit/" + (unit.Faction == Faction.Skeletons ? "enemy_" : "") + unit.Type.ToString().ToLowerInvariant();
+    public static string StructureId(ArenaStructureKind kind) => kind switch
+    {
+        ArenaStructureKind.Keep => "arena/keep",
+        ArenaStructureKind.Watchpost or ArenaStructureKind.ArrowTower => "arena/defense_tower",
+        ArenaStructureKind.CatapultTower => "building/catapulttower",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind))
+    };
     public static string RelativePath(string identifier)
     {
         if (!Known.Contains(identifier)) throw new ArgumentException("Unknown logical visual identifier.", nameof(identifier));

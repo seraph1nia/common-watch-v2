@@ -237,3 +237,33 @@ run = ["dotnet test tests/Game.Godot.Session.Tests --no-build --no-restore --fil
 [tasks.review-environment]
 description = "Review actual atmosphere samples and Off/Full measurements locally"
 run = "python3 tools/environment-review.py"
+
+[tasks.capture-opening]
+description = "Legal first-three-wave doctrine paths through native production controls at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-opening"
+
+[tasks.capture-veterans]
+description = "Actual veteran history, recovery/replacement quotes and guarded retirement at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-veterans"
+
+[tasks.capture-bosses]
+description = "Legal wave 10/20 forecast, crowned figures, playback health/windup/death and restart"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-bosses"
+
+[tasks.capture-cooperation]
+description = "Actual 2–6-player team layouts, allied pointer input, readiness, reconnect and legal early elimination"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-cooperation"
+
+[tasks.capture-forest]
+description = "Actual 720p/1080p building progression, Watchpost/Berserker mappings and HUD hierarchy in sprites/debug"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-forest-consistency"
+
+[tasks.capture-feedback]
+description = "Native action/playback feedback at both sizes, pause/retry/baseline checks and actual muted-music mixer audition"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-feedback"

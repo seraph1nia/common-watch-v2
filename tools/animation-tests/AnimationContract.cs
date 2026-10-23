@@ -95,3 +95,39 @@ public class AnimationContract
         Assert.Empty(motion.Events); Assert.Equal(0, battle.Playback.Tick);
     }
 }
+
+public sealed class BossAnimationContract
+{
+    private static readonly Lazy<BattleShowcase> Recording = new(() => new("boss-10"));
+    [Fact]
+    public void ActualBossAnticipationScaleAndDeathUseOnlyAuthoritativeTicks()
+    {
+        var battle = Recording.Value;
+        var frame = battle.Frames.First(f => f.Enemies.Any(u => u.IsBoss && u.PendingImpact && u.ImpactTick > f.Tick));
+        var boss = frame.Enemies.Single(u => u.IsBoss); var motion = new Motion();
+        double tick = boss.ActionStartTick + (boss.ImpactTick - boss.ActionStartTick) * .4;
+        var pose = motion.Sample(boss, tick, Vector2.UnitX);
+        Assert.True(pose.Offset.X < -1.5f); Assert.True(pose.Scale > 1.3f);
+        Assert.Equal(pose, motion.Sample(boss, tick, Vector2.UnitX));
+        var death = battle.Frames.SelectMany(f => f.CombatEvents).Single(e => e.Type == CombatEventType.Death && e.Unit is { IsBoss: true }).Unit!;
+        Assert.Equal(1, motion.Sample(death, death.Hex!.DeathStartTick, Vector2.UnitX).Opacity);
+        Assert.Equal(0, motion.Sample(death, death.Hex.DeathEndTick, Vector2.UnitX).Opacity);
+    }
+    [Theory]
+    [InlineData(30)] [InlineData(60)] [InlineData(120)]
+    public void BossPlaybackKeepsOneDeathAndClearsOnRestartAtEverySpeed(int fps)
+    {
+        foreach (var speed in Enum.GetValues<CombatSpeed>())
+        {
+            var battle = new BattleShowcase("boss-10") { Speed = speed }; int deaths = 0;
+            for (int n = 0; n < fps * 60 && !battle.Complete; n++)
+            {
+                battle.Advance(1.0 / fps);
+                deaths += battle.Playback.Drain().Count(e => e.Type == CombatEventType.Death && e.Unit is { IsBoss: true });
+            }
+            Assert.True(battle.Complete); Assert.Equal(1, deaths);
+            Assert.Equal(battle.Frames[^1].EventSequence, battle.Playback.EventCursor);
+            battle.Restart(); Assert.Empty(battle.Playback.Drain());
+        }
+    }
+}

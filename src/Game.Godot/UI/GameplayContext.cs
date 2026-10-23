@@ -49,12 +49,12 @@ public partial class ActionList : BoxContainer
     public IReadOnlyDictionary<string, Button> Buttons => _buttons;
     public ActionList() { Vertical = true; }
     public void Begin() => _used.Clear();
-    public Button Item(HudSkin skin, string key, string text, Action action, string unavailable = "")
+    public Button Item(HudSkin skin, string key, string text, Action action, string unavailable = "", string variation = "")
     {
         _used.Add(key);
         if (!_buttons.TryGetValue(key, out var button))
         {
-            button = skin.Button(text, action); button.Name = key;
+            button = skin.Button(text, action, variation); button.Name = key;
             button.AutowrapMode = TextServer.AutowrapMode.WordSmart; button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             AddChild(button); _buttons.Add(key, button);
         }

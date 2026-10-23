@@ -100,3 +100,46 @@ native Windows/macOS execution, physical GPU/input and real audio hardware remai
 unexecuted. Cross-builds and Linux LAN/offline tests do not qualify them. The known
 intermittent native .NET/JIT crash risk remains unresolved. Remote GitHub Actions
 was not triggered; this task changes the local working tree only.
+
+## Refinement roadmap
+
+The [combat readability review](COMBAT_READABILITY.md) documents issue #4, its
+factual accounting boundaries, native inspection checks and real 720p/1080p
+solo/cooperative captures. The [roadmap checkpoint](REFINEMENT_PROGRESS.md) tracks
+subsequent issue work separately from the original parity verification above.
+
+The [visual army/deployment review](ARMY_DEPLOYMENT_REVIEW.md) covers issue #5:
+six visible native home targets, legal placement/capacity projections, retained
+member context, Food forecasts, remote pending/rejected commands and allied
+read-only inspection at both capture sizes.
+
+The [opening review](OPENING_REVIEW.md) records issue #6: six doctrines over three
+waves with current defaults and ordinary production controls at both sizes, plus
+two-seed headless contracts, optional-guide interaction and exact Food participation
+receipts. These are local verification results, with no human comprehension claim.
+
+Build identity review: `mise run scenario build-review artifacts/observations/build-identity/review.json`
+records six doctrines through wave five and five existing build policies through
+twenty waves on two seeds. It validates retained offers against the pure draft
+calculator and evaluates a read-only relevance experiment. Sparse scans retire
+soldiers with real commands before testing the previous completed-wave pool;
+they are sensitivity samples, not actual rerolls. See
+[build identity review](BUILD_IDENTITY_REVIEW.md) for interpretation.
+Native gameplay captures also exercise reward effects by pointer/keyboard and
+Worldtree targets; the copy area remains scrollable with reward actions outside.
+
+Veteran review: `mise run scenario veteran-review artifacts/observations/veterans/review.json`
+records five actual early, recovering, not-yet-eligible and late replacement
+situations. `mise run capture-veterans` checks both sizes through actual Controls,
+including native review/cancel/confirm, exact paid recovery, stale phase/session
+signals, no refund and restored focus. The same checks run in the ordinary/debug
+UI suite. [Veteran decision and evidence](VETERAN_REVIEW.md) records the selected
+historical-service semantics and considered progression alternatives.
+
+Campaign review: `mise run scenario campaign-review artifacts/observations/campaign/review.json`
+records five policies × two seeds × baseline/forecast responses through twenty
+battles, with exact consumed forecast/upkeep, actual rewards, duration, losses,
+Keep damage and command trails. `mise run capture-bosses` captures legal W10/W20
+forecasts and playback phases at both sizes; those probes also run in ordinary
+and debug gameplay checks. [Campaign decision and evidence](CAMPAIGN_REVIEW.md)
+explains the retained curve, short-boss tradeoff and limits of the corpus.

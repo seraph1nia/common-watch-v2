@@ -1,5 +1,246 @@
 # Verification
 
+## Cooperative CI capture boundary (2026-10-23)
+
+[PR workflow 39880793409](https://github.com/seraph1nia/common-watch-v2/actions/runs/39880793409)
+failed the cooperative native worker: both clients had reached wave seven while
+it waited for a paused wave-six battle. The CLI probe checked its 180-tick hold
+between batches, then normal frame advancement could cross the boundary and
+complete that short battle before the next check.
+
+With `--test-fast-combat`, an armed capture now advances a bounded number of
+legal steps to the requested 180-tick point in the same probe call and submits
+an authoritative pause before normal frame advancement. Fast stepping stops if
+the battle ends or pauses. The real two-client worker asserts both authoritative
+snapshots are held at exactly that elapsed tick before inspecting/capturing the
+dense battle. This changes development supervision only; Core, ordinary play,
+network protocol, artwork, music and tool/dependency pins are retained. The
+existing outer process deadlines and cleanup remain active.
+
+Local verification passed: locked zero-warning build, 46 Core tests, 145 Shared
+tests and all six actual native integration tests, including the exact-tick
+cooperative capture, 1–6-client sessions and private reconnect/fault checks.
+Logs use `artifacts/test-logs/ci-capture-*`.
+
+## Roadmap #13 final audit (2026-10-23)
+
+[Completion review](gameplay/ROADMAP_REVIEW.md) maps all ten closed children and
+69 accepted criteria to the five first-three-wave requirements, concrete native
+frames, contract/process tests and recorded legal comparisons. Core, tracked
+source art, tool/dependency locks and the previous 46 installed asset records/PNGs
+match the reviewed baseline; only the approved enemy crop is added. The original
+music SHA, loop, preferences/private credential formats and root RPC/session
+ownership remain intact.
+
+The final screenshot audit caught stale preparation labels over the reward Close
+control. Clear/defeat/victory now replace earlier transient labels; draft controls/
+content and details Close/tab navigation reserve their actual native geometry.
+Four focused feedback cases at both sizes/modes require one outcome label and
+verify those bounds. Final locked build, 46 Core / 145 Shared tests, actual PCM
+review, ordinary 720p/1080p UI plus seven-wave cooperative checks, three native
+session facts and 14 refreshed art views pass. Feature-checkpoint CI at `20343f7`
+also passed Linux/Windows release cross-builds ([run](https://github.com/seraph1nia/common-watch-v2/actions/runs/39879550536)). Logs
+use `artifacts/test-logs/roadmap-13-*`; the prior full 274 .NET/process + 19 Pillow
+suite and art/ordered battle gates remain recorded below. The final targeted
+checks cover the modal-label refinement after that full-suite checkpoint.
+
+This closes functional implementation under the user's accepted local evidence,
+without claiming human comprehension/listening/balance, live Steam, physical
+hardware or native other-OS qualification. PR/CI status is checked on GitHub;
+CI and cross-builds do not substitute for those native/human observations.
+
+## Action and milestone feedback — roadmap #13 / issue #12 (2026-10-23)
+
+The [feedback review](gameplay/FEEDBACK_REVIEW.md) records the cue map, accepted
+identity contract, budgets, technical sound provenance, reproduction commands
+and evidence limits. Six retained native UI/SFX players use 16 cached in-memory
+technical earcons; no external sound pack or new game artwork is introduced.
+Factual labels accompany transactions, production and milestones without taking
+input. High-frequency hits reuse the existing combat visuals. Core rules, music
+WAV/import/authored loop, preferences JSON, private resume format, pins and the
+published root session RPC path remain unchanged.
+
+Local evidence:
+
+- Locked build: zero warnings/errors; Core 46 and Shared 145 tests passed.
+- `mise run test`: 274 .NET/process tests (46 Core, 145 Shared, 77 Godot contracts,
+  six real process integrations), 19 Pillow tests and native animation captures
+  passed with no skipped tests.
+- `capture-feedback`: actual sprites/illustrated/angled and debug/plain/topdown
+  captures at 1280×720 / 1920×1080 verify receipt/rejection, retry suppression,
+  production, input-free pointer selection, retained paused SFX positions, all
+  supported speeds, resumed/replaced baselines and boss/clear/defeat/victory.
+- Real 1–6-client multiplayer, private reconnect/fault/process restart and the
+  seven-wave cooperative UI worker passed with cue/voice/retry assertions.
+- Fourteen art views and both battle renderers passed 19 phases / 22 ordered
+  frames each, plus missing-art/shader fallback. Final ordinary UI captures at
+  720p/1080p and the seven-wave cooperative worker passed after the final
+  baseline/deployment corrections; debug/plain native UI also passed in the full
+  suite. The focused baseline probe checks both update-first and event-first
+  generation resets.
+- `tools/feedback-review.py`: 16 distinct actual cached native WAV exports and
+  a stereo recording of the actual Master mix with Music muted. Recorded peak
+  3,096 / −20.49 dBFS; no clipping in this sequential recording. An HTML audition
+  and technical waveforms are in `artifacts/feedback/index.html`.
+
+Logs use `artifacts/test-logs/roadmap-12-*`; native feedback screenshots are under
+`artifacts/captures/feedback/`. The native sound/presentation probe and the
+measured PCM audit are separate from human listening: **human/physical listening
+was not executed**. The user explicitly accepted local tests/legal replays/
+screenshots as the substitute for roadmap acceptance. The Dummy driver's real
+PCM establishes routing and headroom for that recording, not subjective audio
+recognition or dense-mix listening quality. Physical hardware, live Steam and
+other-OS runtime remain unqualified; the known intermittent native .NET/JIT
+crash risk remains.
+
+## Forest consistency and approved mappings — roadmap #13 / issue #11 (2026-10-23)
+
+The [forest presentation review](gameplay/FOREST_PRESENTATION_REVIEW.md) records
+the inventory, source hashes, mapping choices, level cues and visual evidence.
+Enemy Berserker now has its own catalog entry, cropped by the existing pinned
+Pillow pipeline from the approved raised-arm orc pose on sheet 04. Watchposts
+reuse the supplied defense tower at 82 pixels, with their own label/health;
+ArrowTower remains 96. All four structure kinds have explicit paths. No source
+painting is generated, repainted, recolored or downloaded. Every previous 46
+catalog record and PNG hash remains identical; the new crop is entry 47.
+
+Native typography and secondary forest surfaces are consistent across doctrine/
+reward cards, roster rows, disclosures and inspector/dialog closes. Gold roster
+selection remains independent of cyan focus. Quiet session links preserve
+feedback/history; reconnect is shown when disconnected. Emerald Ready/choices,
+violet Pause, the original painted frames, scene and building art remain intact.
+Screen-sized `L#` foundation annotations expose accepted building levels in both
+map and debug paths, after all tall sprites; hit geometry and anchors do not
+change. Native pointer production/upgrade pays exactly once and changes L1→L2;
+a legal late checkpoint shows L5.
+
+Executed checks: locked zero-warning build; 46 Core / 137 Shared / 19 Pillow tests;
+six focused forest cases (sprites/debug at 720p/1080p plus real missing/corrupt
+native decode paths); three session graphical facts repeated on the installed
+47-entry catalog; four ordinary/debug full UI passes plus seven-wave cooperative
+UI worker; five-size nine-pad picking/hover/fixed-camera checks; reconnect/faults;
+12 animation contracts and actual native phases. Artwork/showroom and ordered
+battle sequences are refreshed after installation. Artifact logs/captures are
+under `roadmap-11-*` and `artifacts/captures/forest-consistency/`. Shell/Python
+syntax and `git diff --check` pass. Core, pins, source art, WAV/loop markers,
+credentials/settings formats and RPC/session ownership remain intact.
+
+These are local Linux/Xvfb/Mesa/Dummy-audio observations and actual screenshots,
+accepted by the user as roadmap evidence. No human comprehension/enjoyment,
+physical hardware, live Steam or Windows/native-platform qualification is
+claimed. The intermittent native .NET/JIT risk remains applicable.
+
+## Cooperative readiness and observers — roadmap #13 / issue #10 (2026-10-23)
+
+The persistent native team panel exposes each city’s readiness, personal reward
+choice, pause/away/fallen state, Keep and Food/army warnings. Allied buttons use
+the existing viewed-city path; native pointer Ready still acts only on the local
+authenticated city. Playback cell locations supply actual cross-sector cues.
+Fallen players get an explanation/watch-ally shortcut and no Ready button;
+fallen/terminal veteran inspection no longer promises future recovery/purchases.
+See the [cooperation review](gameplay/COOPERATION_REVIEW.md) for the retained
+failure curve, methods and limits.
+
+Twenty legal uneven-group runs cover 2–6 players, two seeds and 220 battles.
+Replay assertions preserve original enemy allocations, future fallen-army
+exclusion and clear rewards. Ten full-policy groups with an idle city win,
+including a four-city W18 fall followed by victory. Deliberately limited groups
+lose in 1–3 waves; post-fall combat intervals range from 1139–5280 ticks. This is
+not proof of inevitable loss or human balance. Keep the current rules; record
+the 88-second simulated tail and recoverable last stand as explicit tradeoffs.
+
+Executed local checks: locked zero-warning build; 46 Core and 135 Shared tests;
+three session graphical facts; real 1–6-client admission/readiness/combat/draft;
+reconnect through preparation/combat/reward and fault cases; four ordinary/debug
+720p/1080p UI passes and the seven-wave cooperative UI worker (30 actors/11 cues);
+14 art views; 12 animation contracts and native phases; ordered battle frames
+in both renderers plus artwork/camera fallback. Shell/Python syntax and
+`git diff --check` pass. The new dedicated `capture-cooperation` records 2–6-city
+720p/1080p layouts, split readiness, allied pointer/local Ready, pause, Away/private
+resume, real low Keep, early elimination, observer navigation and terminal state.
+Its receipts distinguish screenshot waiting/capture pauses from accelerated
+active spectator time. Exact locally generated receipts/logs live in
+`artifacts/captures/cooperation/`, `artifacts/observations/cooperation/` and
+`artifacts/test-logs/roadmap-10-*`.
+
+The user accepts local tests, legal replays and actual screenshots as roadmap
+evidence. Live Steam, Windows/native-platform, physical controller/audio and
+human group observations remain unexecuted; no comprehension/enjoyment/balance
+claim is made. The known intermittent native .NET/JIT risk remains applicable.
+
+## Preparation clarity — roadmap #13, initial priority #3 pass (2026-10-22)
+
+Completion follow-up: the requested acceptance method is local tests, legal
+replays and actual screenshots. The [preparation review](gameplay/PREPARATION_REVIEW.md)
+now records nine stages for solo and both cooperative participants, including
+actions, empty stages, duration and Ready waiting. All have zero missed sequences.
+The opt-in bounded `--preparation-observations` probe excludes paused/away time
+from waiting and stores no credentials/commands/snapshots. Three deterministic
+observation contracts, a three-wave native solo run, the seven-wave cooperative
+worker and a fresh three-process session suite passed. Build/Core (46)/Shared
+(88) were rerun successfully. Existing production/research/recovery rules remain
+intact; the local evidence does not support replacing the three-stage rhythm.
+
+Ready names the next preparation or battle, and cooperative readiness counts only
+connected, standing cities. An allied forecast follows the inspected city while
+Ready remains labeled for the authenticated local city. A retained native frame
+groups the destination-filtered enemy manifest (including bosses), next production,
+authoritative participation, field sit-outs, storage and projected Food payment.
+Stages 1–2 explicitly use current stock; stage 3 includes final production.
+The resource tooltip no longer implies that every forecast includes production.
+All three settlements, research/recovery, rules, transport, assets and pins remain
+unchanged. No human pacing or balance result is claimed; the
+[playing guide](gameplay/PLAYING.md) records the outstanding playtest questions.
+
+Native checks exercise pointer Ready through all three boundaries, one production
+per boundary, final forecast/upkeep agreement, controller pause/resume, partial Food
+funding, forecast/army inspection, native focus and the existing campaign UI.
+Host/guest checks retain pending/rejected/disconnected controls and add readiness
+wording, authenticated allied inspection and waiting/allied preparation captures
+at 720p/1080p. Only legal commands earn scenario snapshots.
+
+| Executed check | Result |
+| --- | --- |
+| `mise run build` | Passed; zero warnings/errors, locked dependencies |
+| `mise run test-core` | 46 passed |
+| `mise run test-shared` | 88 passed |
+| `mise run test-session` | Final repeat: three actual graphical process tests passed |
+| `mise run capture-art` | Final repeat: 14 actual viewport captures passed |
+| `COMMON_WATCH_GAMEPLAY_ART=illustrated mise run capture-gameplay-ui` | Final 720p/1080p Controls/captures and seven-wave illustrated host/guest replay passed |
+| `mise exec -- bash tools/graphical.sh test-gameplay-network` | Final plain host/guest replay, waiting/allied captures, pending/rejection/disconnection and authenticated Unready passed |
+| `mise run capture-settlement -- --hud-art illustrated` | All nine clearings, native purchase/construction, fixed camera and five window sizes passed |
+| Python compile, `git diff --check`, protected-path comparison | Passed; Core/Shared, source/installed artwork, music and tool/dependency pins have no changes |
+
+The full default capture task also passed all four solo native runs (plain and
+illustrated, both sizes) during iteration. Its added cooperative probe initially
+failed presentation/layout sequencing; the final isolated plain worker and full
+illustrated capture task above passed after the fixes. A remote Unready check
+also exposed an acknowledgment/snapshot race in the probe; it now waits for the
+accepted command's city snapshot before checking readiness and turn.
+
+The first expanded-ledger capture failed its separation assertion at 720p. Later
+cooperative checks caught a crowded paused/allied action frame; compact phase
+wording, a single pause indicator and local-city labels keep the complete native
+targets separate from the ledger. An initial top-center summary covered locked
+clearing 7, so the summary now occupies the left scenery margin below Settings
+and yields to selected-plot management. The actual nine-clearing picking/purchase
+suite passes at all five window sizes. The cooperative capture probe also waits
+for local combat presentation to complete before pausing, rather than freezing
+the previous battle and expecting preparation Controls. Actual preparation
+and shortage images are under `artifacts/captures/gameplay/forest/` and `1920/`;
+plain equivalents are under `artifacts/captures/gameplay/`. Cooperative images
+use `network-plain/` and `network-forest/` in that directory. Logs use the
+`artifacts/test-logs/refinement-` prefix.
+
+Linux automated checks use owned Xvfb displays, Mesa and disposable settings with
+Dummy audio. Standalone multiplayer/reconnect suites, release exports, remote CI,
+live two-account Steam, native Windows/macOS and physical GPU/controller/audio
+checks were not run for the initial presentation pass. Reconnect was rerun for
+the completion follow-up. The known intermittent native .NET/JIT crash risk
+remains unresolved. Human timing/balance review is optional further evidence;
+the remaining roadmap priorities are tracked in
+[the compact checkpoint](gameplay/REFINEMENT_PROGRESS.md).
+
 ## Painted forest HUD (2026-10-21)
 
 The [painted HUD report](PAINTED_FOREST_HUD.md) links the source delivery and actual

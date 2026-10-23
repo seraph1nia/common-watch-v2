@@ -29,6 +29,8 @@ mise run play-steam                # optional; development Steam App ID is hardc
 
 `play` runs from source for quick iteration; it does not export a release on each launch. It uses the same runtime presentation defaults, main menu, native controls, local preferences and normal audio as the exported game. `play-steam` adds only optional Steam startup.
 
+Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** supports the first three waves without gating Ready.
+
 The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
 
 Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Troops & homes** opens roster, squad, veteran and six-home management directly from the dock; selected military buildings and Town Halls also expose contextual management. **Worldtree** opens research. The city selector inspects allies read-only. Ready/Unready, whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with closer local camera framing and an optional sharp forest arena over a soft viewport backdrop. Successful nonfinal combat opens three reward cards. Resource income is visible beside stocks, and construction cards reflow with the floating dock. **City details** inspects doctrine, rewards, progression and recent feedback; the match controls retain important notices until resolved. **×** clears plot selection. **Esc**, **Menu**, F10 or controller Start opens only a menu square over the current view, with no backdrop or dimming; Continue/Esc closes it without leaving or pausing. There is no permanent Run dashboard or history footer. See [gameplay controls](docs/gameplay/PLAYING.md).
@@ -37,9 +39,9 @@ The menu offers **Return to main menu** and **Exit Game**, each with a confirmat
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
-Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. See [music provenance](assets/audio/README.md).
+Settings controls music volume, defaulting to 30%, with zero muting. Saved preferences retain their chosen volume. Preferences persist under Godot's user directory; music continues across session changes and retains the soundtrack's authored intro and loop. UI and battle earcons remain audible when music is muted; accepted actions, production and outcomes also get brief input-free labels. See [music provenance](assets/audio/README.md) and the [feedback review](docs/gameplay/FEEDBACK_REVIEW.md).
 
-Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. Twenty-nine supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine) and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
+Presentation options: `--world-art debug|sprites` (`--render-mode` remains an alias), `--hud-art plain|illustrated`, `--view topdown|angled`, `--debug-overlay on|off`. Missing/corrupt PNGs use geometric/plain fallback. Ordinary play and exports use sprites/illustrated/angled with the debug overlay off. `play-debug` selects debug/plain/topdown. For example, `mise run play -- --view topdown` overrides the view. The supplied cutouts (including the detailed forest-crystal pack and retained prototype shrine), arena components and their Pillow pipeline are described in [artwork](docs/ARTWORK.md). No editor import or new artwork is required.
 
 ## Battle and artwork development tools
 
@@ -86,10 +88,16 @@ mise run test-steam-native -- host FRIEND_STEAM_ID  # explicitly gated
 mise run capture
 mise run capture-art
 mise run capture-settlement        # nine-pad map picking, purchase and actual screenshots
+mise run capture-opening           # six doctrines, three waves, actual production controls
+mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
+mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
+mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
+mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
+mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition
 mise run capture-lobby
 ```
 
-[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/godot/`; logs are under `artifacts/test-logs/`. The session checks include a startup with no presentation flags, exercising the production menu, doctrine selection, purchases, combat, rewards and resizing. Gameplay checks run those same production Controls in default and explicit debug presentation. Capture checkpoints replay legal commands into real snapshots; they do not replace the gameplay UI.
+[Sessions](docs/SESSIONS.md) documents networking, reconnect credentials and the live Steam gate. [Verification](docs/VERIFICATION.md) records executed checks and platform gaps. Captures are actual viewport PNGs under `artifacts/captures/`; logs are under `artifacts/test-logs/`. The session checks include a startup with no presentation flags, exercising the production menu, doctrine selection, purchases, combat, rewards and resizing. Gameplay checks run those same production Controls in default and explicit debug presentation. Capture checkpoints replay legal commands into real snapshots; they do not replace the gameplay UI.
 
 Deterministic checkpoints (`initial`, `settlement`, `building-selected`, `battle-start`, `combat`, `draft`, `post-draft`) replay the authoritative rules, with seed `20261018`.
 
@@ -125,7 +133,7 @@ One workflow builds the entire solution, runs headless/art/session/Steam logic a
 
 Ordinary development edits C#, text scenes/resources and scripts, then runs mise; opening the Godot editor is optional. See [agent instructions](AGENTS.md), [source provenance](docs/PROVENANCE.md) and [GPL-3.0-only license](LICENSE).
 
-The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings without world labels. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
+The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings. See that guide for annotations and picking. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
 
 The [painted forest HUD](docs/PAINTED_FOREST_HUD.md) adds authored RGBA paintings to
 the preserved supplied theme. Settings, a vertical resource ledger, selected context,
@@ -142,3 +150,7 @@ verifies native input and captures empty, hovered, locked, available and acquire
 states at 720p/1080p. Plain mode and missing artwork retain the text tree.
 
 Optional [dynamic environment effects](docs/DYNAMIC_ENVIRONMENT.md) bring the existing illustrated scenery to life. Settings offers **Off / Subtle / Full** (Off by default) and a saved **Weather preset** selector with Scene default plus all seven presets, or launch with `--environment-effects full --environment-preset rain`. See the linked guide for all presets, scene effects and timing controls. `mise run test-environment` captures repeatable animated frames and Off/Full frame timings with the existing renderer and artwork.
+
+The [roadmap completion review](docs/gameplay/ROADMAP_REVIEW.md) maps all ten
+refinement issues to the first-three-wave milestone, verified local evidence,
+retained-rule decisions and remaining qualification limits.

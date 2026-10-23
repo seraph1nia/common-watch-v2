@@ -56,6 +56,11 @@ public sealed class BattleShowcase
     }
     static IReadOnlyList<MatchSnapshot> Record(string scenario)
     {
+        if (scenario is "boss-10" or "boss-20")
+        {
+            using var boss = GameplayScenarios.CreateAt(scenario); Require(boss.Send("ready"));
+            return RecordFrames(boss);
+        }
         if (scenario is not ("swordsman" or "ranged" or "status" or "burn" or "chill" or "structures")) throw new ArgumentException("Scenario: swordsman, ranged, status, burn, chill or structures");
         bool mageStatuses = scenario is "burn" or "chill";
         using var solo = ScenarioRunner.CreateAt(scenario == "structures" ? "initial" : "battle-start", doctrine: mageStatuses ? "arcanist" : null);
@@ -106,6 +111,10 @@ public sealed class BattleShowcase
             }
         }
         if (scenario is not ("swordsman" or "structures") && !ReadyForScenario(solo, scenario)) throw new InvalidOperationException("Could not earn required showcase capabilities through the legal opening: " + scenario);
+        return RecordFrames(solo);
+    }
+    private static IReadOnlyList<MatchSnapshot> RecordFrames(SoloSession solo)
+    {
         var frames = new List<MatchSnapshot>();
         long cursor = solo.Snapshot.EventSequence;
         frames.Add(solo.Snapshot with { CombatEvents = [] });

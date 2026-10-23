@@ -18,7 +18,7 @@ public sealed class HudSkin : IDisposable
     {
         _assets = assets;
         var plain = GD.Load<Theme>("res://UI/WatchTheme.tres");
-        Theme = (Theme)plain.Duplicate();
+        Theme = (Theme)plain.Duplicate(); SupportingTheme.Typography(Theme);
         Worldtree = WorldtreeArt.Load(assets);
         MenuBackground = assets.MenuBackground();
         if (assets.Options.Hud != HudArt.Illustrated) return;
@@ -39,6 +39,7 @@ public sealed class HudSkin : IDisposable
             Theme.SetColor("font_disabled_color", type, new Color("b1bfb0"));
         var painted = new PaintedHudArt();
         if (painted.Available) { Painted = painted; painted.Apply(Theme); }
+        SupportingTheme.Forest(Theme);
     }
     public Button Button(string text, Action clicked, string variation = "")
     {
@@ -64,6 +65,7 @@ public sealed class HudSkin : IDisposable
     private Texture2D? Texture(string path) => Illustrated && ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
     public Texture2D? Icon(string name) => Texture($"res://UI/ForestHud/icons/{name}.png");
     public Texture2D? BuildingSprite(Building type) => Illustrated && type != Building.Empty ? _assets.Load(VisualAssets.BuildingId(type)) : null;
+    public Texture2D? UnitSprite(UnitState unit) => _assets.Load(VisualAssets.UnitId(unit));
     public void Ornament(Control parent, string name, Vector2 position, Vector2 size)
     {
         if (Painted is not null) return;

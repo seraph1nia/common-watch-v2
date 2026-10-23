@@ -26,7 +26,7 @@ public partial class GameApplication
             if (!_probeCaptured && _session.Snapshot.Phase == Phase.Lobby && _session.Snapshot.Players.Length == int.Parse(count)
                 && Argument("--lobby-capture") is { } capture)
             { _probeCaptured = true; CaptureLobby(capture); }
-            _networkProbe.Tick(_session.Snapshot, _session.PlayerId, _session.IsHost, int.Parse(count), _session.Pending,
+            _networkProbe.Tick(_session.Snapshot, _session.PlayerId, _session.IsHost, int.Parse(count), _session.AllDoctrinesChosen, _session.Pending,
                 _session.LastResult, (action, slot, building, payment) => _session.Send(action, slot, building, payment: payment));
             if (_session.IsHost && _session.Snapshot.Phase == Phase.Combat) for (int i = 0; i < 10; i++) _session.Step();
             if (_networkProbe.Complete && Argument("--native-verify") == "yes")
@@ -42,7 +42,7 @@ public partial class GameApplication
             }
             if (_networkProbe.Complete && Argument("--report") is { } path)
             {
-                System.IO.File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = _session.PlayerId, steam = _session.IsSteam, reconnected = _nativeResumed, animation = new { hits = _battlefield.TotalHits, generationHits = _battlefield.Motion.ObservedHits, resets = _battlefield.Resets, effects = _battlefield.Motion.Events.Count, tick = _session.Playback.Tick, generation = _session.Playback.Generation }, state = _session.Snapshot }, WireJson.Options));
+                System.IO.File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new { player = _session.PlayerId, steam = _session.IsSteam, reconnected = _nativeResumed, feedback = new { voices = _audio.Feedback.Voices, active = _audio.Feedback.Active, played = _audio.Feedback.Played, suppressed = _audio.Feedback.Suppressed }, animation = new { hits = _battlefield.TotalHits, generationHits = _battlefield.Motion.ObservedHits, resets = _battlefield.Resets, effects = _battlefield.Motion.Events.Count, tick = _session.Playback.Tick, generation = _session.Playback.Generation }, state = _session.Snapshot }, WireJson.Options));
                 System.IO.File.Move(path + ".tmp", path, true);
                 if (!_probeRecorded) GD.Print("GODOT_NETWORK_PASS legal-opening combat individual-draft wave=2");
                 _probeRecorded = true;

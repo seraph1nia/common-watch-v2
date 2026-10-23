@@ -64,6 +64,7 @@ public partial class GameApplication
             await GameplayCapture($"worldtree-{size.X}-locked");
             WorldtreeClick(available.GetGlobalRect().GetCenter()); WorldtreePointer(new(10, 10));
             Require(tree.Selected == TechnologyId.RangedFoundation && available.HasFocus(), "native click selects and focuses available node");
+            Require(tree.DetailsText.Contains("Pivot") || tree.DetailsText.Contains("field squads"), "Worldtree connects its selected effect to the actual roster or future recruits");
             Require(_session.Snapshot.Revision == revision, "inspection spends nothing");
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

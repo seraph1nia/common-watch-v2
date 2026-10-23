@@ -2,6 +2,59 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "cooperation-review")
+    {
+        var runs = (from players in Enumerable.Range(2, 5)
+                    from policy in new[] { "frontline", "limited" }
+                    from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    select CooperationReview.Run(players, policy, seed)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine($"{run.Players}p {run.Policy} {run.Seed}: {run.Result}, {run.Battles.Length} waves; first fall W{run.FallWave}; spectator {run.SpectatorTicks} ticks; cross-sector {run.Battles.Sum(b => b.CrossSectorSamples)} samples");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "campaign-review")
+    {
+        var runs = (from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    from family in new[] { "frontline", "ranged", "mixed", "towers", "research" }
+                    from adaptive in new[] { false, true }
+                    select CampaignReview.Run(family, seed, adaptive)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine($"{run.Family} seed={run.Seed} adaptive={run.Adaptive}: {run.Waves.Length} waves, {run.Waves[^1].Result}; ticks {run.Waves.Sum(w => w.Ticks)}, lost {run.Waves.Sum(w => w.Lost)}, Keep {run.Waves.Sum(w => w.KeepDamage)}; responses {run.Waves.Sum(w => w.Adaptations.Length)}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "veteran-review")
+    {
+        var cases = VeteranReview.Collect();
+        string report = System.Text.Json.JsonSerializer.Serialize(cases, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var item in cases) Console.WriteLine($"{item.Name} seed={item.Seed} W{item.Wave}\n{item.Comparison.Summary}\n{item.Comparison.Details}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "build-review")
+    {
+        var runs = new List<BuildRun>();
+        foreach (ulong seed in new[] { SoloSession.DefaultSeed, 1UL })
+        {
+            runs.AddRange(Game.Core.RunCatalog.Doctrines.Select(d => BuildIdentityReview.Review(d.Id, "opening", seed, 5, opening: true)));
+            runs.AddRange(new[] { "frontline", "ranged", "mixed", "towers", "research" }.Select(f => BuildIdentityReview.Review("warden", f, seed)));
+            runs.Add(BuildIdentityReview.Review("warden", "sparse-early", seed, 2, opening: true, sparseAtEnd: true));
+            runs.Add(BuildIdentityReview.Review("warden", "frontline", seed, 18, sparseAtEnd: true));
+        }
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine($"{run.Doctrine}/{run.Family}/{run.Seed}: {run.Waves.Length} waves · " + run.Waves[^1].Result);
+        return 0;
+    }
+    if (args.FirstOrDefault() == "opening-review")
+    {
+        var runs = Game.Core.RunCatalog.Doctrines.Select(d => OpeningCampaign.Review(d.Id)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
+        foreach (var run in runs) Console.WriteLine(run.Doctrine + ": " + string.Join("; ", run.Waves.Select(w => $"W{w.Wave} {w.Phase} army={string.Join(',', w.Participants.Select(p => p.Key + p.Value))} lost={w.Lost} keep={w.KeepDamage}")));
+        return 0;
+    }
     if (args.FirstOrDefault() == "battle")
     {
         foreach (string scenario in new[] { "swordsman", "ranged", "status", "burn", "chill", "structures" })

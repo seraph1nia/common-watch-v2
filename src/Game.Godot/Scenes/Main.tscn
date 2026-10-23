@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://Application/GameApplication.cs" id="1"]
 [ext_resource type="Script" path="res://Application/SessionCoordinator.cs" id="2"]
@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://Combat/ArenaBackdrop.cs" id="8"]
 
 [ext_resource type="Script" path="res://Environment/EnvironmentController.cs" id="9"]
+
+[ext_resource type="Script" path="res://Application/FeedbackCoordinator.cs" id="10"]
 
 [node name="CommonWatch" type="Node"]
 script = ExtResource("1")
@@ -45,3 +47,6 @@ script = ExtResource("6")
 [node name="ArenaPreview" type="Node2D" parent="World"]
 visible = false
 script = ExtResource("7")
+
+[node name="Feedback" type="Node" parent="."]
+script = ExtResource("10")

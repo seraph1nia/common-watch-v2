@@ -13,6 +13,7 @@ public partial class GameApplication : Node
     private AssetLoader _assets = null!;
     private HudSkin _skin = null!;
     private EnvironmentController _environment = null!;
+    private FeedbackCoordinator _feedback = null!;
     private bool _frozen;
     private string[] _args = [];
 
@@ -42,6 +43,8 @@ public partial class GameApplication : Node
             _frozen = checkpoint is not null;
             CreateUi();
             CreateSessionMenu();
+            _feedback = GetNode<FeedbackCoordinator>("Feedback");
+            _feedback.Initialize(_audio, _gameUi, _settlementView, _battlefield); _feedback.Bind(_session);
             if (Argument("--host") is { } hostPort) BeginHost(int.Parse(hostPort));
             else if (Argument("--join") is { } endpoint) BeginJoin(endpoint);
             else if (_session is null) ReturnToMenu(); else RefreshUi(true);
@@ -87,8 +90,8 @@ public partial class GameApplication : Node
         _frozen = false; RefreshUi(true); RefreshWorld();
     }
     private GodotSession WrapSolo(SoloSession solo) => _sessions.Open(session => session.Solo(solo));
-    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
-    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); ResetCamera(); }
+    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
+    private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ResetCamera() => _camera?.Reset();
 
     public override void _Process(double delta)
@@ -97,6 +100,7 @@ public partial class GameApplication : Node
         _assets.Configure(_options);
         _steam.Poll();
         _environment.Suspended = _battle?.Paused ?? (_session is { HasState: true } && (_frozen || _session.Snapshot.Paused || !_session.Connected));
+        RunPreparationObservations();
         RunControlProbe();
         if (_session is null || _gameUi is null) return;
         _animationProfile?.Begin(delta);
@@ -106,6 +110,7 @@ public partial class GameApplication : Node
         RefreshWorld();
         RunNetworkProbe();
         RefreshUi();
+        _feedback.Update(_session, _battle is null);
     }
 
     private void RefreshUi(bool force = false)
@@ -150,6 +155,8 @@ public partial class GameApplication : Node
         if (_camera is null) return;
         _assets.Configure(_options);
         if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); _arenaBackdrop.Hide(); return; }
+        _battlefield.SelectedUnit = _gameUi.LiveInspector.SelectedUnit;
+        _battlefield.SelectedStructure = _gameUi.LiveInspector.SelectedStructure;
         _battlefield.Present(_session, _battle);
         bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
@@ -193,7 +200,7 @@ public partial class GameApplication : Node
         if (_inviteConfirmation.Visible || _steamFriends.Visible || _exitConfirmation.Visible) return;
         if (input.IsActionPressed("ui_cancel"))
         {
-            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else if (_gameUi.Draft.Visible) _gameUi.Draft.Dismiss(); else OpenMenu();
+            if (_settings.Visible) _settings.Close(); else if (_gameUi.Details.Visible) _gameUi.Details.Close(); else if (_gameUi.Draft.Visible) _gameUi.Draft.Dismiss(); else if (_gameUi.LiveInspector.Visible) _gameUi.LiveInspector.Close(); else OpenMenu();
             GetViewport().SetInputAsHandled(); return;
         }
         if (_menuPopup.Visible || _settings.Visible || _inviteConfirmation.Visible || GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;

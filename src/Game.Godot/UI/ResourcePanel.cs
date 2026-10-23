@@ -57,8 +57,8 @@ public partial class ResourcePanel : VBoxContainer
         }
         string receipt = city.LastUpkeep is { } paid ? $"Paid · wave {paid.Wave}: {paid.Paid} Food\n{paid.Funded.Length} funded · {paid.Unfed.Length} sat out" : "No upkeep paid yet";
         _food.Text = state.Phase is Phase.Building or Phase.Preparation && city.FoodForecast is { } food
-            ? $"Next Food: {food.Paid}/{food.Demand} · remaining {food.Available - food.Paid}\nSoldiers: {food.Funded.Length} funded · {food.Unfed.Length} unfunded"
+            ? $"Battle Food: {food.Paid}/{food.Demand} · remaining {food.Available - food.Paid}\nSoldiers: {food.Participating.Length} fight · {food.Funded.Length} funded"
             : receipt;
-        _food.TooltipText = receipt + "\nForecast includes authoritative projected production; stock above is available now.";
+        _food.TooltipText = receipt + "\nStages 1–2 forecast current stock.\nStage 3 includes final production.\nFood is paid when battle starts.\nStored soldiers can be funded but never fight.";
     }
 }

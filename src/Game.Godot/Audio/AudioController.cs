@@ -14,9 +14,11 @@ public partial class AudioController : Node
     public int MusicBus { get; private set; }
     public bool Saved { get; private set; } = true;
     public event Action? VolumeChanged;
+    public FeedbackAudio Feedback { get; private set; } = null!;
 
     public void Initialize(string settingsPath, string audioRoot)
     {
+        Feedback = new FeedbackAudio(); AddChild(Feedback); Feedback.Initialize();
         SettingsPath = settingsPath;
         Settings = AudioSettings.Load(settingsPath);
         MusicBus = AudioServer.GetBusIndex("Music");
@@ -60,6 +62,7 @@ public partial class AudioController : Node
 
     public void Stop()
     {
+        Feedback?.Reset();
         if (Player is null) return;
         Player.Stop();
         AudioStream? stream = Player.Stream;

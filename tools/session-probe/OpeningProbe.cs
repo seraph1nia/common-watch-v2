@@ -7,7 +7,6 @@ public sealed class OpeningProbe
 {
     private int _next;
     private bool _awaiting, _doctrine, _reward;
-    private long _lobbySince;
     private static readonly (int Turn, string Action, int Slot, Building Building, ConstructionPayment Payment)[] Opening =
     [
         (1, "build", 0, Building.Farm, ConstructionPayment.Standard),
@@ -25,7 +24,7 @@ public sealed class OpeningProbe
     public bool Complete { get; private set; }
     public bool SawCombat { get; private set; }
     public bool SawDraft { get; private set; }
-    public void Tick(MatchSnapshot state, int playerId, bool host, int players, bool pending, CommandResult? result,
+    public void Tick(MatchSnapshot state, int playerId, bool host, int players, bool allDoctrinesChosen, bool pending, CommandResult? result,
         Action<string, int, Building, ConstructionPayment> send)
     {
         if (Complete || pending) return;
@@ -40,9 +39,8 @@ public sealed class OpeningProbe
         if (state.Phase == Phase.Lobby)
         {
             if (!_doctrine) { _doctrine = true; Submit("doctrine:warden"); return; }
-            if (!host || state.Players.Count(p => p.Connected) != players) return;
-            if (_lobbySince == 0) _lobbySince = Environment.TickCount64;
-            if (Environment.TickCount64 - _lobbySince > 2500) Submit("start");
+            if (!host || state.Players.Count(p => p.Connected) != players || !allDoctrinesChosen) return;
+            Submit("start");
             return;
         }
         if (_next < Opening.Length)
