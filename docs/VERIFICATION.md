@@ -983,3 +983,5 @@ is synthesized by the review builder. Native Windows, physical GPU/audio and
 live Steam are unexecuted gaps. Water/reflection, foliage/window masks and any
 additional background separation remain asset-dependent; reusable shaders were
 rendered only as technical swatches where no qualified surface exists.
+
+Preparation rhythm comparison (#22): `tools/preparation-review/README.md` reproduces both real schedules, matched paid policies and independently checked resource/research/stored-heal receipts. Shipping retains three stages with native Y Ready/Unready; paired solo720/1080 and2/4/6-client720 journeys include pause, unready, delayed ACK and reconnect. Scripted timing categories are not human session-time evidence. See `docs/refinement-ii/22_PREPARATION_RHYTHM.md`.

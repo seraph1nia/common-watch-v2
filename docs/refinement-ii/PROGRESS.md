@@ -14,7 +14,7 @@ Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 | 4 | #19 squad workspace | cb8d787, draft PR29; CI59 passed including both exports |
 | 5 | #20 cooperative context | ce2d5c6, draft PR30; CI71 passed including both exports |
 | 6 | #21 immediate rewards | da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a, draft PR31; final exact-SHA CI75/40050084771 passed including both exports |
-| 7 | #22 preparation rhythm | Active branch refinement/22-preparation-rhythm; executable comparison and three-stage selection implemented; final native/transport gates running |
+| 7 | #22 preparation rhythm | Active branch refinement/22-preparation-rhythm; executable comparison and three-stage selection implemented; all local gates passed; draft PR32, CI77 running |
 | 8 | #23 opening economy | Next: normal-payment routes, minimal adjustment comparison and reduced contextual flow |
 | 9 | #24 veteran recovery | Required: real squad-level recovery alternative under immediate rewards / selected three stages |
 | 10 | #25 campaign consequences | Original exact baseline archived; controlled tradeoffs, elite formation, held-out seeds and final calibration still required |
@@ -83,12 +83,15 @@ isolated prototype. Canonical3 report is byte-identical to freshR7. Preserve
 Grovekeeper two-stage W1 defeats and Huntsman ranged W8 defeat. Economy-first
 recovers all12 three-wave doctrine/seed openings, but does not erase those losses.
 
-Native baseline2/4/6p and paired adapted3/2×2/4/6p720 all passed; original paired
-solo720/1080 all passed. Final solo checks additionally cover Y/paused/repeat and
-separate scripted stage timing; final root gate queue handle43928 is running:
-build/Core/Shared/session/multiplayer/reconnect, then four solo journeys.
-Logs `/tmp/common-watch-r5-final-*`. No other live native workers; do not rebuild
-root DLL or edit live Python/shell consumers until queue ends. Root docs may change.
+Native baseline2/4/6p and paired adapted3/2×2/4/6p720 passed. All four final
+solo2/3×720/1080 journeys passed native Y/paused/repeat checks and separate stage
+timing. Final root build/Core74/Shared147/session3/multiplayer1–6/reconnect,
+two full illustrated/plain gameplay profiles with native resize coverage, seven
+remote waves and12 animation/native fallback gates passed. Handles43928/80302
+are terminal0; no owned native workers. Root may safely rebuild now.
+Draft PR32 is pushed on90cde21; CI77/40052899907 remains running. Final docs will
+have a separate commit; record exact-SHA gate before claiming CI complete.
+Parent15 decision comment6378598861 posts evidence for review, not external approval.
 
 Research/storage receipts independently verified by
 `tools/preparation-review/verify-focused.py`:360vs240 payments; Research progress
@@ -97,7 +100,6 @@ increase is claimed. Guardian W7/P1→P2; Mastery W10/P1→W11/P1. Legal partial
 16funded/2unfunded,16paid both. Read22_PREPARATION_RHYTHM.md for decision, exact
 resource timing, count audit, evidence limits and reproduction.
 
-Next: finish #22 root gates, full gameplay profiles, final source/log manifest,
-parent review artifact and stacked draft PR/CI. Compact at issue boundary. Continue
+Next: preserve final source/log manifest and check #22 exact-SHA CI. Compact at issue boundary. Continue
 #23, then #24, then #25 in full; executable alternatives remain mandatory. Do not
 stop after publishing #22 or call the overall objective complete.

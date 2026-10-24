@@ -100,7 +100,7 @@ recovery decisions are understood and the removed barrier does not hide a new
 mandatory workaround. If three is retained, show the runnable lost-decision cases
 and ship a concrete interaction reduction. Record the exact decision and its
 limits in parent #15 before closure; do not silently call an untested assertion
-complete. No Core implementation or product selection is claimed by this design.
+complete. That preimplementation declaration is preserved here; the implemented selection follows below.
 
 ## Initial executable results (selection pending)
 
@@ -245,7 +245,10 @@ awaiting-authority, pause, disconnect, capture and deliberate test-delay categor
 are separately retained in each timing.json. Available decision-window includes
 poll/script time and cannot be called active human thought. Solo synchronous
 Ready has no separate already-ready wait; final solo-stage-timing.json separates
-scripted decisions, capture and pause/key-repeat probes.
+scripted decisions, capture and pause/key-repeat probes. At720, the paired solo script recorded3.413 decision seconds in each
+schedule,2.241→1.504 capture seconds and0.363→0.266 boundary-probe seconds.
+Already-ready/disconnect time is0 for this synchronous solo task. These values
+remain automation observations.
 
 Captured native Controls show two or three actual stage columns as configured;
 final Ready says income + Food → battle, and candidate first delivery says2×.
@@ -278,9 +281,17 @@ separate. Acceptance log/source hashes are recorded in the r5 manifest.
 
 ## Verification / review boundary
 
-Prototype and investment checks pass: zero-warning build, Core74, Shared147.
-Selected-revision graphical, transport and final native shortcut checks are running;
-record their terminal results before delivery. No human comprehension, physical
+Selected production revision90cde21 passes zero-warning build, Core74, Shared147,
+three native integration facts,1–6-client multiplayer, all reconnect/fault phases,
+two complete illustrated/plain gameplay profiles with native resize coverage,
+seven remote waves,12 animation model checks and native animation/fallbacks.
+All four final solo2/3×720/1080 journeys pass with Y/paused/key-repeat checks.
+Both final target sizes were visually inspected. No owned native workers remain.
+Draft [PR32](https://github.com/seraph1nia/common-watch-v2/pull/32) is stacked on31.
+CI77 is running; its terminal status and the final documentation revision must be
+recorded accurately before claiming the remote gate. The decision was posted for
+[parent review](https://github.com/seraph1nia/common-watch-v2/issues/15#issuecomment-6378598861);
+posting evidence does not claim an external review. No human comprehension, physical
 controller/audio, live Steam or native Windows/macOS qualification is claimed.
 The known intermittent native .NET/JIT crash risk remains unproven/fixed.
 
