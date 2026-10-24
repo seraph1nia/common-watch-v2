@@ -26,6 +26,7 @@ public partial class GameApplication
             && _gameUi.Inspector.BuildButtons[Building.Lumbermill].IsVisibleInTree(), "single Wood prompt opens its purchase context without spending");
         await DriveOpening(new(GameplayAction.Build, 3, Building.Lumbermill));
         await DriveOpening(new(GameplayAction.Build, 1, Building.MetalMine));
+        await JourneyClick(_gameUi.ClearSelectionButton);
         Require(guide.Text.Contains("Build a trainer"), "supply leads to one relevant trainer prompt");
         revision = _session.Snapshot.Revision;
         await JourneyClick(guide.ActionButton);
@@ -104,7 +105,11 @@ public partial class GameApplication
                         await DriveOpening(intent); decisions++; actions.Add($"W{wave}/P{stage}: {intent}");
                         if (n == 99) throw new InvalidOperationException("Native opening decision bound exceeded.");
                     }
-                    _gameUi.Details.Close(false); _session.SelectSlot(-1); RefreshUi(true);
+                    _gameUi.Details.Close(false);
+                    if (_session.SelectedSlot >= 0) await JourneyClick(_gameUi.ClearSelectionButton);
+                    RefreshUi(true); await JourneyFrames();
+                    if (_gameUi.OpeningGuide.IsVisibleInTree() && _gameUi.OpeningGuide.Expanded)
+                        Require(_gameUi.OpeningGuide.ContentFits, "single prompt fits at the actual stage boundary");
                     string next = OpeningGuidance.NextReady(_session.Snapshot);
                     Require(next.Contains(stage < _session.Snapshot.Rules.PreparationStages ? (PreparationSchedule.ResourceMultiplier(_session.Snapshot.Rules, stage) == 2 ? "double resources" : "one production") : "Food") && _gameUi.TransitionText.Contains(stage < _session.Snapshot.Rules.PreparationStages ? $"prep {stage + 1}/{_session.Snapshot.Rules.PreparationStages}" : "battle"), "native next transition and contextual explanation agree");
                     int[] expected = _session.City.FoodForecast!.Participating;
