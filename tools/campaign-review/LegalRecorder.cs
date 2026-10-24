@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 using System.Security.Cryptography;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using Game.Core;
@@ -76,13 +77,22 @@ public sealed class LegalRecorder : IDisposable
     { Write(Path.Combine(_directory, "final.json"), state); Checkpoint("final", state); _history.Flush(); }
     public void Dispose() { _history.Dispose(); _events?.Dispose(); _positions?.Dispose(); }
 
+    private static StreamReader Reader(string file) => File.Exists(file) ? new StreamReader(file)
+        : new StreamReader(new GZipStream(File.OpenRead(file + ".gz"), CompressionMode.Decompress));
+    private static string ReadText(string file) { using var reader = Reader(file); return reader.ReadToEnd(); }
+    private static IEnumerable<string> ReadLines(string file)
+    {
+        using var reader = Reader(file);
+        while (reader.ReadLine() is { } line) yield return line;
+    }
+
     public static object Verify(string directory)
     {
-        var joined = JsonSerializer.Deserialize<MatchSnapshot>(File.ReadAllText(Path.Combine(directory, "joined.json")), WireJson.Options)!;
+        var joined = JsonSerializer.Deserialize<MatchSnapshot>(ReadText(Path.Combine(directory, "joined.json")), WireJson.Options)!;
         using var replay = new Match(rules: joined.Rules, matchId: joined.MatchId, combatSeed: joined.CombatSeed);
         foreach (var expected in joined.Players) if (replay.Join()?.Id != expected.Id) throw new InvalidOperationException("Roster replay mismatch.");
         var expectedEvents = Directory.EnumerateDirectories(directory, "wave-*").SelectMany(folder =>
-            File.ReadLines(Path.Combine(folder, "events.ndjson"))).Select(line => JsonSerializer.Deserialize<CombatEvent>(line, WireJson.Options)!)
+            ReadLines(Path.Combine(folder, "events.ndjson"))).Select(line => JsonSerializer.Deserialize<CombatEvent>(line, WireJson.Options)!)
             .ToDictionary(e => e.Sequence);
         long lastEvent = 0;
         void VerifyEvents(MatchSnapshot state)
@@ -96,7 +106,7 @@ public sealed class LegalRecorder : IDisposable
             }
         }
         int commands = 0, checkpoints = 0;
-        foreach (string line in File.ReadLines(Path.Combine(directory, "history.ndjson")))
+        foreach (string line in ReadLines(Path.Combine(directory, "history.ndjson")))
         {
             using var row = JsonDocument.Parse(line); var value = row.RootElement;
             long at = value.GetProperty("atTick").GetInt64();
@@ -112,11 +122,23 @@ public sealed class LegalRecorder : IDisposable
             {
                 var command = value.GetProperty("command").Deserialize<Command>(WireJson.Options)!;
                 var expected = value.GetProperty("result").Deserialize<CommandResult>(WireJson.Options)!;
+                var before = replay.Snapshot();
                 var result = replay.Apply(value.GetProperty("authenticatedPlayer").GetInt32(), command);
+                EncounterIntegrity.RequireCommand(before, replay.Snapshot(), command);
                 if (result != expected || !result.Accepted) throw new InvalidOperationException("Recorded command did not reproduce.");
                 commands++;
             }
-            else checkpoints++;
+            else
+            {
+                checkpoints++;
+                string name = value.GetProperty("name").GetString()!;
+                if (name.StartsWith("after-encounter-", StringComparison.Ordinal))
+                {
+                    int wave = int.Parse(name["after-encounter-".Length..]);
+                    var before = JsonSerializer.Deserialize<MatchSnapshot>(ReadText(Path.Combine(directory,$"wave-{wave:00}","before.json")),WireJson.Options)!;
+                    EncounterIntegrity.RequireOutcome(before,replay.Snapshot());
+                }
+            }
             var accepted = replay.Snapshot(); VerifyEvents(accepted);
             if (Hash(accepted) != value.GetProperty("snapshotSha256").GetString())
                 throw new InvalidOperationException($"Snapshot replay mismatch after {commands} commands at tick {at}.");

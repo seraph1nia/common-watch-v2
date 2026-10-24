@@ -116,8 +116,8 @@ major encounters ask different questions; the suggestions never submit a command
 W10 now fields paired L3 Swordsmen/Berserkers with lighter ranged support;
 W20 retains the single L5 boss. A secondary attack can hit another member in a
 pair, while each boss has only one member. See the [current comparison](../refinement-ii/25_CAMPAIGN_CONSEQUENCES.md); scripted outcomes are not universal counter advice.
-Waves 10/20 use larger crowned figures, gold health emphasis and tick-synchronized
-anticipation/defeat cues. Bosses retain their original hit/occupancy rules and
+The W20 boss uses a larger crowned figure, gold health emphasis and tick-synchronized
+anticipation/defeat cues. W10 uses ordinary figures for its actual elite members. Bosses retain their original hit/occupancy rules and
 single-member squads; secondary attacks have no extra member to hit in them.
 
 Press **Y** during uncovered planning to toggle Ready / Unready for your city. Key repeat, pending commands and pause cannot advance another stage. Final Ready pays income and Food and starts combat immediately; it does not open another recruitment window. Ordinary play keeps three explicit preparations.

@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--players', type=int, choices=(2, 4, 6), default=6)
 parser.add_argument('--width', type=int, choices=(1280, 1920), required=True)
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--wave', type=int, choices=range(1, 21), default=6)
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 ROOT = Path(__file__).resolve().parent.parent
@@ -88,7 +89,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-combat-review-') as tempor
             command = ['bash', 'tools/record-client.sh', str(args.output / 'desktop.mkv')] if i == 0 else ['bash', 'tools/client.sh']
             command += ['--settings-path', str(directory / 'settings.json'), '--data-path', str(directory),
                         '--control-dir', str(directory / 'control'), '--test-fast-combat', 'yes',
-                        '--gameplay-stop-wave', '7', '--gameplay-family', 'mixed',
+                        '--gameplay-stop-wave', str(args.wave + 1), '--gameplay-family', 'mixed',
                         '--test-match-id', f'combat-readability-{args.players}p-v1',
                         '--width', str(args.width), '--height', str(args.width * 9 // 16)]
             if args.debug:
@@ -98,13 +99,14 @@ with tempfile.TemporaryDirectory(prefix='common-watch-combat-review-') as tempor
             wait(lambda: status(i) and status(i)['connected'], 'admission')
             send(i, 'doctrine:warden')
         send(0, 'start')
-        request(0, 'hold-combat', wave=6, tick=1)
+        request(0, 'hold-combat', wave=args.wave, tick=1)
         for i in range(args.players):
             request(i, 'policy', enabled='yes')
-        wait(lambda: (s := status())['state']['Wave'] == 6 and s['state']['Phase'] == 'Combat' and s['state']['Paused'], 'paid wave-six boundary', seconds=150)
+        wait(lambda: (s := status())['state']['Wave'] == args.wave and s['state']['Phase'] == 'Combat' and s['state']['Paused'], f'paid wave-{args.wave} boundary', seconds=150)
         for i in range(args.players):
             request(i, 'policy', enabled='no')
-        request(0, 'normal-combat')
+        for i in range(args.players):
+            request(i, 'normal-combat')
         send(0, 'speed-1x')
         request(0, 'camera-native', key='F')
         capture('all-sectors-start')
@@ -125,7 +127,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-combat-review-') as tempor
                 overview = True
             time.sleep(.2)
         end = status()['state']
-        report = dict(players=args.players, width=args.width, debug=args.debug, wave=6, speed='1x', factor=.5,
+        report = dict(players=args.players, width=args.width, debug=args.debug, wave=args.wave, speed='1x', factor=.5,
                       startTick=start_tick, endTick=end['Tick'], simulationSeconds=(end['Tick'] - start_tick) / 60,
                       wallSeconds=time.monotonic() - started, normalVideoOffsetSeconds=started - video_started,
                       initial=first, final=end, samples=samples,

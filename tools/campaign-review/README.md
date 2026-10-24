@@ -63,3 +63,51 @@ factor0.5. Headless actual presented wall time is null; native reports separate
 observed authority resolution, presentation resolution and corpse cleanup, with
 PNG/geometry/recording overhead disclosed. No human or physical GPU/controller/
 audio qualification is inferred.
+
+## Final selected-rule receipts
+
+```sh
+mise exec -- dotnet run --project tools/scenarios --no-build -- consequence-review verify-matrix artifacts/refinement-ii/r3/campaign-candidates --shipping
+mise exec -- dotnet run --project tools/scenarios --no-build -- consequence-review marginal-coop artifacts/refinement-ii/r3/marginal-cooperative
+mise exec -- dotnet run --project tools/scenarios --no-build -- consequence-review verify-cooperation artifacts/refinement-ii/r3/marginal-cooperative
+mise exec -- dotnet run --project tools/scenarios --no-build -- consequence-review archive-shipping artifacts/refinement-ii/r3/shipping-baseline
+mise exec -- dotnet run --project tools/scenarios --no-build -- consequence-review legacy-selected artifacts/refinement-ii/r3/legacy-selected.json
+```
+
+`--shipping` starts fresh default authorities, checks the exact recorded initial
+rules/roster and replays all120 selected rows. Every accepted final Ready checks
+Core's `BattleDeployment.Preview` against actual profiles, group slots, deployment/
+queue lifecycle and entry cells. Food funded/unfunded/participating IDs and paid
+amounts must agree. Every immediate reward checks the frozen quote against actual
+resources, Keep and individual HP, with unchanged profile/equipment/service/
+recovery eligibility. Recorded encounter outcomes check frozen participants,
+survivors, Keep damage and clear grants. No parallel simulation is implemented.
+
+The additional36 headless groups use1–6original cities, seeds1/42 and invested,
+capped last-city or idle last-city policies. Twelve separate doctrine/marginal
+runs cap homes3 and equipment2; they are deliberate legal underinvestment, not
+injected damage. Duplicated/correlated policies are not independent human trials.
+The final10 trace archives use normal openings and current policies. The20
+legacy-policy reports separately rerun the original five-policy baseline/adaptive
+comparisons under current rules, not as a claim that the old economy survived.
+
+Only compress finished recordings after all workers stop:
+
+```sh
+python3 tools/campaign-review/compress.py artifacts/refinement-ii/r3/marginal-cooperative
+```
+
+The helper verifies exact decoded bytes before deleting each uncompressed
+original. `compression-manifest.json` retains original and gzip SHA-256/size;
+`LegalRecorder.Verify` reads either representation transparently. Summary/replay
+JSON stays directly readable. Compression is storage only, not replay migration.
+
+For actual six-client W10 normal-speed observations, use a distinct label:
+
+```sh
+COMMON_WATCH_COMBAT_REVIEW_LABEL=refinement-ii/r3/shipping-wave10 mise run capture-combat-cooperation -- --wave 10
+```
+
+These concurrent ENet histories can allocate different IDs across resolutions.
+Record their actual starting armies/ticks and do not label them matched width
+experiments. All clients leave accelerated setup before the measured encounter.

@@ -24,11 +24,12 @@ public static class CalibrationMatrix
         }
         File.WriteAllText(Path.Combine(output,"summary.json"),JsonSerializer.Serialize(receipts,WireJson.Options));return 0;
     }
-    public static void Verify(RewardEconomyRun recorded)
+    public static void Verify(RewardEconomyRun recorded, bool useDefault = false)
     {
         var joined=recorded.Initial??throw new InvalidOperationException("Missing initial rules/roster.");
-        using var match=new Match(joined.Rules,joined.MatchId,joined.CombatSeed);
+        using var match=new Match(useDefault?null:joined.Rules,joined.MatchId,joined.CombatSeed);
         foreach(var p in joined.Players)if(match.Join()?.Id!=p.Id)throw new InvalidOperationException("Replay roster mismatch.");
+        if(LegalRecorder.Hash(match.Snapshot())!=LegalRecorder.Hash(joined))throw new InvalidOperationException("Recorded initial rules/roster differs from selected authority.");
         foreach(var row in recorded.Commands)
         {
             for(int n=0;match.Tick<row.AtTick;n++)
@@ -36,8 +37,10 @@ public static class CalibrationMatrix
                 if(n>=18000||match.Phase!=Phase.Combat&&match.Snapshot().DyingBodies.Length==0)throw new InvalidOperationException("Invalid replay tick boundary.");
                 match.Step();
             }
+            var before = match.Snapshot();
             if(match.Tick!=row.AtTick||match.Apply(row.Command.City,row.Command)!=row.Result||LegalRecorder.Hash(match.Snapshot())!=row.SnapshotSha256)
                 throw new InvalidOperationException("Calibration command/snapshot replay differs.");
+            EncounterIntegrity.RequireCommand(before,match.Snapshot(),row.Command);
         }
         for(int n=0;match.Tick<recorded.FinalTick;n++)
         {

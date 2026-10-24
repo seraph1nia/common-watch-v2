@@ -32,11 +32,11 @@ public sealed class ReviewSession : IDisposable
         }
         if (!result.Accepted) throw new InvalidOperationException($"{State.MatchId}/{State.Wave}/P{State.Turn}: {command}: {result.Message}");
     }
-    public void Prepare(string family)
+    public void Prepare(string family, CampaignCalibrationPlan? calibration = null)
     {
         for (int n = 0; n < 150; n++)
         {
-            var intent = State.Wave == 1 ? OpeningCampaign.Next(State, Player) : GameplayScenarios.NextPreparation(State, Player, family);
+            var intent = calibration is not null ? CampaignCalibration.Next(State, Player, family, calibration) : State.Wave == 1 ? OpeningCampaign.Next(State, Player) : GameplayScenarios.NextPreparation(State, Player, family);
             if (intent is null) return;
             Act(intent);
         }

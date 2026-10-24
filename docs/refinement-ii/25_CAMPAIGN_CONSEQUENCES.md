@@ -225,3 +225,74 @@ W20 retains its real health/windup/death/pause/restart/ground-picking checks.
 The720 forecast was visually inspected and fits. Locked build is zero-warning,
 Core75/Shared169 pass, including catalog data integrity, old-rule refusal and
 strict single-boss validation. Full final integration remains outstanding.
+
+## Selected-rule continuation and integrity results
+
+All120selected rows replay from fresh **default** authorities, with the exact
+initial rules/roster, every command/state hash and final hash. New integrity
+checks compare Core's actual preview with spawned profiles, group slots, queued/
+deployed lifecycle and entry cells, plus exact Food funded/unfunded/participating
+IDs and paid amounts. Immediate rewards must match the frozen resource/Keep/
+individual-HP quote without changing equipment/service/eligibility. No parallel
+combat model or state injection is used.
+
+The36additional1–6-city campaigns use matched1/held-out42 and invested, capped
+last-city or idle last-city policies. All36 replay their events/snapshots and
+pass entry/funding/outcome/grant integrity. All12invested groups win. Capped solo
+Warden fallsW8/W14, while the other10capped groups win with actual allied help.
+Idle solo fallsW1 in both seeds;2-city seed1 loses its invested cityW1 then the
+remaining cityW2. Six-city idle seed1 loses city6 atW10 and seed42 atW17; both
+groups continue toW20Victory. Other idle groups sometimes rescue the inactive
+city. No elimination, comeback or casualty is forced.
+
+Twelve separate capped-equipment/home campaigns span all6doctrines×seeds1/42;
+all fallW8–16 through real combat. Capped groups/duplicate policies are correlated,
+not48independent trials. The original constrained-Stone and early pure-ranged
+failures remain alongside these invested mistakes and optimized successes.
+
+Ten final normal-policy trace archives cover all5families×matched seeds:172
+battles,8Victories and2ranged Defeats. Full command hashes, per-tick events,
+positions/statuses, before/after states, actual clear/reward/funding receipts and
+separate headless combat/cleanup ticks independently reproduce. Actual presented
+wall time remains null for these headless histories. The original b4fa3f7 archive
+stays separate; original baseline/adaptive policies are also rerun separately
+under the selected rules. Current recovery comparison:24campaigns/480battles,
+12identical individual/group digest pairs and1668member moves. Those reserve
+policies all win; this is equivalence coverage, not a universal recovery argument.
+
+Real six-client W10 captures at720/1080 each consume108funded troops and36ordinary
+elites, with no fake boss. Actual1x/factor0.5 tick totals300/239, measured wall
+10.84/13.51seconds including capture/transport/rendering overhead. Concurrent
+command/identity histories differ, so these are separate native observations,
+not a causal comparison of resolution. Local/overview Controls, team context and
+existing figure art were used; the720local still was visually inspected.
+
+Finished generated traces are losslessly compressed with decoded-byte SHA checks:
+5263642505→351228448bytes for cooperative raw traces and310430456→15966609 for
+final baseline raw traces. Before/after/joined/final snapshots and NDJSON can be
+read transparently by the verifier. Summaries and source evidence stay explicit.
+A full six-city idle-to-Victory replay also passes after compression.
+
+## Removal/consolidation and experiential validation
+
+W10's old boss promise/crown-specific test is removed from the current default;
+W20 keeps the real boss visual/animation contract. New forecast wording names
+actual elite pairs in the existing summary instead of adding a panel. Boss-only
+showcases/tests useW20; the oldW10 spelling is a documented current-major alias.
+Old #9 campaign tables are labelled historical. The heavy hint no longer promotes
+a slowing counter that the short-encounter comparison failed to support, and
+ranged wording does not promise automatic protection from a rear placement.
+No automatic investment, forced casualties, new currency/abilities, permanent
+recovery automation or passive reward system is added.
+
+Automated consequences: exact accepted commands, profile/entry/Food/reward
+integrity, losses, costs, timed native playback and source/rendered geometry.
+Inspected visuals: actual720/1080 formation/boss comparisons,720selected forecast,
+and six-client720local field; these are not human-play observations.
+Human evidence: no interviews, comprehension, enjoyment, perceived fairness,
+physical controller/audio/GPU or native Windows/macOS execution was observed.
+Live Steam and the known intermittent native.NET/JIT risk remain qualified gaps.
+The rare living-owned deployed survivor at first city elimination still lacks a
+positive natural native checkpoint; deferral fixtures prove the guard only.
+Final full native regression/journeys, exports, exact-SHA CI and parent completion
+audit remain required before marking this roadmap complete.

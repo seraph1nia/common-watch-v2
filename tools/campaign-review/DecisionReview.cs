@@ -7,6 +7,17 @@ public static class DecisionReview
     private static void Save(string file,object value)=>File.WriteAllText(file,JsonSerializer.Serialize(value,WireJson.Options));
     public static int Run(string[] args)
     {
+        if(args[0]=="legacy-selected")
+        {
+            var runs=(from family in new[]{"frontline","ranged","mixed","towers","research"}
+                from seed in new[]{1UL,20261018UL} from adaptive in new[]{false,true}
+                select CampaignReview.Run(family,seed,adaptive)).ToArray();
+            Save(args[1],runs);Console.WriteLine($"LEGACY_SELECTED_PASS runs={runs.Length} battles={runs.Sum(r=>r.Waves.Length)} victories={runs.Count(r=>r.Waves[^1].Result=="Victory")}");return 0;
+        }
+        if(args[0]=="archive-shipping") return ShippingArchive.Run(args[1]);
+        if(args[0]=="verify-matrix") return ShippingArchive.VerifyMatrix(args[1],args.Contains("--shipping"));
+        if(args[0]=="verify-cooperation") return ShippingArchive.VerifyCooperation(args[1]);
+        if(args[0]=="marginal-coop") return CooperativeCalibration.Run(args[1]);
         if(args[0]=="campaign-matrix") return CalibrationMatrix.Run(args[1]);
         if(args[0]=="checkpoint")
         {
