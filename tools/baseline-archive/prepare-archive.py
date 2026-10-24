@@ -13,13 +13,19 @@ parser.add_argument('--source', type=Path, required=True)
 args = parser.parse_args()
 root = args.source.resolve()
 resources = Path(__file__).resolve().parent
+repository = Path(subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode().strip()).resolve()
+if root == repository:
+    raise SystemExit('Refusing to instrument the active checkout.')
+files = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', REVISION,
+                                 'src/Game.Core', 'src/Game.Shared'], text=True).splitlines()
+for name in files:
+    expected = subprocess.check_output(['git', 'show', f'{REVISION}:{name}'])
+    if (root / name).read_bytes() != expected:
+        raise SystemExit('Original source mismatch: ' + name)
 relative = 'src/Game.Shared/Development/CampaignReview.cs'
 original = subprocess.check_output(['git', 'show', f'{REVISION}:{relative}'])
 if (root / relative).read_bytes() != original:
     raise SystemExit('Expected untouched original campaign policy in disposable checkout.')
-repository = Path(subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode().strip()).resolve()
-if root == repository:
-    raise SystemExit('Refusing to instrument the active checkout.')
 program = root / 'tools/scenarios/Program.cs'
 old_program = subprocess.check_output(['git', 'show', f'{REVISION}:tools/scenarios/Program.cs']).decode()
 if program.read_text() != old_program:
