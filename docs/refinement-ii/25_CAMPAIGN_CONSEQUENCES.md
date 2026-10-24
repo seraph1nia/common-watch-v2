@@ -1,9 +1,9 @@
-# Campaign consequences — issue #25 design
+# Campaign consequences — issue #25
 
 Baseline41cc004 (#24), immediate rewards1, three actual preparations, combat8,
 wire19/battleflow4. Original b4fa3f7 exact legal replay archive remains separate
 and unchanged; see25_ORIGINAL_BASELINE.md. Preserve current source/raw receipts
-and use distinct capture destinations. #24 exact-SHA CI83 is running.
+and use distinct capture destinations. #24 exact-SHA CI83 passed, including both exports.
 
 Before any shipping Core tuning, build executable paid comparisons from fresh
 Matches. Matched seeds1/20261018 and held-out seeds42/98765 share match identity
@@ -107,6 +107,21 @@ Swordsmen plus two same-tier Berserkers, one Crossbowman two tiers lower and one
 Mage one tier lower. This paired heavy frontline changes target/secondary/status
 opportunities without new art or increased per-unit HP. Quantify its budget and
 run matched/held-out neutral and relevant research arms before selection.
+
+## Resolved major budgets
+
+| Wave / treatment | Combined HP | Primary damage per60ticks | Budget index |
+| --- | ---: | ---: | ---: |
+| W10 original single boss | 438 | 27 | 6.825 |
+| W10 selected heavy formation | 247.5 | 77.75 | 6.98125 |
+| W20 retained single boss | 798 | 49.5 | 12.45 |
+| W20 heavy comparison only | 450.75 | 143.5 | 12.809375 |
+
+These use actual resolved profiles and counts. Primary damage is cadence-adjusted,
+not damage dealt in an encounter. The index combines HP/primary cadence and omits
+range, target access, secondary/status damage and structures; within3% is a
+bounded budget comparison, not equal combat strength. No global HP increase is
+used. Actual casualties, event traces and later recovery remain decisive.
 
 ## Heavy formation and complete continuation experiment
 
@@ -294,5 +309,67 @@ physical controller/audio/GPU or native Windows/macOS execution was observed.
 Live Steam and the known intermittent native.NET/JIT risk remain qualified gaps.
 The rare living-owned deployed survivor at first city elimination still lacks a
 positive natural native checkpoint; deferral fixtures prove the guard only.
-Final full native regression/journeys, exports, exact-SHA CI and parent completion
-audit remain required before marking this roadmap complete.
+Final native regression/journeys, exports and the parent implementation audit
+are complete below. Exact-head CI is recorded in the final manifest and draft PR.
+
+
+Final native retry qualification: the first6p1080rerun exited during Ready.
+The kernel journal at2026-10-24 07:34:56 reports `.NET BGC` segmentation fault
+in`libclrjit.so`, and systemd-coredump identifies Godot PID1581378/SEGV. The
+per-client logs, failed capture directory and filtered kernel receipt are
+preserved. This is an observed instance of the documented native.NET/JIT risk,
+not a gameplay assertion failure or a claimed runtime fix. A fresh bounded
+rerun is recorded separately; earlier passing profiles are not discarded.
+
+
+## Final selected-source verification
+
+Production catalog58a4e89 and executable harness379e0aa passed the canonical
+`mise run test`: Core75, Shared169, session/animation models109, Pillow19 and
+6process integration tests, including both illustrated/plain full gameplay,
+7remote waves,1–6clients and private reconnect/fault checks. Locked build had
+zero warnings. No game production code changed during the remaining evidence
+and tooling work.
+
+Actual W10/W20 native Ready, forecast/profiles, pause, death cleanup, restart and
+picking pass720/1080. Solo default/debug three-wave journeys pass all4profiles.
+The network matrix passes2pdefault/debug×both sizes and4p/6pdefault×both sizes;
+the last6p1080pass is separately logged after the two retained failures above.
+All2–6-player layout/ownership probes, real early elimination/Defeat and uneven
+W20Victory for both local owners/sizes pass. All6doctrines×3waves atboth sizes
+and native recovery all3art profiles pass. Remote wound storage tests pass
+cancel-pending, one accepted prefix, exact retry, private rejoin, remaining-only
+review and actual ordinary healing.
+
+Final normal1x/factor0.5 recordings include three stills, sampled geometry,
+inspection and separate cleanup. Measured total wall seconds include desktop
+recording/PNG/rendering overhead, with no deliberate pause:
+
+| Encounter | Combat + cleanup ticks | 720p wall s | 1080p wall s |
+| --- | ---: | ---: | ---: |
+| early | 253 + 48 | 9.82 | 10.99 |
+| dense | 1928 + 48 | 7.96 | 9.15 |
+| major-10 | 2606 + 48 | 7.80 | 9.00 |
+| boss-20 | 5409 + 48 | 8.76 | 9.71 |
+
+Both self-contained x64 exports pass with an explicit local editor-only
+`COMMON_WATCH_EXPORT_TEXT_DRIVER=Dummy` override. Ordinary headless editor startup
+failed on this host with repeated FreeType empty-font errors, independently
+reproduced in an empty project and with fresh editor settings. The empty-project
+Dummy diagnostic passes. Default task behavior remains unchanged; import/export
+now have120/360second bounds and an optional tooling-only text-driver argument.
+This does not change game fonts, user settings, packages or exported runtime
+text rendering, and is not a claimed FreeType fix. Default-driver remote CI is
+a separate result in the final manifest/PR.
+
+The actual Linux package, launched outside the checkout with its ordinary text
+driver, passes full sprite/illustrated smoke:44sprite decodes,27native HUD slices,
+construction/recruitment/Ready/combat/reward, picking at both projections/sizes,
+WAV/loop/bus settings persistence and confirmed exit. This is Linux software
+rendering with automated Dummy audio, not physical GPU/audio or Windows execution.
+
+Visual inspection additionally covers final720p reward,1080p elite entry,
+720p dense/elite in-fight inspection, terminal720/1080 and six-player accepted
+reward waiting. Source archives, copied current captures, all passing/failed
+logs and export hashes are indexed in `r3/shipping-manifest.json`. The all-ten
+original-requirement audit is [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md).

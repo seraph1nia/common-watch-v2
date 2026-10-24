@@ -116,7 +116,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-recovery-') as temporary:
             if old['Assignment']['Stored']:
                 expected = min(old['Profile']['Health'], old['Health'] + (old['Profile']['Health'] * hall['HealingPercent'] + 99)//100) if old.get('RecoveryEligible') else old['Health']
                 assert u['Health'] == expected
-        output = ROOT / 'artifacts/captures/recovery/network'; output.mkdir(parents=True, exist_ok=True)
+        output = ROOT / os.getenv('COMMON_WATCH_RECOVERY_NETWORK_OUTPUT', 'artifacts/captures/recovery/network'); output.mkdir(parents=True, exist_ok=True)
         (output/'receipt.json').write_text(json.dumps(dict(before=before,afterCancel=after,afterRejoin=ready_before,afterPayment=city(1)),indent=2))
         print('GODOT_RECOVERY_NETWORK_PASS real-wounds cancel-pending one-accepted-prefix exact-retry private-rejoin remaining-only actual-healing')
     finally:

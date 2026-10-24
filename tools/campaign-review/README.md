@@ -111,3 +111,44 @@ COMMON_WATCH_COMBAT_REVIEW_LABEL=refinement-ii/r3/shipping-wave10 mise run captu
 These concurrent ENet histories can allocate different IDs across resolutions.
 Record their actual starting armies/ticks and do not label them matched width
 experiments. All clients leave accelerated setup before the measured encounter.
+
+
+## Evidence isolation and final audit
+
+Final current-revision native destinations can be isolated without changing the
+normal task defaults:
+
+```sh
+COMMON_WATCH_JOURNEY_OUTPUT="$PWD/artifacts/captures/refinement-ii/r3/shipping-journey" mise run capture-journey
+COMMON_WATCH_JOURNEY_NETWORK_OUTPUT="$PWD/artifacts/captures/refinement-ii/r3/shipping-journey-network" mise exec -- bash tools/journey-matrix.sh --cooperative-focus --opening-order normal-wood
+COMMON_WATCH_RECOVERY_NETWORK_OUTPUT=artifacts/captures/refinement-ii/r3/shipping-recovery-network mise run test-recovery-network
+```
+
+The network opening option is `--opening-order normal-wood`, not
+`--normal-opening`. The initial rejected invocation is retained as a failed CLI
+attempt; it is not a runtime defect. The corrected matrix completed seven
+profiles before an invalid status JSON read stopped the last6p1080profile. The
+reader now retries at most5reads/4×10ms and still rejects persistent invalid
+JSON. The separately logged6p1080rerun completes that matrix; the earlier
+production source is identical. No lower-level filesystem cause is established.
+See `docs/refinement-ii/COMPLETION_AUDIT.md` for all ten original issue scopes and
+qualification limits. Source archives, copied captures, original failed and final
+passing logs, and export hashes are indexed in the local generated
+`artifacts/refinement-ii/r3/shipping-manifest.json`. Its CI entry records the exact
+final commit/run after completion; the PR exposes the same public CI result.
+
+On this host, final headless editor startup repeated a FreeType empty-font error
+in both this repository and an empty project, including fresh editor settings.
+The bounded empty-project `--text-driver Dummy` diagnostic passed. An explicit
+editor-only override allows the export tooling to run:
+
+```sh
+COMMON_WATCH_EXPORT_TEXT_DRIVER=Dummy mise run build-linux
+COMMON_WATCH_EXPORT_TEXT_DRIVER=Dummy mise run build-windows
+```
+
+Default export commands retain their normal text driver. Import/export subprocesses
+are bounded120/360seconds. The override is never passed to exported gameplay or
+native graphical checks; actual Linux export smoke must render with its ordinary
+text driver. No fonts, packages, game resources or user editor settings change.
+This workaround qualifies local tooling and is not a claimed FreeType fix.

@@ -148,12 +148,13 @@ PYFIXTURE
     ;;
   capture-journey)
     client_timeout=240
+    journey_output=${COMMON_WATCH_JOURNEY_OUTPUT:-"$(pwd)/artifacts/captures/journey"}
     for presentation in default debug; do
       presentation_options=()
       if [[ $presentation == debug ]]; then presentation_options=(--world-art debug --hud-art plain --view topdown --debug-overlay off); fi
       for width in 1280 1920; do
         height=$((width * 9 / 16))
-        run_client "${presentation_options[@]}" --journey-test --gameplay-captures "$(pwd)/artifacts/captures/journey/$presentation/$width" --width "$width" --height "$height" "$@"
+        run_client "${presentation_options[@]}" --journey-test --gameplay-captures "$journey_output/$presentation/$width" --width "$width" --height "$height" "$@"
       done
     done
     ;;

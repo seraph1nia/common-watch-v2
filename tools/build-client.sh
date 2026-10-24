@@ -20,8 +20,14 @@ dotnet restore src/Game.Godot/Game.Godot.csproj --locked-mode -p:RuntimeIdentifi
 # repository's authoritative solution stays CommonWatch.slnx; this is generated.
 dotnet new sln --format sln -n Game.Godot -o src/Game.Godot/.godot --force
 dotnet sln src/Game.Godot/.godot/Game.Godot.sln add src/Game.Godot/Game.Godot.csproj --in-root
-godot --headless --path "$root/src/Game.Godot" --import
-godot --headless --path "$root/src/Game.Godot" --export-release "$preset" "$output/$godot_executable" 2>&1 | tee "$output/build.log"
+# Optional host diagnostic workaround for editor-only text initialization. This
+# flag is never passed to the exported game or ordinary graphical checks.
+editor_options=(--headless)
+if [[ -n ${COMMON_WATCH_EXPORT_TEXT_DRIVER:-} ]]; then
+  editor_options+=(--text-driver "$COMMON_WATCH_EXPORT_TEXT_DRIVER")
+fi
+timeout --kill-after=5s 120s godot "${editor_options[@]}" --path "$root/src/Game.Godot" --import
+timeout --kill-after=5s 360s godot "${editor_options[@]}" --path "$root/src/Game.Godot" --export-release "$preset" "$output/$godot_executable" 2>&1 | tee "$output/build.log"
 if grep -q '^ERROR:' "$output/build.log"; then
   echo "Godot reported export errors; see $output/build.log" >&2; exit 1
 fi

@@ -37,7 +37,19 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
 
     def status(i):
         path = work / str(i) / 'control/status.json'
-        result = json.loads(path.read_text()) if path.exists() else None
+        if not path.exists():
+            return None
+        # The probe replaces its status file. A transient incomplete read must
+        # not abort six clients, but persistent invalid JSON must still fail.
+        for attempt in range(5):
+            try:
+                result = json.loads(path.read_text())
+                break
+            except json.JSONDecodeError:
+                if attempt == 4:
+                    raise
+                print(f'Retrying invalid probe JSON: client={i} attempt={attempt + 1}', file=sys.stderr)
+                time.sleep(.01)
         if result is not None:
             timing.observe(i, result)
         return result
@@ -50,7 +62,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                 return result
             for i, process in enumerate(processes):
                 if process.poll() is not None:
-                    raise RuntimeError(f'Client {i} stopped: {reason}')
+                    raise RuntimeError(f'Client {i} stopped with exit={process.returncode}: {reason}')
                 current = status(i)
                 if current and current.get('nativeError'):
                     raise RuntimeError(current['nativeError'])
