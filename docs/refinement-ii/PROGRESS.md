@@ -102,34 +102,49 @@ economy; #25 controlled trade-offs, elite formation, held-out seeds and final
 integrated all-doctrine/uneven-group campaigns. All remain authorized and active.
 Do not mark the overall goal complete after Gate A. No pending user permission.
 
-## Active #21 verification
+## #21 local completion / CI boundary
 
-Actual implementation uses new loot-* identities, frozen exact quotes, positive
-capacity preflight, consumed receipts, frozen battle losses and protocol18 /
-reward1 / fingerprint-format4. Old active passive paths are gone; no default
-enemy/price/rhythm/research or asset change. Build6 has zero warnings; Core4
-passes65, Shared4 passes145, models4 passes109. Three native session facts and
-four full profiles plus seven-wave remote worker passed before final bounded
-chooser/copy refinement. Latest source includes the final 1200×580 chooser.
+Implementation `d77422b2ccb59e52582b283a7e5d19e68cce09ec`, stacked draft PR31
+on #20. New loot-* identities, frozen exact quotes, positive capacity preflight,
+consumed receipts, frozen battle losses; protocol18 / reward1 / fingerprint4.
+Old active passive paths are gone. No default enemy/price/rhythm/research or asset
+change. Design e36d20a and GateA-success4ad9b9e precede all Core edits.
 
-Live handle30182 sequentially owns final four gameplay captures, then native
-2p720 and6p1080 three-wave journeys with exact quote/delta/receipt assertions.
-Do not rebuild Godot while this handle is live. Current logs:
-/tmp/common-watch-r7-gameplay-final.log, journey-2p.log, journey-6p.log.
-All earlier local handles (including43342 session and82408 original replay)
-are terminal. Recheck actual current process state before acting on this note.
+All local gates passed: build6 zero warnings; Core4=65, Shared-final=147,
+models4=109; native session3; final four illustrated/plain720/1080 profiles;
+seven remote waves; native2p720/6p1080 three-wave focus/quote/receipt/delta,
+unchanged Research/profiles, delayed ACK, slow playback, ready/draft reconnect;
+multiplayer1–6; private reconnect/faults; animation/fallbacks;14art views.
+Both final chooser sizes were visually inspected. All owned local native workers
+are terminal, including30182 and21498. Do not restart passed tasks from stale
+handles. Exact remote command retries before/after rejoin additionally pass in
+147-test Shared suite. Manifest: artifacts/refinement-ii/r7/manifest.json.
 
-Economy-after:72runs/1037battles,49/60 full-campaign Victories; original1050 and
-50/60. Two Arcanist ranged campaigns now failW5, one Grovekeeper ranged seed1
-now winsW20. Report explicitly records ordinal-policy bias: new chosen families
-Equipment457, Provisions277, Recovery218, Stone25; Timber/Treasury never selected
-by that policy but all six have real authoritative grant tests. Keep healing
-rarely exercised by these victorious policies; pure/cap fixtures qualify it.
-Full tables:21_ECONOMY.md; traces/reproductions under artifacts/refinement-ii/r7.
-Current harness re-reproduces original SHA197405bf... byte-identically.
+Economy72matched runs: before1050battles/50full Victories, after1037/49. Two
+Arcanist ranged runs now failW5; Grovekeeper ranged seed1 now winsW20. Ordinal
+policy selects Equipment457, Provisions277, Recovery218, Stone25; no Treasury/
+Timber selection by that policy. All six have actual authoritative grant tests.
+No selected recovery is zero-benefit. Keep repair/caps additionally use explicit
+pure/custom arithmetic fixtures; native campaign victorious policies seldom
+damage Keep. Full tables21_ECONOMY.md; original/current-harness original report
+SHA197405bf... reproduces byte-identically. Raw command/payout/shortage data
+and source copies are retained. No fairness or human inference.
 
-Uncommitted feature work is all this task's work. Do not mix it into #20 branch.
-Next: inspect final native cards, complete current worker, then multiplayer,
-reconnect, animation/art and final journal/compatibility checks. Commit/push
-reviewable feature, create stacked draft PR on #20 and poll its exact-SHA CI.
-No issue21 completion claim yet. Preserve all22–25 executable scope.
+Diagnostics: stale development setups attempted unavailable50Food sale and full
+six-place storage. The new legal setup sells only available bundles / Farm
+income when needed, and buys second storage capacity before storing. Receiver
+validation initially compared prior-wave losses with current upkeep; fixed and
+covered. No simulation injection, enemy retune or timeout weakening.
+
+Final feature CI73 (40049160250) runs on d77422b. Final two retry cases/docs still
+need their commit/push and exact-SHA check. Source production is unchanged by that
+last refinement. Record PR checks as authoritative; do not claim CI before green.
+No owned workers remain and no user permission/input is pending.
+
+Next boundary: finish #21 final CI, then #22. Before changing preparation rules,
+archive this immediate-reward three-stage source and record fresh per-stage
+commands, payments/research/recovery/no-command counts. Predefine comparison
+metrics, implement an executable two-stage alternative and run matched legal
+paths plus real solo and2/4/6-client loops under both configurations. All remaining
+#22–#25 specs and executable alternatives remain active. The overall goal is not
+complete; do not substitute a prose-only decision for the requested experiments.

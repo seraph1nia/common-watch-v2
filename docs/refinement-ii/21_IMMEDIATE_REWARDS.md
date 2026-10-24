@@ -197,12 +197,27 @@ W5; one Grovekeeper ranged run now wins. No enemy retuning hides those results.
 The ordinal policy selects four immediate families, so its bias and unmatched
 late-wave exposure are explicit. All six families have separate actual grant tests.
 
-Passed so far: zero-warning locked build; Core 65 / Shared 145 / session models
-109; three actual native session tests; four illustrated/plain gameplay profiles
-and seven paid remote waves before the final sizing/copy refinement. Final four
-native profiles and 2p720/6p1080 journeys with exact quoted/actual remote grants
-are running. Remaining gates include final native captures, multiplayer/reconnect,
-animation/art and final CI. Do not treat this checkpoint as issue completion.
+Verification passed locally: zero-warning locked build; Core 65 / Shared 147 /
+session models 109; three native session facts; four final illustrated/plain
+720p/1080p full gameplay profiles; seven paid remote waves; 1–6-player native
+multiplayer; private reconnect/fault cases; deterministic animation/fallbacks;
+14 art views; 2p720/6p1080 continuous native three-wave journeys with exact
+resource/health quote-to-receipt checks, unchanged Research/profiles, delayed ACK,
+slow playback and ready/draft reconnect. The final bounded chooser was visually
+inspected at both sizes. Source/log scopes and hashes are in the local manifest:
+`artifacts/refinement-ii/r7/manifest.json`.
+
+The first full Shared run exposed stale paid setup assumptions and old expectations
+that reconnect loses factual damage; those were corrected using actual costs and
+the new frozen result. A later receiving test found the validator comparing the
+previous completed result with the new fight's upkeep; it now validates historical
+results separately during combat and has an actual next-battle regression test.
+No failure was hidden with a stat grant, fabricated checkpoint or enemy retune.
+
+Feature commit `d77422b` is on stacked draft
+[PR #31](https://github.com/seraph1nia/common-watch-v2/pull/31), targeting #20.
+The final test/evidence refinement has the same production behavior. The PR's
+checks identify the exact final CI revision, including Linux/Windows exports.
 
 No participant comprehension, normal human pacing, physical input/audio/GPU,
 native other-platform or live Steam qualification is claimed. The known

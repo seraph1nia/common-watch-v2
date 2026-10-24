@@ -1,5 +1,24 @@
 # Verification
 
+## Immediate reward refinement (#21)
+
+[Contract/audit](refinement-ii/21_IMMEDIATE_REWARDS.md) and
+[economy comparison](refinement-ii/21_ECONOMY.md) document the intentional Core
+extension after Gate A CI71 passed. Wire18/reward1/fingerprint4 reject old offers.
+Locked zero-warning build; Core65, Shared147, models109; native session3; final
+four full gameplay profiles and seven remote waves; 1–6 multiplayer; private
+reconnect; animation/fallbacks and14art views passed locally. Native2p720/6p1080
+three-wave journeys compare frozen quotes with actual resource/HP deltas and
+receipts, including delayed ACK and ready/draft reconnect. Both chooser sizes
+were visually inspected; three primary actions remain visible. Original72-run
+1050-battle report reproduces byte-identically; new1037-battle report exposes
+Arcanist losses, a Grovekeeper improvement and ordinal-policy selection bias.
+No enemy retuning, human/balance claim or new artwork. Exact scopes, accepted
+logs/hashes and pending CI status are under artifacts/refinement-ii/r7/manifest.json;
+PR31 carries final revision checks. Physical/native-platform/live Steam gaps and
+known intermittent native runtime risk remain.
+
+
 ## Refinement II cooperative context and presentation gate (2026-10-24)
 
 [The cooperative contract](refinement-ii/20_COOPERATIVE_CONTEXT.md) separates
