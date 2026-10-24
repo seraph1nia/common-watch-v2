@@ -319,3 +319,14 @@ description = "Six-home native workspace: paid placement, towers, input and art 
 depends = ["build"]
 run = "bash tools/graphical.sh test-army-workspace"
 raw_args = true
+
+[tasks.capture-recovery]
+description = "Native finite squad recovery, exact wounds, partial capacity and safe cancel at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-recovery"
+raw_args = true
+
+[tasks.test-recovery-network]
+description = "Actual remote recovery with held authority, accepted-prefix cancellation, retry and private rejoin"
+depends = ["build"]
+run = "bash tools/graphical.sh test-recovery-network"

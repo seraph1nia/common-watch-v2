@@ -69,6 +69,11 @@ jobs:
       - name: Test spatial army workspace and art fallback at both sizes
         run: mise run test-army-workspace
 
+      - name: Test finite squad recovery and private remote cancellation
+        run: |
+          mise run capture-recovery
+          mise run test-recovery-network
+
       - name: Test native three-wave journey and overlay transitions
         run: mise run capture-journey
 

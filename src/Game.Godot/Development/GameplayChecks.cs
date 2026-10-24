@@ -17,6 +17,7 @@ public partial class GameApplication
         await CheckCombatReadability();
         await CheckArmyDeployment();
         await CheckVeteranChoices();
+        await CheckSquadRecoveryChoices();
         await CheckBossPresentation();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
@@ -118,7 +119,7 @@ public partial class GameApplication
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
         _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
-        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
+        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.AdvancedDetails.Contains("Service history") && !_gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var rosterScroll = _gameUi.Details.Army.RosterScroll;
         rosterScroll.ScrollVertical = 80;

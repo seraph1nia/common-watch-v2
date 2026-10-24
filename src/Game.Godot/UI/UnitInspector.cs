@@ -106,9 +106,9 @@ public partial class UnitInspector : VBoxContainer
                 + (TeamAwareness.Sector(context.State, unit) is > 0 and var sector ? $"\nLocation: P{sector} sector" : "")
                 + "\nTarget: " + LiveTarget(unit, units, playback?.Structures() ?? context.State.Structures, context.Session.PlayerId)
             : CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
-        if (!ReadOnlyLive && city is not null) _text.Text += $"\nService history: {unit.Experience} battles (no stat or equipment gain)\n" +
+        if (!ReadOnlyLive && city is not null) _text.Text += "\n" +
             (unit.Assignment is { Stored: true } stored ? $"Stored: Town Hall plot {stored.HallSlot + 1}; never fights" : unit.Assignment is { } basicHome ? $"Army home {basicHome.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home")
-            + $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}";
+            + $"\n{funding}" + (unit.Health < unit.Profile.Health || unit.Assignment is { Stored: true } ? $"; recovery {(unit.RecoveryEligible ? "eligible" : "needs a funded completed battle")}" : "");
         if (!ReadOnlyLive) _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
         _advanced.Text = $"#{unit.Id} {unit.Type} · {unit.Class}\n{unit.Faction} · owner P{unit.Owner} · L{unit.Level}, rank {unit.Rank}{(unit.IsBoss ? " BOSS" : "")}\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(p.Health)}; Service history: {unit.Experience} battles (no stat or equipment gain)\nDamage direct/secondary {HealthPoints.Format(p.Damage)}/{HealthPoints.Format(p.SecondaryDamage)}\nStructure damage {HealthPoints.Format(p.StructureDamage)}; range {p.HexRange}\nMovement {p.MoveTicks}, windup {p.WindupTicks}, cadence {p.CadenceTicks} ticks\nSquad #{unit.SquadId}, member slot {unit.FormationSlot}\n" +
             (unit.Assignment is { Stored: true } a ? $"Stored: Town Hall plot {a.HallSlot + 1}, place {a.Tile + 1}; never fights" : unit.Assignment is { } home ? $"Army home {home.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home") +

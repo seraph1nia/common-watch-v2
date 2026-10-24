@@ -2,6 +2,26 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "recovery-campaigns")
+    {
+        var runs = (from doctrine in Game.Core.RunCatalog.Doctrines from seed in new[] { 1UL, SoloSession.DefaultSeed } from batch in new[] { false, true }
+                    select RecoveryCampaignReview.Run(doctrine.Id, seed, batch)).ToArray();
+        foreach (var pair in runs.Chunk(2)) if (pair[0].Digest != pair[1].Digest) throw new InvalidOperationException("Recovery campaign command/boundary digests differ.");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+        Console.WriteLine($"RECOVERY_CAMPAIGNS_PASS runs={runs.Length} pairedDigests=12 battles={runs.Sum(r => r.Battles.Length)} moves={runs.Sum(r => r.MemberMoves)}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "squad-recovery-review")
+    {
+        var cases = SquadRecoveryReview.Collect(); var equivalence = SquadRecoveryReview.Compare(); var replacements = SquadRecoveryReview.Replacements(); var rewardThenProduction = SquadRecoveryReview.RewardThenProduction(); var unfundedStorage = SquadRecoveryReview.UnfundedStorage();
+        if (!equivalence.SameBefore || !equivalence.SameAfterMoves || !equivalence.SameAfterPayment)
+            throw new InvalidOperationException("Individual and finite squad commands must settle identically.");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(new { cases, equivalence, replacements, rewardThenProduction, unfundedStorage }, Game.Core.WireJson.Options));
+        Console.WriteLine($"SQUAD_RECOVERY_REVIEW_PASS cases={cases.Length} exactIndividualEquivalence={equivalence.SameAfterPayment}");
+        return 0;
+    }
     if (args.FirstOrDefault() == "opening-tasks")
     {
         var runs = new[] { "overspend", "late-food", "missing-trainer", "after-commit", "no-food" }.Select(OpeningMistakes.Run).ToArray();

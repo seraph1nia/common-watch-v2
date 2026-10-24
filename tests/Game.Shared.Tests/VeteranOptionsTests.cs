@@ -15,7 +15,8 @@ public sealed class VeteranOptionsTests
         var comparison = VeteranComparison.Project(solo.Snapshot, solo.City, member.Id);
         var recovery = Assert.Single(comparison.Recovery, r => r.StoredHere);
         Assert.Empty(recovery.Reason); Assert.InRange(recovery.ProductionsToFull, 1, 20);
-        Assert.Contains("no stats or equipment", comparison.Summary);
+        Assert.Contains("no stats or equipment", comparison.History);
+        Assert.DoesNotContain("Service history", comparison.Summary);
         var resources = solo.City.Resources; int productions = solo.Snapshot.ProductionCount;
         var income = solo.City.ProductionIncome!.Value;
         Accept(solo.Send("ready"));

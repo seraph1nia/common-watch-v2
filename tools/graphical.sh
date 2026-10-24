@@ -87,6 +87,16 @@ with open(sys.argv[1], 'w') as target:
 PYFIXTURE
     run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
     ;;
+  test-recovery-network)
+    timeout --kill-after=5s 240s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/recovery-network.py
+    ;;
+  capture-recovery)
+    client_timeout=180
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --squad-recovery-review --gameplay-captures "$(pwd)/artifacts/captures/recovery/$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
   test-journey-network)
     # Six software-rendered clients now include three explicit context reviews.
     # Per-observation deadlines remain in the worker; bound the complete journey

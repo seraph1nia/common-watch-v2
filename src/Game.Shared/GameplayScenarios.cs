@@ -16,10 +16,10 @@ public static class GameplayScenarios
         return new(kind, action.Slot, action.Building, action.Unit, action.Technology, action.Resource, action.Bundles, action.Payment, action.UnitId);
     }
     public static string RewardChoice(RunState run) => GameplayCampaignPolicy.RewardChoice(run);
-    public static SoloSession CreateAt(string checkpoint, bool enrich = true, Rules? rules = null)
+    public static SoloSession CreateAt(string checkpoint, bool enrich = true, Rules? rules = null, ulong seed = 1, string? matchId = null)
     {
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown gameplay scenario: " + checkpoint);
-        var solo = new SoloSession(seed: 1, rules: rules);
+        var solo = new SoloSession(seed: seed, matchId: matchId, rules: rules);
         try
         {
             Require(solo.Start());

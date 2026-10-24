@@ -59,6 +59,9 @@ public partial class GameApplication
                     GetViewport().PushInput(new InputEventMouseButton { Position = wheelAt, GlobalPosition = wheelAt, ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
                     GetViewport().PushInput(new InputEventMouseButton { Position = wheelAt, GlobalPosition = wheelAt, ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
                     break;
+                case "recovery-review-native": NativeRequest(() => ReviewRecoveryNative(Number("squadId"))); break;
+                case "recovery-commit-native": NativeRequest(() => JourneyClick(_gameUi.Details.Army.Recovery.Actions["Commit"])); break;
+                case "recovery-cancel-native": NativeRequest(() => JourneyClick(_gameUi.Details.Army.Recovery.Actions["Cancel"])); break;
                 case "opening-step-native": NativeOpeningStep(); break;
                 case "journey-overlay": NativeRequest(() => OpenJourneyOverlay(Text("overlay"))); break;
                 case "cancel-native": CancelUi(); break;
@@ -187,6 +190,11 @@ public partial class GameApplication
         _controlWrite = System.Environment.TickCount64;
         var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
+            recoveryVisible = _gameUi.Details.Army.Recovery.IsVisibleInTree(),
+            recoveryText = _gameUi.Details.Army.Recovery.Copy,
+            recoveryCompleted = _gameUi.Details.Army.Recovery.Sequence?.Completed ?? 0,
+            recoveryTotal = _gameUi.Details.Army.Recovery.Sequence?.Total ?? 0,
+            recoveryPending = _gameUi.Details.Army.Recovery.Sequence?.PendingMember ?? 0,
             nativeBusy = _nativeJourneyBusy, nativeError = _nativeJourneyError, nativeActions = _nativeJourneyActions,
             receiptCount = _gameUi.Journey.ReceiptCount, rewardReceipt = _gameUi.Journey.Receipt,
             detailsVisible = _gameUi.Details.IsVisibleInTree(), previewVisible = _arenaPreview.Visible,

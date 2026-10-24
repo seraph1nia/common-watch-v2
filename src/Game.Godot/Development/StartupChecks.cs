@@ -42,6 +42,7 @@ public partial class GameApplication
         if (_args.Contains("--army-workspace-test")) { await CheckArmyDeployment(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--army-workspace-trace")) { await TraceArmyWorkspace(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--journey-test")) { await CheckJourneyTransitions(); await CheckNativeSoloJourney(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--squad-recovery-review")) { await CheckSquadRecoveryChoices(); GD.Print("GODOT_SQUAD_RECOVERY_DRAIN"); await QuitAfterAudioDrain(); GD.Print("GODOT_SQUAD_RECOVERY_QUIT"); return; }
         if (_args.Contains("--gameplay-test")) { await GameplayUiChecks(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--boss-review")) { await CheckBossPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--veteran-review")) { await CheckVeteranChoices(); await QuitAfterAudioDrain(); return; }

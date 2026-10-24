@@ -83,7 +83,7 @@ internal static class GameplayCampaignPolicy
         return null;
     }
     internal static string RewardChoice(RunState run) => run.Offers.Order(StringComparer.Ordinal).First();
-    public static EconomyAction? Next(MatchSnapshot state, int player, string family = "frontline", int maximumHomes = 6, int maximumTier = 5, bool hallUpgrades = true, bool purchaseResearch = true)
+    public static EconomyAction? Next(MatchSnapshot state, int player, string family = "frontline", int maximumHomes = 6, int maximumTier = 5, bool hallUpgrades = true, bool purchaseResearch = true, bool rotateRecovery = true)
     {
         if (maximumHomes is < 2 or > 6 || maximumTier is < 1 or > 5) throw new ArgumentOutOfRangeException(nameof(maximumHomes));
         CityState city = state.Players.Single(p => p.Id == player);
@@ -136,7 +136,7 @@ internal static class GameplayCampaignPolicy
             int target = definition.Recruits is null ? definition.MaximumLevel : Math.Min(maximumTier, 1 + (state.Wave + 1) / 4);
             if (Upgrade(slot, target) is EconomyAction branchUpgrade) return branchUpgrade;
         }
-        if (family == "reserve" && Rotate(city, hallUpgrades) is EconomyAction rotation) return rotation;
+        if (family == "reserve" && rotateRecovery && Rotate(city, hallUpgrades) is EconomyAction rotation) return rotation;
         if (family == "research" && purchaseResearch)
             foreach (TechnologyId id in new[] { TechnologyId.MeleeFoundation, TechnologyId.Guardian, TechnologyId.GuardianMastery })
                 if (city.Technologies.Single(t => t.Id == id).Available) return new("research-tech", Technology: id);

@@ -15,6 +15,7 @@ public partial class ArmyRosterPanel : VBoxContainer
     private OptionButton _trainer = null!, _halls = null!;
     private RecruitmentPanel _recruitment = null!;
     private TownHallPanel _hall = null!;
+    internal SquadRecoveryPanel Recovery { get; private set; } = null!;
     private ActionList _members = null!;
     private ScrollContainer _memberScroll = null!;
     private Button _memberToggle = null!, _preview = null!, _deploy = null!;
@@ -43,6 +44,8 @@ public partial class ArmyRosterPanel : VBoxContainer
         var bar = _details.GetTabBar(); var rect = bar.GetTabRect(i);
         return bar.GetGlobalRect().Encloses(new Rect2(bar.GlobalPosition + rect.Position, rect.Size));
     });
+    internal TabContainer DetailTabs => _details;
+    internal TownHallPanel HallPanel => _hall;
     internal bool PlacementLocked => _context is null || _context.EditReason.Length > 0;
 
     public void Initialize(HudSkin skin, Action submitted)
@@ -66,6 +69,7 @@ public partial class ArmyRosterPanel : VBoxContainer
         _recruitment = new RecruitmentPanel(); context.AddChild(_recruitment); _recruitment.Initialize(skin, compact: true);
         _recruitment.DestinationChanged += RecruitDestinationChanged; _recruitment.DetailsRequested += ShowDetails;
         _trainerMissing = WrapLabel("Build a trainer in the settlement to recruit here."); context.AddChild(_trainerMissing);
+        Recovery = new SquadRecoveryPanel(); context.AddChild(Recovery); Recovery.Initialize(skin, submitted);
         _details = new TabContainer { CustomMinimumSize = new(0, 110), SizeFlagsVertical = SizeFlags.ExpandFill }; context.AddChild(_details);
         // TabContainer owns the theme forwarded to its internal TabBar.
         _details.AddThemeFontSizeOverride("font_size", 14);
@@ -75,7 +79,7 @@ public partial class ArmyRosterPanel : VBoxContainer
         var member = DetailPage("Member"); MemberInspector = new UnitInspector { SizeFlagsHorizontal = SizeFlags.ExpandFill }; member.AddChild(MemberInspector); MemberInspector.Initialize(skin); MemberInspector.PlotRequested += ForwardPlot;
         var storage = DetailPage("Storage"); var storageBody = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; storage.AddChild(storageBody);
         _halls = new OptionButton { FitToLongestItem = false, ClipText = true }; storageBody.AddChild(_halls); _halls.ItemSelected += HallChanged;
-        _hall = new TownHallPanel(); storageBody.AddChild(_hall); _hall.Initialize(skin);
+        _hall = new TownHallPanel(); storageBody.AddChild(_hall); _hall.Initialize(skin); _hall.ReturnRequested += ReviewReturns;
         var information = DetailPage("Quotes"); _info = WrapLabel(); information.AddChild(_info);
     }
     private ScrollContainer DetailPage(string name)
@@ -105,8 +109,9 @@ public partial class ArmyRosterPanel : VBoxContainer
     private void HallChanged(long _) { if (!_refreshing) Refresh(_context); }
     private void RecruitDestinationChanged(int squad) { if (squad > 0) SelectSquad(squad); }
     private void ShowDetails(string text) { _info.Text = text; }
+    private void ReviewReturns(int hall) => Recovery.ReviewReturns(_context, _selection.Home, _selection.Squad, hall);
     private void ForwardPlot(int slot) => PlotRequested?.Invoke(slot);
-    public void CancelIntents() { _armed = null; HomeInspector?.Construction.ResetSelection(); MemberInspector?.CancelRetirement(); }
+    public void CancelIntents() { Recovery?.Cancel(); _armed = null; HomeInspector?.Construction.ResetSelection(); MemberInspector?.CancelRetirement(); }
     public void ResetSelection() { CancelIntents(); _selection.Reset(); _recruitSquad = -1; _memberScroll?.Hide(); }
     private void FocusHome()
     {
@@ -151,6 +156,10 @@ public partial class ArmyRosterPanel : VBoxContainer
             _trainerMissing.Visible = planning && _trainer.ItemCount == 0 && context.EditReason.Length == 0;
             _trainer.Visible = _recruitment.Visible = planning && _trainer.ItemCount > 0 && home?.Home.Purchased == true && home.Home.Plot.Type == Building.Empty;
             if (_recruitment.Visible) _recruitment.Refresh(context, _trainer.GetSelectedId());
+            Recovery.Refresh(context, _selection.Home, _selection.Squad);
+            Recovery.Visible &= Recovery.Reviewing || _details.CurrentTab == 0 && _selection.Member == 0;
+            _details.Visible = !Recovery.Reviewing;
+            if (Recovery.Reviewing) _trainer.Visible = _recruitment.Visible = _trainerMissing.Visible = false;
             _memberToggle.Text = $"Members ({city.Soldiers.Length}) ▾";
             _members.Begin((context.Session, context.State.MatchId, city.Id));
             foreach (var unit in city.Soldiers.OrderBy(u => u.Assignment?.Stored).ThenBy(u => u.SquadId).ThenBy(u => u.Id))
@@ -200,7 +209,7 @@ public partial class ArmyRosterPanel : VBoxContainer
     {
         Deployment.HomeSelected -= SelectHome; _trainer.ItemSelected -= TrainerChanged; _halls.ItemSelected -= HallChanged;
         _recruitment.DestinationChanged -= RecruitDestinationChanged; _recruitment.DetailsRequested -= ShowDetails;
-        MemberInspector.PlotRequested -= ForwardPlot; _deploy.ButtonDown -= ArmDeployment;
+        _hall.ReturnRequested -= ReviewReturns; MemberInspector.PlotRequested -= ForwardPlot; _deploy.ButtonDown -= ArmDeployment;
         _selection.Reset(); _armed = null; PreviewRequested = null; PlotRequested = null;
     }
 }
