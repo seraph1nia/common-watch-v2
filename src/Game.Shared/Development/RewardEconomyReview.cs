@@ -4,7 +4,11 @@ using Game.Core;
 namespace Game.Shared;
 
 public sealed record EconomyCommand(Command Command, CommandResult Result, ResourceCost Before, ResourceCost After,
-    int ResearchPointsBefore, int ResearchPointsAfter, int KeepHealing, long SoldierHealing, int HealedSoldiers);
+    int ResearchPointsBefore, int ResearchPointsAfter, int KeepHealing, long SoldierHealing, int HealedSoldiers,
+    PreparationPayment? Preparation = null);
+public sealed record StoredPayment(int UnitId, bool Eligible, int Before, int After, int Maximum, int HealingPercent);
+public sealed record PreparationPayment(int Wave, int Turn, int ResourceMultiplier, int ProductionsBefore, int ProductionsAfter,
+    ResourceCost Quote, ResearchState ResearchBefore, ResearchState ResearchAfter, int FoodPaid, StoredPayment[] Stored);
 public sealed record EconomyShortage(int Wave, int Turn, UnitType Type, int Level, ResourceCost Cost,
     string[] MissingResources, long FoodDemand, int FoodStock);
 public sealed record RewardEconomyBattle(int Wave, string Result, long CombatTicks, long CleanupTicks,
@@ -17,7 +21,7 @@ public sealed record RewardEconomyRun(string Doctrine, string Family, ulong Seed
 /// <summary>Matched, bounded ordinary-command policies. No snapshot or simulation writes.</summary>
 public static class RewardEconomyReview
 {
-    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical")
+    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical", bool recordPreparations = false, bool adaptOpening = false)
     {
         using var match = new Match(rules: rules, matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
@@ -26,13 +30,26 @@ public static class RewardEconomyReview
         CityState City(MatchSnapshot state) => state.Players.Single(p => p.Id == player);
         void Submit(Command command)
         {
-            var before = City(match.Snapshot()); var result = match.Apply(player, command);
+            var beforeState = match.Snapshot(); var before = City(beforeState); var result = match.Apply(player, command);
             if (!result.Accepted) throw new InvalidOperationException($"{doctrine}/{family}/{seed}: {command.Action}: {result.Message}");
             var after = City(match.Snapshot());
             var healed = after.Soldiers.Select(u => before.Soldiers.FirstOrDefault(b => b.Id == u.Id) is { } old
                 ? Math.Max(0, (long)u.Health - old.Health) : 0).ToArray();
+            PreparationPayment? payment = null;
+            if (recordPreparations && command.Action == "ready")
+            {
+                var stored = before.Soldiers.Where(u => u.Assignment is { Stored: true }).Select(u =>
+                {
+                    var hall = before.Army!.Halls.Single(h => h.Slot == u.Assignment!.HallSlot);
+                    return new StoredPayment(u.Id, u.RecoveryEligible, u.Health, after.Soldiers.Single(a => a.Id == u.Id).Health,
+                        u.Profile.Health, hall.HealingPercent);
+                }).ToArray();
+                payment = new(beforeState.Wave, beforeState.Turn, PreparationSchedule.ResourceMultiplier(match.Rules, beforeState.Turn),
+                    beforeState.ProductionCount, match.Snapshot().ProductionCount, before.ProductionIncome!.Value,
+                    before.Research, after.Research, match.Phase == Phase.Combat ? after.LastUpkeep!.Paid : 0, stored);
+            }
             commands.Add(new(command, result, before.Resources, after.Resources, before.Research.Points, after.Research.Points,
-                Math.Max(0, after.Health - before.Health), healed.Sum(), healed.Count(h => h > 0)));
+                Math.Max(0, after.Health - before.Health), healed.Sum(), healed.Count(h => h > 0), payment));
         }
         void Send(string action) => Submit(Command.FromSnapshot(match.Snapshot(), ++sequence, action, player));
         Send("doctrine:" + doctrine); Send("start"); var starting = City(match.Snapshot()).Resources;
@@ -45,7 +62,7 @@ public static class RewardEconomyReview
                 for (int decision = 0; decision < 120; decision++)
                 {
                     var state = match.Snapshot();
-                    var intent = family == "opening" ? OpeningCampaign.Next(state, player, openingOrder)
+                    var intent = (family == "opening" || adaptOpening && wave == 1) ? OpeningCampaign.Next(state, player, openingOrder)
                         : GameplayScenarios.NextPreparation(state, player, family);
                     if (intent is null) break;
                     Submit(intent.Capture(state, ++sequence, player));

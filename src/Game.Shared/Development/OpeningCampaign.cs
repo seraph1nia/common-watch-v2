@@ -88,7 +88,7 @@ public static class OpeningCampaign
         {
             if (solo.Snapshot.Phase == Phase.RewardDraft) Accept(solo.ChooseReward(GameplayScenarios.RewardChoice(solo.City.Run)));
             int decisions = 0;
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < solo.Snapshot.Rules.PreparationStages; stage++)
             {
                 for (int n = 0; n < 100 && Next(solo.Snapshot, solo.PlayerId) is { } intent; n++)
                 {

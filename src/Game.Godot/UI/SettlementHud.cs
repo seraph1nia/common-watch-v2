@@ -63,6 +63,7 @@ public partial class SettlementHud : Control
     public string SessionFeedback { get; private set; } = "";
     public Control Resources => _economy;
     public Button ReadyButton => _controls.ReadyButton;
+    public bool TryToggleReady() => _controls.TryToggleReady();
     internal Button PauseButton => _controls.PauseButton;
     internal string TransitionText => _controls.TransitionText;
     internal Label PreparationSummary => _preparation.Summary;

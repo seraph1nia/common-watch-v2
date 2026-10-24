@@ -10,9 +10,9 @@ public sealed record CampaignRun(string Family, ulong Seed, bool Adaptive, strin
 /// <summary>Legal paid policy comparisons. Baseline and forecast responses share Core commands, prices and timing.</summary>
 public static class CampaignReview
 {
-    public static CampaignRun Run(string family, ulong seed, bool adaptive)
+    public static CampaignRun Run(string family, ulong seed, bool adaptive, Rules? rules = null)
     {
-        using var match = new Match(matchId: $"encounter-review-{family}-{seed}-{adaptive}", combatSeed: seed);
+        using var match = new Match(rules: rules, matchId: $"encounter-review-{family}-{seed}-{adaptive}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
         void Submit(GameplayIntent intent) => Accept(match.Apply(player, intent.Capture(match.Snapshot(), ++sequence, player)));
         void Send(string action) => Accept(match.Apply(player, Command.FromSnapshot(match.Snapshot(), ++sequence, action, player)));
@@ -22,7 +22,7 @@ public static class CampaignReview
             if (match.Phase == Phase.RewardDraft) Send("reward:" + GameplayScenarios.RewardChoice(match.Players[player].Run));
             var adaptations = new List<string>(); var decisions = new List<string>();
             UnitState[] expected = []; BattleFoodForecast? food = null;
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < match.Rules.PreparationStages; stage++)
             {
                 for (int n = 0; n < 120; n++)
                 {
@@ -40,7 +40,7 @@ public static class CampaignReview
                     if (response is not null) adaptations.Add(response.Reason + " · " + intent);
                     if (n == 119) throw new InvalidOperationException("Campaign response bound exceeded.");
                 }
-                if (stage == 2) { var state = match.Snapshot(); expected = state.NextWave; food = state.Players.Single(p => p.Id == player).FoodForecast; }
+                if (stage == match.Rules.PreparationStages - 1) { var state = match.Snapshot(); expected = state.NextWave; food = state.Players.Single(p => p.Id == player).FoodForecast; }
                 Send("ready");
             }
             if (match.Phase != Phase.Combat || match.Wave != wave) throw new InvalidOperationException("Campaign did not reach the numbered battle.");
