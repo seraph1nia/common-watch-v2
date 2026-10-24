@@ -1,219 +1,103 @@
 # Refinement II checkpoint
 
-Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15)
-and its ten children. Preserve the complete scope, including executable rules
-alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
-Current branch: `refinement/22-preparation-rhythm`, stacked on
-`refinement/21-immediate-rewards` (`da3a51d`). Gate A preserved original rules; #21 now intentionally changes the Core reward catalog/receipts under its committed design.
+Implement all ten children of [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15),
+in dependency order. Original source: b4fa3f7. All work is on stacked draft PRs;
+no merge or issue closure is authorized by this checkpoint. The overall goal
+remains active until #23–#25 and integrated gates finish. No pending user input.
+Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 
-| Order | Issue | State |
+| Order | Issue | Delivery |
 | --- | --- | --- |
-| 1 | #16 phase-specific HUD | Implemented and locally verified; draft [PR #26](https://github.com/seraph1nia/common-watch-v2/pull/26). Follow-up probe fixes through `23e94a3`; remote CI passed (run 53). See [contract/inventory](16_PHASE_HUD.md). |
-| 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
-| 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck passed in #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
-| 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
-| 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision ce2d5c6 passed Godot run71, including both exports. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
-| 6 | #21 immediate battle rewards | Immediate catalog/authority/UI implemented; Core65/Shared145/models109 and initial native gates pass; all local and final exact-SHA CI75 gates passed including both exports; draft PR31. |
-| 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
-| 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
-| 9 | #24 veteran maintenance | Pending; execute a real squad-recovery alternative under selected rewards/rhythm. |
-| 10 | #25 consequences/campaign | Original 20 campaigns plus no-investment defeat now have exact command/checkpoint/event replay; controlled trade-offs, elite formation and final calibration remain. |
+| 1 | #16 phase HUD | 23e94a3, draft PR26; CI53 passed |
+| 2 | #17 screen journey | 583ec3a, draft PR27; CI55 passed |
+| 3 | #18 combat framing | 59fbebf, draft PR28; CI57 passed; maximum-group follow-up passed in #20 |
+| 4 | #19 squad workspace | cb8d787, draft PR29; CI59 passed including both exports |
+| 5 | #20 cooperative context | ce2d5c6, draft PR30; CI71 passed including both exports |
+| 6 | #21 immediate rewards | da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a, draft PR31; final exact-SHA CI75/40050084771 passed including both exports |
+| 7 | #22 preparation rhythm | Active branch refinement/22-preparation-rhythm; executable comparison and three-stage selection implemented; final native/transport gates running |
+| 8 | #23 opening economy | Next: normal-payment routes, minimal adjustment comparison and reduced contextual flow |
+| 9 | #24 veteran recovery | Required: real squad-level recovery alternative under immediate rewards / selected three stages |
+| 10 | #25 campaign consequences | Original exact baseline archived; controlled tradeoffs, elite formation, held-out seeds and final calibration still required |
 
-Full child specifications are cached at `/tmp/common-watch-issues/16.md` through
-`25.md` for this workspace session. They are not replaced by this table. Keep all
-ten children and Gate A/B/C active. Do not claim Gate A until #18–#20 finish.
+Detailed source, evidence and qualifications live in the numbered issue contracts.
+Do not replace their acceptance requirements with this table.
 
-Baseline evidence: `artifacts/refinement-ii/baseline/{gameplay,cooperation,phases}`,
-`campaign.json`, `rules-source.tar` and `manifest.json`: original sources, hashes,
-20 runs / 400 battles. All screenshots show actual application views and legal
-command checkpoints. Exact command/event archival and the no-investment baseline are complete;
-reproduction tooling is staged separately before #21 rules changes.
+## Completed gates and preserved qualifications
 
-## Presentation gate — #16 through #20
+Gate A (#16–#20) passed before reward-rule changes. Core remained original during
+presentation work. Original maximum-group720 median combat figures grew22.9%,
+1080 grew4.2%, with zero initial HUD overlap. Eighteen paired Team boundaries
+shrank. Native owner/location crossing, first-wave elimination/Defeat, manual
+fallen-view retention and actual uneven W20 Victory passed. The owned-survivor
+at first city elimination remained a rare native checkpoint not found by bounded
+legal searches; policy fixtures qualify deferral only. Do not claim that case.
 
-All five presentation changes are implemented on stacked draft PRs #26–#30.
-Core rules remain original. Contracts and qualifications are in the five linked
-issue documents. #20 final local gates passed: zero-warning locked build;
-Core 46, Shared 145, session models 109; three native session facts; four full
-native gameplay profiles and seven paid remote waves; multiplayer 1–6;
-private reconnect/faults; 24 arena cases; 14 art views; animation/fallbacks;
-four latest solo three-wave journeys; eight cooperative profiles plus final
-finishing/phase-heading checks. Accepted source/log manifest:
-`artifacts/refinement-ii/r10/manifest.json`.
+CI63/65 hit an outer journey watchdog; subsequent shutdown StringName diagnostics
+are not proof of a runtime cause/fix. The bounded full six-client journey now has
+540 seconds while per-observation deadlines remain. CI67/69/71 passed. The known
+intermittent native .NET/JIT crash risk, physical hardware/controller/audio, live
+Steam and native Windows/macOS remain unqualified.
 
-Eight normal-speed solo pairs retain exact outcomes/ticks and pass 474
-selected-body/target checks. Final six-player median figures grow 22.9% at 720p
-and 4.2% at 1080p, with zero initial collisions; the #18 integration obligation
-is resolved. Eighteen paired Team boundaries shrink at every roster/size.
-Actual crossing, first-wave elimination/Defeat, manual fallen-view retention,
-full paid uneven W20 Victory (both cities standing), native camera/team input,
-delayed ACK, slow presentation and reconnect all passed. See #20 for exact
-source scopes and timing qualifications. No owned native workers remain.
+Original b4fa3f7 archive:20 campaigns/400 battles plus no-investment Defeat,
+3470 commands,844 checkpoints,41512 events. All83 original Core/Shared files match
+Git blobs. Independent fresh-Match command/event replay is byte-identical;
+aggregate SHA6ef56ec5aa145a892fdd69e4c84c87ea2add5d57ed5606fe22d2b401f3505414.
+Tampered event rejected. Compressed trace SHAad17b06926b66becbae0dd744375477c6e172e148ba6c6434c33b714ac35a62f.
+Headless presented wall time is null; eight separately qualified native timing
+supplements are not rendered versions of those400 battles. Tools and source
+archive precede #21 Core edits. See25_ORIGINAL_BASELINE.md.
 
-Rare gap: bounded legal searches found no positive living owned deployed
-survivor at the owner's first elimination. Preference fixtures verify the
-deferral policy; they do not qualify that native checkpoint. No fabricated state.
-Physical hardware/input/audio, participant findings, native Windows/macOS and
-live Steam remain unqualified. The known intermittent native runtime risk is
-not claimed fixed. CI63/65 exhausted an outer journey watchdog; shutdown
-StringName diagnostics followed termination. CI67/69 passed, including exports.
-Final #20 commit ce2d5c6 passed Godot run71, including both exports, before Core reward changes. Retain per-observation
-deadlines; complete six-client journeys now have a bounded 540-second allowance.
+#21 design/provenance preceded Core implementation. Six new loot families grant
+frozen exact one-shot supplies/recovery; no old passive readers/catalog. Positive
+capacity preflight, actual frozen battle-loss and consumption receipts; Core65,
+Shared147, models109, all required local graphical/transport/playback gates and
+final exact-SHA CI75 green. Old ordinal comparison:1050battles/50full Victories;
+new1037/49, with failed paths retained and no fairness claim. Full36-card audit
+and 72-run receipts in21_IMMEDIATE_REWARDS.md /21_ECONOMY.md.
+Fresh three-stage archive at da3a51d:
+`artifacts/refinement-ii/r7/three-stage-source.tar`,
+SHA3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7.
 
-## Original-rule archive before #21
+## Active #22 boundary
 
-Exact original b4fa3f7 reproduction is complete locally: 20 campaigns / 400
-battles plus no-investment Defeat at tick 1003; 3,470 commands, 844 checkpoints
-and 41,512 events independently replay in fresh Matches. All 83 original
-Core/Shared files match Git blobs. Aggregate report SHA remains
-`6ef56ec5aa145a892fdd69e4c84c87ea2add5d57ed5606fe22d2b401f3505414`.
-A copied corrupted event is rejected. Headless rendered wall time is null;
-nominal combat and cleanup timing are separate. Eight representative native
-original-rule timing reports are separately qualified, not rendered versions
-of those 400 battles.
+Root now contains the formerly isolated experiment, cherry-picked after #21 CI
+completed. Declaration7cc21db precedes Core87daf98; comparison/shortcut f63e867.
+Separate worktree `artifacts/worktrees/r5-two-stage` / experiment/22-two-stage
+remains available, with no owned workers. Do not delete tracked assets or .uid
+files; import-generated untracked UIDs are excluded. No agents spawned.
 
-Early #25 tooling/docs are committed separately as `8da021d`, before any Core
-change. Compressed traces were regenerated after timing metadata clarification;
-SHA matches the baseline manifest (`ad17b06926b66becbae0dd744375477c6e172e148ba6c6434c33b714ac35a62f`).
-No new project, dependencies, locks or shipping legacy reward path.
+Selected shipping rhythm is three actual Ready events. Runnable two-stage
+alternative delivers2×then1×resources, Research and eligible stored healing once
+per actual Ready; no phantom events/autoready/timers. Protocol19/battleflow4,
+combat8/reward1; stage-count fingerprint. Ordinary play has no new setting.
+Guarded native Y Ready/Unready shortcut reduces pointer travel without removing
+deliberate economic boundaries. Source-derived production/phase/guidance/policy
+bounds and relevant inspector quotes are integrated. Final-parent decision review
+and #25 integrated sign-off remain visible; no closure claim.
 
-#21 original economy probe is `f4adfcf`, design/provenance `e36d20a`, accounting
-follow-up `11ed2e3`. Locked build/Core46/Shared145 pass. The same 72-run policy
-produces 1,050 battles and a byte-identical report against all 83 verified
-original Core/Shared files. Report SHA
-`197405bf601c7de6ee1bd4e008ef81c0a15453604e0b3e0a73bd9ba52cd0246d`.
-Ten generic full-campaign policies terminate early (Merchant four nonranged
-families W1, Grovekeeper ranged W3, both seeds); retain these losses for #23.
-Original sources and exact policy copies are under `artifacts/refinement-ii/r7/`.
-The [reward design](21_IMMEDIATE_REWARDS.md) audits all 36 old cards and declares
-a frozen immediate-only catalog, actual receipts, capacity preflight and explicit
-protocol18/reward-rules1 compatibility. The design preceded Core edits; actual immediate reward implementation is now in progress.
+Data: `artifacts/refinement-ii/r5` and
+`artifacts/captures/preparation-review`. Canonical144 runs, opening-order72,
+forecast-response40, reordered continuation96, reserve/research/tower12 full
+campaigns plus two legal partial-Food checkpoints. Core74 /Shared147 pass in the
+isolated prototype. Canonical3 report is byte-identical to freshR7. Preserve
+Grovekeeper two-stage W1 defeats and Huntsman ranged W8 defeat. Economy-first
+recovers all12 three-wave doctrine/seed openings, but does not erase those losses.
 
-## Next issue boundary
+Native baseline2/4/6p and paired adapted3/2×2/4/6p720 all passed; original paired
+solo720/1080 all passed. Final solo checks additionally cover Y/paused/repeat and
+separate scripted stage timing; final root gate queue handle43928 is running:
+build/Core/Shared/session/multiplayer/reconnect, then four solo journeys.
+Logs `/tmp/common-watch-r5-final-*`. No other live native workers; do not rebuild
+root DLL or edit live Python/shell consumers until queue ends. Root docs may change.
 
-Final #20 commit `ce2d5c6c7b282e28cfc1fdcf036617ffbb7bc6f7` is pushed; PR30
-body is updated. Godot run71 (`40044935480`) completed successfully, including
-both exports. Gate A is complete. The separate design/provenance and original
-archive commits precede Core implementation; continue #21 now. Full specs remain /tmp/common-watch-issues/15.md and16..25.md. The selected direction
-is actual one-shot supplies/recovery, without research-point substitutes.
-#22 requires executable matched two/three-stage alternatives; #23 cross-doctrine
-normal-payment opening alternatives; #24 real squad recovery under the selected
-economy; #25 controlled trade-offs, elite formation, held-out seeds and final
-integrated all-doctrine/uneven-group campaigns. All remain authorized and active.
-Do not mark the overall goal complete after Gate A. No pending user permission.
+Research/storage receipts independently verified by
+`tools/preparation-review/verify-focused.py`:360vs240 payments; Research progress
+192vs128; ordinary healing2820.95vs3241.43HP, exposure differs and no per-event
+increase is claimed. Guardian W7/P1→P2; Mastery W10/P1→W11/P1. Legal partial Food
+16funded/2unfunded,16paid both. Read22_PREPARATION_RHYTHM.md for decision, exact
+resource timing, count audit, evidence limits and reproduction.
 
-## #21 local completion / CI boundary
-
-Implementation `d77422b2ccb59e52582b283a7e5d19e68cce09ec`, stacked draft PR31
-on #20. New loot-* identities, frozen exact quotes, positive capacity preflight,
-consumed receipts, frozen battle losses; protocol18 / reward1 / fingerprint4.
-Old active passive paths are gone. No default enemy/price/rhythm/research or asset
-change. Design e36d20a and GateA-success4ad9b9e precede all Core edits.
-
-All local gates passed: build6 zero warnings; Core4=65, Shared-final=147,
-models4=109; native session3; final four illustrated/plain720/1080 profiles;
-seven remote waves; native2p720/6p1080 three-wave focus/quote/receipt/delta,
-unchanged Research/profiles, delayed ACK, slow playback, ready/draft reconnect;
-multiplayer1–6; private reconnect/faults; animation/fallbacks;14art views.
-Both final chooser sizes were visually inspected. All owned local native workers
-are terminal, including30182 and21498. Do not restart passed tasks from stale
-handles. Exact remote command retries before/after rejoin additionally pass in
-147-test Shared suite. Manifest: artifacts/refinement-ii/r7/manifest.json.
-
-Economy72matched runs: before1050battles/50full Victories, after1037/49. Two
-Arcanist ranged runs now failW5; Grovekeeper ranged seed1 now winsW20. Ordinal
-policy selects Equipment457, Provisions277, Recovery218, Stone25; no Treasury/
-Timber selection by that policy. All six have actual authoritative grant tests.
-No selected recovery is zero-benefit. Keep repair/caps additionally use explicit
-pure/custom arithmetic fixtures; native campaign victorious policies seldom
-damage Keep. Full tables21_ECONOMY.md; original/current-harness original report
-SHA197405bf... reproduces byte-identically. Raw command/payout/shortage data
-and source copies are retained. No fairness or human inference.
-
-Diagnostics: stale development setups attempted unavailable50Food sale and full
-six-place storage. The new legal setup sells only available bundles / Farm
-income when needed, and buys second storage capacity before storing. Receiver
-validation initially compared prior-wave losses with current upkeep; fixed and
-covered. No simulation injection, enemy retune or timeout weakening.
-
-Final feature CI73 (40049160250) runs on d77422b. Final two retry cases/docs still
-need their commit/push and exact-SHA check. Source production is unchanged by that
-last refinement. Record PR checks as authoritative; do not claim CI before green.
-No owned workers remain and no user permission/input is pending.
-
-Next boundary: finish #21 final CI, then #22. Before changing preparation rules,
-archive this immediate-reward three-stage source and record fresh per-stage
-commands, payments/research/recovery/no-command counts. Predefine comparison
-metrics, implement an executable two-stage alternative and run matched legal
-paths plus real solo and2/4/6-client loops under both configurations. All remaining
-#22–#25 specs and executable alternatives remain active. The overall goal is not
-complete; do not substitute a prose-only decision for the requested experiments.
-
-## Active #22 isolated experiment (2026-10-24)
-
-#21 final commit da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a is pushed on PR31.
-All local gates passed. CI73 on production-identical d77422b passed including
-both exports. Final CI75 run40050084771 passed all gates including both exports on da3a51d.
-#21 is complete; no remaining #21 local/CI gate. r7 manifest and three-stage-source.tar updated.
-Archive SHA3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7.
-
-Root branch #22 has only design/baseline/probe changes:3516913, d3effc2,85b8b11.
-Core/Godot binaries still equal the completed #21 baseline. Original stage matrix
-3150barriers/1093no-command; freshR7 3111/1068. Those counts exclude UI inspection
-and do not imply no meaningful decision. New timing records exclusive observed
-categories plus capture and deliberate-test-delay overrides; summed client
-seconds are not wall/human time. Baseline native2/4/6p1280 all passed, logs
-/tmp/common-watch-r5-before-{2,4,6}p.log, captures preparation-review/before.
-
-Isolated worktree artifacts/worktrees/r5-two-stage, branch experiment/22-two-stage.
-Provenance declaration6d7329d precedes Core prototype. Prototype commit
-5e291221f19fc82d999ed11d6b1a3e303481f32a is committed locally (not pushed). It
-adds Rules.PreparationStages=3 default, supported2/3; candidate resource delivery
-2×then1×, Research/healing once per actual Ready; battleflow4/protocol19; rules
-fingerprint stages. Core phase/income/receiving adaptation, SoloSession Rules
-parameter, native --review-preparations and --review-opening-order, phase labels/
-track/control/guidance, dynamic normal policies and CLI experiments exist.
-No root Core/default change and no selection claim. Worktree generated untracked
-.uid files from Godot import; exclude/delete only its untracked generated UIDs,
-never tracked ones. No artwork changes.
-
-Prototype passes zero-warning full build3, Core68, Shared147. Core tests cover
-2/3 exact quoted resource delivery, actual ProductionCount, one Research event,
-nonfinal/final exact retry and compatibility. Canonical 3-stage72-run report is
-BYTE-IDENTICAL to R7 after (SHA4df7b400a0447458126d5a607541e453ea109ebe7b2e53039797e14b3cbdac4d).
-Canonical2:72runs/1021battles/48full Victories vs3's1037/49. Grovekeeper canonical
-opening losesW1 both seeds (2participating vs4); Huntsman ranged seed1 losesW8.
-Do not hide those results. Canonical evidence copied to r5/canonical.
-
-All six doctrines×two seeds×three normal paid order variants×both schedules=72
-opening runs additionally completed. Canonical/army-first2 reach3waves10/12;
-economy-first reaches12/12 under both2/3. Same policy and prices: Grovekeeper uses
-its initial Wood for a second Metal Mine before the first payment; other doctrine
-order changes are explicit and no fake stock. Variant-specific optional Arcanum
-can defer instead of blocking needed recruitment; canonical is unchanged.
-Data:r5/opening-orders/{canonical,army-first,economy-first}-{2,3}.json.
-
-Live handle68252 IN THE ISOLATED WORKTREE runs six sequential actual native
-journeys: economy-first3/2 at2p,4p,6p1280. Both2p runs passed;4/6 remain running.
-DO NOT rebuild worktree Godot while68252 is active. Root baseline30909, isolated
-canonical2p90306 and Shared86521 are terminal0; all other recent handles terminal.
-Logs /tmp/common-watch-r5-adapted-{2,3}-{2,4,6}p.log. Canonical2 native2p already
-passed. Baseline group/candidate native overlays use same production Controls.
-
-Remaining #22: actual solo paired continuous loops; explicit new/upgraded producer
-per-resource timing, Research progress and eligible stored recovery (current big
-family matrices have zero ordinary healing, so add reserve/focused cases); full
-reference/adaptive campaigns; partialFood/towers/lateRecruit/goldRecovery; complete
-hardcoded stage audit including native tests/CLI/guides/inspectors, then deliberate
-selection, shipped interaction reduction if retaining3, parent15 decision and
-compatibility/provenance/test updates. Do not select only by wins or rewrite the
-negative cases. Extra outcome counts are exposure-dependent. Full22spec cached.
-
-No subagents. No pending user question/approval. No final objective completion.
-After #22 continue #23 normal-payment cross-doctrine openings, #24 actual squad
-recovery alternative, #25 controlled trade-offs/elite formation/held-outs/final
-selected-economy all-doctrine and uneven-group calibration. All scope remains.
-
-#21 exact final-SHA completion recorded: da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a,
-Godot75/40050084771 SUCCESS including both exports. r7 manifest updated.
-Continue #22; all23–25 scope remains active. No issue/PR merge or closure performed.
+Next: finish #22 root gates, full gameplay profiles, final source/log manifest,
+parent review artifact and stacked draft PR/CI. Compact at issue boundary. Continue
+#23, then #24, then #25 in full; executable alternatives remain mandatory. Do not
+stop after publishing #22 or call the overall objective complete.

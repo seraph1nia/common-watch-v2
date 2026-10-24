@@ -4,7 +4,7 @@ The application starts at a main menu. Choose **Single player**, choose a doctri
 
 `Application/SessionCoordinator` exclusively owns the active session Node with ENet and reliable Godot RPCs. Native Steam callbacks live in `Networking/Steam/SteamCoordinator`; UI confirmation and lobby Controls are separate. Game.Core owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
 
-Reward redesign compatibility requires wire protocol **18**, reward rules **1**
+Reward/preparation compatibility requires wire protocol **19**, battle-flow **4**, reward rules **1**
 and the complete configuration fingerprint. Historical snapshots missing the
 reward version and old passive offer IDs are rejected, not migrated. Start a
 fresh compatible match; private resume files only reclaim their original running
@@ -63,7 +63,7 @@ Previously this button only called `activateGameOverlayInviteDialog`, a void req
 
 An accepted warm invitation uses a confirmation before leaving a current game; cold `+connect_lobby LOBBY_ID` arguments are supported. For exported Godot applications launched by Steam, use launch options `-- --steam` so engine and game arguments stay separate. Godot also reads the SDK launch command line for cold invitations. A lobby ID can also be entered directly. The host checks native lobby membership as well as the authenticated socket identity. Lobby membership only permits a transport attempt: Core admission and a valid compatible initial snapshot are still required.
 
-The application advertises its existing V2 identity, transport version 1, Core protocol 17, AppID, original host, GUID match and lobby/in-progress state. Credentials and private city data are absent. An ownership change in Steam ends a guest session rather than transferring authority. Reconnection uses the original authenticated Steam host.
+The application advertises its existing V2 identity, transport version 1, Core protocol 19, AppID, original host, GUID match and lobby/in-progress state. Credentials and private city data are absent. An ownership change in Steam ends a guest session rather than transferring authority. Reconnection uses the original authenticated Steam host.
 
 Godot pins GodotSteam **4.22.1 GDExtension / SDK 1.65**, including Linux/Windows x64 binaries and original license/manifest. Runtime loading and C# peer conversion were checked with pinned Godot **4.7.2 .NET**. `tools/prepare-godot.sh` registers that extension for runtime launches without invoking the editor or initializing the SDK.
 

@@ -159,7 +159,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-gameplay-') as temporary:
         wait(lambda: all(status(i)['state']['Phase'] == 'Building' for i in range(2)), 'start synchronized')
         send(0, 'ready')
         assert city(0)['Ready']
-        wait(lambda: 'Ready: 1/2' in status(0)['transitionText'] and status(0)['readyText'] == 'Unready', 'visible all-city readiness and Unready')
+        wait(lambda: 'Ready: 1/2' in status(0)['transitionText'] and status(0)['readyText'].startswith('Unready'), 'visible all-city readiness and Unready')
         assert status(0)['state']['Turn'] == 1, 'one ready city cannot advance production'
         capture_preparation('waiting-for-ally')
         send(0, 'unready')

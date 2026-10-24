@@ -44,14 +44,13 @@ exact original sources, commands and events; old offers are rejected rather than
 silently migrated into new meanings. Implementation and economic evidence are
 recorded separately from this design declaration.
 
-## Isolated preparation experiment — 2026-10-24
+## Preparation schedule comparison — 2026-10-24
 
 Issue #22's [precommitted experiment](refinement-ii/22_PREPARATION_RHYTHM.md)
 compares the immediate-reward three-stage baseline with two actual Ready
 boundaries. The candidate delivers resource multipliers 2 then 1, while Research
-and eligible stored healing occur once at each real boundary. Default play stays
-at three during the experiment; no shipping selection is claimed. The isolated
-prototype declares battle-flow4/protocol19 and fingerprints the authoritative
+and eligible stored healing occur once at each real boundary. The measured selection retains three in ordinary play, with a guarded native
+Ready shortcut. Two remains an explicit development comparison. The implementation declares battle-flow4/protocol19 and fingerprints the authoritative
 stage count before implementation. Combat8/reward1, default prices, enemies,
 Worldtree and assets stay fixed. This intentional local Core experiment is
 separate from the unchanged original import/archive and the #21 source baseline.

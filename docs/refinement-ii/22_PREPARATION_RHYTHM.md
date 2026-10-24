@@ -1,7 +1,7 @@
 # Preparation rhythm — issue #22 experiment design
 
 This design precedes any preparation-rule edit. #21 is locally verified on
-`da3a51d`; final CI75 is pending. The baseline source remains unchanged while an
+`da3a51d`; final CI75 passed, including both exports. The baseline source remains unchanged while an
 isolated experimental checkout may run headless candidate comparisons. No
 shipping-default change occurs before that gate and the measured decision.
 The fresh immediate-reward three-stage source is preserved as
@@ -128,11 +128,164 @@ optional Arcanum does not block necessary recruitment in the alternate policy.
 No new resources, prices, enemy profiles or hidden payment were supplied. These
 recoverable paths do not erase the original failed canonical cases.
 
-Actual paired native economy-first2/3 journeys have passed2p/4p; three-stage6p
-passed and two-stage6p remains running. The same Controls/input paths exercise
-three waves, unready, pause, delayed ACK, rewards and ready/draft reconnect.
-Timing categories include explicit capture/test delays and are summed client
-intervals, not human or session wall time. Current family matrices contain no
-ordinary stored healing, so reserve/research/tower focused records are required
-before any selection. Solo paired loops, producer/upgrade timing and complete
-shipping hardcoded-count audit also remain.
+## Selected behavior
+
+Retain **three actual preparation decisions** in ordinary play. The tested two-stage
+alternative removes twenty barriers from a surviving twenty-wave campaign, but
+also removes a spendable reinvestment window and one Research/recovery event per
+wave. Recovering its Grovekeeper opening requires moving the second mine before
+the first payment. This is feasible, but more order-sensitive; it is not evidence
+that the lost window was empty. Research and funded recovery need further changes
+in #24/#25 before those opportunities could be exchanged confidently. No price,
+starting-stock, enemy, combat profile or research threshold is changed here.
+
+Ship **Y to Ready / Unready** through the same authenticated command path. It is
+shown on the existing button, requires a fresh non-repeat keypress, and refuses
+pending, disconnected, paused, eliminated, nonplanning and covered/modal contexts.
+A player can finish a planning decision without moving the pointer back to Ready.
+The three confirmations remain deliberate; saving, ally inspection and placement
+never auto-commit. In the native three-wave task, three of nine Ready pointer
+activations are replaced by keys; all nine could use the shortcut in play. This
+is a concrete interaction reduction, not a measured reduction in human time.
+
+The alternative remains runnable behind explicit development launch options,
+without a new player-facing setting. Protocol19 / battleflow4 / combat8 / reward1
+and a stage-count fingerprint prevent peers from assuming different timing. Old
+protocol18 sessions are rejected; no resume migration. Session generations,
+private credentials, command expectations and RPC ownership remain intact.
+
+## Actual production and investment timing
+
+Each row gives marginal ordinary output of one producer. All six producer build
+and upgrade cases execute paid commands from normal Warden stock in Core tests.
+Doctrine bonuses apply once per city with a qualifying producer; Worldtree output
+is included before the delivery multiplier. No source of output is applied twice.
+
+| Resource / producer | L1 / L2 output | Built before first Ready, either schedule | Built after first: three stages | Built after first: two stages |
+| --- | ---: | ---: | ---: | ---: |
+| Food / Farm | 5 / 8 | 15 / 24 | 10 / 16, half spendable before battle | 5 / 8, all at battle commit |
+| Gold / Mine | 1 / 2 | 3 / 6 | 2 / 4, half spendable | 1 / 2, all at commit |
+| Wood / Lumbermill | 1 / 2 | 3 / 6 | 2 / 4, half spendable | 1 / 2, all at commit |
+| Stone / Stonecutter | 1 / 2 | 3 / 6 | 2 / 4, half spendable | 1 / 2, all at commit |
+| Metal / Metal Mine | 4 / 8 | 12 / 24 | 8 / 16, half spendable | 4 / 8, all at commit |
+| Cloth / Weaver | 4 / 8 | 12 / 24 | 8 / 16, half spendable | 4 / 8, all at commit |
+
+For an upgrade after first Ready, replace output with its L2−L1 increment in the
+last two columns. Base Gold remains 6 per complete unchanged-city wave. Grovekeeper
+adds 3 Wood / 3 Food per wave with any Lumbermill / Farm under either schedule,
+but a qualifying producer first added after first Ready gets two versus one bonus
+payments. A producer added in the final editable window receives one payment in
+both schedules; its stock can fund Food but cannot purchase recruits before combat.
+
+For every wave, gross fixed-city resource output is 3× current base output. New
+immediate rewards are separate after-clear grants: W1–6 multiplier1, W7–13
+multiplier2, W14+ multiplier3; they apply after choice before the next planning
+window, never as a preparation payment. Exact per-wave stock/command receipts
+are in the canonical and reordered reports, including earned-surplus differences.
+
+The actual sequence is: edit → all eligible connected cities Ready → validate all
+resource/Research/recovery/capacity plans → pay resources, one Research event,
+one eligible stored heal → reopen editing, or on final Ready pay Food and enter
+combat → resolve clear/base payout → choose and immediately apply personal loot.
+No recruitment window exists between final production and combat. A disconnected
+city cannot cast a readiness vote; paused production cannot settle.
+
+## Focused and campaign comparisons
+
+In addition to the canonical72 and opening-order72 runs:
+
+- Forecast-response policies: 20 full campaigns per schedule, all20 Victories,
+  400 battles and10 actual forecast-response actions each. Includes ranged,
+  frontline, mixed, towers and research; same forecasts are checked against spawned
+  manifests and accepted Food. This does not establish universal difficulty.
+- Economy-first first-wave continuation: all six doctrines × four compatible
+  families × two seeds =48 full campaigns per schedule,46 Victories each.
+  Ranged owns a different trainer/slot layout and is compared separately above;
+  an initial incompatible-policy harness attempt was rejected and retained in
+  `/tmp/common-watch-r5-campaigns.log`, not counted as a game loss.
+- Reserve/research/tower focused matrix: six full campaigns per schedule,
+  360 versus240 actual preparation payments. Every recorded payment was independently
+  checked against stocks, actual final Food, one production count, Research and
+  each stored member's eligibility/capped heal. No reward heal is counted as ordinary.
+- Reserve ordinary healing totals are2820.95 versus3241.43 HP. These have different
+  wounds/storage exposure: the larger candidate total does **not** mean a higher
+  heal per event. Exact member histories and eligibility are retained.
+- Research purchases in both seeds: Foundation W4/P1 under both; Guardian W7/P1
+  versus W7/P2; Guardian Mastery W10/P1 versus W11/P1. Reduced progress delays a
+  concrete later purchase despite unchanged resource totals.
+- Legal partial-Food checkpoint W8:16 funded /2 unfunded,16 Food under both.
+  The actual final payment and participants exactly match the displayed forecast.
+  Canonical matrices separately include56 Gold-recovery constructions each and
+  475 versus661 recruitments in the final editable window; those are deliberate
+  paid actions, not use of final-commit income.
+
+Canonical differences remain visible: the two Grovekeeper first-wave defeats
+and Huntsman ranged W8 defeat are not overwritten by improved opening orders.
+Raw losses, surplus, shortages, funded participants and purchases are compared
+at common waves as well as at terminal outcomes. No automatic counter or claim
+of human confusion is inferred from a script.
+
+## Native observations
+
+Complete paired economy-first three-wave loops passed under both schedules in
+solo720/1080 and actual2/4/6-client720 runs. Canonical two-stage2p also passed.
+Same Controls/input paths exercise unready, pause, delayed ACK, reward receipt and
+ready/draft reconnect. The final solo checks additionally use native Y, refuse it
+while paused and ensure key repeat cannot pay another preparation.
+
+| Clients | Already-ready client seconds, three → two | Available decision-window client seconds, three → two |
+| --- | ---: | ---: |
+| 2 | 1.97 → 1.64 | 13.49 → 9.95 |
+| 4 | 15.94 → 12.35 | 72.85 → 44.22 |
+| 6 | 42.23 → 36.59 | 196.10 → 115.38 |
+
+These are summed **scripted inter-observation client intervals**, not session
+wall time, human waiting or a measured comprehension improvement. Native action,
+awaiting-authority, pause, disconnect, capture and deliberate test-delay categories
+are separately retained in each timing.json. Available decision-window includes
+poll/script time and cannot be called active human thought. Solo synchronous
+Ready has no separate already-ready wait; final solo-stage-timing.json separates
+scripted decisions, capture and pause/key-repeat probes.
+
+Captured native Controls show two or three actual stage columns as configured;
+final Ready says income + Food → battle, and candidate first delivery says2×.
+Figure assets, UI art and authoritative playback are unchanged.
+
+## Count audit and reproduction
+
+The authoritative schedule owns validation, stage count, next-delivery projection
+and delivery scaling. Core phase transitions, received snapshot income/phase
+validation, rules fingerprints, Shared team projection, phase text/track, Ready
+consequence, opening guidance, final Food forecasts, solo/network drivers and
+canonical campaign checkpoints read that source. General CampaignReview,
+CooperationReview, OpeningCampaign review, GameplayScenarios and BattleShowcase
+loops now derive their bounds. Building inspection distinguishes base producer
+output from a double next delivery.
+
+The audited remaining literals are intentional: original archive always3;
+normal default-only graphical fixtures explicitly exercise selected3; phase track
+allocates at most3 preparation columns plus a fixed combat column and hides the
+unused one for the candidate. Research denominator3, Town Hall track levels3,
+squad capacity3, first-three-wave task horizon and artwork geometry are unrelated
+to readiness. `r5/stage-audit-before.txt` preserves the search inventory. General
+policies accept the stage source; development fixture-only tests do not advertise
+an arbitrary rules configuration. No production UI guesses a stage from a label.
+
+Reproduction commands and evidence limits are in
+[tools/preparation-review](../../tools/preparation-review/README.md). Original
+b4fa3f7, fresh #21, canonical candidate and reordered candidate reports stay
+separate. Acceptance log/source hashes are recorded in the r5 manifest.
+
+## Verification / review boundary
+
+Prototype and investment checks pass: zero-warning build, Core74, Shared147.
+Selected-revision graphical, transport and final native shortcut checks are running;
+record their terminal results before delivery. No human comprehension, physical
+controller/audio, live Steam or native Windows/macOS qualification is claimed.
+The known intermittent native .NET/JIT crash risk remains unproven/fixed.
+
+This document is the explicit product decision for parent #15 review. Parent
+review and final integrated #25 sign-off remain visible obligations; no issue or
+PR is closed/merged by this work. #23 receives the retained three-stage rhythm
+and normal-payment ordering failures; #24 receives exact immediate versus ordinary
+recovery timing; #25 receives both runnable schedules and preserved negative cases.
