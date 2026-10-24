@@ -117,3 +117,18 @@ remains, with bounded120/360second import/export. The Linux exported game then
 passes ordinary-text-renderer sprite/illustrated smoke outside the checkout.
 See #25's final verification for the exact distinction between tooling override,
 runtime smoke and default-driver remote CI. No font/system-package change occurs.
+
+
+Final evidence-storage qualification: hashing encountered an actual EIO on
+`r3/marginal-cooperative/coop-6-1-invested/summary.json`. The kernel independently
+reports Btrfs checksum failures on the local NVMe filesystem. Its19,307,362-byte
+serialized object was recovered directly from the readable aggregate report;
+final snapshot SHA80191e92a391f474a542227287d15c3c876e67a57ebf4e77f1b9a8aa36140356
+matches the prior replay. The preserved original later became readable and has
+the same full SHA8ad61bd2786d69963bc4249152476aba60547f0127cb791acc9ecd026a5d65de.
+The complete manifest pass read all1,050tracked sources,14,810evidence files and
+550export files successfully on that attempt. These successful reads do not
+qualify the storage device or establish the cause of the JSON/font/JIT failures.
+The exact recovery/kernel receipts and fresh affected-campaign replay are retained
+in the final manifest. No filesystem repair or package installation was attempted.
+Remote clean-checkout CI remains separate from this host's evidence and failures.

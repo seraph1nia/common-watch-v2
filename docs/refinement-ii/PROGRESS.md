@@ -84,3 +84,8 @@ empty project reproduces the default editor FreeType failure. Runtime rendering
 uses its ordinary text driver. Default remote export qualification is in CI.
 One final6p1080attempt hit a journal-confirmed libclrjit SEGV; the next complete
 bounded run passed. Failed logs/captures are retained, no runtime fix claimed.
+
+Final hashing also encountered an actual EIO/Btrfs checksum failure. The affected
+cooperative summary was recovered byte-identically from its aggregate; a later
+complete source/evidence/export hash pass succeeded. This is not storage repair
+or proof of hardware reliability. See #25/audit and kernel/recovery receipts.

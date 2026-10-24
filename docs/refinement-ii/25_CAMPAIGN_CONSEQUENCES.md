@@ -373,3 +373,18 @@ Visual inspection additionally covers final720p reward,1080p elite entry,
 reward waiting. Source archives, copied current captures, all passing/failed
 logs and export hashes are indexed in `r3/shipping-manifest.json`. The all-ten
 original-requirement audit is [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md).
+
+
+Final evidence-storage qualification: hashing encountered an actual EIO on
+`r3/marginal-cooperative/coop-6-1-invested/summary.json`. The kernel independently
+reports Btrfs checksum failures on the local NVMe filesystem. Its19,307,362-byte
+serialized object was recovered directly from the readable aggregate report;
+final snapshot SHA80191e92a391f474a542227287d15c3c876e67a57ebf4e77f1b9a8aa36140356
+matches the prior replay. The preserved original later became readable and has
+the same full SHA8ad61bd2786d69963bc4249152476aba60547f0127cb791acc9ecd026a5d65de.
+The complete manifest pass read all1,050tracked sources,14,810evidence files and
+550export files successfully on that attempt. These successful reads do not
+qualify the storage device or establish the cause of the JSON/font/JIT failures.
+The exact recovery/kernel receipts and fresh affected-campaign replay are retained
+in the final manifest. No filesystem repair or package installation was attempted.
+Remote clean-checkout CI remains separate from this host's evidence and failures.
