@@ -95,8 +95,10 @@ public partial class BuildingInspector : VBoxContainer
             if (definition?.Produces is { } resource)
             {
                 int Output(int level) => EconomyConfiguration.ProducerOutput(definition, level, context.City.Research, context.State.TechnologyCatalog);
-                string output = $"Current output {Output(slot.Level)} {resource}/production";
+                int multiplier = PreparationSchedule.ResourceMultiplier(context.State.Rules, context.State.Turn);
+                string output = $"Base output {Output(slot.Level)} {resource}/production";
                 if (slot.UpgradeQuote is not null) output += $" → {Output(slot.Level + 1)} after upgrade";
+                if (multiplier != 1) output += $"; next Ready delivers {Output(slot.Level) * multiplier} {resource}";
                 _details.Text += "\n" + output; compactSummary = $"Level {slot.Level} · {output}";
                 int doctrineBonus = RunCatalog.Doctrine(context.City.Run.Doctrine).ProductionBonus(context.City.Slots).Amount(resource);
                 if (doctrineBonus > 0) _details.Text += $"\nCity-wide doctrine bonus +{doctrineBonus} {resource}/production (once per city; included in resource table).";

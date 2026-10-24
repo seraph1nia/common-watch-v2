@@ -82,7 +82,7 @@ public partial class GameApplication
                     Press(_gameUi.Draft.RewardButtons[choice]);
                 }
                 int decisions = 0;
-                for (int stage = 1; stage <= 3; stage++)
+                for (int stage = 1; stage <= _session.Snapshot.Rules.PreparationStages; stage++)
                 {
                     for (int n = 0; n < 100 && OpeningCampaign.Next(_session.Snapshot, _session.PlayerId) is { } intent; n++)
                     {
@@ -91,11 +91,11 @@ public partial class GameApplication
                     }
                     _gameUi.Details.Close(false); _session.SelectSlot(-1); RefreshUi(true);
                     string next = OpeningGuidance.NextReady(_session.Snapshot);
-                    Require(next.Contains(stage < 3 ? "one production" : "Food") && _gameUi.TransitionText.Contains(stage < 3 ? $"prep {stage + 1}/3" : "battle"), "native next transition and contextual explanation agree");
+                    Require(next.Contains(stage < _session.Snapshot.Rules.PreparationStages ? (PreparationSchedule.ResourceMultiplier(_session.Snapshot.Rules, stage) == 2 ? "double resources" : "one production") : "Food") && _gameUi.TransitionText.Contains(stage < _session.Snapshot.Rules.PreparationStages ? $"prep {stage + 1}/{_session.Snapshot.Rules.PreparationStages}" : "battle"), "native next transition and contextual explanation agree");
                     int[] expected = _session.City.FoodForecast!.Participating;
-                    if (stage == 3) await GameplayCapture($"{doctrine.Id}-wave-{wave}-funded-preparation");
+                    if (stage == _session.Snapshot.Rules.PreparationStages) await GameplayCapture($"{doctrine.Id}-wave-{wave}-funded-preparation");
                     DriveOpening(new(GameplayAction.Ready));
-                    if (stage == 3) Require(expected.SequenceEqual(_session.City.LastUpkeep!.Participating), "displayed participating roster matches the accepted final Ready receipt");
+                    if (stage == _session.Snapshot.Rules.PreparationStages) Require(expected.SequenceEqual(_session.City.LastUpkeep!.Participating), "displayed participating roster matches the accepted final Ready receipt");
                 }
                 int before = _session.City.Health; var paid = _session.City.LastUpkeep!;
                 var types = _session.City.Soldiers.Where(u => paid.Participating.Contains(u.Id)).GroupBy(u => u.Type).ToDictionary(g => g.Key.ToString(), g => g.Count());

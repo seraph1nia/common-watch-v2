@@ -243,6 +243,9 @@ public partial class GameApplication : Node
             { HandleBattleKey(key.Keycode); GetViewport().SetInputAsHandled(); return; }
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
+        if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Y, CtrlPressed: false, AltPressed: false, MetaPressed: false }
+            && _gameUi.TryToggleReady())
+        { GetViewport().SetInputAsHandled(); return; }
         if (!_settlementView.Visible && input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F })
         { _gameUi.CameraNavigated(); OverviewArena(); GetViewport().SetInputAsHandled(); return; }
         var area = WorldArea;

@@ -16,17 +16,17 @@ public static class GameplayScenarios
         return new(kind, action.Slot, action.Building, action.Unit, action.Technology, action.Resource, action.Bundles, action.Payment, action.UnitId);
     }
     public static string RewardChoice(RunState run) => GameplayCampaignPolicy.RewardChoice(run);
-    public static SoloSession CreateAt(string checkpoint, bool enrich = true)
+    public static SoloSession CreateAt(string checkpoint, bool enrich = true, Rules? rules = null)
     {
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown gameplay scenario: " + checkpoint);
-        var solo = new SoloSession(seed: 1);
+        var solo = new SoloSession(seed: 1, rules: rules);
         try
         {
             Require(solo.Start());
             if (checkpoint == "defeat")
             {
                 // No investment: actual enemies defeat the default Keep through ordinary battle progression.
-                for (int stage = 0; stage < 3; stage++) Require(solo.Send("ready"));
+                for (int stage = 0; stage < solo.Snapshot.Rules.PreparationStages; stage++) Require(solo.Send("ready"));
                 FinishCombat(solo);
                 if (solo.Snapshot.Phase != Phase.Defeat) throw new InvalidOperationException("Uninvested defense unexpectedly survived.");
                 return solo;
@@ -41,7 +41,7 @@ public static class GameplayScenarios
                     Require(solo.ChooseReward(GameplayCampaignPolicy.RewardChoice(solo.City.Run)));
                 }
                 if (solo.Snapshot.Phase is Phase.Defeat or Phase.Victory) break;
-                for (int stage = 1; stage <= 3; stage++)
+                for (int stage = 1; stage <= solo.Snapshot.Rules.PreparationStages; stage++)
                 {
                     for (int decision = 0; decision < 100; decision++)
                     {
@@ -51,7 +51,7 @@ public static class GameplayScenarios
                             action.Technology, action.Resource, action.Bundles, action.UnitId));
                         if (decision == 99) throw new InvalidOperationException("Campaign policy exceeded decision bound.");
                     }
-                    if (wave >= target && stage == 3) { if (enrich) Enrich(solo, checkpoint); solo.ResetPlayback(); return solo; }
+                    if (wave >= target && stage == solo.Snapshot.Rules.PreparationStages) { if (enrich) Enrich(solo, checkpoint); solo.ResetPlayback(); return solo; }
                     Require(solo.Send("ready"));
                 }
                 FinishCombat(solo);

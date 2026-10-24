@@ -233,14 +233,36 @@ public partial class GameApplication
         await JourneyClick(_sessionMenu.Doctrines.GetChildren().OfType<DoctrineCard>().First().ChooseButton);
         await JourneyClick(_sessionMenu.StartButton);
         var history = new List<object>();
+        var timing = new List<object>();
         for (int wave = 1; wave <= 3; wave++)
         {
-            for (int stage = 1; stage <= 3; stage++)
+            for (int stage = 1; stage <= _session.Snapshot.Rules.PreparationStages; stage++)
             {
-                for (int n = 0; n < 100 && OpeningCampaign.Next(_session.Snapshot, _session.PlayerId) is { } intent; n++)
+                ulong stageStart = Time.GetTicksMsec();
+                for (int n = 0; n < 100 && OpeningCampaign.Next(_session.Snapshot, _session.PlayerId, ReviewOpeningOrder) is { } intent; n++)
                 { await DriveNativeJourney(intent); if (n == 99) throw new InvalidOperationException("Opening bound exceeded"); }
+                ulong captureStart = Time.GetTicksMsec();
                 await GameplayCapture($"journey-solo-w{wave}-prep-{stage}");
-                await JourneyClick(_gameUi.ReadyButton);
+                ulong captureEnd = Time.GetTicksMsec();
+                if (stage == 1)
+                {
+                    int payments = _session.Snapshot.ProductionCount;
+                    _session.Send("pause"); RefreshUi(true); await JourneyFrames();
+                    GetViewport().PushInput(new InputEventKey { Keycode = Key.Y, Pressed = true }, true);
+                    Require(_session.Snapshot.ProductionCount == payments && !_session.City.Ready, "paused Y cannot Ready");
+                    _session.Send("resume"); RefreshUi(true); await JourneyFrames();
+                    GetViewport().PushInput(new InputEventKey { Keycode = Key.Y, Pressed = true }, true);
+                    GetViewport().PushInput(new InputEventKey { Keycode = Key.Y, Pressed = true, Echo = true }, true);
+                    GetViewport().PushInput(new InputEventKey { Keycode = Key.Y, Pressed = false }, true);
+                    await JourneyFrames();
+                    Require(_session.Snapshot.ProductionCount == payments + 1, "native Y commits exactly one payment; key repeat cannot advance again");
+                }
+                else await JourneyClick(_gameUi.ReadyButton);
+                timing.Add(new { wave, stage, scriptedDecisionSeconds = (captureStart - stageStart) / 1000.0,
+                    captureSeconds = (captureEnd - captureStart) / 1000.0,
+                    boundaryProbeSeconds = (Time.GetTicksMsec() - captureEnd) / 1000.0,
+                    alreadyReadyWaitSeconds = 0, disconnectSeconds = 0,
+                    limitation = "Synchronous solo authority; captures and pause/key-repeat probe separated. Accelerated native script, not human time." });
             }
             Require(_session.Snapshot.Phase == Phase.Combat, "continuous journey enters actual combat");
             await GameplayCapture($"journey-solo-w{wave}-combat");
@@ -263,7 +285,10 @@ public partial class GameApplication
             history.Add(new { wave, receipt = _gameUi.Journey.Receipt, stock = _session.City.Resources, actions = _nativeJourneyActions, tick = _session.Snapshot.Tick, speed = _session.Snapshot.CombatSpeed });
         }
         if (Argument("--gameplay-captures") is { } directory)
+        {
             System.IO.File.WriteAllText(System.IO.Path.Combine(directory, "journey-solo.json"), System.Text.Json.JsonSerializer.Serialize(history, WireJson.Options));
+            System.IO.File.WriteAllText(System.IO.Path.Combine(directory, "solo-stage-timing.json"), System.Text.Json.JsonSerializer.Serialize(timing, WireJson.Options));
+        }
         GD.Print("GODOT_JOURNEY_SOLO_PASS waves=3 native-doctrine purchases recruitment readiness rewards no-extra-continue scripted-combat-not-human-pacing");
     }
 }

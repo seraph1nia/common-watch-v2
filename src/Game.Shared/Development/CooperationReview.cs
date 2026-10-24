@@ -34,7 +34,7 @@ public static class CooperationReview
                     var city = match.Snapshot().Players.Single(p => p.Id == id);
                     if (!city.Eliminated && city.Run.Choice is null) Send(id, "reward:" + GameplayScenarios.RewardChoice(city.Run));
                 }
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < match.Snapshot().Rules.PreparationStages; stage++)
                 foreach (int id in ids)
                 {
                     if (match.Snapshot().Players.Single(p => p.Id == id).Eliminated) continue;

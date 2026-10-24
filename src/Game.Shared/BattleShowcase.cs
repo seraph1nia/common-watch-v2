@@ -67,7 +67,7 @@ public sealed class BattleShowcase
         if (scenario == "structures")
         {
             Require(solo.Send("build", 9, Building.ArrowTower));
-            for (int n = 0; n < 3; n++) Require(solo.Send("ready"));
+            for (int n = 0; n < solo.Snapshot.Rules.PreparationStages; n++) Require(solo.Send("ready"));
         }
         if (scenario is not ("swordsman" or "structures"))
         {
@@ -78,7 +78,7 @@ public sealed class BattleShowcase
                 if (solo.Snapshot.Phase != Phase.RewardDraft) throw new InvalidOperationException($"Legal showcase opening lost before advanced wave: wave {solo.Snapshot.Wave}, {solo.Snapshot.Phase}, city HP {solo.City.Health}, roster {solo.City.Soldiers.Length}.");
                 Require(solo.ChooseReward(solo.City.Run.Offers[0]));
                 while (solo.Snapshot.DyingBodies.Length > 0) solo.Step();
-                for (int preparation = 0; preparation < 3; preparation++)
+                for (int preparation = 0; preparation < solo.Snapshot.Rules.PreparationStages; preparation++)
                 {
                     // Rejected optional purchases do not change state. Accepted ones use normal commands.
                     if (mageStatuses)

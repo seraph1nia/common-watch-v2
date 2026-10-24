@@ -95,7 +95,7 @@ public partial class GameApplication
     }
     private void BeginSolo()
     {
-        ReplaceSession(new SoloSession(matchId: Guid.NewGuid().ToString("N"), rules: ReviewPreparationRules));
+        ReplaceSession(new SoloSession(matchId: ReviewSoloMatchId, rules: ReviewPreparationRules));
         _frozen = false; RefreshUi(true);
     }
     private void ReturnToMenu()
