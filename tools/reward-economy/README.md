@@ -1,7 +1,7 @@
 # Matched reward economy review
 
 `mise run scenario -- reward-economy-review OUTPUT.json` runs every doctrine
-through its normal paid opening (three waves), and frontline, ranged, mixed,
+through its fixed reference opening (three waves), and frontline, ranged, mixed,
 tower and research policies (up to twenty), each with seeds 1 and 20261018.
 The fixed ordinal offer-choice policy is deliberately not an optimizer.
 Commands retain exact before/after stocks and Research points, observed Keep and
@@ -24,7 +24,11 @@ timeout --kill-after=5s 1800s mise exec -- dotnet run \
 ```
 
 The wrapper verifies all original Core/Shared files and refuses the active tree.
-It copies only the same development policy and its CLI dispatch. No simulation,
+It copies only the matched #21 development policy and reward CLI dispatch from
+immutable commit da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a. Current development
+probes now use later schedule/opening APIs, so they are deliberately not copied
+into the original simulation. This preserves the original comparison rather than
+claiming that an evolved policy still describes the old one. No simulation,
 lock, project, resources, units or snapshots are changed. Compare policy hashes
 and exact reports before attributing differences to the new reward rules.
 Headless ticks are not rendered wall time. These correlated scripted policies
