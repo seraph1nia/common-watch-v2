@@ -6,7 +6,7 @@ namespace Game.Shared;
 /// <summary>Bounded development review policy. Only ordinary paid intents; never ships as autoplay.</summary>
 public static class OpeningCampaign
 {
-    public static GameplayIntent? Next(MatchSnapshot state, int player)
+    public static GameplayIntent? Next(MatchSnapshot state, int player, string openingOrder = "canonical")
     {
         if (state.Phase is not (Phase.Building or Phase.Preparation)) return null;
         var city = state.Players.Single(p => p.Id == player);
@@ -42,11 +42,24 @@ public static class OpeningCampaign
             var order = doctrine == "merchant"
                 ? new[] { (1, Building.MetalMine), (2, Building.Barracks), (3, Building.Lumbermill) }
                 : new[] { (0, Building.Farm), (1, Building.MetalMine), (2, Building.Barracks), (3, Building.Lumbermill) };
+            order = openingOrder switch
+            {
+                "canonical" => order,
+                "army-first" => doctrine == "merchant" ? order : [(2, Building.Barracks), (1, Building.MetalMine), (0, Building.Farm), (3, Building.Lumbermill)],
+                "economy-first" => doctrine == "merchant" ? order : doctrine == "grovekeeper"
+                    ? [(0, Building.Farm), (1, Building.MetalMine), (4, Building.MetalMine), (2, Building.Barracks), (3, Building.Lumbermill)]
+                    : [(0, Building.Farm), (1, Building.MetalMine), (3, Building.Lumbermill), (2, Building.Barracks)],
+                _ => throw new ArgumentException("Unknown paid opening order.", nameof(openingOrder))
+            };
             foreach (var (slot, type) in order)
                 if (city.Slots[slot].Type == Building.Empty) return Build(slot, type);
-            if (doctrine == "merchant" && state.Turn == 3 && city.Slots[0].Type == Building.Empty) return Build(0, Building.Farm);
+            if (doctrine == "merchant" && state.Turn == state.Rules.PreparationStages && city.Slots[0].Type == Building.Empty) return Build(0, Building.Farm);
             if (doctrine == "grovekeeper" && state.Turn >= 2 && city.Slots[4].Type == Building.Empty) return Build(4, Building.MetalMine);
-            if (doctrine == "arcanist" && state.Turn == 3 && city.Slots[4].Type == Building.Empty) return Build(4, Building.Arcanum);
+            if (doctrine == "arcanist" && state.Turn == state.Rules.PreparationStages && city.Slots[4].Type == Building.Empty)
+            {
+                var magic = Build(4, Building.Arcanum);
+                if (magic is not null || openingOrder == "canonical") return magic;
+            }
             if (Recruit(UnitType.Swordsman, doctrine == "arcanist" ? 3 : 4) is { } melee) return melee;
             return doctrine == "arcanist" ? Recruit(UnitType.Mage, 1) : null;
         }

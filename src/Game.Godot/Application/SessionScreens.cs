@@ -95,7 +95,7 @@ public partial class GameApplication
     }
     private void BeginSolo()
     {
-        ReplaceSession(new SoloSession(matchId: Guid.NewGuid().ToString("N")));
+        ReplaceSession(new SoloSession(matchId: Guid.NewGuid().ToString("N"), rules: ReviewPreparationRules));
         _frozen = false; RefreshUi(true);
     }
     private void ReturnToMenu()
@@ -121,7 +121,7 @@ public partial class GameApplication
     private void BeginHost(int port)
     {
         ReturnToMenu();
-        try { _sessions.Open(session => session.Host(port, Argument("--control-dir") is not null ? Argument("--test-match-id") : null)); _frozen = false; RefreshUi(true); }
+        try { _sessions.Open(session => session.Host(port, Argument("--control-dir") is not null ? Argument("--test-match-id") : null, ReviewPreparationRules)); _frozen = false; RefreshUi(true); }
         catch (Exception e) { ReturnToMenu(); _sessionMenu.ShowError(e.Message); }
     }
     private void BeginJoin(string endpoint)

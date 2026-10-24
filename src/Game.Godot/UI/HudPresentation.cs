@@ -21,7 +21,7 @@ public sealed record HudPresentation(HudMoment Moment, bool Arena, bool LiveComb
 
     public static string PhaseLabel(MatchSnapshot state, bool finishingCombat)
         => finishingCombat && state.Phase != Phase.Combat ? "Finishing combat"
-            : state.Phase is Phase.Building or Phase.Preparation ? $"Preparation {state.Turn}/3" : state.Phase.ToString();
+            : state.Phase is Phase.Building or Phase.Preparation ? $"Preparation {state.Turn}/{state.Rules.PreparationStages}" : state.Phase.ToString();
 
     public static HudPresentation Project(MatchSnapshot state, int localPlayer, bool finishingCombat, bool previewArena, bool acceptedChoiceAwaitingSnapshot = false)
     {
