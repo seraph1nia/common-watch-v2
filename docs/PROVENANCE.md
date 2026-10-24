@@ -102,3 +102,23 @@ artwork license; existing code GPL-3.0-only notices and upstream provenance rema
 intact. The image has fourteen painted sockets despite the delivery's claim of
 eighteen; the presentation adds four controls using its supplied ring textures.
 See [layout, fallback and verification](WORLDTREE.md).
+
+## Bounded campaign selection — 2026-10-24
+
+Issue #25's [precommitted comparison and rules gate](refinement-ii/25_CAMPAIGN_CONSEQUENCES.md)
+selects only defaultW10:2L3 Swordsmen,2L3 Berserkers,1L1 Crossbowman,1L2 Mage,
+as an ordinary nonboss formation with the unchanged major clear reward. W20
+retains its singleL5 boss. This local campaign-data change follows legal matched/
+held-out preparation experiments, both runnable formation alternatives, exact
+native/CLI checkpoints and240 independently replayed campaign continuations.
+The original b4fa3f7 source/trace archive and frozen41cc004 single-boss campaign
+remain separate; no original import provenance or recorded failure is rewritten.
+
+No combat profile, hit timing, power multiplier, cost, Food/healing, reward rule,
+command or schema changes. Combat8/reward1/battleflow4/protocol19 remain: complete
+campaign content already participates in the authoritative fingerprint. Current
+schema peers can receive declared valid alternative catalogs; the fingerprint
+validates the received catalog, rather than imposing local-default equality.
+Older18admission remains refused. Live authorities retain immutable rules and
+private reconnect identity; fresh default matches alone get the newW10. Existing
+single-boss validation is unchanged; a formation is never disguised as a boss.

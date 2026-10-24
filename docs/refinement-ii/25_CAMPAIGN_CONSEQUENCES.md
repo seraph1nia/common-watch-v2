@@ -150,3 +150,59 @@ Reproduction: [tools/campaign-review](../../tools/campaign-review/README.md).
 Current locked build has zero warnings; Core74/Shared168 pass. #24's exact-SHA
 CI83/40060474672 is now SUCCESS including both exports; its source hashes remain
 41cc004. Original b4fa3f7 archive and historical qualifications remain unchanged.
+
+## Shipping selection and rules gate (before Core implementation)
+
+All240 complete campaign rows independently replay every accepted command and
+final snapshot. Boss versus W10-heavy:2126/2139 battles,98/99Victories out of120.
+Matched seeds50/60→51/60; held-outs48/60→48/60. Frontline24/24, towers22/24 and
+research24/24 stay unchanged; mixed21/24→22/24; pure-ranged7/24 stays unchanged.
+The17early pure-ranged failures precedeW10 in both catalogs: an explicit paid
+conversion and a legal policy do not make an unscreened bow investment generally
+safe. Do not advertise that continuation as a universal counter. Mixed armies
+retain actual ranged/magic members. No profile/cost subsidy is selected.
+
+All120 pairs have identical first-nine-wave receipts. The103pairs reachingW10
+also have identical ordinary command histories through final Ready; the catalog
+is the sole chosen encounter dimension. W10 casualties78→128 across those pairs:
+46increase,43tie,14decrease. Full campaign casualties3104→3249; Keep damage
+2200→2100wholeHP across the cohort. One Grovekeeper mixed seed1 defeatW14 becomes
+Victory; other known constrained-Stone mixed/tower defeats remain (some occur
+later). These are deterministic correlated policies, not independent fairness or
+human samples. NPC identity/order afterW10 changes later RNG and follow-up policy
+purchases; do not attribute every later difference to direct extra damage.
+
+Select **heavy W10, retain the W20 single boss**. W10 becomes twoL3 Swordsmen,
+twoL3 Berserkers, oneL1 Crossbowman and oneL2 Mage, a valid nonboss formation.
+Keep its existing4Gold/2Wood/10Food clear and1Research. W20 stays oneL5 boss with
+its existing multipliers/reward. No other count/level/cost/healing/stage/status
+change is selected. W10 provides paired targets and earlier high-tier bruisers,
+with real next-wave losses/funding/recovery implications. It differs fromW9's
+ordinary mixed roster. W20 retains a contrasting single-member primary-damage
+problem: the tested formation raises some terminal losses without a next-wave
+recovery decision or a reliable new status counter, and replacing both majors
+would remove that distinct target relationship. This is an evidence-backed
+bounded selection, not a human enjoyment/climax claim or a requirement to lose.
+
+Implementation must change only the defaultW10 catalog entry and its truthful
+purpose/checkpoints/native expectations. Existing single-boss validation remains
+strict; do not flag a formation as a boss or add escorts. Keep the frozen original
+campaign and both alpha/heavy alternatives executable. Retain all counterexamples.
+
+Compatibility decision: no command, snapshot schema, combat hit rule or transport
+shape changes. Keep combat8, reward1, battleflow4 and protocol19. The campaign's
+existing full content fingerprint identifies the changed catalog and detects
+mismatched/tampered received data. It is not an admission rule requiring default
+catalog equality: current-schema authorities may intentionally declare either
+valid catalog. Compatible19peers receive the actual complete rules; older18peers
+remain refused. Running authorities own immutable catalogs, and reconnect resumes
+that declared catalog. A fresh default match uses the newW10; no active match,
+credential file, old reward or stored health is migrated/reinterpreted. No settings
+format changes. Explicit old-catalog snapshots remain useful diagnostics, not
+ordinary saved games. Verify codec/catalog integrity and old-version refusal.
+
+NPC count/composition changes seeded entry/action ordering and later identities;
+all authoritative preconditions/retries remain unchanged. Immediate recovery
+quotes may differ with actual wounds; their exact frozen application and ordinary
+healing eligibility/caps do not change. Final shipping campaign/marginal/uneven
+cooperation and native/export/CI gates are still required before completion.
