@@ -101,3 +101,38 @@ mandatory workaround. If three is retained, show the runnable lost-decision case
 and ship a concrete interaction reduction. Record the exact decision and its
 limits in parent #15 before closure; do not silently call an untested assertion
 complete. No Core implementation or product selection is claimed by this design.
+
+## Initial executable results (selection pending)
+
+The isolated experiment builds without warnings and passes Core68 / Shared147.
+The three-stage 72-run report is byte-identical to the fresh #21 report. Canonical
+two-stage policy runs reach1,021battles/48full Victories versus1,037/49. Total
+accepted barriers are2,042 versus3,111; no-command stages350 versus1,068. These
+totals have different survival exposure. A surviving full campaign has40actual
+Ready boundaries rather than60, with19nonfinal reward drafts.
+
+Canonical Grovekeeper first-wave participation drops4→2, both seeds, and both
+Keeps fall. The second Metal Mine was bought after first Ready; its middle
+payment formerly funded recruits before the final commitment. In the candidate,
+that mine's first income arrives only when battle starts. This is a lost paid
+reinvestment chain, not an empty third button. Exact accepted commands and stock
+movements are retained in r5/grovekeeper-reinvestment.json. Huntsman ranged seed1
+also loses atW8; compare common-wave participants/casualties instead of only wins.
+
+Three explicit normal-payment opening orders were tested under both schedules,
+six doctrines and two seeds (72opening runs). Canonical and army-first reach
+three waves12/12 with three stages and10/12 with two. Economy-first reaches12/12
+under both. Grovekeeper invests its initial Wood in the second Metal Mine before
+first Ready. Other doctrines use their stated ordinary order; an unaffordable
+optional Arcanum does not block necessary recruitment in the alternate policy.
+No new resources, prices, enemy profiles or hidden payment were supplied. These
+recoverable paths do not erase the original failed canonical cases.
+
+Actual paired native economy-first2/3 journeys have passed2p/4p; three-stage6p
+passed and two-stage6p remains running. The same Controls/input paths exercise
+three waves, unready, pause, delayed ACK, rewards and ready/draft reconnect.
+Timing categories include explicit capture/test delays and are summed client
+intervals, not human or session wall time. Current family matrices contain no
+ordinary stored healing, so reserve/research/tower focused records are required
+before any selection. Solo paired loops, producer/upgrade timing and complete
+shipping hardcoded-count audit also remain.
