@@ -83,7 +83,6 @@ public partial class UnitInspector : VBoxContainer
             var tower = context.State.TowerCatalog.FirstOrDefault(t => t.Type == structure.TowerType && t.Level == structure.Level);
             _text.Text = $"P{structure.Owner} · {structure.Kind}\nHP {HealthPoints.Format(structure.Health)}/{HealthPoints.Format(structure.MaximumHealth)} · L{structure.Level}\n{(structure.Active ? "Active" : "Inactive / destroyed")}";
             _advanced.Text = $"Cell {structure.Cell}, plot {structure.Slot + 1}";
-            if (tower is not null) tower = RunEffects.Tower(tower, context.State.Players.Single(p => p.Id == structure.Owner).Run);
             if (tower is not null) { _text.Text += $"\n{structure.TowerType}\nBase damage {HealthPoints.Format(tower.Damage)}/{HealthPoints.Format(tower.SecondaryDamage)} · Reach {tower.HexRange}"; _advanced.Text += $"\nWindup {tower.WindupTicks}; cadence {tower.CadenceTicks} ticks"; }
             if (structure.Kind == ArenaStructureKind.Watchpost) { _text.Text += $"\nReach {context.State.Rules.Arena.DefenderRange} · Base damage {context.State.Rules.DefenderDamage}\nWatchpost resets for the next battle."; _advanced.Text += $"\nWindup {context.State.Rules.Combat.Defender.WindupTicks}; cadence {context.State.Rules.Combat.Defender.CadenceTicks} ticks"; }
             if (!ReadOnlyLive && structure.Slot >= 0 && structure.Owner == context.City.Id)

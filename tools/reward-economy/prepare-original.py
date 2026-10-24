@@ -25,7 +25,7 @@ if program.read_text() != original_program:
     raise SystemExit('Expected untouched original CLI.')
 shutil.copyfile(repository / 'src/Game.Shared/Development/RewardEconomyReview.cs', root / 'src/Game.Shared/Development/RewardEconomyReview.cs')
 current = (repository / 'tools/scenarios/Program.cs').read_text()
-start = current.index('    if (args.FirstOrDefault() == "reward-economy-review")')
+start = current.index('    if (args.FirstOrDefault()')
 end = current.index('    if (args.FirstOrDefault() == "cooperation-review")', start)
 program.write_text(original_program.replace('try\n{', 'try\n{\n' + current[start:end], 1))
 print(f'ORIGINAL_ECONOMY_SOURCE_PASS {len(files)} frozen files; observed harness copied to {root}')

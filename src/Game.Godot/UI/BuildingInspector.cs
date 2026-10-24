@@ -94,8 +94,7 @@ public partial class BuildingInspector : VBoxContainer
             _details.Text += (context.EditReason.Length > 0 ? "\n" : "") + $"Level {slot.Level} / {definition?.MaximumLevel.ToString() ?? "2"}\n" + (definition is null ? "Arrow Tower branch." : ConstructionPanel.Function(definition));
             if (definition?.Produces is { } resource)
             {
-                int Output(int level) => EconomyConfiguration.ProducerOutput(definition, level, context.City.Research, context.State.TechnologyCatalog)
-                    + (RunEffects.ProducerCard(definition.Type) is { } card ? RunCatalog.Amount(context.City.Run, card) : 0);
+                int Output(int level) => EconomyConfiguration.ProducerOutput(definition, level, context.City.Research, context.State.TechnologyCatalog);
                 string output = $"Current output {Output(slot.Level)} {resource}/production";
                 if (slot.UpgradeQuote is not null) output += $" → {Output(slot.Level + 1)} after upgrade";
                 _details.Text += "\n" + output; compactSummary = $"Level {slot.Level} · {output}";
@@ -103,7 +102,6 @@ public partial class BuildingInspector : VBoxContainer
                 if (doctrineBonus > 0) _details.Text += $"\nCity-wide doctrine bonus +{doctrineBonus} {resource}/production (once per city; included in resource table).";
             }
             var tower = context.State.TowerCatalog.FirstOrDefault(t => t.Type == slot.Type && t.Level == slot.Level);
-            if (tower is not null) tower = RunEffects.Tower(tower, context.City.Run);
             if (tower is not null) _details.Text += $"\nRange {tower.HexRange}; direct/secondary {HealthPoints.Format(tower.Damage)}/{HealthPoints.Format(tower.SecondaryDamage)}\nWindup {tower.WindupTicks} ticks; cadence {tower.CadenceTicks} ticks. Footprint: whole home.";
             if (slot.UpgradeQuote is { } upgrade)
                 _actions.Item(_skin, "Upgrade", "Upgrade — " + GameplayContext.Cost(upgrade),
@@ -114,7 +112,7 @@ public partial class BuildingInspector : VBoxContainer
                 foreach (Building branch in new[] { Building.RapidArrowTower, Building.BombardTower })
                 {
                     economy.TryTowerUpgrade(branch, out var quote);
-                    var profile = RunEffects.Tower(context.State.TowerCatalog.Single(t => t.Type == branch && t.Level == 2), context.City.Run);
+                    var profile = context.State.TowerCatalog.Single(t => t.Type == branch && t.Level == 2);
                     _actions.Item(_skin, "Branch" + branch, $"{GameplayContext.BuildingName(branch)} — {GameplayContext.Cost(quote)}\nDamage {HealthPoints.Format(profile.Damage)}/{HealthPoints.Format(profile.SecondaryDamage)}, range {profile.HexRange}, cadence {profile.CadenceTicks} ticks",
                         () => _context.Submit(new(GameplayAction.TowerBranch, _slot, branch)), context.Block(quote));
                 }

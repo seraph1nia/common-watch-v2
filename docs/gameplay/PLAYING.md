@@ -22,7 +22,7 @@ requested; the prior inspected city and clearing return as harmless context.
 - **Worldtree** retains all 18 technologies, prerequisites, exclusive branches, costs and acquired effects. Select a node, then purchase. Allied, fallen and disconnected cities remain read-only; inspecting another city never changes authenticated command identity.
 - **Ready · prep 2 / prep 3 / battle** names the next transition. All connected, standing cities must be Ready before collecting one production payment and advancing research/eligible recovery. The third settlement also pays Food and starts battle. **Unready** reopens your city for editing while waiting. The readiness count excludes disconnected and fallen cities. Inspecting an ally keeps Ready attached to your own labeled city. Food shortages permit readiness; unfunded field members sit out, while stored members never fight. **Pause/Resume** affects the whole match; only the original host controls combat speed. Local dialogs never pause cooperative play.
 - **Show arena** previews the forthcoming field army, enemies and structures during preparation. Click a combatant or structure to inspect it. Combat frames the focused sector's actual engagement and defenses in the available HUD space. Native pan/zoom and **Overview / F** retain your chosen view; **R** restores the engagement default. The compact live panel stays away from the selected actor/target and shows health, role, action and effects; **Advanced details** retains IDs, timing and full profiles. Short You / Ally N / Enemy member labels replace the acronym legend. Circle / split-circle / triangular bases distinguish ownership without color alone. Damaged/selected/critical squads show health; Low marks danger. Gold rings mark the selection and orange its actual living target. Routine hits use existing motion/flash; numbers focus on selected squads, bosses and structures. The approved forest scenery remains.
-- Successful nonfinal combat offers three authoritative rewards alongside an expandable factual recap of survivors/losses, Keep damage, sit-outs and earned resources/research. No extra dismissal is needed to choose. City details retains the last recap; missing history after rejoining is labeled unavailable. Dismissing rewards chooses nothing; **Rewards** reopens the same offers. Wave 20 ends in Victory; defeat offers no draft. **Esc / Menu** opens a framed popup over the current view; **F10 / controller Start** toggles it from any screen. **Continue / Esc** closes it. Opening the menu does not leave or pause the match. **City details** inspects your doctrine, acquired rewards, wave and recent feedback. The match-action feedback control shows temporary acceptance and persistent pending, rejected or disconnected status; click it for complete recent messages. There is no permanent Run dashboard or history footer.
+- Successful nonfinal combat offers three authoritative rewards alongside an expandable factual recap of survivors/losses, Keep damage, sit-outs and earned resources/research. No extra dismissal is needed to choose. Core freezes the last recap before recovery; its factual losses survive a compatible reconnect. Dismissing rewards chooses nothing; **Rewards** reopens the same offers. Wave 20 ends in Victory; defeat offers no draft. **Esc / Menu** opens a framed popup over the current view; **F10 / controller Start** toggles it from any screen. **Continue / Esc** closes it. Opening the menu does not leave or pause the match. **City details** inspects your doctrine, consumed reward receipts, wave and recent feedback. The match-action feedback control shows temporary acceptance and persistent pending, rejected or disconnected status; click it for complete recent messages. There is no permanent Run dashboard or history footer.
 
 **Return to main menu** and **Exit Game** both ask for confirmation describing the consequences. Solo progress is not saved. A host leaving ends the match and disconnects everyone; a guest leaving lets the other players continue and can reconnect only while the same host session remains running. Settings are kept. Cancel or Esc dismisses the confirmation and restores focus without leaving. The match continues while a menu or confirmation is open.
 
@@ -88,14 +88,18 @@ Doctrine cards lead with playstyle and expose canonical numbers through **Full
 effects & stock**. [Opening review](OPENING_REVIEW.md) documents six paid paths,
 resource constraints and actual first-three-wave results without changing rules.
 
-Reward cards name the current soldiers or producers they affect. **Current effects**
-shows Core-calculated changes; a **Pivot** label means a compatible purchase is
-still needed. The description/effects area scrolls independently of Choose reward.
-Maximum-HP bonuses do not heal existing soldiers. Conditional hit bonuses do not
-promise damage on every attack. The Worldtree also names current targets and
-shows before/after values for available purchases. City details records doctrine,
-army, technologies and rewards beside four existing build directions; combine or
-pivot freely.
+Battle rewards are immediate supplies or recovery. Three cards state the exact
+quoted resource gain, or Keep repair and total healing across eligible living
+soldiers, including storage. Full-health recovery is omitted; there is no
+resurrection or Research-point reward. Closing/reopening never rerolls. Choose
+one, wait for authority, then receive one factual receipt and return to planning
+or compact team waiting. No extra Claim/Continue action. Resource-cap reductions
+are stated in optional detail. Ordinary shipments can recur across waves and do
+not create permanent modifiers. Final Victory and eliminated cities receive no
+new draft. Worldtree remains the long-term research route, with current targets
+and before/after purchase values. City details distinguishes purchased
+technologies from consumed reward history. See the
+[reward contract and economy comparison](../refinement-ii/21_IMMEDIATE_REWARDS.md).
 
 **Compare recovery / replacement** in a soldier's inspector shows current combat
 profiles, exact next-production recovery, current recruit prices and the separate

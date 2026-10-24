@@ -9,6 +9,7 @@ public partial class DraftPanel : Control
     private HudSkin _skin = null!;
     private Action _submitted = null!;
     private HBoxContainer _cards = null!;
+    private PanelContainer _panel = null!;
     private Label _summary = null!;
     public BattleResultStrip Result { get; private set; } = null!;
     private GodotSession _session = null!;
@@ -39,14 +40,23 @@ public partial class DraftPanel : Control
     {
         _skin = skin; _submitted = submitted; SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         var shade = new ColorRect { Color = new Color(0, 0, 0, .7f) }; AddChild(shade); shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        var panel = new PanelContainer(); AddChild(panel); panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        panel.OffsetLeft = 30; panel.OffsetRight = -30; panel.OffsetTop = 18; panel.OffsetBottom = -18; skin.Panel(panel, "modal");
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true }; panel.AddChild(Margin(scroll, 20));
+        _panel = new PanelContainer(); AddChild(_panel); _panel.SetAnchorsPreset(LayoutPreset.Center); skin.Panel(_panel, "modal");
+        Resized += FitPanel; FitPanel();
+        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Reserve, FollowFocus = true }; _panel.AddChild(Margin(scroll, 20));
         var column = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; scroll.AddChild(column);
         _close = skin.Button("Close rewards — inspect your city / run before choosing", Dismiss, "ForestQuietButton"); column.AddChild(_close);
         Result = new BattleResultStrip(); column.AddChild(Result); Result.Initialize(skin);
         _summary = WrapLabel(); column.AddChild(_summary);
         _cards = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; column.AddChild(_cards); Hide();
+    }
+    private void FitPanel()
+    {
+        if (Size.X <= 0 || Size.Y <= 0) return;
+        float width = Math.Min(1200, Math.Max(0, Size.X - 60));
+        float height = Math.Min(580, Math.Max(0, Size.Y - 36));
+        _panel.OffsetLeft = -width / 2; _panel.OffsetRight = width / 2;
+        _panel.OffsetTop = -height / 2; _panel.OffsetBottom = height / 2;
     }
     private void Choose(RewardCard control, string shape, string id)
     {
@@ -68,7 +78,7 @@ public partial class DraftPanel : Control
         Result.Refresh(outcome);
         if (opening) { _invoker ??= GetViewport().GuiGetFocusOwner(); _close.GrabFocus(); }
         var view = RunPresentation.Project(session.Snapshot, session.City, session.PlayerId, session.Connected && !session.Pending && !_awaitingChoiceState, false);
-        _summary.Text = view.Title + " · " + view.Status.Split('\n')[0] + "\n" + BuildDirection.Summary(session.City);
+        _summary.Text = view.Title + (view.Status.Length > 0 ? " · " + view.Status.Split('\n')[0] : "");
         if (_awaitingChoiceState) _summary.Text = "Reward accepted · waiting for the current inventory snapshot…";
         _summary.TooltipText = view.Status + "\n" + view.Forecast;
         string shape = session.Snapshot.MatchId + ":" + session.City.Run.DraftWave + ":" + string.Join(',', view.Cards.Select(c => c.Id));

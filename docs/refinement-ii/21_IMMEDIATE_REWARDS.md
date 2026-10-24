@@ -68,6 +68,7 @@ historical IDs. Consumed rewards are factual receipts, not a permanent build.
 | SnapshotCompatibility / SnapshotPayload / Diagnostics | Require reward version, bounded valid quotes/receipts, protocol and fingerprint; reject old data explicitly. |
 | RunPresentation / Shared BuildImpact / BuildDirection | Exact quoted one-shot effects and consumed receipts; remove stack/relic/synergy copy. Worldtree previews remain. |
 | Development BuildIdentityReview / reward policies | Replace obsolete passive relevance experiment with immediate receipt evidence; update legal checkpoint choices. Historical reports remain labelled original. |
+| Native BuildingInspector / UnitInspector | Read the current producer/tower catalogs directly; remove passive preview additions. |
 | DraftPanel / RewardCard / HudJourney / BattleOutcomeJournal | Three exact primary choices, optional arithmetic/cap detail, authoritative receipt once, frozen pre-recovery outcome even after reconnect/same-frame progression. |
 
 ## Frozen quotes and accounting
@@ -123,7 +124,7 @@ reserved chooser capacity. Test both partial caps and explicit preflight refusal
 
 Wire protocol becomes 18. MatchSnapshot gains explicit RewardRulesVersion 1;
 missing historical value is 0 and rejected by both payload decode and full
-validation. Include version/catalog in RulesIdentity; retain combat rules 8 and
+validation. Include version/catalog in RulesIdentity format 4; retain combat rules 8 and
 battle-flow 3. Old hosts, offers, snapshots and private resume sessions require a
 compatible running authority or fresh match, never migration by reusing an ID.
 Credentials remain private and absent from settings, snapshots and evidence.
@@ -160,4 +161,50 @@ and remote delayed-ACK/reconnect; native exact three-card/receipt views both siz
 session/art/animation and multiplayer. Report automated copy/input separately
 from human understanding and known native/platform/Steam gaps.
 
-Implementation and measured results follow in a separate commit after this design.
+## Implementation checkpoint
+
+`BattleRewards` now owns the six-family immediate catalog, positive frozen plans,
+capacity calculation, deterministic offers and projection validation. `RunState`
+contains detached quotes and chronological consumed receipts; all old passive IDs,
+rarity/stack rules and active effect readers are removed. World preflights before
+committing Ready, freezes factual battle losses before recovery and grants through
+the existing authenticated ledger. No default enemy stats, prices, stage timing,
+Worldtree structure, assets, dependencies or private session format were changed.
+
+Wire protocol 18, reward rules 1 and RulesIdentity format 4 are implemented.
+Missing/unknown reward versions, changed/reordered quotes, legacy IDs, corrupted
+receipts and impossible frozen outcomes are rejected. Previous completed results
+remain valid while a later combat uses its new upkeep manifest; a regression test
+covers that lifecycle boundary. Fresh matches are required for old authorities.
+
+Cards show exact primary amounts and only relevant recovery/cap detail. There is
+no Current effects action or stack/relic counter. A native resize event bounds
+the centered chooser to 1200×580 with existing art; all three choices remain in
+native containers. Base clear payout is labelled separately. HudJourney uses the
+actual stored receipt, including after reconnect and same-update next planning.
+BattleOutcomeJournal reads the authoritative pre-heal loss record.
+
+The paid forecast setup now sells only available Food bundles and, when needed,
+its Farm to earn a real partial-funding checkpoint. The Town Hall setup buys its
+second capacity level before storing another eligible member. Tests/captures do
+not receive invented stock or health. The raw CLI checkpoint remains observable
+with `--raw`; these are development setup changes, not shipping economy changes.
+
+[The economy report](21_ECONOMY.md) compares 72 matched runs: 1,050 original versus
+1,037 new battles. The current policy also reproduces the original report
+byte-for-byte against frozen original source. Two Arcanist ranged runs now fail
+W5; one Grovekeeper ranged run now wins. No enemy retuning hides those results.
+The ordinal policy selects four immediate families, so its bias and unmatched
+late-wave exposure are explicit. All six families have separate actual grant tests.
+
+Passed so far: zero-warning locked build; Core 65 / Shared 145 / session models
+109; three actual native session tests; four illustrated/plain gameplay profiles
+and seven paid remote waves before the final sizing/copy refinement. Final four
+native profiles and 2p720/6p1080 journeys with exact quoted/actual remote grants
+are running. Remaining gates include final native captures, multiplayer/reconnect,
+animation/art and final CI. Do not treat this checkpoint as issue completion.
+
+No participant comprehension, normal human pacing, physical input/audio/GPU,
+native other-platform or live Steam qualification is claimed. The known
+intermittent native runtime risk remains. Final selected-economy calibration and
+executable alternatives remain #22–#25; the overall goal stays active.

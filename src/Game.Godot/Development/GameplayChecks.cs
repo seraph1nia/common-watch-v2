@@ -222,21 +222,23 @@ public partial class GameApplication
         if (_gameUi.Draft.Result.Expanded) Press(_gameUi.Draft.Result.ExpandButton);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var cards = _gameUi.Draft.Cards.ToArray();
-        Require(cards.All(c => c.TargetsText.Length > 0 && c.EffectsText.Length > 0), "every offered reward explains current targets or a deliberate pivot");
+        var quoted = _session.City.Run.Quotes;
+        Require(cards.Length == 3 && quoted.Length == 3, "three frozen immediate quotes");
+        for (int index = 0; index < cards.Length; index++)
+        {
+            var rewardQuote = quoted[index];
+            Require(cards[index].TargetsText == RunPresentation.Benefit(rewardQuote.Resources, rewardQuote.KeepHealing, rewardQuote.SoldierHealing, rewardQuote.Soldiers.Length), "primary copy matches authority exactly");
+            Require(cards[index].EffectsText.Length > 0 && cards[index].IsVisibleInTree()
+                && _gameUi.Draft.GetGlobalRect().Encloses(cards[index].ChooseButton.GetGlobalRect()), "every primary choice is visible without an effects action");
+        }
         await GameplayCapture("reward-draft");
-        long effectRevision = _session.Snapshot.Revision;
-        WorldtreeClick(cards[0].EffectsButton.GetGlobalRect().GetCenter());
+        long inspectionRevision = _session.Snapshot.Revision;
+        GetViewport().PushInput(new InputEventMouseMotion { Position = cards[0].CopyArea.GetCenter() }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(cards[0].EffectsVisible && cards[0].CopyArea.Size.Y >= 64 && _session.Snapshot.Revision == effectRevision, "native reward effects inspection spends nothing and leaves the offer intact");
-        await GameplayCapture("reward-current-effects");
-        cards[0].EffectsButton.GrabFocus();
-        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = true }, true);
-        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = false }, true);
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(!cards[0].EffectsVisible && _session.City.Run.Choice is null, "keyboard closes effects without choosing a reward");
+        Require(_session.Snapshot.Revision == inspectionRevision && _session.City.Run.Choice is null, "hovering quoted benefit never selects or mutates authority");
         await CheckMenuPopup("rewards");
         Press(_gameUi.Draft.RewardButtons[0]);
-        Require(_session.City.Run.Cards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
+        Require(_session.City.Run.Rewards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
 
         ReplaceSession(GameplayScenarios.CreateAt("victory")); _frozen = true; RefreshUi(true);
         Require(!_gameUi.Draft.Visible && _session.Snapshot.Wave == 20, "wave twenty terminal without new draft"); await GameplayCapture("victory");

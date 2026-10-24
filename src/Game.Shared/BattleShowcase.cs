@@ -76,7 +76,7 @@ public sealed class BattleShowcase
             {
                 while (solo.Snapshot.Phase == Phase.Combat) solo.Step();
                 if (solo.Snapshot.Phase != Phase.RewardDraft) throw new InvalidOperationException($"Legal showcase opening lost before advanced wave: wave {solo.Snapshot.Wave}, {solo.Snapshot.Phase}, city HP {solo.City.Health}, roster {solo.City.Soldiers.Length}.");
-                solo.ChooseReward(solo.City.Run.Offers.Contains("F05") ? "F05" : solo.City.Run.Offers[0]);
+                Require(solo.ChooseReward(solo.City.Run.Offers[0]));
                 while (solo.Snapshot.DyingBodies.Length > 0) solo.Step();
                 for (int preparation = 0; preparation < 3; preparation++)
                 {

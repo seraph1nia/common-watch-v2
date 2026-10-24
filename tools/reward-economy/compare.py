@@ -57,6 +57,20 @@ def main():
     for key, old in before.items():
         new = after[key]
         assert old['MatchId'] == new['MatchId'] and old['Starting'] == new['Starting']
+        bonus = [c for c in new['Commands'] if c['Command']['Action'].startswith('reward:')]
+        offered = [b for b in new['Battles'] if b['Offers']]
+        assert len(bonus) == len(offered)
+        for battle in new['Battles']:
+            assert len(battle['Offers']) in (0, 3) and len(set(battle['Offers'])) == len(battle['Offers'])
+            if battle['Offers']:
+                assert battle['Choice'] in battle['Offers'] and battle['Result'] == 'RewardDraft'
+        for command in bonus:
+            assert command['ResearchPointsAfter'] == command['ResearchPointsBefore']
+            if command['Command']['Action'] == 'reward:loot-recovery':
+                assert command['KeepHealing'] > 0 or command['SoldierHealing'] > 0
+            else:
+                assert all(command['After'][r] >= command['Before'][r] for r in RESOURCES)
+                assert any(command['After'][r] > command['Before'][r] for r in RESOURCES)
         rows.append(dict(doctrine=key[0], family=key[1], seed=key[2], before=metrics(old), after=metrics(new)))
     report = dict(cases=rows, beforeSha256=hashlib.sha256(a.before.read_bytes()).hexdigest(),
                   afterSha256=hashlib.sha256(a.after.read_bytes()).hexdigest(),

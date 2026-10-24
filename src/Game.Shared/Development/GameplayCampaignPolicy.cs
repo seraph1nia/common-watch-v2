@@ -82,7 +82,7 @@ internal static class GameplayCampaignPolicy
         }
         return null;
     }
-    internal static string RewardChoice(RunState run) => run.Offers.OrderBy(id => RunCatalog.Card(id).Multiplied || id is "F04" or "F05" ? 2 : id.StartsWith('E') ? 1 : 0).ThenBy(id => id, StringComparer.Ordinal).First();
+    internal static string RewardChoice(RunState run) => run.Offers.Order(StringComparer.Ordinal).First();
     public static EconomyAction? Next(MatchSnapshot state, int player, string family = "frontline", int maximumHomes = 6, int maximumTier = 5, bool hallUpgrades = true, bool purchaseResearch = true)
     {
         if (maximumHomes is < 2 or > 6 || maximumTier is < 1 or > 5) throw new ArgumentOutOfRangeException(nameof(maximumHomes));

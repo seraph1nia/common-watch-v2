@@ -4,7 +4,7 @@ Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/iss
 and its ten children. Preserve the complete scope, including executable rules
 alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
 Current branch: `refinement/21-immediate-rewards`, stacked on
-`refinement/20-cooperative-context` (`ce2d5c6`). Core source/rules and Shared simulation rules remain unchanged; #20 changes the Shared team presentation projection.
+`refinement/20-cooperative-context` (`ce2d5c6`). Gate A preserved original rules; #21 now intentionally changes the Core reward catalog/receipts under its committed design.
 
 | Order | Issue | State |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Current branch: `refinement/21-immediate-rewards`, stacked on
 | 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck passed in #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
 | 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
 | 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision ce2d5c6 passed Godot run71, including both exports. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
-| 6 | #21 immediate battle rewards | Design/provenance committed before Core changes; 72-run original economy comparison reproduced. Implementation follows Gate A CI. |
+| 6 | #21 immediate battle rewards | Immediate catalog/authority/UI implemented; Core65/Shared145/models109 and initial native gates pass; final graphical/transport/CI checks in progress. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
 | 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
 | 9 | #24 veteran maintenance | Pending; execute a real squad-recovery alternative under selected rewards/rhythm. |
@@ -87,7 +87,7 @@ families W1, Grovekeeper ranged W3, both seeds); retain these losses for #23.
 Original sources and exact policy copies are under `artifacts/refinement-ii/r7/`.
 The [reward design](21_IMMEDIATE_REWARDS.md) audits all 36 old cards and declares
 a frozen immediate-only catalog, actual receipts, capacity preflight and explicit
-protocol18/reward-rules1 compatibility. At this checkpoint no Core source has changed; the committed design precedes implementation.
+protocol18/reward-rules1 compatibility. The design preceded Core edits; actual immediate reward implementation is now in progress.
 
 ## Next issue boundary
 
@@ -101,3 +101,35 @@ normal-payment opening alternatives; #24 real squad recovery under the selected
 economy; #25 controlled trade-offs, elite formation, held-out seeds and final
 integrated all-doctrine/uneven-group campaigns. All remain authorized and active.
 Do not mark the overall goal complete after Gate A. No pending user permission.
+
+## Active #21 verification
+
+Actual implementation uses new loot-* identities, frozen exact quotes, positive
+capacity preflight, consumed receipts, frozen battle losses and protocol18 /
+reward1 / fingerprint-format4. Old active passive paths are gone; no default
+enemy/price/rhythm/research or asset change. Build6 has zero warnings; Core4
+passes65, Shared4 passes145, models4 passes109. Three native session facts and
+four full profiles plus seven-wave remote worker passed before final bounded
+chooser/copy refinement. Latest source includes the final 1200×580 chooser.
+
+Live handle30182 sequentially owns final four gameplay captures, then native
+2p720 and6p1080 three-wave journeys with exact quote/delta/receipt assertions.
+Do not rebuild Godot while this handle is live. Current logs:
+/tmp/common-watch-r7-gameplay-final.log, journey-2p.log, journey-6p.log.
+All earlier local handles (including43342 session and82408 original replay)
+are terminal. Recheck actual current process state before acting on this note.
+
+Economy-after:72runs/1037battles,49/60 full-campaign Victories; original1050 and
+50/60. Two Arcanist ranged campaigns now failW5, one Grovekeeper ranged seed1
+now winsW20. Report explicitly records ordinal-policy bias: new chosen families
+Equipment457, Provisions277, Recovery218, Stone25; Timber/Treasury never selected
+by that policy but all six have real authoritative grant tests. Keep healing
+rarely exercised by these victorious policies; pure/cap fixtures qualify it.
+Full tables:21_ECONOMY.md; traces/reproductions under artifacts/refinement-ii/r7.
+Current harness re-reproduces original SHA197405bf... byte-identically.
+
+Uncommitted feature work is all this task's work. Do not mix it into #20 branch.
+Next: inspect final native cards, complete current worker, then multiplayer,
+reconnect, animation/art and final journal/compatibility checks. Commit/push
+reviewable feature, create stacked draft PR on #20 and poll its exact-SHA CI.
+No issue21 completion claim yet. Preserve all22–25 executable scope.

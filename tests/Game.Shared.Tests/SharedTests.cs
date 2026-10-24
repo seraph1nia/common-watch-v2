@@ -47,12 +47,12 @@ public sealed class SharedTests
         using var draft = ScenarioRunner.CreateAt("draft");
         Assert.Equal(Phase.RewardDraft, draft.Snapshot.Phase);
         Assert.Equal(3, draft.City.Run.Offers.Length);
-        Assert.All(draft.City.Run.Offers, id => Assert.NotEmpty(RunCatalog.Card(id).Effect));
+        Assert.All(draft.City.Run.Quotes, quote => Assert.True(quote.HasBenefit));
         string chosen = draft.City.Run.Offers[0];
         Assert.True(draft.ChooseReward(chosen).Accepted);
         Assert.Equal(2, draft.Snapshot.Wave);
         Assert.Equal(Phase.Building, draft.Snapshot.Phase);
-        Assert.Equal(1, draft.City.Run.Stacks(chosen));
+        Assert.Equal(chosen, Assert.Single(draft.City.Run.Rewards).Id);
     }
 
     [Fact]

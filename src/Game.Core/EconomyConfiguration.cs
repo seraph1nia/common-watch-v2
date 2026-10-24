@@ -105,7 +105,7 @@ public sealed class EconomyConfiguration
     private static BuildingDefinition Copy(BuildingDefinition definition) => definition with { Recruits = definition.Recruits?.ToArray() };
     public ResourceCost Recruitment(UnitType type, int level = 1, RunState? run = null) => RunEffects.Recruitment(_recruitment[(type, level)], run, type);
     public int Upkeep(UnitType type) => _upkeep[type];
-    public int Upkeep(UnitType type, RunState? run) => RunEffects.Upkeep(_upkeep[type], run, type);
+    public int Upkeep(UnitType type, RunState? run) => _upkeep[type];
     public RecruitmentQuote[] RecruitmentQuotes(CombatConfiguration configuration, ResearchState research = default, RunState? run = null)
     {
         if (run is { Started: true }) return _recruitmentOrder.Select(p => new RecruitmentQuote(p.Key.Type, p.Key.Level,
@@ -158,8 +158,7 @@ public sealed class EconomyConfiguration
         foreach (SlotState slot in owned)
         {
             if (!_buildings.TryGetValue(slot.Type, out BuildingDefinition? building) || building.Produces is not Resource resource) continue;
-            int extra = RunEffects.ProducerCard(slot.Type) is { } card ? RunCatalog.Amount(run, card) : 0;
-            ResourceCost output = new ResourceCost().With(resource, checked(ProducerOutput(building, slot.Level, research, technologies) + extra));
+            ResourceCost output = new ResourceCost().With(resource, ProducerOutput(building, slot.Level, research, technologies));
             if (!total.TryAdd(output, out ResourceCost next)) throw new OverflowException("Production exceeds whole-resource bounds.");
             total = next;
         }
@@ -203,8 +202,9 @@ public static class RulesIdentity
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            writer.Write(3);
+            writer.Write(4);
             writer.Write(MatchSnapshot.CurrentBattleFlowVersion);
+            writer.Write(BattleRewards.RulesVersion);
             foreach (CombatFingerprint part in new[] { combat, economy, campaign, RunIdentity })
             { writer.Write(part.A); writer.Write(part.B); writer.Write(part.C); writer.Write(part.D); }
         }

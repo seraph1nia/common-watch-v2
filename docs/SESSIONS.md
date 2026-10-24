@@ -4,6 +4,13 @@ The application starts at a main menu. Choose **Single player**, choose a doctri
 
 `Application/SessionCoordinator` exclusively owns the active session Node with ENet and reliable Godot RPCs. Native Steam callbacks live in `Networking/Steam/SteamCoordinator`; UI confirmation and lobby Controls are separate. Game.Core owns admission, ownership, sequencing, costs, readiness, combat and rewards. A guest has no simulation authority. Solo commands reach the same Core validation directly without a socket.
 
+Reward redesign compatibility requires wire protocol **18**, reward rules **1**
+and the complete configuration fingerprint. Historical snapshots missing the
+reward version and old passive offer IDs are rejected, not migrated. Start a
+fresh compatible match; private resume files only reclaim their original running
+host. Frozen quotes survive reconnect/pause; the exact command retry ledger
+prevents a second grant, including when the final choice already entered planning.
+
 ## Hosting and joining LAN games
 
 Run `mise run play`. Choose **Host LAN** in one instance. Guests enter `host:port` and choose **Join / reconnect LAN**. The default is UDP **27025**. Allow that UDP port through your own firewall when playing across machines. Hosting can start with one through six total players.

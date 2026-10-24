@@ -77,7 +77,7 @@ public sealed class HudJourneyTests
         var baseline = Observe(journal, solo);
         Assert.True(baseline.Baseline); Assert.Null(baseline.Reward);
         Assert.NotNull(journal.Receipt); Assert.Equal(0, journal.ReceiptCount);
-        Assert.Contains("earlier deltas unavailable", journal.Receipt.Details);
+        Assert.Equal(RunPresentation.Receipt(solo.City.Run.Rewards.Single()), journal.Receipt.Details);
         Assert.Null(Observe(journal, solo).Reward);
     }
 
@@ -139,16 +139,16 @@ public sealed class HudJourneyTests
         using var draft = ScenarioRunner.CreateAt("draft");
         // Detached unit fixture for heal-delivery ordering, not a claimed campaign
         // checkpoint. Native journey captures use only actual legal commands.
-        var end = draft.Snapshot with { Players = draft.Snapshot.Players.Select(c => c with { Health = HealthPoints.FromWhole(90) }).ToArray() };
+        var end = draft.Snapshot with { Players = draft.Snapshot.Players.Select(c => c with { Health = HealthPoints.FromWhole(90), LastBattleLoss = c.LastBattleLoss! with { KeepDamage = HealthPoints.FromWhole(10) } }).ToArray() };
         var outcomes = new BattleOutcomeJournal(); outcomes.Observe(planning.Snapshot); outcomes.Observe(end);
         var frozen = outcomes.For(draft.PlayerId)!;
         Assert.Equal(HealthPoints.FromWhole(10), frozen.KeepDamage);
         var journal = new HudJourney();
         journal.Observe(draft, end, draft.PlayerId, 1, HudPresentation.Project(end, draft.PlayerId, false, false));
-        var healed = end with { Players = end.Players.Select(c => c with { Health = HealthPoints.FromWhole(100), Run = RunEffects.Acquire(c.Run, "F04") }).ToArray() };
+        var healed = end with { Players = end.Players.Select(c => c with { Health = HealthPoints.FromWhole(100), Run = c.Run with { Choice = "loot-recovery", Rewards = [new(1, "loot-recovery", default, HealthPoints.FromWhole(10), 0, 0, false)] } }).ToArray() };
         outcomes.Observe(healed);
         var change = journal.Observe(draft, healed, draft.PlayerId, 1, HudPresentation.Project(healed, draft.PlayerId, false, false));
         Assert.Same(frozen, outcomes.For(draft.PlayerId));
-        Assert.Contains("Keep +10 HP", change.Reward!.Details); Assert.Equal(1, journal.ReceiptCount);
+        Assert.Contains("Restore 10 Keep HP", change.Reward!.Details); Assert.Equal(1, journal.ReceiptCount);
     }
 }

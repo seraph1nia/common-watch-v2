@@ -2,7 +2,7 @@ using Game.Shared;
 
 try
 {
-    if (args.FirstOrDefault() == "reward-economy-review")
+    if (args.FirstOrDefault() is "reward-economy-review" or "build-review")
     {
         var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
                     from family in new[] { "opening", "frontline", "ranged", "mixed", "towers", "research" }
@@ -45,21 +45,6 @@ try
         foreach (var item in cases) Console.WriteLine($"{item.Name} seed={item.Seed} W{item.Wave}\n{item.Comparison.Summary}\n{item.Comparison.Details}");
         return 0;
     }
-    if (args.FirstOrDefault() == "build-review")
-    {
-        var runs = new List<BuildRun>();
-        foreach (ulong seed in new[] { SoloSession.DefaultSeed, 1UL })
-        {
-            runs.AddRange(Game.Core.RunCatalog.Doctrines.Select(d => BuildIdentityReview.Review(d.Id, "opening", seed, 5, opening: true)));
-            runs.AddRange(new[] { "frontline", "ranged", "mixed", "towers", "research" }.Select(f => BuildIdentityReview.Review("warden", f, seed)));
-            runs.Add(BuildIdentityReview.Review("warden", "sparse-early", seed, 2, opening: true, sparseAtEnd: true));
-            runs.Add(BuildIdentityReview.Review("warden", "frontline", seed, 18, sparseAtEnd: true));
-        }
-        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
-        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
-        foreach (var run in runs) Console.WriteLine($"{run.Doctrine}/{run.Family}/{run.Seed}: {run.Waves.Length} waves · " + run.Waves[^1].Result);
-        return 0;
-    }
     if (args.FirstOrDefault() == "opening-review")
     {
         var runs = Game.Core.RunCatalog.Doctrines.Select(d => OpeningCampaign.Review(d.Id)).ToArray();
@@ -84,7 +69,7 @@ try
     string json;
     if (GameplayScenarios.Checkpoints.Contains(checkpoint))
     {
-        using var solo = GameplayScenarios.CreateAt(checkpoint);
+        using var solo = GameplayScenarios.CreateAt(checkpoint, enrich: !args.Contains("--raw"));
         json = System.Text.Json.JsonSerializer.Serialize(new { checkpoint, state = solo.Snapshot }, Game.Core.WireJson.Options);
     }
     else json = ScenarioRunner.Record(checkpoint);

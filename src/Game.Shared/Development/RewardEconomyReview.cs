@@ -17,7 +17,7 @@ public sealed record RewardEconomyRun(string Doctrine, string Family, ulong Seed
 /// <summary>Matched, bounded ordinary-command policies. No snapshot or simulation writes.</summary>
 public static class RewardEconomyReview
 {
-    public static RewardEconomyRun Run(string doctrine, string family, ulong seed)
+    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null)
     {
         using var match = new Match(matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
@@ -36,7 +36,8 @@ public static class RewardEconomyReview
         }
         void Send(string action) => Submit(Command.FromSnapshot(match.Snapshot(), ++sequence, action, player));
         Send("doctrine:" + doctrine); Send("start"); var starting = City(match.Snapshot()).Resources;
-        int lastWave = family == "opening" ? 3 : 20;
+        int lastWave = lastWaveLimit ?? (family == "opening" ? 3 : 20);
+        if (lastWave is < 1 or > 20) throw new ArgumentOutOfRangeException(nameof(lastWaveLimit));
         for (int wave = 1; wave <= lastWave && match.Phase is not (Phase.Defeat or Phase.Victory); wave++)
         {
             for (int stage = 0; stage < 3; stage++)

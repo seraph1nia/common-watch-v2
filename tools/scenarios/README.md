@@ -27,3 +27,10 @@ The first two preparation advances each produce four Metal, buying two Swordsmen
 The third advance produces food, pays actual upkeep and starts combat. The runner
 steps the real authority until it wins, then selects a real offered reward. It
 never writes simulation state, changes rules or fabricates offers.
+
+`reward-economy-review OUTPUT.json` (also `build-review`) now runs the all-doctrine
+immediate-reward comparison policy. The historical passive relevance experiment
+is retained in original Git history. See [matched reproduction](../reward-economy/README.md).
+For development diagnosis, `town-hall OUTPUT.json --raw` returns the earned legal
+checkpoint before its extra paid inspection setup; ordinary captures use the
+complete setup. No state is fabricated in either route.

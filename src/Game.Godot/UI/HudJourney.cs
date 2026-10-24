@@ -12,7 +12,7 @@ public sealed class HudJourney
 {
     private object? _session;
     private string _match = "";
-    private int _generation, _production;
+    private int _generation;
     private HudPresentation? _view;
     private CityState? _city;
     private long _battle, _acknowledged;
@@ -49,32 +49,18 @@ public sealed class HudJourney
         {
             if (!ReferenceEquals(_session, session) || _match != state.MatchId) ReceiptCount = 0;
             _acknowledged = 0; _acceptedChoiceTurn = -1;
-            Receipt = city.Run.DraftWave > 0 && city.Run.Choice is { } oldChoice
-                ? new(city.Run.DraftWave, oldChoice, RunCatalog.Card(oldChoice).Name, "Previously accepted · " + RunCatalog.Card(oldChoice).Effect + " · earlier deltas unavailable after baseline.") : null;
+            Receipt = city.Run.Rewards.LastOrDefault() is { } previous
+                ? new(previous.Wave, previous.Id, RunCatalog.Card(previous.Id).Name, RunPresentation.Receipt(previous)) : null;
         }
         else if (_city is { } before && city.Run.DraftWave > 0 && city.Run.Choice is { } id
             && (before.Run.DraftWave != city.Run.DraftWave || before.Run.Choice != id))
         {
-            var card = RunCatalog.Card(id);
-            var changes = new List<string> { card.Effect };
-            if (state.ProductionCount == _production)
-            {
-                foreach (var resource in Enum.GetValues<Resource>())
-                {
-                    int delta = city.Resources.Amount(resource) - before.Resources.Amount(resource);
-                    if (delta != 0) changes.Add($"{resource} {delta:+0;-0}");
-                }
-                int heal = city.Health - before.Health;
-                if (heal > 0) changes.Add($"Keep +{HealthPoints.Format(heal)} HP");
-                long recovered = city.Soldiers.Sum(u => before.Soldiers.FirstOrDefault(b => b.Id == u.Id) is { } old ? (long)Math.Max(0, u.Health - old.Health) : 0);
-                if (recovered > 0) changes.Add($"Soldiers +{(recovered / (decimal)HealthPoints.Scale).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} HP");
-            }
-            else changes.Add("Further production has settled; inspect current stocks.");
-            accepted = Receipt = new(city.Run.DraftWave, id, card.Name, string.Join(" · ", changes));
+            var receipt = city.Run.Rewards.Last(r => r.Wave == city.Run.DraftWave && r.Id == id);
+            accepted = Receipt = new(receipt.Wave, id, RunCatalog.Card(id).Name, RunPresentation.Receipt(receipt));
             ReceiptCount++;
         }
         _session = session; _match = state.MatchId; _generation = generation; _view = view;
-        _city = city; _battle = state.WaveStartedTick; _production = state.ProductionCount;
+        _city = city; _battle = state.WaveStartedTick;
         return new(baseline, combat || outcome || planning || observer, combat, outcome, planning, accepted);
     }
 }

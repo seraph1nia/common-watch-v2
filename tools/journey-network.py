@@ -145,12 +145,36 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
             assert city(i)['Resources'] == stock
         print(f'GODOT_COOP_FOCUS_PASS players={args.players} width={args.width} local-ids=host/guest/final keyboard controller manual snapshot-retention overview reset read-only-inspectors', flush=True)
 
+    def assert_reward_grant(i, before, quote):
+        after = city(i)
+        history = after['Run']['Rewards']
+        assert len(history) == len(before['Run']['Rewards']) + 1
+        receipt = history[-1]
+        assert receipt['Wave'] == before['Run']['DraftWave'] and receipt['Id'] == quote['Id']
+        assert receipt['Resources'] == quote['Resources']
+        assert receipt['KeepHealing'] == quote['KeepHealing']
+        assert receipt['SoldierHealing'] == sum(h['Amount'] for h in quote['Soldiers'])
+        assert receipt['SoldierCount'] == len(quote['Soldiers'])
+        assert receipt['ResourceCapped'] == quote['ResourceCapped']
+        for resource in ('Gold', 'Wood', 'Food', 'Stone', 'Metal', 'Cloth'):
+            assert after['Resources'][resource] - before['Resources'][resource] == quote['Resources'][resource]
+        assert after['Health'] - before['Health'] == quote['KeepHealing']
+        assert after['Research']['Points'] == before['Research']['Points'], 'chosen supplies do not grant Research'
+        healing = {h['UnitId']: h['Amount'] for h in quote['Soldiers']}
+        members = {u['Id']: u for u in after['Soldiers']}
+        for member in before['Soldiers']:
+            assert members[member['Id']]['Health'] == member['Health'] + healing.get(member['Id'], 0)
+            assert members[member['Id']]['Profile'] == member['Profile'], 'consumed loot is not a permanent modifier'
+
     def choose(i):
+        before = city(i)
+        quote = before['Run']['Quotes'][0]
         old = status(i)['receiptCount']
         request(i, 'reward-pointer', index=0)
         wait(lambda: city(i)['Run']['Choice'] is not None and not status(i)['pending'], 'accepted reward state')
         wait(lambda: status(i)['receiptCount'] == old + 1, 'one observed reward receipt')
         assert not status(i)['draftVisible']
+        assert_reward_grant(i, before, quote)
         return old + 1
 
     try:
@@ -266,6 +290,8 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                 os.killpg(processes[0].pid, signal.SIGSTOP)
                 try:
                     count = status(last)['receiptCount']
+                    delayed_before = city(last)
+                    delayed_quote = delayed_before['Run']['Quotes'][0]
                     request(last, 'reward-pointer', index=0)
                     wait(lambda: status(last)['pending'], 'real delayed acknowledgment')
                     assert status(last)['draftVisible'] and status(last)['receiptCount'] == count
@@ -274,6 +300,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                     os.killpg(processes[0].pid, signal.SIGCONT)
                 wait(lambda: city(last)['Run']['Choice'] is not None and not status(last)['pending'], 'delayed choice accepted')
                 wait(lambda: status(last)['receiptCount'] == count + 1, 'one delayed receipt')
+                assert_reward_grant(last, delayed_before, delayed_quote)
             else:
                 choose(last)
             wait(lambda: all(status(i)['state']['Phase'] == 'Building' and status(i)['state']['Wave'] == wave + 1 for i in range(args.players)), 'next preparation only on authority')

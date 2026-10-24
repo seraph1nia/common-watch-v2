@@ -16,7 +16,7 @@ public static class GameplayScenarios
         return new(kind, action.Slot, action.Building, action.Unit, action.Technology, action.Resource, action.Bundles, action.Payment, action.UnitId);
     }
     public static string RewardChoice(RunState run) => GameplayCampaignPolicy.RewardChoice(run);
-    public static SoloSession CreateAt(string checkpoint)
+    public static SoloSession CreateAt(string checkpoint, bool enrich = true)
     {
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown gameplay scenario: " + checkpoint);
         var solo = new SoloSession(seed: 1);
@@ -51,7 +51,7 @@ public static class GameplayScenarios
                             action.Technology, action.Resource, action.Bundles, action.UnitId));
                         if (decision == 99) throw new InvalidOperationException("Campaign policy exceeded decision bound.");
                     }
-                    if (wave >= target && stage == 3) { Enrich(solo, checkpoint); solo.ResetPlayback(); return solo; }
+                    if (wave >= target && stage == 3) { if (enrich) Enrich(solo, checkpoint); solo.ResetPlayback(); return solo; }
                     Require(solo.Send("ready"));
                 }
                 FinishCombat(solo);
@@ -72,7 +72,14 @@ public static class GameplayScenarios
         if (checkpoint == "forecast")
         {
             int market = Array.FindIndex(solo.City.Slots, s => s.Type == Building.Market);
-            Require(solo.Send("trade", market, resource: Resource.Food, bundles: 2));
+            int foodBundle = solo.Snapshot.MarketRates.Single(r => r.Resource == Resource.Food).Units;
+            int bundles = Math.Min(2, solo.City.Food / foodBundle);
+            if (bundles > 0) Require(solo.Send("trade", market, resource: Resource.Food, bundles: bundles));
+            // Immediate-only rewards alter the earned surplus. If a complete
+            // Food bundle remains unavailable, remove future Farm income through
+            // its ordinary refund instead of inventing stock or forcing payment.
+            for (int slot = 0; slot < solo.City.Slots.Length && solo.City.FoodForecast is { Unfed.Length: 0 }; slot++)
+                if (solo.City.Slots[slot].Type == Building.Farm) Require(solo.Send("sell", slot));
             Require(solo.Send("buy-plot", 7));
             Require(solo.Send("build", 7, Building.ArrowTower));
             if (solo.City.FoodForecast is not { Unfed.Length: > 0, Participating.Length: > 0 })
@@ -95,6 +102,11 @@ public static class GameplayScenarios
         {
             var hall = solo.City.Army!.Halls.FirstOrDefault();
             if (hall is null) throw new InvalidOperationException("Reserve policy did not earn a Town Hall.");
+            if (hall.CapacityLevel < 2)
+            {
+                Require(solo.Send("upgrade-capacity", hall.Slot));
+                hall = solo.City.Army!.Halls.Single(h => h.Slot == hall.Slot);
+            }
             var member = solo.City.Soldiers.FirstOrDefault(u => u.RecoveryEligible && u.Assignment is { Stored: false });
             if (member is not null) Require(solo.Send("store", hall.Slot, unitId: member.Id));
         }
