@@ -10,14 +10,14 @@ Current branch: `refinement/20-cooperative-context`, stacked on
 | --- | --- | --- |
 | 1 | #16 phase-specific HUD | Implemented and locally verified; draft [PR #26](https://github.com/seraph1nia/common-watch-v2/pull/26). Follow-up probe fixes through `23e94a3`; remote CI passed (run 53). See [contract/inventory](16_PHASE_HUD.md). |
 | 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
-| 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck belongs to #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
+| 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck passed in #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
 | 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
-| 5 | #20 cooperative context | Active: compact cooperative status, explicit inspected/command/camera identities, stable observer flow, final maximum-group framing. Gate A follows these five presentation issues. |
+| 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision CI remains to poll. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
 | 6 | #21 immediate battle rewards | Pending; actual one-shot resources/recovery, no research-point substitute. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
 | 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
 | 9 | #24 veteran maintenance | Pending; execute a real squad-recovery alternative under selected rewards/rhythm. |
-| 10 | #25 consequences/campaign | Original twenty campaign runs reproduced before rules changes; command/event archival and controlled comparison harness still required before #21; final calibration last. |
+| 10 | #25 consequences/campaign | Original 20 campaigns plus no-investment defeat now have exact command/checkpoint/event replay; controlled trade-offs, elite formation and final calibration remain. |
 
 Full child specifications are cached at `/tmp/common-watch-issues/16.md` through
 `25.md` for this workspace session. They are not replaced by this table. Keep all
@@ -26,248 +26,65 @@ ten children and Gate A/B/C active. Do not claim Gate A until #18–#20 finish.
 Baseline evidence: `artifacts/refinement-ii/baseline/{gameplay,cooperation,phases}`,
 `campaign.json`, `rules-source.tar` and `manifest.json`: original sources, hashes,
 20 runs / 400 battles. All screenshots show actual application views and legal
-command checkpoints. Before #21, finish exact command/event archival and the
-no-investment baseline; the report alone is insufficient.
+command checkpoints. Exact command/event archival and the no-investment baseline are complete;
+reproduction tooling is staged separately before #21 rules changes.
 
-#16 commits: `6cf46f7` serializes unsafe cold Arch fixtures; `717c3cf` implements
-HUD subtraction. `67c5439` holds dense cooperative captures at tick 60 (short
-battles may finish before 180) and observes missing-host startup for 45s while
-retaining its actual 15s admission deadline. `23e94a3` reads the foreign-command
-acknowledgment from one status snapshot instead of racing two reads across a
-pending result replacement. Both fixed probes passed locally. Remote Godot runs
-49 (`40006317040`) and 51 (`40010715857`) failed on those diagnosed probe defects.
-Run 53 (`40013031985`, commit `23e94a3`) completed successfully on GitHub, including the native gates and Linux/Windows cross-build workflow.
+## Presentation gate — #16 through #20
 
-Verified #16 evidence includes zero-warning locked build; Core 46, Shared 145,
-session/model 92 and Pillow 19 tests; native session/default/missing/corrupt UI,
-four full default/debug 720p/1080p gameplay sequences, seven paid network waves,
-final native phase/focus, five-size settlement input, deterministic animation,
-1–6-player multiplayer, private reconnect, 2–6-player cooperation and artwork.
-See [test execution](TEST_EXECUTION.md) for the unsafe Arch cold-registration
-finding, deliberately terminated unresponsive diagnostic host and bounded retry.
-Do not claim all intermittent native .NET/JIT faults are solved.
+All five presentation changes are implemented on stacked draft PRs #26–#30.
+Core rules remain original. Contracts and qualifications are in the five linked
+issue documents. #20 final local gates passed: zero-warning locked build;
+Core 46, Shared 145, session models 109; three native session facts; four full
+native gameplay profiles and seven paid remote waves; multiplayer 1–6;
+private reconnect/faults; 24 arena cases; 14 art views; animation/fallbacks;
+four latest solo three-wave journeys; eight cooperative profiles plus final
+finishing/phase-heading checks. Accepted source/log manifest:
+`artifacts/refinement-ii/r10/manifest.json`.
 
-#17 adds a bounded `HudJourney` observer and central HUD entry effects, not new
-Core phases. Current model total 102 includes idempotence, finishing, same-update
-solo receipt, acknowledgment-before-snapshot, rejection, reconnect/session reset
-and frozen pre-heal outcomes. The heal-ordering snapshot is explicitly a detached
-unit fixture, never a native campaign checkpoint. Native journey setup and all
-continuous opening actions use legal commands and actual native controls.
+Eight normal-speed solo pairs retain exact outcomes/ticks and pass 474
+selected-body/target checks. Final six-player median figures grow 22.9% at 720p
+and 4.2% at 1080p, with zero initial collisions; the #18 integration obligation
+is resolved. Eighteen paired Team boundaries shrink at every roster/size.
+Actual crossing, first-wave elimination/Defeat, manual fallen-view retention,
+full paid uneven W20 Victory (both cities standing), native camera/team input,
+delayed ACK, slow presentation and reconnect all passed. See #20 for exact
+source scopes and timing qualifications. No owned native workers remain.
 
-During #17 verification, the debug 720p retirement inspector reproducibly
-oscillated across automatic-scrollbar widths and exhausted Godot's redraw queue.
-A focused native resize trace identified it. Reserving scrollbar width fixed the
-inspector; a later Arcanum context exposed the same issue in selected-building
-scrolls, now also reserved. Both failures are retained as diagnostics, distinct
-from the earlier unproven allocator/JIT fault. A broader native regression also
-caught reward content disappearing behind Menu; the coordinator now preserves
-an already-visible chooser and only postpones a newly arriving chooser.
+Rare gap: bounded legal searches found no positive living owned deployed
+survivor at the owner's first elimination. Preference fixtures verify the
+deferral policy; they do not qualify that native checkpoint. No fabricated state.
+Physical hardware/input/audio, participant findings, native Windows/macOS and
+live Steam remain unqualified. The known intermittent native runtime risk is
+not claimed fixed. CI63/65 exhausted an outer journey watchdog; shutdown
+StringName diagnostics followed termination. CI67/69 passed, including exports.
+Final #20 commit CI must pass before Core reward changes. Retain per-observation
+deadlines; complete six-client journeys now have a bounded 540-second allowance.
 
-All edits belong to this task; the initial worktree was clean. Native automation
-uses private temporary settings/resume paths and owns its process cleanup.
-Accelerated automation establishes lifecycle behavior, not human pacing,
-comprehension or balance. No physical audio/controller/GPU, native Windows/macOS
-or live Steam qualification is claimed. No new artwork was created or fetched.
+## Original-rule archive before #21
 
-Issue-boundary checkpoint: #17 is locally complete; delivery branch
-`refinement/17-screen-journey` targets `refinement/16-phase-hud`. Continue #18 on
-the current stacked branch. Draft PR #27 targets #26 and its CI must be polled. Never mark the overall goal complete after
-only these two issues. Older tool handles/PIDs are historical; revalidate current
-process state before acting on any handoff note.
+Exact original b4fa3f7 reproduction is complete locally: 20 campaigns / 400
+battles plus no-investment Defeat at tick 1003; 3,470 commands, 844 checkpoints
+and 41,512 events independently replay in fresh Matches. All 83 original
+Core/Shared files match Git blobs. Aggregate report SHA remains
+`6ef56ec5aa145a892fdd69e4c84c87ea2add5d57ed5606fe22d2b401f3505414`.
+A copied corrupted event is rejected. Headless rendered wall time is null;
+nominal combat and cleanup timing are separate. Eight representative native
+original-rule timing reports are separately qualified, not rendered versions
+of those 400 battles.
 
-The complete eight-profile cooperative matrix passed (2-player default/debug at
-both sizes; 4/6-player default at both sizes), following four native solo
-sequences. A focused follow-up reproduced Settings losing focus to an old
-chooser invoker after acceptance; the chooser now restores only its own focus.
-Accepted acknowledgment before inventory delivery now uses compact syncing
-status instead of three disabled offers. Final verification passed: all 102 contracts, a native debug/plain 720p solo
-journey and a native default 720p two-player journey. The final focus guard also
-passed all four solo profiles. The full group matrix predates only those final
-focus/acknowledgment refinements; the focused native cases cover their changed
-paths. See the contract for exact checkpoints. All #17 verification handles are
-terminal; no owned live native workers remain.
+Commit early #25 tools/docs separately on the next branch before Core edits:
+`tools/baseline-archive/` and `25_ORIGINAL_BASELINE.md`. Recompress raw traces and
+refresh the compressed SHA after the timing metadata clarification. No new
+project, dependencies, locks or shipping legacy reward path.
 
-#18 local evidence: zero-warning locked build, Core 46 / Shared 145 / models 102,
-three native session process tests, four full gameplay profiles and seven paid
-network waves, private reconnect, 24 modular arena/projection/size cases, animation
-fallback captures, and nine repeated 30/60/120-target-FPS battles at all speeds.
-All eight deterministic normal-speed solo before/after fixtures preserve outcomes
-and ticks. Initial actors grow 9–15percent at 720p and 22–28percent at 1080p; initial
-label/actor bounds overlaps fall 3/8/4/3 to 0; 470 selected-body/target observations
-remain unobscured. Default/debug normal-speed sequences and actual 6p normal
-encounters at both sizes pass. Optional videos are HALF-SCALE desktop proxies;
-PNGs and geometry measurements are native pixel size.
+## Next issue boundary
 
-Remaining Gate A obligation: maximum-group 720p actor-size gain is modest because
-of the current Team/action footprint. #20 must reduce routine combat team
-monitoring, keep explicit inspection/focus routes, and refresh final group
-framing/captures. Consider actual native menu-button bounds rather than unused
-HBox width when defining occluders; keep native picking free in any unused space.
-Do not lose this required integration check when moving to #19. Full issue scope
-remains in /tmp/common-watch-issues/{18,19,20}.md.
-
-#18 artifacts: artifacts/captures/combat-review/{before,after,after-debug},
-comparison.json and optional desktop videos. Source/capture limitations in
-18_COMBAT_READABILITY.md. Capture setup uses legal commands. Fixed test match
-identity stabilizes personal offers, but ENet command interleaving changes actor
-IDs/tie breaks: exact outcome evidence is SOLO, network captures are coverage.
-Initial PNG-heavy slow instrumentation and variable-offer network attempts are
-retained separately. The recorder double-signal trailer issue was fixed; final
-logs are clean. No new artwork/dependency pins or Core/Shared source changes.
-All final #18 verification handles are terminal and no owned native workers remain.
-
-
-#19 checkpoint: feature `cb8d787ab72436a17c5fef79d95351e64561d9be`, baseline
-probe `fdb4a4e`, draft PR #29 on #28. All final local handles are terminal;
-no owned native workers remain. Source/log manifest is
-`artifacts/refinement-ii/r6/manifest.json`; native before/after task and six-profile
-input/art matrix are under `artifacts/captures/army-workspace/`. The task comparison
-passes exact payments and accepted assignments: 12→8 actions, 4→2 navigation,
-2→0 major Army section changes, both sizes. Before popup input is explicitly
-signal-qualified; after task is all native pointer. Arrow and D-pad traverse all
-six retained homes in all six final cases; mouse/keyboard/controller confirm
-actual placements. Home tower branches pay/refund exact quotes after legal
-producer/production/resale setup. No Core/Shared rules/protocol/assets changed.
-
-#19 local receipts: zero-warning build; Core 46 / Shared 145 / models 106;
-three native session facts; four full illustrated/debug gameplay profiles;
-final default/debug/missing-art matrix at both sizes; both seven-wave remote
-workers with actual delayed authority, retry, rejection and allied ownership;
-1–6-player multiplayer (21 client receipts); private reconnect including death
-and draft; continuous three-wave journey/overlay gates; 14 art/showroom captures.
-Four full profiles precede the last secondary-tab style and shorter unavailable
-text; final matrix/task/remote/lifecycle checks cover the final presentation.
-Diagnostic failed probes/layout/setup attempts and one simultaneous lost Xvfb
-display are retained separately; final native gates were serialized. No physical
-hardware/input, human, native other-OS or live Steam claims. Native runtime risk
-remains. CI #19 must be polled by its full SHA while #20 progresses; isolate any
-required #19 repair in a worktree rather than mixing incomplete #20 changes.
-
-Next: read the complete #20 spec and existing TeamAwareness/TeamPanel/camera
-contract, capture the cooperative baseline before production edits, then keep
-command ownership separate from inspection and explicit camera modes. #18's
-maximum-group 720p gain was modest; reduce routine Team footprint, retain
-inspection, refresh normal group captures and verify final framing for Gate A.
-Gate A also requires full unchanged-rule solo/co-op first-three-wave journeys.
-Before #21, finish #25's exact command/event archival and no-investment baseline
-reproduction from the original sources; existing reports alone are insufficient.
-#21–#25 retain their entire cached specs and executable alternatives, not
-prose-only evaluations or research-point substitutes.
-
-
-#20 active checkpoint (2026-10-24)
-
-Branch `refinement/20-cooperative-context`, on #19 `cb8d787`; probe baseline
-`2bba5fd` changes no presentation. Production implements compact native team
-boundaries/exceptions with bounded details and read-only Army/Worldtree; explicit
-command owner / inspected city / physical camera focus; playback-sector live
-location labels; one harmless observer choice with own-survivor/manual/explicit
-choice deferral; typed unsubscribed events and old-session guards. Core rules,
-transport, settings, assets, dependency pins and credentials remain unchanged.
-Shared changes only its team presentation projection. The implementation/evidence
-contract is [20_COOPERATIVE_CONTEXT.md](20_COOPERATIVE_CONTEXT.md).
-
-Accepted checks: build8 zero warnings; Core46 / Shared145 / models109. All eight
-focused native cooperative three-wave profiles passed on build5: 2p default/debug
-both sizes and4/6p default both sizes, with host/P2/final guest identities, actual
-P1→P2 canvas shift, old selection clearing, wheel/pan across real paused speed
-updates, F/R/Focus city, bounded disclosure, read-only allied overlays,
-keyboard/controller return, delayed ACK, slow finishing and ready/draft reconnect.
-The final full native exception/layout worker before the new cross-sector checks
-also passed. Eighteen paired prep/ready/local-ready panel states retain players
-and exact boundaries while shrinking all panels: 2p87→84,4p146→126,6p205→147px.
-
-Final normal 6p captures at both sizes pass under
-`artifacts/captures/combat-review/r10-final`. Routine combat action height is
-207px rather than336 at720. Speeds/Pause share a row, Overview/details another;
-combat controls use the left with Team, yielding one wide field. Requested default
-framing waits one native layout pass, then remains stable. Height reduction alone
-and layout waiting alone did not improve figures; opposing corners were limiting.
-Final median actors59.8→73.5px (720,+22.9%) and106.5→111.0px (1080,+4.2%), zero
-initial text/body intersections. Comparator enforces >15% at the outstanding720
-case and positive zoom/size with no collision regression at1080. Its provisional
-5%-at-both-sizes requirement had rejected1080; that was not a product criterion.
-Both final encounters270ticks, wall8.83/12.88s, normal1x factor.5 after paid
-accelerated setup. Network histories are unpaired; do not claim causal outcomes.
-
-Bounded paid own-survivor searches are terminal negative discovery results:
-ordinary families54cases and capped armies81cases, plus earlier single-Crossbow
-cases. Retain source copies in artifacts/refinement-ii/r10/ObserverCases-*-negative.cs
-and /tmp/common-watch-r10-owned-search*.log. Search code was removed from the
-production tools project; it found no positive native fallen-owner-survivor case.
-Do NOT fabricate one or substitute preference fixtures for that evidence. The
-three pure ObserverSelection fixtures establish only presentation deferral,
-one-choice/explicit-choice stability and session/match resets. Final native
-exception worker now also tests a fallen guest's explicit own/manual choice
-through real unrelated updates, and actual cross-sector owner/location inspection.
-That inspection uses the development selection API, not OS pointer qualification.
-
-LIVE final serial native queue: exec41489, script
-/tmp/common-watch-r10-gates-rest.sh. Poll with write_stdin. Do NOT rebuild Godot,
-edit the live queue/worker files or launch another Xvfb job while it runs. It runs
-full test-cooperative-context (8focus profiles + legal exceptions), test-session,
-full gameplay, multiplayer1–6, reconnect/fault,24arena cases, art, animation and
-four solo journeys. Per-task logs /tmp/common-watch-r10-*-final.log; inspect actual
-process state if a handle is uncertain. Earlier72845 is terminal1: normal captures
-passed, then the provisional comparator rejected1080; corrected comparison passes.
-
-Remaining: finish final queue and receipts/source manifest; update verification,
-refresh #18 Gate A obligation with real geometry, deliver #20 draft PR on #29 and
-poll exact-SHA remote CI. Gate A requires final solo/co-op first-three-wave native
-gates and unchanged rules, not just compilation. Accurately retain the rare
-fallen-owner-survivor native gap and physical/human/GPU/audio/other-OS/liveSteam
-limits. Before ANY #21 Core rules, finish original #25 exact command/event and
-no-investment archives at b4fa3f7. All five remaining specs and executable
-alternatives remain mandatory. Overall goal active/unbounded; no pending approval.
-
-Latest checkpoint (supersedes live-handle notes above): #20 feature is committed
-at f600aa4, paused noncombat status correction at44b7d85; draft PR30 targets #29.
-Remote Godot run63 (40037398965) on full44b7d8567a45f7256695f654663f553959df0139
-is running, previously through native integration and HUD with success.
-Local final queue41489 is TERMINAL1. Seven complete focus/three-wave profiles
-passed;6p1080 focus passed, then its slow-playback observation timed out with all
-clients already ChoosingReward. Diagnosis: `_frozen` suppresses Advance but Core
-Playback.Accept legitimately catches up to received ticks. It never guaranteed
-held playback. Do not blame this on authority/rendering or weaken that assertion.
-
-A bounded DEVELOPMENT-only session hold now skips feeding new snapshots into
-Playback while still accepting authority/RPC receipts; release feeds the existing
-latest snapshot. Admission baselines clear the hold. The worker asserts both held
-playbackTick and a newer authoritative tick before its finishing capture. No Core
-edits, synthetic state or transport identity change. This repair and a normal
-sequence layout-settle await are currently uncommitted. The latter waits four
-native process frames with simulation frozen before timing/capturing normal solo
-fixtures; it avoids measuring an obsolete pre-layout default.
-
-LIVE native queue90540 (/tmp/common-watch-r10-repair-gates.sh): repaired6p1080,
-2p720; final full cooperation exception/cross-sector worker; new optional real
-uneven20-wave Victory worker; then session/full gameplay/multiplayer1–6/reconnect,
-24arena cases/art/animation/four solo journeys; finally normal solo sequences and
-comparison. Current first worker uses build9 (zero-warning); later mise tasks
-rebuild after the new capture-only await. Do not run a second Xvfb worker or
-rebuild externally while this queue is active. Per-task /tmp/common-watch-r10-*
-logs. Source .cs edits do not hot-reload a running client; record evidence scopes.
-The new COMMON_WATCH_COOP_TERMINAL=1 route captures living/fallen group Victory at
-both sizes after a paid frontline/idle campaign; it has NOT passed yet.
-
-Early #25 original archival is now COMPLETE locally before any rules change:
-artifacts/refinement-ii/baseline/trace-archive (and16MB trace-archive.tar.gz),
-manifest.json, trace-generation.log, trace-replay.log, trace-tamper.log.
-20campaigns/400battles + no-investment Defeat at tick1003;3470accepted commands,
-844exact snapshot checkpoints,41512combat events independently reproduce in fresh
-Matches. Aggregate campaign.json byte-identical to old6ef56ec5aa145a892fdd69e4c84c87ea2add5d57ed5606fe22d2b401f3505414.
-All83 original Core/Shared files in the isolated legacy tree match original Git
-blobs. A copied event with changed damage is rejected at sequence1 (expected
-exit1). Actual rendered wall time is explicitly null in headless timing files;
-nominal1x conversion uses factor.5 and cleanup ticks separately. No human claim.
-Archive/tamper handles96254/93827/32349 are terminal, not live work.
-
-Reproducible instrumentation source is currently /tmp/common-watch-baseline-tools/
-(prepare-archive.py, ArchiveRecorder.cs, ArchiveRunner.cs, README.md), also copied
-to artifacts/refinement-ii/baseline/instrumentation. The legacy source was extracted
-by git archive into artifacts/refinement-ii/baseline/trace-source; it adds a
-mechanically instrumented COPY of the original CampaignReview, never changes Core
-or the original policy. Integrate these tools in a separate early-#25 commit on
-the next branch before #21 rules; do not silently lose the reproduction route.
-Only #25's original archival is done; controlled decisions, elite formation,
-held-out seeds and final selected-economy calibration still remain.
+Finish #20 final commit/PR/CI, then branch `refinement/21-immediate-rewards`.
+Read full #21 spec and audit every old reward reader. Commit the explicit Core
+rules/version/provenance design before implementation. The selected direction
+is actual one-shot supplies/recovery, without research-point substitutes.
+#22 requires executable matched two/three-stage alternatives; #23 cross-doctrine
+normal-payment opening alternatives; #24 real squad recovery under the selected
+economy; #25 controlled trade-offs, elite formation, held-out seeds and final
+integrated all-doctrine/uneven-group campaigns. All remain authorized and active.
+Do not mark the overall goal complete after Gate A. No pending user permission.

@@ -88,7 +88,10 @@ PYFIXTURE
     run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
     ;;
   test-journey-network)
-    timeout --kill-after=5s 360s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
+    # Six software-rendered clients now include three explicit context reviews.
+    # Per-observation deadlines remain in the worker; bound the complete journey
+    # with headroom for slow CI instead of terminating its later legal stages.
+    timeout --kill-after=5s 540s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
     ;;
   capture-combat-sequences)
     client_timeout=480

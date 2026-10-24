@@ -41,6 +41,12 @@ public sealed class HudPresentationTests
         var view = HudPresentation.Project(solo.Snapshot, solo.PlayerId, true, false);
         Assert.Equal(HudMoment.Combat, view.Moment); Assert.True(view.LiveCombat);
         Assert.False(view.CanChooseReward); Assert.False(view.Ledger); Assert.False(view.PreparationTrack);
+        Assert.Equal("Finishing combat", HudPresentation.PhaseLabel(solo.Snapshot, true));
+        using var fighting = ScenarioRunner.CreateAt("combat");
+        Assert.Equal("Combat", HudPresentation.PhaseLabel(fighting.Snapshot, true));
+        Assert.True(solo.ChooseReward(GameplayScenarios.RewardChoice(solo.City.Run)).Accepted);
+        Assert.Equal("Finishing combat", HudPresentation.PhaseLabel(solo.Snapshot, true));
+        Assert.Equal(1, HudPresentation.DisplayedWave(solo.Snapshot, true));
     }
 
     [Fact]

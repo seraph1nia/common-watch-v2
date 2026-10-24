@@ -349,7 +349,7 @@ public partial class SettlementHud : Control
         _feedback.Visible = !session.Connected || session.Pending || session.LastResult is { Accepted: false } || !Presentation.Navigation;
         _reconnect.Visible = !session.Connected;
         _feedback.TooltipText = SessionFeedback + "\nOpen city details for recent feedback, doctrine and acquired rewards.";
-        _phase.Text = $"Wave {PresentedWave}/{state.TotalWaves} · {(state.Phase is Phase.Building or Phase.Preparation ? "Preparation " + state.Turn + "/3" : finishingCombat ? "Finishing combat" : state.Phase.ToString())}";
+        _phase.Text = $"Wave {PresentedWave}/{state.TotalWaves} · {HudPresentation.PhaseLabel(state, finishingCombat)}";
         if (_combatPresentation && state.Paused) _phase.Text += " · PAUSED";
         if (Presentation.Moment == HudMoment.ChoosingReward) _phase.Text = $"Wave {session.City.Run.DraftWave} · choose a reward";
         if (Presentation.Moment == HudMoment.RewardWaiting)

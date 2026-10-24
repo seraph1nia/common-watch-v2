@@ -1,5 +1,26 @@
 # Verification
 
+## Refinement II cooperative context and presentation gate (2026-10-24)
+
+[The cooperative contract](refinement-ii/20_COOPERATIVE_CONTEXT.md) separates
+command owner, inspected city and physical camera focus, with compact actual
+boundaries/exceptions, stable manual/overview navigation and one deferred observer
+choice. All local presentation gates pass under unchanged Core rules. Eighteen
+matched team states shrink at both sizes; six-player 720p figures grow 22.9%,
+1080p 4.2%, with zero initial label/body intersections. Eight final normal-speed
+solo pairs retain exact outcomes/ticks and pass 474 body/target inspection checks.
+
+Build, Core 46 / Shared 145 / models 109, three native session facts, four full
+gameplay profiles and seven remote waves, 1–6-player multiplayer, private
+reconnect/faults, 24 arena cases, art/animation and continuous solo/cooperative
+three-wave journeys passed. Real crossing, low Keep, fall, manual observer,
+Defeat and a paid two-client W20 Victory are captured. Times distinguish paused
+capture/input work, accelerated setup and actual normal-speed observation.
+The report retains probe repairs, evidence scopes and the rare native
+fallen-owner-survivor gap. Physical/human, other-platform and live Steam remain
+unqualified. Earlier CI watchdog shutdown errors do not establish a native/JIT fix.
+
+
 ## Refinement II spatial army workspace (2026-10-23)
 
 The [workspace contract and capability routes](refinement-ii/19_ARMY_WORKSPACE.md)
@@ -36,9 +57,9 @@ and supplied artwork/audio remain unchanged.
 
 Network setup interleaving changes unit IDs/tie breaks, so exact counterfactual
 outcome evidence uses the solo fixtures. PNGs/geometry are native pixel size;
-optional desktop videos are half-scale proxies. Maximum-group 720p still has a
-modest framing gain with the retained Team surface: #20 / Gate A must refresh
-that integration after reducing routine combat monitoring. Physical hardware,
+optional desktop videos are half-scale proxies. The later [#20 integration](refinement-ii/20_COOPERATIVE_CONTEXT.md) resolves the
+maximum-group 720p framing obligation with compact monitoring and grouped combat
+controls; its final six-player comparison measures a 22.9% gain. Physical hardware,
 human findings, native other-OS and live Steam remain unqualified; the earlier
 intermittent native runtime risk is not claimed solved.
 

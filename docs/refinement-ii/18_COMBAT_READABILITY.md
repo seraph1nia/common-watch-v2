@@ -124,11 +124,12 @@ shutdown logs are clean. The six-player initial local median was 59.7 px at
 scenarios have different command interleavings and are descriptive coverage,
 not deterministic outcome pairs.
 
-The maximum-group 720p size gain is still modest with the retained Team panel.
-#20 owns its combat information footprint; Gate A must refresh these group
-captures and confirm the final useful frame after that integration. This is an
-explicit remaining integration check, not a claim that every group already has
-the solo framing improvement.
+The original maximum-group 720p gain was modest with the retained Team panel.
+The later [#20 integration](20_COOPERATIVE_CONTEXT.md) resolves that Gate A
+obligation: compact monitoring and grouped controls increase the six-player
+720p median from 59.8 to 73.5 px (+22.9%); 1080p grows 4.2%. Initial collisions
+remain zero. These are unpaired network geometry observations; exact unchanged
+outcomes remain established by the eight solo fixtures.
 
 No human comprehension, physical
 GPU/audio/controller, native Windows/macOS or live Steam result is inferred from

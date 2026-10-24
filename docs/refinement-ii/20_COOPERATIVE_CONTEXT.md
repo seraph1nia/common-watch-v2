@@ -1,102 +1,85 @@
-# Cooperative context — issue #20 (in progress)
+# Cooperative context — issue #20
 
-Core source, authority, enemy redistribution, elimination and reward rules are
-unchanged. The Shared team projection now states the existing connected-standing
-barrier and distinguishes current participation from surviving field members in
-reward waiting. A confirmed local choice awaiting its inventory snapshot is
-Syncing, not still Choosing. These are presentation facts, not new quorum rules.
+Command ownership, inspection and camera focus are separate. Selecting an ally
+changes inspection and intentionally focuses its physical sector; Ready,
+purchases, pause and reward ownership stay with the authenticated local city.
+Core rules, enemy allocation, elimination, dependencies, artwork/audio, settings
+and the published Session RPC path remain unchanged. Shared changes only its
+pure team presentation projection.
 
 ```mermaid
 flowchart LR
-    Session[Your city / Session.PlayerId] --> Commands[Ready / pause / reward / purchases]
-    Viewed[Inspected city / Session.ViewedCity] --> Inspection[Economy / Army / Worldtree / result]
-    Viewed --> Intent[Explicit sector focus request]
+    Session[Session.PlayerId] --> Commands[Local authoritative commands]
+    Viewed[Session.ViewedCity] --> Inspection[Economy / Army / Worldtree / result]
+    Viewed --> Intent[Explicit sector focus]
     Intent --> Camera[WorldCamera mode + FocusCity]
-    Camera --> Automatic[Automatic: inspected physical sector]
-    Camera --> Manual[Manual: retain pose, offer Focus city]
-    Camera --> Overview[Overview: full field, R restores inspected sector]
+    Camera --> Automatic[Inspected physical sector]
+    Camera --> Manual[Retain pose / offer Focus city]
+    Camera --> Overview[Whole field / R restores inspected sector]
 ```
 
-Team status uses retained native city buttons, compact boundary counts, visible
-exception groups and optional bounded details. Two/four-player layouts use two
-columns; five/six use three. Low Keep, field/stored funding, empty army, Away and
-Fallen remain visible without hover. Inspecting an ally never changes command
-ownership. The expanded disclosure exposes actual HP, physical contributions,
-required players and read-only Army/Worldtree routes. Ordinary accepted actions
-already coalesce by kind/city/slot and exact command sequence; rejected/disconnected
-notices and actual team exceptions keep their existing persistent routes.
+## Retained capabilities and consolidation
 
-| Previous default surface | Current primary home / retained route |
+| Previous surface | Current primary home / retained route |
 | --- | --- |
-| Every city repeats healthy HP, field count and funded text | City identity/state stays visible; exact healthy details move into the bounded disclosure. Low Keep, funding exceptions and empty field stay visible. |
-| Three equal-height roster rows for six cities | Two rows of three compact native city targets, with no loss of city navigation. |
-| No explicit physical camera mode in Team | The existing heading reports inspected sector, Manual or Overview; Focus appears only for the latter two. One disclosure trigger replaces the static heading. |
-| Ally Army/Worldtree reached through general planning navigation | Optional Team disclosure supplies the same read-only inspection during combat/observation. |
-| Overview, details, speeds, paused status and Pause stack vertically | Two action rows retain the same six combat controls. PAUSED shares the phase heading; noncombat paused status remains visible. |
-| Fallen city remains a manual observation destination | One deferred automatic ally choice plus retained own-city/ally/manual routes; no recurring health-driven camera changes. |
+| Every city repeats healthy HP, field count and funded text | Compact identity/state buttons; exact details in a bounded disclosure. Low Keep, sit-outs, stored funding, empty field, Away and Fallen remain visible. |
+| Three equal-height roster rows for six cities | Two rows of three native city targets; every city remains selectable. |
+| Static Team heading | Ready/Choosing boundary or physical camera context, plus one deliberate disclosure trigger. Focus appears only in Manual/Overview. |
+| General planning routes for allied inspection | Optional Team disclosure exposes read-only Army/Worldtree during combat/observation. |
+| Overview, details, speeds, paused status and Pause stacked vertically | Two compact action rows retain all six combat controls. PAUSED shares the phase heading; noncombat pause status remains visible. |
+| Inactive fallen planning | One deferred automatic ally choice, own-city/ally/manual routes and the existing explicit host-exit warning. |
 
-For six healthy cities the Team surface still has six city controls and adds one
-deliberate disclosure trigger; its repeated detail and three-row footprint shrink.
-Manual/overview adds one contextual Focus control, not another permanent panel.
-This is an information and layout consolidation, not a claim that every local
-surface has fewer clickable targets. The phase-wide control subtraction is
-recorded in the #16 inventory.
+Six healthy cities still have six city controls and gain one disclosure trigger;
+repeated facts and default area shrink. Manual/overview adds one contextual Focus
+action. This does not claim every local surface has fewer clickable targets;
+the phase-wide control subtraction is recorded in #16.
 
-Selecting a city explicitly focuses its sector and clears the old live selection.
-The own-city button returns locally; R restores the current inspected sector;
-F retains inspection while showing the complete field. Manual gestures persist
-through unrelated snapshots. Camera focus uses playback cells for current actor
-membership, including help crossing sectors; destination is only a fallback for
-actors with no accepted position. No snapshot, actor motion or health change
-periodically reframes the camera. The Menu occluder is its actual button, not
-unused HBox space (the HBox already ignores pointer input).
+The existing Core boundary requires connected, standing cities. An accepted
+local reward awaiting its inventory snapshot is Syncing rather than Choosing.
+A local client still presenting the last battle reads Finishing; teammates may
+already be Choosing, Selected or Preparing. Field counts/locations still use
+presented units, with the completed upkeep rather than a future forecast. The
+phase heading says Finishing combat and unavailable speed actions disappear.
+Boundary counts remain authoritative. No new simulation phase, quorum, timeout,
+automatic Ready or spectator activity is introduced.
 
-The inspected city persists across battle entry. An explicit city selection during
-combat supersedes the earlier harmless planning return. Ordinary snapshots preserve inspection and manual pose. Explicit leave/rejoin
-creates a fresh session at the current phase, inspecting its authenticated local
-city; old modals and historical receipts do not replay. A new battle, viewed city,
-size or projection establishes the ordinary default. These refinements preserve the existing HudJourney owner
-for screen transitions. ObserverSelection is only a bounded navigation preference.
+## Navigation and lifetime
 
-A fallen player can inspect their own surviving troops or living allies. The
-one automatic observer choice waits for their currently presented survivors and
-an automatic camera, and uses the lowest-health connected standing ally, then ID;
-standing away allies are the fallback. Explicit inspection or camera navigation
-wins thereafter. Health updates cannot chase a new suggestion. Disconnection
-keeps the reconnect route; terminal states offer no future Ready/reward/recovery.
-Host exit retains the existing explicit whole-session warning and lifetime.
+City selection clears the old live unit/structure selection and cancels stale
+management intent. Focus city and R restore the inspected sector; the own-city
+button returns locally. F shows the complete field while retaining inspection.
+Manual gestures persist across unrelated snapshots and resource changes. Camera
+membership uses actual playback cells, not ownership or intended destination.
+Live inspection states both owner and physical sector.
 
-Baseline probe `2bba5fd` observes source `cb8d787` (#19). Before geometry and legal
-2–6-player cases at both sizes: `artifacts/captures/cooperation-review/before`.
-Normal six-player wave-six before captures are under
-`artifacts/captures/combat-review/r10-before`, with 270 actual ticks in both cases;
-wall time was about 9.05/14.02 seconds on software rendering. They are ordinary
-1x combat after accelerated paid setup, not human or hardware pacing evidence.
-Network interleaving means before/after outcomes are not paired counterfactuals.
+A requested default waits one native layout pass before saving its pose. Only a
+new battle, viewed city, viewport/projection or explicit focus invalidates it;
+health changes and actor motion do not chase a new frame. Combat controls share
+the left side with Team, leaving one broad field. Expanded exceptions use the
+other corner if needed to avoid panel overlap. The Menu occluder is its actual
+button, not unused HBox space.
 
-First prototype after captures are retained in `after-initial`. They established
-all five roster sizes and an actual first-wave fall, but the two-player panel grew
-and terminal capture could precede settled UI. Small-group layout and the terminal
-capture wait were corrected; final capture work remains in progress.
+The inspected city persists across battle entry. Explicit combat navigation
+supersedes the old harmless planning return. Ordinary snapshots preserve manual
+pose. Explicit leave/rejoin creates a fresh session at its current phase,
+inspecting its authenticated local city; old modals and historical receipts do
+not replay. SessionCoordinator retains exclusive lifetime ownership and the
+application-root Session child. Typed cross-owner events disconnect on exit;
+retained buttons keep old-session/match/visibility guards.
 
-All eight focused native cooperative three-wave profiles passed before the final
-combat-control grouping: 2p default/debug at both sizes, 4p/6p default at both
-sizes. Host, P2 and final-guest command owners were exercised. Receipts cover
-actual projected sector shift P1→P2, cleared old selection, wheel/pan retained
-through real paused speed changes, Focus city, F/R, bounded team disclosure,
-allied Army/Worldtree, keyboard/controller local return, slow finishing playback,
-delayed acknowledgment and private ready/draft reconnect. Seven complete profiles passed again on the final grouped controls. Six-player
-1080p passed focus, then exposed a weak slow-client probe: suppressing Advance
-did not stop Playback.Accept from catching up to arriving snapshots. A
-development-only hold now delays playback acceptance while authority/RPC receipt
-continues and retains only the existing latest snapshot. Release accepts that
-snapshot, and admission baselines clear the hold. The repaired six-player 1080p
-run passed all three waves, including a held playback tick behind the actual
-authoritative reward boundary. Normal acceptance remains unchanged. The repaired 2p/720 run also passed all three waves. Broad native gates are
-still running.
+A fallen player's first automatic observation waits for currently presented own
+survivors and an automatic camera, then chooses the lowest-health connected
+standing ally, with ID breaking ties. Standing away allies are the fallback.
+Explicit city/camera navigation wins thereafter. Own surviving troops remain
+inspectable; future waves exclude that city. Disconnection retains reconnect;
+match terminal states promise no further production, recruitment, recovery or
+reward. Leaving as host still requires the existing whole-session confirmation.
 
-Eighteen matched native preparing/ready/local-ready boundaries retain exact
-phase, command owner and roster. Default panel heights shrink at both sizes:
+## Measured evidence
+
+Baseline probe `2bba5fd` observes #19 source `cb8d787`. Eighteen matched native
+preparing/ready/local-ready states retain command owner, phase and roster while
+shrinking every default panel at both sizes:
 
 | Roster | Before | After |
 | --- | ---: | ---: |
@@ -104,92 +87,99 @@ phase, command owner and roster. Default panel heights shrink at both sizes:
 | 4 | 146 px | 126 px |
 | 6 | 205 px | 147 px |
 
-`python3 tools/compare-cooperative-context.py` validates these paired boundaries.
-Real low-Keep, first-wave fall, ally observation and settled Defeat captures also
-passed. Artificial capture pauses and accelerated active time are separate in
-`receipts.json`; none is reported as human waiting time.
+Normal six-player W6 encounters at displayed 1× (factor 0.5), after paid
+accelerated setup, show initial median figure heights 59.8 → 73.5 px at 720p
+(+22.9%) and 106.5 → 111.0 px at 1080p (+4.2%). Initial text/body intersections
+remain zero. The action frame shrinks from 336 to 207 px at 720p. Height reduction
+alone and waiting for layout alone did not enlarge figures: opposing corner
+panels were limiting. Grouping controls leaves the wider usable field.
 
-Combat's speeds and Pause/Resume now share one row; Overview and City details
-share another. At 720p the routine action frame is 207 px high, previously 336.
-The combat frame sits with Team on the left, leaving one broad unobstructed field;
-expanded exceptions use the other corner if needed to avoid panel overlap. A
-requested default waits one native layout pass before saving its pose. Neither
-routine snapshots nor later panel/actor changes invalidate it. In intermediate
-captures, reducing height alone and waiting for layout alone did not enlarge
-maximum-group figures; the opposing corners remained the limiting geometry.
-The final six-player 720p median figure height is 73.5 px, previously 59.8, with
-zero initial text/body intersections. At 1080p figures grow from 106.5 to 111.0 px
-(4.2%). The comparator passes: >15% gain at the unresolved 720p case, positive
-zoom/size and no increased initial label collisions at both sizes. An initial
-provisional 5%-at-both-sizes assertion rejected 1080p; that threshold was not a
-product criterion. The report retains both actual ratios. Both final encounters
-ran 270 ticks at normal 1x; wall time was 8.83/12.88s on software rendering.
-These unpaired network outcomes are not causal balance evidence.
+The comparator requires >15% growth at the outstanding 720p case and positive
+zoom/size with no collision regression at 1080p. A provisional 5%-at-both-sizes
+assertion rejected the 4.2% 1080p gain; it was not a product criterion. Both actual
+ratios are retained. The final encounters ran 270 ticks; wall time was
+8.83/12.88 s on software rendering. Network command interleaving changes IDs and
+tie breaks, so these are unpaired geometry observations, not causal outcomes.
 
-The bounded paid observer search found no owned living deployed unit exactly at
-its owner's first elimination. Both ordinary family campaigns (54 cases) and
-capped weak-army campaigns (81 cases), plus the earlier single-Crossbow cases,
-are negative discovery evidence. Sources are retained under
-`artifacts/refinement-ii/r10/ObserverCases-*-negative.cs`. They do not qualify a
-positive native fallen-owner-survivor checkpoint. The presentation preference
-fixtures verify deferral while own survivors exist, one automatic choice,
-explicit own/ally choice and session/match reset; they are not campaign captures.
-The final native exception worker passed a fallen guest's explicit own/manual
-choice through genuine updates at both sizes. It inspected actual P1 Swordsman
-#1 in physical P2 sector, cell43, at2.5/40HP; owner and Location remain distinct.
-The initial probe armed cross-sector capture only after the fall and missed
-earlier movement. The corrected probe arms at combat start and handles cross,
-low-Keep and fall pauses in their actual order. Its observer shortcut uses native
-pointer input; the unit inspector uses the development selection API, separately
-qualified. This does not fill the rare fallen-owner-survivor gap. The added
-location line exposed a partly clipped Advanced control; compact live-panel
-spacing and reserved scrollbar width address it, and the focused redraw passed at both sizes; all basic copy and Advanced now fit.
-Do not fabricate an authoritative state to fill the rare-case gap.
+Eight final normal-speed solo comparisons preserve exact outcomes and durations
+(301/302/271/272 ticks). Relative to the pre-framing baseline, median figures grow
+20–26% at 720p and 22–28% at 1080p; initial label/body intersections fall to zero.
+All 474 sampled selected-body/target checks avoid the inspector. The added
+location line initially clipped Advanced; compact spacing and reserved scrollbar
+width now show the complete basic summary and Advanced at both sizes.
 
-A paid frontline/idle two-client campaign reached W20 Victory in41.65s of
-accelerated scripted wall time including3.08s of artificial captures. Both cities
-remained standing through support; terminal captures for P1/P2 at both sizes
-showed no draft, Ready or personal-management regions. The separate limited/idle
-case reached real Defeat after an early fall. Observed spectator wall time12.09s
-includes6.70s paused capture/input work; accelerated active time5.39s and
-presentation-finish delay0.065s are reported separately. These are not human or
-normal1x timing estimates.
+Real exception captures inspect a P1 Swordsman in P2 sector, cell 43, at 2.5/40 HP.
+Owner and Location remain distinct. The unit inspector uses the development
+selection API; team/camera and observer shortcut use native input, separately
+qualified. The worker arms crossing capture at combat start and handles crossing,
+low Keep and fall pauses in their actual order. A fallen guest's own/manual
+choice persists through real updates at both sizes.
 
-A delayed local player now reads Finishing while teammates may already be
-Choosing, Selected or Preparing. Current field counts and locations use its
-presented units until playback finishes; the actual Core boundary count is
-unchanged. The phase heading states Finishing combat and past-combat speed
-actions disappear. Ready/speed handlers also validate the current authoritative
-phase before dispatch. Fresh model checks and native2p/720 plus6p/1080 three-wave
-runs passed this boundary; the native check waits for UI refresh after the
-authoritative snapshot, then verifies the local Finishing row before capture.
+The limited/idle session reaches a real first-wave fall and Defeat. The final
+focused run records 12.21 s observed spectator wall time, including 6.76 s paused
+capture/input work, 5.45 s accelerated active time and 0.003 s presentation-finish
+delay. A separate paid frontline/idle campaign reaches W20 Victory with both
+cities standing: 41.65 s accelerated scripted wall time includes 3.08 s captures.
+Both local owners at both sizes show no new draft, Ready or personal management.
+These are not human waiting or normal viewing-time estimates.
 
-Pure checks passed: zero-warning locked build, Core 46, Shared 145 and session
-models 109. Full native acceptance is still running: final focused matrix,
-exception/cross-sector worker, session, gameplay, 1–6 multiplayer, private
-reconnect/fault, art, animation, camera and solo journeys. Their final receipts,
-source manifest and CI result must be recorded before declaring Gate A.
+## Verification and reproduction
 
-`mise run test-cooperative-context` runs the eight-profile focus/three-wave
-matrix and the legal exception worker plus an accelerated full uneven Victory. CI runs
-focused 2p/6p720 profiles, real2p exceptions and full Victory, in addition to
-existing session, gameplay, solo journey, animation and exports.
-The normal framing comparison is `tools/compare-cooperative-framing.py` against
-`r10-before` and the final normal-speed capture directory. It compares geometry,
-not counterfactual network outcomes.
+Locked zero-warning build; Core 46 / Shared 145 / session models 109; three native
+session process tests; four full default/debug gameplay profiles plus seven paid
+remote waves; 1–6-player multiplayer; private reconnect/fault cases; 24 native
+arena size/projection cases; 14 art views; animation phases/fallbacks; four native
+solo three-wave journeys; and the normal-speed comparisons passed locally.
+The cooperative matrix covers 2p default/debug and 4p/6p default at both sizes,
+including host, P2 and final guest. Final focused reruns cover the corrected
+playback hold, finishing status and phase heading. Actual canvas shifts, cleared
+selection, pan/wheel retention, F/R/Focus, bounded disclosures, read-only allied
+Army/Worldtree, keyboard/controller return, delayed ACK, slow playback and
+ready/draft reconnect are exercised.
 
-Gate A remains pending. After these presentation gates, finish the original #25
-exact command/event/no-investment archive BEFORE changing any #21 rules.
-No physical/human, live Steam or native other-platform qualification is claimed.
-The separately recorded intermittent native runtime risk remains unproven.
+`mise run test-cooperative-context` runs the eight-profile focus/journey matrix,
+real 2–6-player exceptions and full uneven Victory. CI runs 2p/6p 720p focus,
+2p exceptions/Victory and the existing session/gameplay/solo/animation/export
+gates. Earlier CI runs 63/65 exhausted the full six-client 360 s process bound;
+shutdown StringName diagnostics followed termination. The complete journey now
+has a bounded 540 s allowance; per-observation deadlines remain unchanged. This
+is not a native-runtime crash fix. Runs 67/69 passed, including both exports;
+the PR carries the final revision's checks.
 
-## Experiential validation
+The slow-client probe must hold playback acceptance as well as Advance:
+Playback.Accept legitimately catches up to arriving ticks. The development-only
+hold keeps receiving authoritative snapshots/RPC receipts, retains only the
+existing latest snapshot and feeds it on release. Admission clears the hold.
+Native assertions verify a held playback tick behind the real reward boundary;
+normal acceptance is unchanged. Camera/normal-capture probes wait for native
+layout before measuring a saved pose. An earlier queued shell ended with SIGTERM
+after art reported completion; standalone art confirmation and remaining checks
+passed. The cause of that shell termination is unconfirmed.
 
-Actual default six-player local-framing PNGs were inspected at 720p and 1080p:
-the inspected sector's soldiers, defenses and incoming enemies remain visible,
-the two combat action rows fit, and Team retains all six identities. Native
-geometry establishes the stated sizes/intersections; scripted input establishes
-navigation, ownership and transitions. These are distinct evidence categories.
-No participant study, physical controller/audio/GPU trial, comprehension finding
-or enjoyment/balance conclusion has been conducted. Accelerated setup and
-artificial paused captures do not establish natural decision or spectator time.
+Local artifacts: `artifacts/captures/cooperation-review/` (before, accepted,
+final-inspector, final-finishing, shipping, victory and comparisons),
+`artifacts/captures/combat-review/r10-{before,final,final-solo}` and
+`artifacts/refinement-ii/r10/`. The manifest identifies accepted logs, source
+hashes and evidence scopes. Native PNG/geometry use actual pixels; optional
+half-scale video proxies are not pixel measurements.
+
+## Experiential validation and limits
+
+Default 720p/1080p figures, team states, owner/location inspection, manual fallen
+view and terminal images were inspected. Scripted input, geometry and visual
+inspection are separate evidence categories. No participant study, human
+comprehension/enjoyment or balance finding, physical controller/audio/GPU trial,
+native Windows/macOS run or live Steam result is claimed. The known intermittent
+native runtime risk remains unproven.
+
+Bounded paid searches (54 ordinary-family cases, 81 capped-army cases and earlier
+single-Crossbow cases) found no owned living deployed unit exactly at its owner's
+first elimination. Negative sources/logs remain under the local r10 evidence.
+Observer preference fixtures establish own-survivor deferral and explicit-choice
+stability; they do not qualify a positive native fallen-owner-survivor checkpoint.
+That rare native case remains an explicit coverage gap, without fabricated state.
+
+These presentation changes complete the local subtraction-only Gate A experience
+under unchanged rules. The original #25 command/event archive is separate early
+baseline work; #21–#25 still require their actual economy changes, executable
+alternatives and final selected-rule integration. Nothing here closes that scope.

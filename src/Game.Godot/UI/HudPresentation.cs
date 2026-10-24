@@ -16,7 +16,12 @@ public sealed record HudPresentation(HudMoment Moment, bool Arena, bool LiveComb
     public bool CanChooseReward => Moment == HudMoment.ChoosingReward;
 
     public static int DisplayedWave(MatchSnapshot state, bool finishingCombat)
-        => finishingCombat && state.Phase == Phase.RewardDraft ? state.LastRewardedWave : state.Wave;
+        => finishingCombat && state.Phase is not (Phase.Combat or Phase.Defeat) && state.LastRewardedWave > 0
+            ? state.LastRewardedWave : state.Wave;
+
+    public static string PhaseLabel(MatchSnapshot state, bool finishingCombat)
+        => finishingCombat && state.Phase != Phase.Combat ? "Finishing combat"
+            : state.Phase is Phase.Building or Phase.Preparation ? $"Preparation {state.Turn}/3" : state.Phase.ToString();
 
     public static HudPresentation Project(MatchSnapshot state, int localPlayer, bool finishingCombat, bool previewArena, bool acceptedChoiceAwaitingSnapshot = false)
     {
