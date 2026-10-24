@@ -13,7 +13,7 @@ Current branch: `refinement/22-preparation-rhythm`, stacked on
 | 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck passed in #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
 | 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
 | 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision ce2d5c6 passed Godot run71, including both exports. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
-| 6 | #21 immediate battle rewards | Immediate catalog/authority/UI implemented; Core65/Shared145/models109 and initial native gates pass; final graphical/transport/CI checks in progress. |
+| 6 | #21 immediate battle rewards | Immediate catalog/authority/UI implemented; Core65/Shared145/models109 and initial native gates pass; all local and final exact-SHA CI75 gates passed including both exports; draft PR31. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
 | 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
 | 9 | #24 veteran maintenance | Pending; execute a real squad-recovery alternative under selected rewards/rhythm. |
@@ -153,8 +153,8 @@ complete; do not substitute a prose-only decision for the requested experiments.
 
 #21 final commit da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a is pushed on PR31.
 All local gates passed. CI73 on production-identical d77422b passed including
-both exports. Final CI75 run40050084771 is still in step14; poll it before
-claiming exact final-SHA success. r7 manifest and three-stage-source.tar updated.
+both exports. Final CI75 run40050084771 passed all gates including both exports on da3a51d.
+#21 is complete; no remaining #21 local/CI gate. r7 manifest and three-stage-source.tar updated.
 Archive SHA3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7.
 
 Root branch #22 has only design/baseline/probe changes:3516913, d3effc2,85b8b11.
@@ -213,3 +213,7 @@ No subagents. No pending user question/approval. No final objective completion.
 After #22 continue #23 normal-payment cross-doctrine openings, #24 actual squad
 recovery alternative, #25 controlled trade-offs/elite formation/held-outs/final
 selected-economy all-doctrine and uneven-group calibration. All scope remains.
+
+#21 exact final-SHA completion recorded: da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a,
+Godot75/40050084771 SUCCESS including both exports. r7 manifest updated.
+Continue #22; all23–25 scope remains active. No issue/PR merge or closure performed.
