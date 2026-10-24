@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-only
 using Game.Core;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Game.Shared;
 
 public sealed record EconomyCommand(Command Command, CommandResult Result, ResourceCost Before, ResourceCost After,
     int ResearchPointsBefore, int ResearchPointsAfter, int KeepHealing, long SoldierHealing, int HealedSoldiers,
-    PreparationPayment? Preparation = null);
+    PreparationPayment? Preparation = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long AtTick { get; init; }
+    public string? SnapshotSha256 { get; init; }
+}
 public sealed record StoredPayment(int UnitId, bool Eligible, int Before, int After, int Maximum, int HealingPercent);
 public sealed record PreparationPayment(int Wave, int Turn, int ResourceMultiplier, int ProductionsBefore, int ProductionsAfter,
     ResourceCost Quote, ResearchState ResearchBefore, ResearchState ResearchAfter, int FoodPaid, StoredPayment[] Stored);
@@ -16,15 +23,22 @@ public sealed record RewardEconomyBattle(int Wave, string Result, long CombatTic
     int Casualties, int Wounded, int KeepDamage, ResourceCost ClearGrant, int ClearResearch,
     string[] Offers, string? Choice, string[] Technologies, CityState? Checkpoint = null);
 public sealed record RewardEconomyRun(string Doctrine, string Family, ulong Seed, string MatchId, ResourceCost Starting,
-    RewardEconomyBattle[] Battles, EconomyCommand[] Commands, EconomyShortage[] Shortages);
+    RewardEconomyBattle[] Battles, EconomyCommand[] Commands, EconomyShortage[] Shortages)
+{
+    public MatchSnapshot? Initial { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long FinalTick { get; init; }
+    public string? FinalSnapshotSha256 { get; init; }
+}
 
 /// <summary>Matched, bounded ordinary-command policies. No snapshot or simulation writes.</summary>
 public static class RewardEconomyReview
 {
-    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical", bool recordPreparations = false, bool adaptOpening = false, bool recordCheckpoints = false)
+    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical", bool recordPreparations = false, bool adaptOpening = false, bool recordCheckpoints = false, CampaignCalibrationPlan? calibration = null)
     {
         using var match = new Match(rules: rules, matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
+        var joined = match.Snapshot();
+        string Hash(MatchSnapshot snapshot) => Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(snapshot, WireJson.Options)));
         var commands = new List<EconomyCommand>(); var battles = new List<RewardEconomyBattle>();
         var shortages = new List<EconomyShortage>();
         CityState City(MatchSnapshot state) => state.Players.Single(p => p.Id == player);
@@ -49,7 +63,8 @@ public static class RewardEconomyReview
                     before.Research, after.Research, match.Phase == Phase.Combat ? after.LastUpkeep!.Paid : 0, stored);
             }
             commands.Add(new(command, result, before.Resources, after.Resources, before.Research.Points, after.Research.Points,
-                Math.Max(0, after.Health - before.Health), healed.Sum(), healed.Count(h => h > 0), payment));
+                Math.Max(0, after.Health - before.Health), healed.Sum(), healed.Count(h => h > 0), payment)
+            { AtTick = calibration is null ? 0 : beforeState.Tick, SnapshotSha256 = calibration is null ? null : Hash(match.Snapshot()) });
         }
         void Send(string action) => Submit(Command.FromSnapshot(match.Snapshot(), ++sequence, action, player));
         Send("doctrine:" + doctrine); Send("start"); var starting = City(match.Snapshot()).Resources;
@@ -62,7 +77,9 @@ public static class RewardEconomyReview
                 for (int decision = 0; decision < 120; decision++)
                 {
                     var state = match.Snapshot();
-                    var intent = adaptOpening ? OpeningCampaign.Transition(state, player, openingOrder) : null;
+                    var intent = calibration is not null ? CampaignCalibration.Next(state, player, family, calibration)
+                        : adaptOpening ? OpeningCampaign.Transition(state, player, openingOrder) : null;
+                    if (calibration is not null && intent is null) break;
                     intent ??= (family == "opening" || adaptOpening && wave == 1) ? OpeningCampaign.Next(state, player, openingOrder)
                         : GameplayScenarios.NextPreparation(state, player, family);
                     if (intent is null) break;
@@ -103,6 +120,8 @@ public static class RewardEconomyReview
                 offers, choice, after.Research.Technologies.Select(t => t.ToString()).ToArray(),
                 recordCheckpoints && wave is 5 or 10 or 20 ? after : null));
         }
-        return new(doctrine, family, seed, match.Id, starting, battles.ToArray(), commands.ToArray(), shortages.ToArray());
+        return new(doctrine, family, seed, match.Id, starting, battles.ToArray(), commands.ToArray(), shortages.ToArray())
+        { Initial = calibration is null ? null : joined, FinalTick = calibration is null ? 0 : match.Tick,
+            FinalSnapshotSha256 = calibration is null ? null : Hash(match.Snapshot()) };
     }
 }

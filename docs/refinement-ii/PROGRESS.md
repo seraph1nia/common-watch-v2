@@ -16,7 +16,7 @@ Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 | 6 | #21 immediate rewards | da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a, draft PR31; final exact-SHA CI75/40050084771 passed including both exports |
 | 7 | #22 preparation rhythm | dbcd3d9, draft PR32; all local gates and exact-SHA CI79 passed including both exports |
 | 8 | #23 opening economy | a37b48f, draft PR33; all local gates and exact-SHA CI81/40055996289 passed including both exports |
-| 9 | #24 veteran recovery | Implemented on refinement/24-squad-recovery; all local gates and both exports pass; stacked draft PR / exact-SHA CI being published |
+| 9 | #24 veteran recovery | 41cc004, draft PR34; all local gates and exact-SHA CI83/40060474672 passed including both exports |
 | 10 | #25 campaign consequences | Original exact baseline archived; controlled tradeoffs, elite formation, held-out seeds and final calibration still required |
 
 Detailed source, evidence and qualifications live in the numbered issue contracts.
@@ -151,3 +151,12 @@ be monitored while #25 proceeds. R8 images are copied into its own archive.
 Opening recheck overwrote84 historical working image paths; r9 explicitly records
 the loss without changing old hashes. Source/raw receipts/final purchase pairs
 remain preserved. Do not treat new r8 images as old r9 baseline captures.
+
+#24 exact-SHA CI83/40060474672 completed SUCCESS, including both exports and
+all native/cooperative/recovery checks. Root now refinement/25-campaign-consequences.
+#25 design766829b, executable experimentsd660daa;44legal decision cases,56W10
+alpha research cases and8verifiedW20 cases replay. Two formation candidates and
+actual normal1x720/1080 recorded comparisons exist. Current240-run boss versus
+W10-heavy campaign matrix is running with exact per-command/final snapshot replay;
+Core shipping catalog still unchanged. Final selection, marginal/co-op matrix,
+shipping native gates/exports/CI and parent completion audit remain required.

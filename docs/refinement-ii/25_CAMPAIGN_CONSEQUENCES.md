@@ -107,3 +107,46 @@ Swordsmen plus two same-tier Berserkers, one Crossbowman two tiers lower and one
 Mage one tier lower. This paired heavy frontline changes target/secondary/status
 opportunities without new art or increased per-unit HP. Quantify its budget and
 run matched/held-out neutral and relevant research arms before selection.
+
+## Heavy formation and complete continuation experiment
+
+The second formation has2Swordsmen and2Berserkers at the major's frontline tier,
+1Crossbowman two tiers lower and1Mage one tier lower. Actual powerW10:6.98125
+(+2.289%); W20:12.809375 (+2.887%). No per-profile HP or damage rule changes.
+Both candidates stay within3% of the original score, with different HP/DPS/range
+and target distributions explicitly retained. Two numerical/validator tests pass;
+marking either multi-entry candidate as a boss still rejects. A frozen41cc004
+campaign-data factory keeps both original boss comparisons runnable after later
+shipping decisions. This is separate experimental data, never a runtime default.
+
+All28heavy neutral/relevant research comparisons replay. In seed order
+1/20261018/42/98765, W10 neutral losses0/1/2/0 against boss1/0/1/0; W20 heavy
+5/0/2/3 against boss2/1/1/1. Neither option universally increases casualties.
+Heavy multi-member impactsW10:0/0/3/6, W20:3/6/6/6; the boss has none. Frost and
+Venom do not reliably change these short encounters; most periodic effects tick
+zero times. Do not promote a guaranteed slowing/poison counter from these cases.
+Assault changes some durations without changing casualties, another limited result.
+
+All8heavy native prepared snapshots equal their corresponding CLI checkpoints
+exactly. Both resolutions'1x sequences pass with native inspection, unchanged
+hit timing and recordings. Seed1 W10boss/heavy wall7.04/7.14seconds at720,
+8.00/8.37 at1080; W20boss/heavy7.73/7.94 and8.65/9.13. All include capture overhead.
+Inspected heavy scenes use the existing figures and compact ownership/target cues;
+no added artwork or battle-label panel. Final shipping captures remain required.
+
+A240-run campaign continuation now compares the original bosses with only W10
+heavy changed: six doctrines×five families×four seeds×two catalogs, exact legal
+command/final-state replay per row. The normal opening has an explicit paid
+ranged trainer conversion. The first attempt exposed a development-policy
+recruitment against its now-empty slot; Core correctly rejected it. The policy
+now builds the ArcheryRange before recruiting, retaining the failed log. Four
+unaffected frontline rows are reused only after exact independent replay.
+Grove's second Metal producer remains in the main matrix, preserving the known
+constrained-Stone failures. Full marginal/uneven cooperation, final selected-rule
+receipts/native gates/exports/CI are still required. No shipping Core catalog
+change or completed campaign-calibration claim has been made yet.
+
+Reproduction: [tools/campaign-review](../../tools/campaign-review/README.md).
+Current locked build has zero warnings; Core74/Shared168 pass. #24's exact-SHA
+CI83/40060474672 is now SUCCESS including both exports; its source hashes remain
+41cc004. Original b4fa3f7 archive and historical qualifications remain unchanged.

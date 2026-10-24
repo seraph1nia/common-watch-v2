@@ -5,13 +5,13 @@ public static class DecisionCases
 {
     public static readonly ulong[] Seeds = [1,20261018,42,98765];
     public static Rules EliteRules(int major) => MajorEncounterComparison.EliteRules(major);
-    public static object Budgets()
+    public static object Budgets(bool heavy = false)
     {
-        var rules = new Rules(); var combat = new CombatConfiguration(rules);
-        return new[]{10,20}.Select(n=>new {Wave=n, Baseline=CampaignDefinition.Default().Waves[n-1], Elite=EliteRules(n).Campaign.Waves[n-1],
-            BaselinePower=WavePower.Total(CampaignDefinition.Default().Waves[n-1],combat), ElitePower=WavePower.Total(EliteRules(n).Campaign.Waves[n-1],combat),
-            BaselineProfiles=CampaignDefinition.Default().Waves[n-1].Entries.Select(e=>combat.Unit(e.Type,e.Rank,e.IsBoss,e.Level,faction:Faction.Skeletons)),
-            EliteProfiles=EliteRules(n).Campaign.Waves[n-1].Entries.Select(e=>combat.Unit(e.Type,e.Rank,e.IsBoss,e.Level,faction:Faction.Skeletons))}).ToArray();
+        var rules = MajorEncounterComparison.SingleBossRules(); var combat = new CombatConfiguration(rules);
+        return new[]{10,20}.Select(n=>new {Wave=n, Baseline=rules.Campaign.Waves[n-1], Elite=MajorEncounterComparison.FormationRules(n,heavy).Campaign.Waves[n-1],
+            BaselinePower=WavePower.Total(rules.Campaign.Waves[n-1],combat), ElitePower=WavePower.Total(MajorEncounterComparison.FormationRules(n,heavy).Campaign.Waves[n-1],combat),
+            BaselineProfiles=rules.Campaign.Waves[n-1].Entries.Select(e=>combat.Unit(e.Type,e.Rank,e.IsBoss,e.Level,faction:Faction.Skeletons)),
+            EliteProfiles=MajorEncounterComparison.FormationRules(n,heavy).Campaign.Waves[n-1].Entries.Select(e=>combat.Unit(e.Type,e.Rank,e.IsBoss,e.Level,faction:Faction.Skeletons))}).ToArray();
     }
     public static void FreeObsoleteHome(ReviewSession run)
     {

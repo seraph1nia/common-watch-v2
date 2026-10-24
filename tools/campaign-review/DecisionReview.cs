@@ -7,13 +7,16 @@ public static class DecisionReview
     private static void Save(string file,object value)=>File.WriteAllText(file,JsonSerializer.Serialize(value,WireJson.Options));
     public static int Run(string[] args)
     {
+        if(args[0]=="campaign-matrix") return CalibrationMatrix.Run(args[1]);
         if(args[0]=="checkpoint")
         {
             using var solo=MajorEncounterComparison.CreateAt(int.Parse(args[1]),bool.Parse(args[2]));Save(args[3],solo.Snapshot);return 0;
         }
         if(args[0]=="verify"){Console.WriteLine(JsonSerializer.Serialize(LegalRecorder.Verify(args[1]),WireJson.Options));return 0;}
+        if(args[0]=="majors-heavy") return MajorReview.Run(args[1],heavy:true);
         if(args[0]=="majors") return MajorReview.Run(args[1]);
         if(args[0]=="majors20") return MajorReview.Run(args[1],20);
+        if(args[0]=="budgets-heavy"){Console.WriteLine(JsonSerializer.Serialize(DecisionCases.Budgets(true),WireJson.Options));return 0;}
         if(args[0]=="budgets"){Console.WriteLine(JsonSerializer.Serialize(DecisionCases.Budgets(),WireJson.Options));return 0;}
         if(args[0]=="cases")
         {
