@@ -1,7 +1,7 @@
 # Immediate battle rewards — issue #21 design
 
-This design precedes intentional Core edits. Gate A's final CI is pending at
-`ce2d5c6` (Godot run 71); no Core rules change until it passes. The original-rule
+This design precedes intentional Core edits. Gate A passed at `ce2d5c6`: [Godot run 71](https://github.com/seraph1nia/common-watch-v2/actions/runs/40044935480)
+completed successfully, including both exports, before any Core rules edit. The original-rule
 [command/event archive](25_ORIGINAL_BASELINE.md) is independently reproduced.
 Original import and GPL notices remain; the reward redesign is explicitly local.
 

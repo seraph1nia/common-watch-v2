@@ -12,7 +12,7 @@ Current branch: `refinement/21-immediate-rewards`, stacked on
 | 2 | #17 controlled screen journey | Implemented and locally verified in `583ec3a`; draft [PR #27](https://github.com/seraph1nia/common-watch-v2/pull/27), remote Godot run 55 passed. All eight cooperative matrix profiles and final focused checks pass. See [transition contract](17_SCREEN_JOURNEY.md). |
 | 3 | #18 combat framing/cues | Implemented and locally verified in `59fbebf`; draft [PR #28](https://github.com/seraph1nia/common-watch-v2/pull/28), remote Godot run 57 passed. Final maximum-group 720p framing recheck passed in #20 / Gate A. See [contract and evidence](18_COMBAT_READABILITY.md). |
 | 4 | #19 spatial squad-first army | Implemented locally: six retained home selectors, adjacent recruitment/placement, bounded optional member/storage/tower/profile depth; verified in `cb8d787`; draft [PR #29](https://github.com/seraph1nia/common-watch-v2/pull/29), remote Godot run 59 passed including Linux/Windows exports. See [contract and routes](19_ARMY_WORKSPACE.md). |
-| 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision CI remains to poll. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
+| 5 | #20 cooperative context | Implemented and locally verified; draft [PR #30](https://github.com/seraph1nia/common-watch-v2/pull/30). Final revision ce2d5c6 passed Godot run71, including both exports. See [contract/evidence](20_COOPERATIVE_CONTEXT.md). |
 | 6 | #21 immediate battle rewards | Design/provenance committed before Core changes; 72-run original economy comparison reproduced. Implementation follows Gate A CI. |
 | 7 | #22 preparation rhythm | Pending; execute matched two/three-stage alternatives. |
 | 8 | #23 opening economy | Pending; execute cross-doctrine normal-payment alternatives. |
@@ -57,7 +57,7 @@ Physical hardware/input/audio, participant findings, native Windows/macOS and
 live Steam remain unqualified. The known intermittent native runtime risk is
 not claimed fixed. CI63/65 exhausted an outer journey watchdog; shutdown
 StringName diagnostics followed termination. CI67/69 passed, including exports.
-Final #20 commit CI must pass before Core reward changes. Retain per-observation
+Final #20 commit ce2d5c6 passed Godot run71, including both exports, before Core reward changes. Retain per-observation
 deadlines; complete six-client journeys now have a bounded 540-second allowance.
 
 ## Original-rule archive before #21
@@ -87,14 +87,14 @@ families W1, Grovekeeper ranged W3, both seeds); retain these losses for #23.
 Original sources and exact policy copies are under `artifacts/refinement-ii/r7/`.
 The [reward design](21_IMMEDIATE_REWARDS.md) audits all 36 old cards and declares
 a frozen immediate-only catalog, actual receipts, capacity preflight and explicit
-protocol18/reward-rules1 compatibility. No Core source has changed yet.
+protocol18/reward-rules1 compatibility. At this checkpoint no Core source has changed; the committed design precedes implementation.
 
 ## Next issue boundary
 
 Final #20 commit `ce2d5c6c7b282e28cfc1fdcf036617ffbb7bc6f7` is pushed; PR30
-body is updated. Godot run71 (`40044935480`) must pass before Core edits. The
-branch and separate pre-implementation design already exist; continue #21 after
-that gate. Full specs remain /tmp/common-watch-issues/15.md and16..25.md. The selected direction
+body is updated. Godot run71 (`40044935480`) completed successfully, including
+both exports. Gate A is complete. The separate design/provenance and original
+archive commits precede Core implementation; continue #21 now. Full specs remain /tmp/common-watch-issues/15.md and16..25.md. The selected direction
 is actual one-shot supplies/recovery, without research-point substitutes.
 #22 requires executable matched two/three-stage alternatives; #23 cross-doctrine
 normal-payment opening alternatives; #24 real squad recovery under the selected
