@@ -3,8 +3,8 @@
 Source of truth: [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15)
 and its ten children. Preserve the complete scope, including executable rules
 alternatives and final native evidence. Baseline HEAD was clean at `b4fa3f7`.
-Current branch: `refinement/21-immediate-rewards`, stacked on
-`refinement/20-cooperative-context` (`ce2d5c6`). Gate A preserved original rules; #21 now intentionally changes the Core reward catalog/receipts under its committed design.
+Current branch: `refinement/22-preparation-rhythm`, stacked on
+`refinement/21-immediate-rewards` (`da3a51d`). Gate A preserved original rules; #21 now intentionally changes the Core reward catalog/receipts under its committed design.
 
 | Order | Issue | State |
 | --- | --- | --- |
@@ -148,3 +148,68 @@ metrics, implement an executable two-stage alternative and run matched legal
 paths plus real solo and2/4/6-client loops under both configurations. All remaining
 #22–#25 specs and executable alternatives remain active. The overall goal is not
 complete; do not substitute a prose-only decision for the requested experiments.
+
+## Active #22 isolated experiment (2026-10-24)
+
+#21 final commit da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a is pushed on PR31.
+All local gates passed. CI73 on production-identical d77422b passed including
+both exports. Final CI75 run40050084771 is still in step14; poll it before
+claiming exact final-SHA success. r7 manifest and three-stage-source.tar updated.
+Archive SHA3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7.
+
+Root branch #22 has only design/baseline/probe changes:3516913, d3effc2,85b8b11.
+Core/Godot binaries still equal the completed #21 baseline. Original stage matrix
+3150barriers/1093no-command; freshR7 3111/1068. Those counts exclude UI inspection
+and do not imply no meaningful decision. New timing records exclusive observed
+categories plus capture and deliberate-test-delay overrides; summed client
+seconds are not wall/human time. Baseline native2/4/6p1280 all passed, logs
+/tmp/common-watch-r5-before-{2,4,6}p.log, captures preparation-review/before.
+
+Isolated worktree artifacts/worktrees/r5-two-stage, branch experiment/22-two-stage.
+Provenance declaration6d7329d precedes Core prototype. Prototype commit
+5e291221f19fc82d999ed11d6b1a3e303481f32a is committed locally (not pushed). It
+adds Rules.PreparationStages=3 default, supported2/3; candidate resource delivery
+2×then1×, Research/healing once per actual Ready; battleflow4/protocol19; rules
+fingerprint stages. Core phase/income/receiving adaptation, SoloSession Rules
+parameter, native --review-preparations and --review-opening-order, phase labels/
+track/control/guidance, dynamic normal policies and CLI experiments exist.
+No root Core/default change and no selection claim. Worktree generated untracked
+.uid files from Godot import; exclude/delete only its untracked generated UIDs,
+never tracked ones. No artwork changes.
+
+Prototype passes zero-warning full build3, Core68, Shared147. Core tests cover
+2/3 exact quoted resource delivery, actual ProductionCount, one Research event,
+nonfinal/final exact retry and compatibility. Canonical 3-stage72-run report is
+BYTE-IDENTICAL to R7 after (SHA4df7b400a0447458126d5a607541e453ea109ebe7b2e53039797e14b3cbdac4d).
+Canonical2:72runs/1021battles/48full Victories vs3's1037/49. Grovekeeper canonical
+opening losesW1 both seeds (2participating vs4); Huntsman ranged seed1 losesW8.
+Do not hide those results. Canonical evidence copied to r5/canonical.
+
+All six doctrines×two seeds×three normal paid order variants×both schedules=72
+opening runs additionally completed. Canonical/army-first2 reach3waves10/12;
+economy-first reaches12/12 under both2/3. Same policy and prices: Grovekeeper uses
+its initial Wood for a second Metal Mine before the first payment; other doctrine
+order changes are explicit and no fake stock. Variant-specific optional Arcanum
+can defer instead of blocking needed recruitment; canonical is unchanged.
+Data:r5/opening-orders/{canonical,army-first,economy-first}-{2,3}.json.
+
+Live handle68252 IN THE ISOLATED WORKTREE runs six sequential actual native
+journeys: economy-first3/2 at2p,4p,6p1280. Both2p runs passed;4/6 remain running.
+DO NOT rebuild worktree Godot while68252 is active. Root baseline30909, isolated
+canonical2p90306 and Shared86521 are terminal0; all other recent handles terminal.
+Logs /tmp/common-watch-r5-adapted-{2,3}-{2,4,6}p.log. Canonical2 native2p already
+passed. Baseline group/candidate native overlays use same production Controls.
+
+Remaining #22: actual solo paired continuous loops; explicit new/upgraded producer
+per-resource timing, Research progress and eligible stored recovery (current big
+family matrices have zero ordinary healing, so add reserve/focused cases); full
+reference/adaptive campaigns; partialFood/towers/lateRecruit/goldRecovery; complete
+hardcoded stage audit including native tests/CLI/guides/inspectors, then deliberate
+selection, shipped interaction reduction if retaining3, parent15 decision and
+compatibility/provenance/test updates. Do not select only by wins or rewrite the
+negative cases. Extra outcome counts are exposure-dependent. Full22spec cached.
+
+No subagents. No pending user question/approval. No final objective completion.
+After #22 continue #23 normal-payment cross-doctrine openings, #24 actual squad
+recovery alternative, #25 controlled trade-offs/elite formation/held-outs/final
+selected-economy all-doctrine and uneven-group calibration. All scope remains.
