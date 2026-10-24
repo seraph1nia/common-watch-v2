@@ -15,10 +15,10 @@ public partial class GameApplication
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
     }
-    private async Task JourneyClick(Button button)
+    private async Task JourneyClick(Button button, bool expectDisabled = false)
     {
-        Require(button.IsVisibleInTree() && !button.Disabled, "journey action is visible and enabled: " + button.Text);
-        button.GrabFocus();
+        Require(button.IsVisibleInTree() && button.Disabled == expectDisabled, "journey action has the expected enabled/disabled state: " + button.Text);
+        if (!expectDisabled) button.GrabFocus();
         for (Node? parent = button.GetParent(); parent is not null; parent = parent.GetParent())
             if (parent is ScrollContainer scroll) scroll.EnsureControlVisible(button);
         await JourneyFrames();

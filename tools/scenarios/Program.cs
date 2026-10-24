@@ -2,6 +2,28 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "opening-tasks")
+    {
+        var runs = new[] { "overspend", "late-food", "missing-trainer", "after-commit", "no-food" }.Select(OpeningMistakes.Run).ToArray();
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+        Console.WriteLine($"OPENING_TASKS_PASS tasks={runs.Length} rejected={runs.Sum(r => r.Steps.Count(s => !s.Result.Accepted))}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "normal-opening-horizons")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (bool normal in new[] { false, true })
+        {
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from family in new[] { "frontline", "mixed", "towers", "research" }
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, family, seed, openingOrder: normal ? "normal-wood" : "canonical", adaptOpening: normal, recordCheckpoints: true)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], normal ? "normal.json" : "reference.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"NORMAL_HORIZONS_PASS normal={normal} runs={runs.Length} battles={runs.Sum(r => r.Battles.Length)} victories={runs.Count(r => r.Battles[^1].Result == "Victory")}");
+        }
+        return 0;
+    }
     if (args.FirstOrDefault() == "normal-openings")
     {
         Directory.CreateDirectory(args[1]);

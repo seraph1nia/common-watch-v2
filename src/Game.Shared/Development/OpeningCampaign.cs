@@ -6,7 +6,7 @@ namespace Game.Shared;
 /// <summary>Bounded development review policy. Only ordinary paid intents; never ships as autoplay.</summary>
 public static class OpeningCampaign
 {
-    public static GameplayIntent? Next(MatchSnapshot state, int player, string openingOrder = "canonical")
+    public static GameplayIntent? Next(MatchSnapshot state, int player, string openingOrder = "normal-wood")
     {
         if (state.Phase is not (Phase.Building or Phase.Preparation)) return null;
         var city = state.Players.Single(p => p.Id == player);
@@ -36,6 +36,7 @@ public static class OpeningCampaign
                 return new(GameplayAction.Recruit, trainer, SoldierType: type);
             return army.HomeQuote(city.Army.PurchasedHomes) is { } cost && city.Resources.TryPay(cost, out _) ? new(GameplayAction.BuyHome) : null;
         }
+        if (Transition(state, player, openingOrder) is { } transition) return transition;
         string doctrine = city.Run.Doctrine;
         if (openingOrder == "normal-role" && doctrine is "arcanist" or "huntsman")
             return RoleOpening(state, city, Build, Recruit);
@@ -83,6 +84,17 @@ public static class OpeningCampaign
         }
         if (doctrine is "grovekeeper" or "arcanist" && Build(5, Building.Stonecutter) is { } stone) return stone;
         return GameplayScenarios.NextPreparation(state, player, "frontline");
+    }
+
+    internal static GameplayIntent? Transition(MatchSnapshot state, int player, string openingOrder)
+    {
+        var city = state.Players.Single(p => p.Id == player);
+        // Paid continuation: convert the temporary second Wood producer once it
+        // has earned the Stonecutter's ordinary construction price. Never a refund grant.
+        return openingOrder == "normal-wood" && state.Wave >= 2 && state.Phase is Phase.Building or Phase.Preparation
+            && !state.Paused && city.Connected && !city.Ready && city.Run.Doctrine == "merchant" && city.Slots[4].Type == Building.Lumbermill
+            && city.Resources.TryPay(state.BuildingCatalog.Single(b => b.Type == Building.Stonecutter).Construction, out _)
+            ? new(GameplayAction.Sell, 4) : null;
     }
 
     private static GameplayIntent? RoleOpening(MatchSnapshot state, CityState city,

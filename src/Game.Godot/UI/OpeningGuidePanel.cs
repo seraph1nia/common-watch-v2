@@ -38,9 +38,9 @@ public partial class OpeningGuidePanel : PanelContainer
         _action.AddThemeFontSizeOverride("font_size", 14); _action.CustomMinimumSize = new(132, 44); _action.SizeFlagsVertical = SizeFlags.ShrinkCenter; _row.AddChild(_action);
         Hide();
     }
-    public void Refresh(MatchSnapshot state, CityState city, bool reviewedHomes, BattleOutcome? outcome)
+    public void Refresh(MatchSnapshot state, CityState city)
     {
-        _hint = OpeningGuidance.Project(state, city, reviewedHomes, outcome); Visible = _hint is not null;
+        _hint = OpeningGuidance.Project(state, city); Visible = _hint is not null;
         if (_hint is not { } hint) return;
         _objective.Text = hint.Objective; _message.Text = hint.Message; _message.TooltipText = hint.Message;
         _action.Text = hint.Action; _action.Disabled = city.Eliminated && hint.Destination != OpeningDestination.Outcome;

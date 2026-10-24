@@ -14,7 +14,6 @@ public partial class SettlementHud : Control
     internal TeamPanel Team => _team;
     private PreparationPanel _preparation = null!;
     private OpeningGuidePanel _opening = null!;
-    private bool _openingHomesReviewed;
     internal OpeningGuidePanel OpeningGuide => _opening;
     private GodotSession? _receiptSession;
     private Action<Command, CommandResult>? _rewardAcknowledged;
@@ -96,7 +95,7 @@ public partial class SettlementHud : Control
     {
         BindRewardReceipts(null); _journey.Reset(); _observerSelection.Reset(); Presentation = new(HudMoment.Planning, false, false); OverlayCovered = false; _combatPresentation = _arenaContext = false; _planningCity = 0; _planningSlot = -1;
         _team?.Reset();
-        _openingHomesReviewed = false; _opening?.Hide();
+        _opening?.Hide();
         _outcomes.Reset(); LiveInspector?.Close(false); Result?.Refresh(null);
         _uiKey = ""; _viewed = 0; ShowArena = false;
         _feedbackKey = ""; _recentFeedback.Clear();
@@ -370,8 +369,7 @@ public partial class SettlementHud : Control
         _cities.Refresh(session); _economy.Refresh(Context); _controls.Refresh(session, finishingCombat);
         _preparation.Refresh(Context, finishingCombat);
         _preparation.Visible &= Presentation.Threat && !BlocksWorld && (session.SelectedSlot < 0 || !Presentation.Management);
-        if (Details.Visible && Details.Army.IsVisibleInTree() && Details.Army.HomesVisible && city.Id == session.PlayerId) _openingHomesReviewed = true;
-        _opening.Refresh(state, city, _openingHomesReviewed, _outcomes.For(city.Id));
+        _opening.Refresh(state, city);
         _opening.Visible &= Presentation.Moment == HudMoment.Planning && !BlocksWorld && !ShowArena && session.SelectedSlot < 0 && city.Id == session.PlayerId;
         _arena.Text = Presentation.Arena ? "Show settlement" : "Show arena";
         _arena.Visible = Presentation.Moment is HudMoment.Planning or HudMoment.ReadyWaiting;
@@ -445,14 +443,13 @@ public partial class SettlementHud : Control
     private void NavigateOpening(Game.Shared.OpeningDestination destination)
     {
         if (_session is not { HasState: true } || _session.ViewedCity.Id != _session.PlayerId) return;
-        if (destination == Game.Shared.OpeningDestination.Build)
+        if (destination is Game.Shared.OpeningDestination.Build or Game.Shared.OpeningDestination.Military)
         {
             int slot = Array.FindIndex(_session.City.Slots, s => s.Purchased && s.Type == Building.Empty);
             if (slot < 0) slot = Array.FindIndex(_session.City.Slots, s => s.Type == Building.Farm);
             if (slot >= 0)
             {
-                bool recruiter = _session.City.Slots.Any(s => _session.Snapshot.BuildingCatalog.FirstOrDefault(b => b.Type == s.Type)?.Recruits is not null);
-                int category = !recruiter && _session.City.Slots.Any(s => s.Type == Building.Farm) && _session.City.Slots.Any(s => s.Type == Building.Lumbermill) ? 1 : 0;
+                int category = destination == Game.Shared.OpeningDestination.Military ? 1 : 0;
                 _session.SelectSlot(slot); Submitted();
                 if (Inspector.Construction.IsVisibleInTree())
                 {
@@ -466,7 +463,7 @@ public partial class SettlementHud : Control
         else
         {
             OpenDetails(DetailsPage.Army);
-            if (destination == Game.Shared.OpeningDestination.Homes) { _openingHomesReviewed = true; Details.Army.ShowHomes(); }
+            if (destination == Game.Shared.OpeningDestination.Homes) { Details.Army.ShowHomes(); }
             else
             {
                 int trainer = Array.FindIndex(_session.City.Slots, s => _session.Snapshot.BuildingCatalog.FirstOrDefault(b => b.Type == s.Type)?.Recruits is not null);

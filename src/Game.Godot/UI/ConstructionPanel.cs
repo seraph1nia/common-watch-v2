@@ -21,7 +21,6 @@ public partial class ConstructionPanel : VBoxContainer
     public Button? RecoveryButton { get; private set; }
     private Button _confirm = null!;
     private Label _reason = null!;
-    private Label _recoveryHint = null!;
     public Rect2 CardArea => _cards.GetGlobalRect();
     public Button ConfirmButton => _confirm;
     public IReadOnlyList<Button> Categories => _categories;
@@ -45,7 +44,6 @@ public partial class ConstructionPanel : VBoxContainer
             skin.Painted?.IndicateSelection(tab);
             _categories.Add(tab); tabs.AddChild(tab);
         }
-        _recoveryHint = WrapLabel(); _recoveryHint.AddThemeFontSizeOverride("font_size", 14); AddChild(_recoveryHint); _recoveryHint.Hide();
         _cards = new GridContainer { Columns = 3, SizeFlagsHorizontal = SizeFlags.ExpandFill }; AddChild(_cards);
         Resized += Reflow;
         RecoveryButton = skin.Button("", () => { _selected = Building.Lumbermill; _payment = ConstructionPayment.GoldRecovery; Refresh(_context, _slot); }, skin.Painted is null ? "" : "ForestCard");
@@ -109,7 +107,8 @@ public partial class ConstructionPanel : VBoxContainer
         if (ArmyConfiguration.IsArmyPlot(slot)) _category = 2;
         for (int i = 0; i < _categories.Count; i++) { _categories[i].SetPressedNoSignal(i == _category); _categories[i].Visible = !ArmyConfiguration.IsArmyPlot(slot); }
         _context = context; _slot = slot; _city = context.City.Id;
-        foreach (var definition in context.State.BuildingCatalog)
+        foreach (var definition in context.State.BuildingCatalog.OrderBy(d => d.Type switch
+        { Building.Lumbermill => 0, Building.MetalMine => 1, Building.Farm => 2, Building.Weaver => 3, Building.Stonecutter => 4, Building.Mine => 5, _ => 10 + (int)d.Type }))
         {
             var type = definition.Type;
             int category = CategoryOf(definition);
@@ -120,7 +119,7 @@ public partial class ConstructionPanel : VBoxContainer
                 button.Name = "Build" + type; _buttons.Add(type, button);
             }
             ((ConstructionCard)button).Present(GameplayContext.BuildingName(type),
-                definition.Produces is { } resource ? $"Produces {resource}" : definition.Recruits is { } recruits ? $"Trains {string.Join(", ", recruits)}" : definition.Type switch
+                definition.Produces is { } resource ? $"Producer +{EconomyConfiguration.ProducerOutput(definition, 1, context.City.Research, context.State.TechnologyCatalog) * PreparationSchedule.ResourceMultiplier(context.State.Rules, context.State.Turn)} {resource} / Ready" : definition.Recruits is { } recruits ? $"Trains {string.Join(", ", recruits)}" : definition.Type switch
                 { Building.TownHall => "Veterans & recovery", Building.ResearchTower => "Research progress", Building.Market => "Trade for Gold", _ => "Automatic defense" },
                 GameplayContext.Cost(definition.Construction),
                 Availability(context, definition.Construction, wrongPlot ? "Army homes accept defense towers only." : ""), Function(definition),
@@ -131,8 +130,6 @@ public partial class ConstructionPanel : VBoxContainer
             button.Visible = category == _category;
         }
         var lumber = context.State.BuildingCatalog.First(b => b.Type == Building.Lumbermill);
-        _recoveryHint.Visible = !ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0 && lumber.RecoveryConstruction is not null;
-        _recoveryHint.Text = lumber.RecoveryConstruction is { } recovery ? "Zero Wood: Lumbermill Gold recovery · " + GameplayContext.Cost(recovery) + " (Production)." : "";
         RecoveryButton!.Visible = !ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0
             && lumber.RecoveryConstruction is not null && _category == 0;
         if (!ArmyConfiguration.IsArmyPlot(slot) && context.City.Wood == 0 && lumber.RecoveryConstruction is { } quote)

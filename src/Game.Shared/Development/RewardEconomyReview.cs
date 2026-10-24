@@ -14,14 +14,14 @@ public sealed record EconomyShortage(int Wave, int Turn, UnitType Type, int Leve
 public sealed record RewardEconomyBattle(int Wave, string Result, long CombatTicks, long CleanupTicks,
     ResourceCost PreparedStock, ResourceCost EndStock, int FoodPaid, int Funded, int Participating, int Unfunded,
     int Casualties, int Wounded, int KeepDamage, ResourceCost ClearGrant, int ClearResearch,
-    string[] Offers, string? Choice, string[] Technologies);
+    string[] Offers, string? Choice, string[] Technologies, CityState? Checkpoint = null);
 public sealed record RewardEconomyRun(string Doctrine, string Family, ulong Seed, string MatchId, ResourceCost Starting,
     RewardEconomyBattle[] Battles, EconomyCommand[] Commands, EconomyShortage[] Shortages);
 
 /// <summary>Matched, bounded ordinary-command policies. No snapshot or simulation writes.</summary>
 public static class RewardEconomyReview
 {
-    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical", bool recordPreparations = false, bool adaptOpening = false)
+    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical", bool recordPreparations = false, bool adaptOpening = false, bool recordCheckpoints = false)
     {
         using var match = new Match(rules: rules, matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
@@ -62,7 +62,8 @@ public static class RewardEconomyReview
                 for (int decision = 0; decision < 120; decision++)
                 {
                     var state = match.Snapshot();
-                    var intent = (family == "opening" || adaptOpening && wave == 1) ? OpeningCampaign.Next(state, player, openingOrder)
+                    var intent = adaptOpening ? OpeningCampaign.Transition(state, player, openingOrder) : null;
+                    intent ??= (family == "opening" || adaptOpening && wave == 1) ? OpeningCampaign.Next(state, player, openingOrder)
                         : GameplayScenarios.NextPreparation(state, player, family);
                     if (intent is null) break;
                     Submit(intent.Capture(state, ++sequence, player));
@@ -99,7 +100,8 @@ public static class RewardEconomyReview
                 after.Soldiers.Count(u => u.Health > 0 && u.Health < u.Profile.Health), prepared.Health - after.Health,
                 after.LastReward?.Wave == wave ? after.LastReward.Amount : default,
                 after.LastReward?.Wave == wave ? after.LastReward.Research : 0,
-                offers, choice, after.Research.Technologies.Select(t => t.ToString()).ToArray()));
+                offers, choice, after.Research.Technologies.Select(t => t.ToString()).ToArray(),
+                recordCheckpoints && wave is 5 or 10 or 20 ? after : null));
         }
         return new(doctrine, family, seed, match.Id, starting, battles.ToArray(), commands.ToArray(), shortages.ToArray());
     }
