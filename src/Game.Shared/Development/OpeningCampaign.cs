@@ -21,7 +21,7 @@ public static class OpeningCampaign
             }
             var definition = state.BuildingCatalog.Single(b => b.Type == type);
             if (city.Resources.TryPay(definition.Construction, out _)) return new(GameplayAction.Build, slot, type);
-            return city.Wood == 0 && definition.RecoveryConstruction is { } recovery && city.Resources.TryPay(recovery, out _)
+            return !openingOrder.StartsWith("normal-", StringComparison.Ordinal) && city.Wood == 0 && definition.RecoveryConstruction is { } recovery && city.Resources.TryPay(recovery, out _)
                 ? new(GameplayAction.Build, slot, type, Payment: ConstructionPayment.GoldRecovery) : null;
         }
         GameplayIntent? Recruit(UnitType type, int target)
@@ -37,6 +37,8 @@ public static class OpeningCampaign
             return army.HomeQuote(city.Army.PurchasedHomes) is { } cost && city.Resources.TryPay(cost, out _) ? new(GameplayAction.BuyHome) : null;
         }
         string doctrine = city.Run.Doctrine;
+        if (openingOrder == "normal-role" && doctrine is "arcanist" or "huntsman")
+            return RoleOpening(state, city, Build, Recruit);
         if (state.Wave == 1)
         {
             var order = doctrine == "merchant"
@@ -44,6 +46,12 @@ public static class OpeningCampaign
                 : new[] { (0, Building.Farm), (1, Building.MetalMine), (2, Building.Barracks), (3, Building.Lumbermill) };
             order = openingOrder switch
             {
+                "normal-wood" => doctrine == "merchant"
+                    ? [(3, Building.Lumbermill), (4, Building.Lumbermill), (1, Building.MetalMine), (2, Building.Barracks), (0, Building.Farm)]
+                    : [(3, Building.Lumbermill), (0, Building.Farm), (1, Building.MetalMine), (2, Building.Barracks)],
+                "normal-frontline" or "normal-role" => doctrine == "merchant"
+                    ? [(2, Building.Barracks), (3, Building.Lumbermill), (4, Building.Lumbermill), (1, Building.MetalMine), (0, Building.Farm)]
+                    : [(2, Building.Barracks), (1, Building.MetalMine), (3, Building.Lumbermill), (0, Building.Farm)],
                 "canonical" => order,
                 "army-first" => doctrine == "merchant" ? order : [(2, Building.Barracks), (1, Building.MetalMine), (0, Building.Farm), (3, Building.Lumbermill)],
                 "economy-first" => doctrine == "merchant" ? order : doctrine == "grovekeeper"
@@ -75,6 +83,32 @@ public static class OpeningCampaign
         }
         if (doctrine is "grovekeeper" or "arcanist" && Build(5, Building.Stonecutter) is { } stone) return stone;
         return GameplayScenarios.NextPreparation(state, player, "frontline");
+    }
+
+    private static GameplayIntent? RoleOpening(MatchSnapshot state, CityState city,
+        Func<int, Building, GameplayIntent?> build, Func<UnitType, int, GameplayIntent?> recruit)
+    {
+        if (city.Run.Doctrine == "arcanist")
+        {
+            foreach (var (slot, type) in new[] { (3, Building.Lumbermill), (0, Building.Farm), (1, Building.Weaver), (2, Building.Arcanum) })
+                if (city.Slots[slot].Type == Building.Empty) return build(slot, type);
+            if (recruit(UnitType.Mage, 3) is { } mage) return mage;
+            if (state.Wave == 1) return null;
+            foreach (var (slot, type) in new[] { (4, Building.MetalMine), (5, Building.Barracks) })
+                if (city.Slots[slot].Type == Building.Empty) return build(slot, type);
+            return recruit(UnitType.Swordsman, 4) ?? recruit(UnitType.Mage, 4);
+        }
+        if (state.Wave > 1) return GameplayScenarios.NextPreparation(state, city.Id, "ranged");
+        foreach (var (slot, type) in new[] { (3, Building.Lumbermill), (4, Building.Lumbermill), (1, Building.MetalMine) })
+            if (city.Slots[slot].Type == Building.Empty) return build(slot, type);
+        if (city.Slots[2].Type == Building.Empty) return build(2, city.Soldiers.Any(u => u.Type == UnitType.Swordsman) ? Building.ArcheryRange : Building.Barracks);
+        if (city.Slots[0].Type == Building.Empty && city.Slots[2].Type == Building.Barracks) return build(0, Building.Farm);
+        if (recruit(UnitType.Swordsman, 2) is { } sword) return sword;
+        if (state.Turn != state.Rules.PreparationStages) return null;
+        if (city.Slots[2].Type == Building.Barracks) return new(GameplayAction.Sell, 2);
+        var bow = city.RecruitmentQuotes.Single(q => q.Type == UnitType.Crossbowman && q.Level == 1);
+        if (city.Wood < bow.Cost.Wood && city.Slots[0].Type == Building.Farm) return new(GameplayAction.Sell, 0);
+        return recruit(UnitType.Crossbowman, 1);
     }
 
     public static OpeningRun Review(string doctrine, ulong seed = SoloSession.DefaultSeed)

@@ -2,6 +2,19 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "normal-openings")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (string order in new[] { "canonical", "normal-wood", "normal-frontline", "normal-role" })
+        {
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, "opening", seed, openingOrder: order)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"{order}.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"NORMAL_OPENING_PASS order={order} runs={runs.Length} threeWaves={runs.Count(r => r.Battles.Length == 3 && r.Battles[^1].Result != "Defeat")} firstSurvived={runs.Count(r => r.Battles[0].Result != "Defeat")}");
+        }
+        return 0;
+    }
     if (args.FirstOrDefault() == "preparation-food")
     {
         Directory.CreateDirectory(args[1]);
