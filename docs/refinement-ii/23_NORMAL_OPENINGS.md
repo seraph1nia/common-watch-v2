@@ -37,3 +37,24 @@ Scripted novice-style task traces stay explicitly scripted; no human observation
 or victory guarantee is inferred. Required build/Core/Shared/native session,
 settlement picking and multiplayer gates remain. #24/#25 must recheck the selected
 opening and final budgets. No new game artwork, dependencies or audio changes.
+
+## First comparison and selection
+
+Executable probe commit follows the design.48 runs: canonical, normal Wood-first,
+normal frontline-first and normal role-first ×six doctrines×two seeds. All twelve
+Wood-first paths reach three waves, without any recovery construction. Normal
+frontline-first and role-first reach10/12; both Merchant frontline-first seeds
+field2 and loseW1. Preserve those losses. Merchant Wood-first uses two early
+Lumbermills before Metal/trainer, then a final-window Farm. Mage-first Arcanist
+and two-frontline/one-archer Huntsman both survive three waves; their costs and
+first-wave casualties remain distinct. The archer variant sells its temporary
+trainer/Farm, so it is a tested advanced route, not promoted as the basic opening.
+
+Select **no Core price or allocation change**. Change construction ordering and
+show actual producer output at purchase. The single optional prompt leads with
+Wood income, gives Merchant its concrete Wood-supply constraint, then supply,
+trainer, Food and recruit context. Remove numbered checklist/placement lessons
+and redundant prior-outcome prompts. Keep exact factual battle result/reward in
+existing owners. Late specialists are an option; never promise free/immediate
+magic or bows in the generic normal route. Compare normal-route continuation
+through20 before final delivery and retain any new failures.
