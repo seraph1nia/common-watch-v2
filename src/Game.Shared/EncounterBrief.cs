@@ -11,9 +11,14 @@ public sealed record EncounterBrief(string Purpose, string Problem, string Decis
 /// <summary>Names problems in the actual catalog/forecast. Advice is optional, never a command or a damage prediction.</summary>
 public static class EncounterBriefing
 {
+    private static bool ElitePairs(WaveDefinition? wave) => wave is { IsBoss: false } && wave.Number % 10 == 0
+        && wave.Entries.Where(e => e.Type == UnitType.Swordsman).Sum(e => e.Count) == 2
+        && wave.Entries.Where(e => e.Type == UnitType.Berserker).Sum(e => e.Count) == 2;
     public static string Purpose(WaveDefinition wave, WaveDefinition? previous, bool final = false)
     {
-        if (wave.IsBoss) return final ? "Final boss duel" : "Boss duel";
+        if (wave.IsBoss) return final ? "Final boss" : "Single boss";
+        if (ElitePairs(wave)) return final ? "Final elite formation" : "Elite formation";
+        if (ElitePairs(previous)) return "Ranged follow-up";
         if (previous?.IsBoss == true) return "Return to formations";
         int front = wave.Entries.Where(e => e.Type == UnitType.Swordsman).Select(e => e.Level).DefaultIfEmpty(0).Max();
         int oldFront = previous?.Entries.Where(e => e.Type == UnitType.Swordsman && !e.IsBoss).Select(e => e.Level).DefaultIfEmpty(0).Max() ?? 0;
@@ -35,14 +40,15 @@ public static class EncounterBriefing
         bool heavy = forecast.Any(u => u.Type == UnitType.Berserker);
         string composition = string.Join(" · ", forecast.GroupBy(u => (u.Type, u.Level, u.IsBoss)).Select(g => $"{g.Count()} {g.Key.Type} L{g.Key.Level}{(g.Key.IsBoss ? " BOSS" : "")}"));
         string problem = forecast.Length == 0 ? "No incoming allocation for this city in the accepted forecast."
-            : boss ? "A durable single-member foe tests sustained primary damage and frontline survival."
+            : boss ? "Each boss has one member; sustained primary damage and frontline survival matter."
+            : ElitePairs(current) ? "Two elite melee pairs split the frontline; secondary attacks can reach a second member in each pair."
             : mage ? "Magic support adds secondary damage within an engaged squad."
             : heavy ? "Berserkers add primary/secondary pressure to the frontline."
-            : ranged ? "Crossbowmen can attack from range; exposed support needs protection."
+            : ranged ? "Crossbowmen attack from range; paths and target access determine who is exposed."
             : "Close-range soldiers test whether your funded frontline can hold.";
         string decisions = boss ? "Compare single-target primary damage and protection; secondary attacks have no other member to hit inside a boss squad."
             : ranged ? "Compare melee screens and rear homes for your support; review funding before adding recruits."
-            : heavy ? "Compare protection, recruitment equipment and slowing effects you can actually acquire."
+            : heavy ? "Compare funded frontline groups and current recruitment equipment."
             : "Compare funded members, available home capacity and the next trainer quote.";
         string bosses = string.Join("\n", forecast.Where(u => u.IsBoss).Select(u => $"P{u.Origin} boss → P{u.Destination}: {HealthPoints.Format(u.Profile.Health)} HP · primary {HealthPoints.Format(u.Profile.Damage)} · range {u.Profile.HexRange}. No escorts in its allocation."));
         string schedule = string.Join("\n", state.WaveCatalog.Select(w => $"{(w.Number == state.Wave ? "→" : "")}W{w.Number}: {Purpose(w, state.WaveCatalog.FirstOrDefault(p => p.Number == w.Number - 1), w.Number == state.TotalWaves)} · "

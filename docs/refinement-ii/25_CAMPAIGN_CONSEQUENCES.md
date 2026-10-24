@@ -158,7 +158,7 @@ final snapshot. Boss versus W10-heavy:2126/2139 battles,98/99Victories out of120
 Matched seeds50/60→51/60; held-outs48/60→48/60. Frontline24/24, towers22/24 and
 research24/24 stay unchanged; mixed21/24→22/24; pure-ranged7/24 stays unchanged.
 The17early pure-ranged failures precedeW10 in both catalogs: an explicit paid
-conversion and a legal policy do not make an unscreened bow investment generally
+conversion and a legal policy do not make that bow-only reinforcement investment generally
 safe. Do not advertise that continuation as a universal counter. Mixed armies
 retain actual ranged/magic members. No profile/cost subsidy is selected.
 
@@ -206,3 +206,22 @@ all authoritative preconditions/retries remain unchanged. Immediate recovery
 quotes may differ with actual wounds; their exact frozen application and ordinary
 healing eligibility/caps do not change. Final shipping campaign/marginal/uneven
 cooperation and native/export/CI gates are still required before completion.
+
+## Shipping implementation checkpoint
+
+The defaultW10 catalog is now the selected heavy formation. Shared purpose,
+current `major-10` development checkpoint, showcase selector and native tests
+follow that data. Historical `boss-10` CLI spelling remains an alias to the actual
+currentW10, not a fabricated boss; explicit original comparisons use the frozen
+campaign factory. Boss-only animation contracts now use the retainedW20.
+Historical same-rule R4 presentation comparisons can pass `--profiles early dense
+boss-10 boss-20`; they must not pretend this rules change preserves old outcomes.
+
+The compact planning summary names the elite formation in its existing first
+line, with actual composition and funded participants. The first native check
+caught the missing label; the label was added and both720/1080 native runs pass.
+Ready consumes the exact six forecast profiles with no crowns/fake boss health;
+W20 retains its real health/windup/death/pause/restart/ground-picking checks.
+The720 forecast was visually inspected and fits. Locked build is zero-warning,
+Core75/Shared169 pass, including catalog data integrity, old-rule refusal and
+strict single-boss validation. Full final integration remains outstanding.

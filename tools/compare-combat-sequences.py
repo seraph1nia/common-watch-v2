@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--before', type=Path, default=Path('artifacts/captures/combat-review/before'))
 parser.add_argument('--after', type=Path, default=Path('artifacts/captures/combat-review/after'))
 parser.add_argument('--output', type=Path, default=Path('artifacts/captures/combat-review/comparison.json'))
+parser.add_argument("--profiles", nargs="+", default=["early", "dense", "major-10", "boss-20"], help="Use boss-10 instead of major-10 for historical R4 source recordings.")
 args = parser.parse_args()
 
 def intersects(a, b):
@@ -15,7 +16,7 @@ def intersects(a, b):
 
 rows = []
 for width in (1280, 1920):
-    for profile in ('early', 'dense', 'boss-10', 'boss-20'):
+    for profile in args.profiles:
         before = json.loads((args.before / str(width) / (profile + '.json')).read_text())
         after = json.loads((args.after / str(width) / (profile + '.json')).read_text())
         assert before['outcome'] == after['outcome'], (width, profile, 'authoritative outcome changed')

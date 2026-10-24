@@ -6,7 +6,7 @@ namespace Game.Shared;
 public static class GameplayScenarios
 {
     public static IReadOnlyList<string> Checkpoints { get; } = Array.AsReadOnly<string>(
-        ["boss-10", "boss-20", "economy", "army", "town-hall", "research", "forecast", "reward", "late", "research-full", "research-open", "victory", "defeat"]);
+        ["major-10", "boss-10", "boss-20", "economy", "army", "town-hall", "research", "forecast", "reward", "late", "research-full", "research-open", "victory", "defeat"]);
     public static GameplayIntent? NextPreparation(MatchSnapshot state, int player, string family = "frontline")
     {
         if (state.Phase is not (Phase.Building or Phase.Preparation)) return null;
@@ -18,6 +18,7 @@ public static class GameplayScenarios
     public static string RewardChoice(RunState run) => GameplayCampaignPolicy.RewardChoice(run);
     public static SoloSession CreateAt(string checkpoint, bool enrich = true, Rules? rules = null, ulong seed = 1, string? matchId = null)
     {
+        if (checkpoint == "boss-10") checkpoint = "major-10"; // Historical CLI alias; current catalog owns the encounter.
         if (!Checkpoints.Contains(checkpoint)) throw new ArgumentException("Unknown gameplay scenario: " + checkpoint);
         var solo = new SoloSession(seed: seed, matchId: matchId, rules: rules);
         try
@@ -31,7 +32,7 @@ public static class GameplayScenarios
                 if (solo.Snapshot.Phase != Phase.Defeat) throw new InvalidOperationException("Uninvested defense unexpectedly survived.");
                 return solo;
             }
-            int target = checkpoint switch { "boss-10" => 10, "boss-20" => 20, "reward" => 2, "forecast" => 8, "economy" => 8, "army" => 8, "town-hall" => 8, "research" => 12, "research-full" => 20, "research-open" => 14, "late" => 16, _ => 21 };
+            int target = checkpoint switch { "major-10" => 10, "boss-20" => 20, "reward" => 2, "forecast" => 8, "economy" => 8, "army" => 8, "town-hall" => 8, "research" => 12, "research-full" => 20, "research-open" => 14, "late" => 16, _ => 21 };
             string family = checkpoint is "army" ? "mixed" : checkpoint == "town-hall" ? "reserve" : checkpoint is "research" or "research-full" or "research-open" ? "research" : "frontline";
             for (int wave = 1; wave <= 20; wave++)
             {

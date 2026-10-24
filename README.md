@@ -66,6 +66,8 @@ mise run test-art
 
 Battle showcases and the asset showroom are development tools, separate from ordinary play. `profile-animation` repeats native battles at 30/60/120 FPS and three combat speeds; `capture-environment` records matched Off/Full environment timings, and `review-environment` presents those results. Measurements from software rendering describe that environment and do not establish physical GPU performance.
 
+Wave10 fields twoL3 Swordsmen, twoL3 Berserkers, oneL1 Crossbowman and oneL2 Mage. Wave20 retains its singleL5 boss. Forecasts show actual profiles; the major clear resources stay unchanged. See the [controlled campaign comparison](docs/refinement-ii/25_CAMPAIGN_CONSEQUENCES.md).
+
 Combat poses, shots, statuses, hits and deaths follow authoritative playback. Showcase scenarios are earned through legal commands. [Animation documentation](docs/COMBAT_ANIMATION.md) covers controls, receipts, captures and known static-sprite limitations.
 
 Sprite combat now uses the supplied [modular Rain / Ember arena](docs/MODULAR_BATTLE_ARENA.md).
@@ -104,7 +106,7 @@ mise run capture-opening           # six doctrines, three waves, actual producti
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
 mise run capture-recovery          # finite squad moves, partial capacity, explicit return and cancel
 mise run test-recovery-network     # remote accepted-prefix cancel, retry and private rejoin
-mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
+mise run capture-bosses            # W10 paired elites / W20 boss; actual forecasts, playback and restart
 mise run capture-hud               # native Ready, combat and acknowledged reward-waiting at both sizes
 mise run test-journey              # continuous native three-wave solo and 2/4/6-player journeys
 mise run test-cooperative-context  # city focus, owner guards, manual camera and three-wave co-op matrix

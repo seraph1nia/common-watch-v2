@@ -16,6 +16,7 @@ public sealed class BattleShowcase
     double credit;
     public BattleShowcase(string scenario, int players = 1)
     {
+        if (scenario == "boss-10") scenario = "major-10";
         Scenario = scenario;
         Frames = scenario == "arena" ? ArenaShowcase.Record(players) : Record(scenario);
         Snapshot = Frames[0];
@@ -56,7 +57,7 @@ public sealed class BattleShowcase
     }
     static IReadOnlyList<MatchSnapshot> Record(string scenario)
     {
-        if (scenario is "boss-10" or "boss-20")
+        if (scenario is "major-10" or "boss-20")
         {
             using var boss = GameplayScenarios.CreateAt(scenario); Require(boss.Send("ready"));
             return RecordFrames(boss);

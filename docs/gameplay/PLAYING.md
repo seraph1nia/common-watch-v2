@@ -112,7 +112,10 @@ remains a separate paid recruit with a new identity and zero service history.
 Preparation forecasts name the current tactical problem and enemy equipment.
 Hover for the full brief, or open **City details** for the campaign schedule,
 actual boss HP/primary profile and clear rewards. Gear checks, mixed pressure and
-boss duels ask different questions; the suggestions never submit a command.
+major encounters ask different questions; the suggestions never submit a command.
+W10 now fields paired L3 Swordsmen/Berserkers with lighter ranged support;
+W20 retains the single L5 boss. A secondary attack can hit another member in a
+pair, while each boss has only one member. See the [current comparison](../refinement-ii/25_CAMPAIGN_CONSEQUENCES.md); scripted outcomes are not universal counter advice.
 Waves 10/20 use larger crowned figures, gold health emphasis and tick-synchronized
 anticipation/defeat cues. Bosses retain their original hit/occupancy rules and
 single-member squads; secondary attacks have no extra member to hit in them.

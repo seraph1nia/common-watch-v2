@@ -29,7 +29,7 @@ public partial class GameApplication
     {
         directory = System.IO.Path.GetFullPath(directory); System.IO.Directory.CreateDirectory(directory);
         Engine.MaxFps = 60;
-        foreach (string profile in majorComparison ? new[] { "w10-boss", "w10-elite", "w20-boss", "w20-elite" } : new[] { "early", "dense", "boss-10", "boss-20" })
+        foreach (string profile in majorComparison ? new[] { "w10-boss", "w10-elite", "w20-boss", "w20-elite" } : new[] { "early", "dense", "major-10", "boss-20" })
         {
             ReplaceSession(majorComparison ? MajorEncounterComparison.CreateAt(profile.StartsWith("w10", StringComparison.Ordinal) ? 10 : 20, profile.EndsWith("elite", StringComparison.Ordinal), heavy: Argument("--major-formation") == "heavy")
                 : profile == "early" ? ScenarioRunner.CreateAt("battle-start")

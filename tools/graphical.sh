@@ -165,9 +165,10 @@ PYFIXTURE
     ;;
   capture-bosses)
     client_timeout=180
+    boss_output=${COMMON_WATCH_BOSS_OUTPUT:-"$(pwd)/artifacts/captures/bosses"}
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi
-      run_client --boss-review --gameplay-captures "$(pwd)/artifacts/captures/bosses/$width" --width "$width" --height "$height" "$@"
+      run_client --boss-review --gameplay-captures "$boss_output/$width" --width "$width" --height "$height" "$@"
     done
     ;;
   capture-veterans)

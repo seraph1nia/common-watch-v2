@@ -7,6 +7,7 @@ namespace Game.GodotClient;
 
 public partial class GameApplication
 {
+    private static readonly string[] BattleScenarios = ["swordsman", "ranged", "status", "burn", "chill", "structures", "major-10", "boss-20"];
     Label? _battleInfo;
     CanvasLayer? _battleLayer;
     OptionButton? _battleScenarios;
@@ -23,8 +24,8 @@ public partial class GameApplication
         column.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         column.AddChild(new Label { Text = "ANIMATED TABLETOP FIGURES", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         var scenarios = new OptionButton(); _battleScenarios = scenarios;
-        string[] names = ["swordsman", "ranged", "status", "burn", "chill", "structures", "boss-10", "boss-20"];
-        foreach (var text in new[] { "A · Swordsmen / raiders", "B · Ranged / magic", "C · Poison", "C · Burn", "C · Chill", "C · Structures", "D · Wave 10 boss", "D · Wave 20 boss" }) scenarios.AddItem(text);
+        string[] names = BattleScenarios;
+        foreach (var text in new[] { "A · Swordsmen / raiders", "B · Ranged / magic", "C · Poison", "C · Burn", "C · Chill", "C · Structures", "D · Wave 10 elite formation", "D · Wave 20 boss" }) scenarios.AddItem(text);
         scenarios.Selected = Math.Max(0, Array.IndexOf(names, _battle!.Scenario));
         scenarios.ItemSelected += i => SelectBattle(names[(int)i]); column.AddChild(scenarios);
         column.AddChild(_skin.Button("Play / pause  [Space]", () => _battle!.Paused = !_battle.Paused));
@@ -44,7 +45,7 @@ public partial class GameApplication
         }
         RefreshUi(true);
     }
-    void SelectBattle(string scenario) { _battle = new(scenario); _battlefield.Present(_session, _battle); ResetCamera(); if (_battleScenarios is not null) _battleScenarios.Selected = Array.IndexOf(new[] { "swordsman", "ranged", "status", "burn", "chill", "structures" }, scenario); UpdateBattleHud(); }
+    void SelectBattle(string scenario) { _battle = new(scenario); _battlefield.Present(_session, _battle); ResetCamera(); if (_battleScenarios is not null) _battleScenarios.Selected = Math.Max(0, Array.IndexOf(BattleScenarios, _battle.Scenario)); UpdateBattleHud(); }
     void SeekBattle(double tick)
     {
         var entries = _battle!.Seek(tick); _battle.Paused = true; _battlefield.Present(_session, _battle);

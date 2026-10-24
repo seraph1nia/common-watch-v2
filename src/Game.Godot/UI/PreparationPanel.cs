@@ -22,7 +22,7 @@ public partial class PreparationPanel : PanelContainer
         var brief = EncounterBriefing.Project(state, city.Id);
         string composition = brief.Composition;
         Summary.TooltipText = brief.Details + "\n\nFull campaign purposes and clear rewards: City details.\nStored soldiers never fight.\nUnfunded field soldiers sit out; Food shortage permits Ready.\nEach production advances research and eligible stored-soldier recovery.";
-        Summary.Text = $"Wave {state.Wave} → P{city.Id}: {threat.Length} enemies"
+        Summary.Text = $"Wave {state.Wave}" + (state.Wave % 10 == 0 && !threat.Any(u => u.IsBoss) ? " · " + brief.Purpose : "") + $" → P{city.Id}: {threat.Length} enemies"
             + (composition.Length > 0 ? "\n" + composition : "");
         if (city.Eliminated) { Summary.Text += "\nFallen city · no participating army."; return; }
         if (city.FoodForecast is not { } food) { Summary.Text += "\nArmy / Food forecast unavailable."; return; }

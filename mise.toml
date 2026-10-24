@@ -254,7 +254,7 @@ depends = ["build"]
 run = "bash tools/graphical.sh capture-veterans"
 
 [tasks.capture-bosses]
-description = "Legal wave 10/20 forecast, crowned figures, playback health/windup/death and restart"
+description = "Legal W10 elite formation/W20 boss forecasts, playback health/windup/death and restart"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-bosses"
 
