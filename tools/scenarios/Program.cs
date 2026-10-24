@@ -2,6 +2,36 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "preparation-opening-orders")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (string order in new[] { "canonical", "army-first", "economy-first" })
+            foreach (int stages in new[] { 3, 2 })
+            {
+                var rules = new Game.Core.Rules { PreparationStages = stages };
+                var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                            from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                            select RewardEconomyReview.Run(doctrine.Id, "opening", seed, rules: rules, openingOrder: order)).ToArray();
+                File.WriteAllText(Path.Combine(args[1], $"{order}-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+                Console.WriteLine($"PREPARATION_OPENING_ORDER_PASS order={order} stages={stages} runs={runs.Length} threeWaves={runs.Count(r => r.Battles.Length == 3 && r.Battles[^1].Result != "Defeat")}");
+            }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-review")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (int stages in new[] { 3, 2 })
+        {
+            var rules = new Game.Core.Rules { PreparationStages = stages };
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from family in new[] { "opening", "frontline", "ranged", "mixed", "towers", "research" }
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, family, seed, rules: rules)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"{stages}-stage.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"PREPARATION_CANDIDATE_PASS stages={stages} runs={runs.Length} battles={runs.Sum(r => r.Battles.Length)} fullVictories={runs.Count(r => r.Family != "opening" && r.Battles[^1].Result == "Victory")}");
+        }
+        return 0;
+    }
     if (args.FirstOrDefault() is "reward-economy-review" or "build-review")
     {
         var runs = (from doctrine in Game.Core.RunCatalog.Doctrines

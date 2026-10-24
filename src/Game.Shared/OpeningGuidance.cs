@@ -23,7 +23,7 @@ public static class OpeningGuidance
 {
     public static string NextReady(MatchSnapshot state) => state.Phase == Phase.Preparation
         ? "Ready pays final income and Food, then starts battle."
-        : $"Ready pays one production and advances to preparation {state.Turn + 1}/3.";
+        : $"Ready pays {(PreparationSchedule.ResourceMultiplier(state.Rules, state.Turn) == 2 ? "double resources, one Research/recovery event" : "one production")} and advances to preparation {state.Turn + 1}/{state.Rules.PreparationStages}.";
     public static OpeningHint? Project(MatchSnapshot state, CityState city, bool reviewedHomes, BattleOutcome? outcome)
     {
         if (state.Wave > 3 || state.Phase is Phase.Lobby or Phase.Combat) return null;

@@ -127,7 +127,7 @@ public partial class GameApplication
         for (int n = 0; n < 100; n++)
             {
                 if (!ReferenceEquals(owner, _session)) throw new OperationCanceledException("Session changed");
-                if (OpeningCampaign.Next(owner.Snapshot, owner.PlayerId) is not { } intent) return;
+                if (OpeningCampaign.Next(owner.Snapshot, owner.PlayerId, ReviewOpeningOrder) is not { } intent) return;
                 await DriveNativeJourney(intent);
         }
         throw new InvalidOperationException("Native opening decision bound exceeded");

@@ -17,9 +17,9 @@ public sealed record RewardEconomyRun(string Doctrine, string Family, ulong Seed
 /// <summary>Matched, bounded ordinary-command policies. No snapshot or simulation writes.</summary>
 public static class RewardEconomyReview
 {
-    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null)
+    public static RewardEconomyRun Run(string doctrine, string family, ulong seed, int? lastWaveLimit = null, Rules? rules = null, string openingOrder = "canonical")
     {
-        using var match = new Match(matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
+        using var match = new Match(rules: rules, matchId: $"reward-economy-{doctrine}-{family}-{seed}", combatSeed: seed);
         int player = match.Join()!.Id; long sequence = 0;
         var commands = new List<EconomyCommand>(); var battles = new List<RewardEconomyBattle>();
         var shortages = new List<EconomyShortage>();
@@ -40,12 +40,12 @@ public static class RewardEconomyReview
         if (lastWave is < 1 or > 20) throw new ArgumentOutOfRangeException(nameof(lastWaveLimit));
         for (int wave = 1; wave <= lastWave && match.Phase is not (Phase.Defeat or Phase.Victory); wave++)
         {
-            for (int stage = 0; stage < 3; stage++)
+            for (int stage = 0; stage < match.Rules.PreparationStages; stage++)
             {
                 for (int decision = 0; decision < 120; decision++)
                 {
                     var state = match.Snapshot();
-                    var intent = family == "opening" ? OpeningCampaign.Next(state, player)
+                    var intent = family == "opening" ? OpeningCampaign.Next(state, player, openingOrder)
                         : GameplayScenarios.NextPreparation(state, player, family);
                     if (intent is null) break;
                     Submit(intent.Capture(state, ++sequence, player));

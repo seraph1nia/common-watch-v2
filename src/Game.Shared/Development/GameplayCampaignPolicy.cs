@@ -175,7 +175,7 @@ internal static class GameplayCampaignPolicy
                 foreach (var (slot, type) in new[] { (0, Building.Farm), (1, Building.MetalMine), (3, Building.Lumbermill), (4, Building.Lumbermill), (2, Building.Lumbermill) })
                     if (city.Slots[slot].Type == Building.Empty) return Build(city, state, slot, type);
             }
-            if (state.Turn != 3) return null;
+            if (state.Turn != state.Rules.PreparationStages) return null;
             foreach (int slot in new[] { 0, 1, 2 })
                 if (city.Slots[slot].Type is Building.Farm or Building.MetalMine or Building.Lumbermill) return new("sell", slot);
             if (city.Slots[2].Type == Building.Empty) return Build(city, state, 2, Building.ArcheryRange);
@@ -190,7 +190,7 @@ internal static class GameplayCampaignPolicy
         if (state.Turn == 1)
             foreach (var (slot, type) in new[] { (0, Building.Farm), (1, Building.MetalMine), (4, Building.MetalMine), (3, Building.Lumbermill) })
                 if (city.Slots[slot].Type == Building.Empty) return Build(city, state, slot, type);
-        if (state.Turn != 3) return null;
+        if (state.Turn != state.Rules.PreparationStages) return null;
         if (city.Slots[4].Type == Building.MetalMine) return new("sell", 4);
         if (city.Slots[2].Type == Building.Empty) return Build(city, state, 2, Building.Barracks);
         RecruitmentQuote quote = city.RecruitmentQuotes.Single(q => q.Type == UnitType.Swordsman && q.Level == 1);

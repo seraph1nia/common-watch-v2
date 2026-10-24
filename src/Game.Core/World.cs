@@ -16,6 +16,7 @@ public sealed record Rules
     // Enemy-only strength: counts, equipment levels and player profiles stay intact.
     [System.Text.Json.Serialization.JsonRequired]
     public int EnemyPowerPercent { get; init; } = 75;
+    public int PreparationStages { get; init; } = 3;
     public int CityHealth { get; init; } = 100;
     public int StartingGold { get; init; } = 12;
     public int BaseGold { get; init; } = 2;
@@ -132,7 +133,7 @@ public sealed record MatchSnapshot(string MatchId, long Revision, long Tick, Pha
     public ArenaState? Arena { get; init; }
     public SquadState[] Squads { get; init; } = [];
     public StructureState[] Structures { get; init; } = [];
-    public const int CurrentBattleFlowVersion = 3;
+    public const int CurrentBattleFlowVersion = 4;
     // Missing on historical snapshots => 0; never silently read a fourth
     // preparation as one of the new three phases.
     public int BattleFlowVersion { get; init; }
@@ -265,10 +266,10 @@ public sealed class City
         catch (ArgumentException) { return false; }
     }
     public CityState Snapshot() => Snapshot(_combat.Soldiers(Id));
-    internal CityState Snapshot(UnitState[] soldiers, bool terminal = false, bool settleProduction = false)
+    internal CityState Snapshot(UnitState[] soldiers, bool terminal = false, bool settleProduction = false, int productionMultiplier = 1)
     {
         var state = new CityState(Id, Connected, Ready, Gold, Food, Health, Slots.Select(s => s with { UpgradeQuote = _economy.TryUpgrade(s.Type, s.Level, out ResourceCost quote) ? quote : null }).ToArray(), soldiers, DefenderCooldown)
-        { Run = Run.Detach(), MarketSaleBonus = RunEffects.MerchantBonus(Run, CurrentWave), Army = _army.Snapshot(soldiers, PurchasedHomes, Slots, ArmyPlots.Select(s => s with { UpgradeQuote = _economy.TryUpgrade(s.Type, s.Level, out ResourceCost quote) ? quote : null }).ToArray()), ProductionIncome = terminal || Eliminated ? default(ResourceCost) : _economy.ProjectedProduction(Slots, Research, Run), Wood = Wood, Stone = Stone, Metal = Metal, Cloth = Cloth, Research = Research, Technologies = _economy.Research.Definitions().Select(n => _economy.Research.Eligibility(Research, n.Id)).ToArray(), RecruitmentQuotes = _economy.RecruitmentQuotes(_configuration, Research, Run), LastReward = LastReward, LastBattleLoss = LastBattleLoss, LastUpkeep = LastUpkeep is null ? null : LastUpkeep with { Participating = LastUpkeep.Participating.ToArray(), Unfed = LastUpkeep.Unfed.ToArray(), Funded = LastUpkeep.Funded.ToArray() }, Defender = Defender, Towers = Towers.Values.OrderBy(t => t.Slot).ToArray() };
+        { Run = Run.Detach(), MarketSaleBonus = RunEffects.MerchantBonus(Run, CurrentWave), Army = _army.Snapshot(soldiers, PurchasedHomes, Slots, ArmyPlots.Select(s => s with { UpgradeQuote = _economy.TryUpgrade(s.Type, s.Level, out ResourceCost quote) ? quote : null }).ToArray()), ProductionIncome = terminal || Eliminated ? default(ResourceCost) : _economy.ProjectedProduction(Slots, Research, Run, productionMultiplier), Wood = Wood, Stone = Stone, Metal = Metal, Cloth = Cloth, Research = Research, Technologies = _economy.Research.Definitions().Select(n => _economy.Research.Eligibility(Research, n.Id)).ToArray(), RecruitmentQuotes = _economy.RecruitmentQuotes(_configuration, Research, Run), LastReward = LastReward, LastBattleLoss = LastBattleLoss, LastUpkeep = LastUpkeep is null ? null : LastUpkeep with { Participating = LastUpkeep.Participating.ToArray(), Unfed = LastUpkeep.Unfed.ToArray(), Funded = LastUpkeep.Funded.ToArray() }, Defender = Defender, Towers = Towers.Values.OrderBy(t => t.Slot).ToArray() };
         return state with { FoodForecast = terminal ? null : BattleFood.Project(state, settleProduction) };
     }
 }
@@ -287,7 +288,7 @@ public sealed class Match : IDisposable
     }
     public Match(Rules? rules = null, string? matchId = null, ulong? combatSeed = null)
     {
-        Rules = rules ?? new(); Id = matchId ?? Guid.NewGuid().ToString("N");
+        Rules = rules ?? new(); PreparationSchedule.Validate(Rules); Id = matchId ?? Guid.NewGuid().ToString("N");
         if (Rules.AttackTicks <= Rules.MeleeWindupTicks || Rules.AttackTicks <= Rules.RangedWindupTicks
             || Rules.MeleeWindupTicks < 1 || Rules.RangedWindupTicks < 1 || Rules.SoldierHealth < 1 || Rules.RangedHealth < 1
             || Rules.BerserkerHealth < 1 || Rules.MageHealth < 1 || Rules.CityHealth < 1 || Rules.SoldierDamage < 0 || Rules.RangedDamage < 0 || Rules.BerserkerDamage < 0 || Rules.MageDamage < 0
@@ -364,7 +365,7 @@ public sealed class Match : IDisposable
         var units = _combat.ProjectAll();
         var soldiers = units.Living.Where(u => u.Faction == Faction.Adventurers).GroupBy(u => u.Owner).ToDictionary(g => g.Key, g => g.ToArray());
         return new(Id, Revision, Tick, Phase, Paused, Wave, Turn, TurnSerial,
-        Rules with { Army = Army.Definition(), Combat = Rules.Combat with { Board = Configuration.Board.Definition() }, Campaign = Campaign.Definition() }, Players.Values.Select(p => p.Snapshot(soldiers.GetValueOrDefault(p.Id) ?? [], Phase is Phase.Victory or Phase.Defeat, Phase == Phase.Preparation)).ToArray(), units.Living.Where(u => u.Faction == Faction.Skeletons).ToArray())
+        Rules with { Army = Army.Definition(), Combat = Rules.Combat with { Board = Configuration.Board.Definition() }, Campaign = Campaign.Definition() }, Players.Values.Select(p => p.Snapshot(soldiers.GetValueOrDefault(p.Id) ?? [], Phase is Phase.Victory or Phase.Defeat, Phase == Phase.Preparation, PreparationSchedule.ResourceMultiplier(Rules, Turn))).ToArray(), units.Living.Where(u => u.Faction == Faction.Skeletons).ToArray())
         {
             Arena = _combat.Arena,
             Squads = units.Squads,
@@ -492,8 +493,8 @@ public sealed class Match : IDisposable
         {
             foreach (City city in Players.Values.Where(p => !p.Eliminated))
             {
-                ResourceCost income = Economy.Production(city.Slots, city.Research, city.Run);
-                if (!city.Resources.TryAdd(income, out ResourceCost balance)) return false;
+                ResourceCost? income = PreparationSchedule.Delivery(Rules, Turn, Economy.Production(city.Slots, city.Research, city.Run));
+                if (income is not { } delivered || !city.Resources.TryAdd(delivered, out ResourceCost balance)) return false;
                 balances.Add(city.Id, balance);
                 research.Add(city.Id, city.Research.Income(progress: Economy.ResearchProduction(city.Slots)));
             }
@@ -520,7 +521,7 @@ public sealed class Match : IDisposable
         ProductionCount++;
         if (Phase == Phase.Preparation) { BeginWave(); Revision++; return true; }
         Turn++;
-        if (Turn == 3) Phase = Phase.Preparation;
+        if (Turn == Rules.PreparationStages) Phase = Phase.Preparation;
         Revision++; return true;
     }
     private void BeginWave()

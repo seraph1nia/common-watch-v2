@@ -31,7 +31,7 @@ public sealed class EconomyConfiguration
 
     public EconomyConfiguration(Rules rules)
     {
-        ArgumentNullException.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(rules); PreparationSchedule.Validate(rules);
         _researchSettings = rules.Research; Research = new(rules.Research);
         if (_researchSettings.TowerLevelOneProgress != 1 || _researchSettings.TowerLevelTwoProgress != 2) throw new ArgumentException("Invalid research production.");
         StartingResources = new(rules.StartingGold, rules.StartingWood);
@@ -73,7 +73,7 @@ public sealed class EconomyConfiguration
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            writer.Write(3); Write(writer, StartingResources); Write(writer, BaseProduction);
+            writer.Write(4); writer.Write(rules.PreparationStages); Write(writer, StartingResources); Write(writer, BaseProduction);
             foreach (BuildingDefinition b in _buildings.Values.OrderBy(b => b.Type))
             {
                 writer.Write((int)b.Type); Write(writer, b.Construction); Write(writer, b.Upgrade);
@@ -169,9 +169,9 @@ public sealed class EconomyConfiguration
         }
         return total;
     }
-    public ResourceCost? ProjectedProduction(IEnumerable<SlotState> slots, ResearchState research = default, RunState? run = null)
+    public ResourceCost? ProjectedProduction(IEnumerable<SlotState> slots, ResearchState research = default, RunState? run = null, int multiplier = 1)
     {
-        try { return Production(slots, research, run); }
+        try { return Production(slots, research, run).TryMultiply(multiplier, out ResourceCost delivered) ? delivered : null; }
         catch (OverflowException) { return null; }
     }
     public MarketRate[] MarketRates() => _marketCatalog.ToArray();

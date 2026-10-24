@@ -9,7 +9,7 @@ public partial class PhaseTrack : BoxContainer
     private readonly List<Label> _stages = [];
     private readonly List<TextureRect> _markers = [];
     private readonly Dictionary<string, Texture2D> _textures = [];
-    private int _active = -1;
+    private int _active = -1, _count;
     private bool? _wide;
     public bool Illustrated { get; init; }
     public override void _Ready()
@@ -38,11 +38,13 @@ public partial class PhaseTrack : BoxContainer
         int active = state.Phase is Phase.Building or Phase.Preparation && !finishingCombat ? state.Turn - 1
             : state.Phase == Phase.Combat || finishingCombat ? 3 : 4;
         bool wide = GetViewportRect().Size.X >= 1600;
-        if (_active == active && _wide == wide) return;
+        if (_active == active && _wide == wide && _count == state.Rules.PreparationStages) return;
+        _count = state.Rules.PreparationStages;
         _active = active;
         _wide = wide; Vertical = wide;
         for (int i = 0; i < _stages.Count; i++)
         {
+            ((Control)_stages[i].GetParent()).Visible = i == 3 || i < _count;
             _markers[i].Texture = _textures.GetValueOrDefault(i < active ? "complete" : i == active ? "active" : "upcoming");
             _markers[i].CustomMinimumSize = wide ? new(22, 22) : new(14, 18);
             _stages[i].Text = i < 3 ? (wide ? $"Preparation {i+1}" : $"Prep {i+1}") : "Combat";

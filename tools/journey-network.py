@@ -15,6 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--players', type=int, choices=(2, 4, 6), default=2)
 parser.add_argument('--width', type=int, choices=(1280, 1920), default=1280)
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--preparations', type=int, choices=(2, 3), default=3)
+parser.add_argument('--opening-order', choices=('canonical', 'army-first', 'economy-first'), default='canonical')
 parser.add_argument('--cooperative-focus', action='store_true')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
@@ -193,7 +195,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
             logs.append(log)
             command = ['bash', 'tools/client.sh', '--settings-path', str(directory / 'settings.json'),
                        '--data-path', str(directory), '--control-dir', str(directory / 'control'),
-                       '--test-fast-combat', 'yes', '--width', str(args.width), '--height', str(args.width * 9 // 16)]
+                       '--test-fast-combat', 'yes', '--review-preparations', str(args.preparations), '--review-opening-order', args.opening_order, '--width', str(args.width), '--height', str(args.width * 9 // 16)]
             if args.debug:
                 command += ['--world-art', 'debug', '--hud-art', 'plain', '--view', 'topdown', '--debug-overlay', 'off']
             command += ['--host', str(port)] if i == 0 else ['--join', f'127.0.0.1:{port}']
@@ -206,7 +208,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
         request(0, 'start-native')
         wait(lambda: all(status(i)['state']['Phase'] == 'Building' for i in range(args.players)), 'ordinary start')
         for wave in range(1, 4):
-            for stage in range(1, 4):
+            for stage in range(1, args.preparations + 1):
                 for i in range(args.players):
                     request(i, 'team-pointer', owner=status(i)['player'])
                     request(i, 'opening-step-native', complete=False)
@@ -243,11 +245,11 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                     request(0, 'ready-pointer')
                     wait(lambda: city(0)['Ready'] and not status(0)['pending'], 'ready again')
                     capture('ready-unready-waiting')
-                if stage == 3:
+                if stage == args.preparations:
                     request(0, 'journey-overlay', overlay=('army', 'worldtree', 'settings')[wave - 1])
                     request(0, 'hold-combat', wave=wave, tick=60)
                 request(args.players - 1, 'ready-pointer')
-                if stage < 3:
+                if stage < args.preparations:
                     wait(lambda: all(status(i)['state']['Turn'] == stage + 1 and not city(i)['Ready'] for i in range(args.players)), 'one accepted production boundary')
             wait(lambda: status(0)['state']['Wave'] == wave and status(0)['state']['Phase'] == 'Combat' and status(0)['state']['Paused'], 'real combat capture boundary')
             wait(lambda: all(status(i)['hudMoment'] == 'Combat' for i in range(args.players)), 'combat presentation')

@@ -11,11 +11,10 @@ public static class SnapshotCompatibility
         if (state.RewardRulesVersion != BattleRewards.RulesVersion)
             throw new ArgumentException("Legacy reward snapshot refused: immediate reward rules are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
         if (state.BattleFlowVersion != MatchSnapshot.CurrentBattleFlowVersion || !Enum.IsDefined(state.CombatSpeed)
-            || state.Phase == Phase.Building && state.Turn is not (1 or 2)
-            || state.Phase == Phase.Preparation && state.Turn != 3 || state.NextWave is null
+            || !PreparationSchedule.ValidPhase(state.Rules, state.Phase, state.Turn) || state.NextWave is null
             || state.NextWave.Any(u => u is null || u.Id >= 0 || u.Faction != Faction.Skeletons || u.Health != u.Profile.Health)
             || state.NextWave.Select(u => u.Id).Distinct().Count() != state.NextWave.Length)
-            throw new ArgumentException("Legacy battle-flow snapshot refused: three preparations and authoritative wave forecasts are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
+            throw new ArgumentException("Legacy battle-flow snapshot refused: authoritative preparation schedules and wave forecasts are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
         if (state.CombatRulesVersion != CurrentSquadRulesVersion || state.Rules?.Combat is null || state.Rules.Arena is null
             || state.Rules.Combat.RulesVersion != state.CombatRulesVersion || state.Rules.Combat.Board is not { Capacity: 1, Id: "shared-watch-arena" }
             || state.Arena is null || state.Arena.Board is not { Capacity: 1 } || state.Squads is null || state.Structures is null)
@@ -195,7 +194,7 @@ public static class SnapshotCompatibility
         TownHallState[] halls = army.Snapshot(city.Soldiers, city.Army!.PurchasedHomes, city.Slots).Halls;
         if (!city.Army.Halls.SequenceEqual(halls))
             throw new ArgumentException("Malformed Town Hall projection.", nameof(city));
-        ResourceCost? production = phase is Phase.Victory or Phase.Defeat || city.Eliminated ? default(ResourceCost) : economy.ProjectedProduction(city.Slots, city.Research, city.Run);
+        ResourceCost? production = phase is Phase.Victory or Phase.Defeat || city.Eliminated ? default(ResourceCost) : economy.ProjectedProduction(city.Slots, city.Research, city.Run, PreparationSchedule.ResourceMultiplier(state.Rules, state.Turn));
         if (city.ProductionIncome != production)
             throw new ArgumentException("Malformed production projection.", nameof(city));
         BattleFoodForecast? expected = phase is Phase.Victory or Phase.Defeat ? null : BattleFood.Project(city, phase == Phase.Preparation);

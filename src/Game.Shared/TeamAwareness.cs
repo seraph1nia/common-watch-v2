@@ -47,7 +47,7 @@ public static class TeamAwareness
                 + (status == "Finishing" ? "\nYour playback is finishing; choices open after its last effect. Teammates may already choose." : "")
                 + (contribution.Length == 0 ? "" : "\nObserved logical sectors: " + contribution + ". Ownership stays with this city.")
                 + (away && !ended ? "\nAway cities do not block readiness. Reconnect reclaims the same city; the host must remain running." : "")
-                + (planning && !presentedCombat && state.Turn < 3 ? "\nFood uses stock now; later income and purchases can change it." : "")
+                + (planning && !presentedCombat && state.Turn < state.Rules.PreparationStages ? "\nFood uses stock now; later income and purchases can change it." : "")
                 + "\nInspect only. Your commands always belong to your authenticated city.";
             return new TeamMember(city.Id, status, city.Health, danger, field, fieldUnfed, storedUnfed, contribution, details);
         }).ToArray();
