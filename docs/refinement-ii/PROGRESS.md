@@ -3,7 +3,7 @@
 Implement all ten children of [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15),
 in dependency order. Original source: b4fa3f7. All work is on stacked draft PRs;
 no merge or issue closure is authorized by this checkpoint. The overall goal
-remains active until #23–#25 and integrated gates finish. No pending user input.
+remains active until #24–#25 and integrated gates finish. No pending user input.
 Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 
 | Order | Issue | Delivery |
@@ -15,8 +15,8 @@ Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 | 5 | #20 cooperative context | ce2d5c6, draft PR30; CI71 passed including both exports |
 | 6 | #21 immediate rewards | da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a, draft PR31; final exact-SHA CI75/40050084771 passed including both exports |
 | 7 | #22 preparation rhythm | dbcd3d9, draft PR32; all local gates and exact-SHA CI79 passed including both exports |
-| 8 | #23 opening economy | Active refinement/23-normal-openings; ordinary Wood-first routes, one prompt and native production flow implemented; final journeys/CI pending |
-| 9 | #24 veteran recovery | Required: real squad-level recovery alternative under immediate rewards / selected three stages |
+| 8 | #23 opening economy | a37b48f, draft PR33; all local gates and exact-SHA CI81/40055996289 passed including both exports |
+| 9 | #24 veteran recovery | Implemented on refinement/24-squad-recovery; all local gates and both exports pass; stacked draft PR / exact-SHA CI being published |
 | 10 | #25 campaign consequences | Original exact baseline archived; controlled tradeoffs, elite formation, held-out seeds and final calibration still required |
 
 Detailed source, evidence and qualifications live in the numbered issue contracts.
@@ -83,9 +83,9 @@ R5 manifest final CI updated without rehashing later #23 source. Historical sour
 hashes must remain tied to dbcd3d9. Experiment worktree r5-two-stage has no workers;
 its source is intentionally older. Do not accidentally build it for #23 checks.
 
-## Active #23 boundary
+## Completed #23 boundary
 
-Root branch refinement/23-normal-openings. Design76f5fb6, executable alternatives
+Historical branch refinement/23-normal-openings. Design76f5fb6, executable alternatives
 f2a904c, selectiona68774f precede production36c7895. Native probe refinement7616b9f.
 No Core or price/allocation/profile change; protocol19 remains compatible with22.
 Normal Wood-first reaches3clears for all6doctrines×2seeds without Gold recovery.
@@ -128,10 +128,26 @@ native passes then passed. A new guide probe attempted navigation while selected
 plot context intentionally hid guidance; fixed by native clear-selection first.
 No simulation patch, longer timeout or runtime-crash cause claim.
 
-Next: preserve final normal-route reports/capture/log/source manifest,
-readable comparison/reproduction docs, stacked draft PR33 and exact-SHA CI. Track
-#22 as COMPLETE (CI79green); no more #22 build/retest work. Compact at boundary,
-then #24 real squad-level recovery alternative under immediate rewards/three stages,
-then #25 controlled tradeoffs/elite formation/held-outs/final all-doctrine and uneven
-cooperative calibration. All specifications and final native/export gates remain
-authorized and active. No agents, no pending permission, no overall completion.
+Current root branch is refinement/24-squad-recovery. Design6806bba preceded
+prototype4578268. Existing Core rules and protocol19 are unchanged. Ten legal
+contexts, exact individual/group snapshots and24 full reserve campaigns/480
+battles pass. Native group storage/partial/return/cancel at both sizes and real
+remote held-host cancel/retry/private rejoin/next payment pass. Final full native
+regression, source/log manifest, stacked draft PR and exact-SHA CI are being
+finished. Then compact and implement #25's controlled tradeoffs, executable elite
+formation, held-out seeds and final campaign integration. No agents, pending
+permission, merge, issue closure or overall completion.
+
+#23 final exact-SHA CI81/40055996289 passed including Linux/Windows exports.
+Its r9 manifest preserves a37b48f source hashes. #24 starts from this completed
+boundary; old pending references above describe the historical queue only.
+
+#24 local boundary: Core74/Shared166, zero-warning build, session3, illustrated/
+plain gameplay plus7remote waves, native recovery both sizes/all3art profiles,
+24campaigns/480battles with12equal digest pairs, held-host cancellation/retry/
+private rejoin,1–6multiplayer, reconnect, animation, all6doctrines×3waves atboth
+sizes and Linux/Windows exports pass. No owned workers remain. Exact-SHA CI will
+be monitored while #25 proceeds. R8 images are copied into its own archive.
+Opening recheck overwrote84 historical working image paths; r9 explicitly records
+the loss without changing old hashes. Source/raw receipts/final purchase pairs
+remain preserved. Do not treat new r8 images as old r9 baseline captures.

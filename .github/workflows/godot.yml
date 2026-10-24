@@ -151,6 +151,7 @@ jobs:
             artifacts/captures/godot/
             artifacts/captures/journey/
             artifacts/captures/army-workspace/
+            artifacts/captures/recovery/
             artifacts/captures/cooperation-review/
             artifacts/profiles/
           if-no-files-found: ignore

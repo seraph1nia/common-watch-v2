@@ -175,3 +175,7 @@ late Food is viable with explicit final-income reliance; post-commit recruitment
 is a refused phase error; no Food is a real terminal defeat, not a UI deadlock.
 Merchant's failed frontline order is a tested doctrine/timing constraint, with a
 successful normal alternative. No hard deadlock is claimed from these bounded tasks.
+
+Final a37b48f522bc5145836c2bbc9e23efdf9a8370b4, draft PR33: exact-SHA
+CI81/40055996289 passed including both exports. Historical r9 source hashes remain
+tied to that revision; subsequent recovery work does not rewrite this evidence.

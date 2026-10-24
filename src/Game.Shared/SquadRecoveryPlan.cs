@@ -55,7 +55,7 @@ public static class SquadRecovery
             int next = destination is not null && move == RecoveryMove.StoreWounded && unit.RecoveryEligible
                 ? ArmyConfiguration.HealedHealth(unit.Health, unit.Profile.Health, hall!.HealingPercent) : unit.Health;
             int upkeep = city.RecruitmentQuotes.First(q => q.Type == unit.Type).Upkeep;
-                        int? payments = move == RecoveryMove.StoreWounded && unit.RecoveryEligible && destination is not null ? 0 : null;
+            int? payments = move == RecoveryMove.StoreWounded && unit.RecoveryEligible && destination is not null ? 0 : null;
             if (payments is not null)
                 for (int hp = unit.Health; hp < unit.Profile.Health && payments < 100; payments++) hp = ArmyConfiguration.HealedHealth(hp, unit.Profile.Health, hall!.HealingPercent);
             members.Add(new(unit, destination, next, upkeep, payments, reason));

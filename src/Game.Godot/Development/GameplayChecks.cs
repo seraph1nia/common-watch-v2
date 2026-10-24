@@ -151,7 +151,7 @@ public partial class GameApplication
         var stored = _session.City.Soldiers.First(u => u.Assignment is { Stored: true });
         _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
-        Require(_gameUi.Details.Inspector.Details.Contains("paid recovery eligible"), "paid recovery shown from real roster");
+        Require(_gameUi.Details.Inspector.Details.Contains(stored.RecoveryEligible ? "; recovery eligible" : "; recovery needs a funded completed battle"), "actual stored eligibility shown from real roster");
         _gameUi.Details.Army.ShowManagement(); await GameplayCapture("town-hall");
         _gameUi.Details.Army.ShowRoster(); Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
         int health = stored.Health;

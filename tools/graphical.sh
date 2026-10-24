@@ -92,9 +92,10 @@ PYFIXTURE
     ;;
   capture-recovery)
     client_timeout=180
+    recovery_output=${COMMON_WATCH_RECOVERY_OUTPUT:-"$(pwd)/artifacts/captures/recovery"}
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi
-      run_client --squad-recovery-review --gameplay-captures "$(pwd)/artifacts/captures/recovery/$width" --width "$width" --height "$height" "$@"
+      run_client --squad-recovery-review --gameplay-captures "$recovery_output/$width" --width "$width" --height "$height" "$@"
     done
     ;;
   test-journey-network)
@@ -168,9 +169,10 @@ PYFIXTURE
     ;;
   capture-opening)
     client_timeout=180
+    opening_output=${COMMON_WATCH_OPENING_OUTPUT:-"$(pwd)/artifacts/captures/opening"}
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi
-      run_client --opening-review --gameplay-captures "$(pwd)/artifacts/captures/opening/$width" --width "$width" --height "$height" "$@"
+      run_client --opening-review --gameplay-captures "$opening_output/$width" --width "$width" --height "$height" "$@"
     done
     ;;
   test-gameplay|capture-gameplay)
