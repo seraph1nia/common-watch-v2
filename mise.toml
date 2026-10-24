@@ -330,3 +330,9 @@ raw_args = true
 description = "Actual remote recovery with held authority, accepted-prefix cancellation, retry and private rejoin"
 depends = ["build"]
 run = "bash tools/graphical.sh test-recovery-network"
+
+[tasks.capture-major-encounters]
+description = "Actual normal-speed single-boss versus elite formation at W10/W20, both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-major-encounters"
+raw_args = true

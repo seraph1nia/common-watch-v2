@@ -25,15 +25,22 @@ public partial class GameApplication
         inspector = _gameUi.LiveInspector.Visible ? CombatMeasurements.Box(_gameUi.LiveInspector.GetGlobalRect()) : null,
         regions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => new { name = p.Key, bounds = CombatMeasurements.Box(p.Value.GetGlobalRect()) }).ToArray()
     };
-    private async Task CaptureCombatSequences(string directory)
+    private async Task CaptureCombatSequences(string directory, bool majorComparison = false)
     {
         directory = System.IO.Path.GetFullPath(directory); System.IO.Directory.CreateDirectory(directory);
         Engine.MaxFps = 60;
-        foreach (string profile in new[] { "early", "dense", "boss-10", "boss-20" })
+        foreach (string profile in majorComparison ? new[] { "w10-boss", "w10-elite", "w20-boss", "w20-elite" } : new[] { "early", "dense", "boss-10", "boss-20" })
         {
-            ReplaceSession(profile == "early" ? ScenarioRunner.CreateAt("battle-start")
+            ReplaceSession(majorComparison ? MajorEncounterComparison.CreateAt(profile.StartsWith("w10", StringComparison.Ordinal) ? 10 : 20, profile.EndsWith("elite", StringComparison.Ordinal))
+                : profile == "early" ? ScenarioRunner.CreateAt("battle-start")
                 : GameplayScenarios.CreateAt(profile == "dense" ? "army" : profile));
             _frozen = true;
+            if (majorComparison)
+            {
+                RefreshWorld(); RefreshUi(true); await JourneyFrames();
+                await GameplayCapture(profile + "-forecast");
+                System.IO.File.WriteAllText(System.IO.Path.Combine(directory, profile + "-prepared.json"), JsonSerializer.Serialize(_session.Snapshot, WireJson.Options));
+            }
             if (_session.Snapshot.Phase != Phase.Combat) _session.Send("ready");
             Require(_session.Snapshot.Phase == Phase.Combat, "normal sequence starts at a legal combat boundary");
             _session.Send("speed-1x"); Require(_session.LastResult!.Accepted, "ordinary 1x speed accepted");
@@ -45,12 +52,19 @@ public partial class GameApplication
             var samples = new List<object>(); var watch = Stopwatch.StartNew();
             long startTick = _session.Snapshot.Tick; int frame = 0, screenshots = 0; double nextCapture = 0;
             bool inspected = false;
+            long? resolvedTick = null, authorityCleanupTick = null;
+            double? authorityResolvedWall = null, presentedResolvedWall = null, authorityCleanupWall = null;
             _frozen = false;
             while (_battlefield.Active)
             {
                 Require(watch.Elapsed.TotalSeconds < 90, "normal sequence bounded at 90 seconds: " + profile);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 double elapsed = watch.Elapsed.TotalSeconds;
+                if (resolvedTick is null && _session.Snapshot.Phase != Phase.Combat)
+                { resolvedTick = _session.Snapshot.Tick; authorityResolvedWall = elapsed; }
+                if (resolvedTick is not null && presentedResolvedWall is null && _session.Playback.Tick >= resolvedTick) presentedResolvedWall = elapsed;
+                if (resolvedTick is not null && authorityCleanupTick is null && _session.Snapshot.DyingBodies.Length == 0)
+                { authorityCleanupTick = _session.Snapshot.Tick; authorityCleanupWall = elapsed; }
                 if (frame < 450 && elapsed >= nextCapture)
                 {
                     string? path = null;
@@ -86,7 +100,10 @@ public partial class GameApplication
                 mode = _options.Mode.ToString(), view = _options.View.ToString(), shader = _battlefield.ShaderEnabled,
                 speed = "1x", factor = .5, startTick, endTick = state.Tick,
                 simulationSeconds = (state.Tick - startTick) / (double)Match.StepsPerSecond,
-                wallSeconds = watch.Elapsed.TotalSeconds, maxCaptureFrames = 3, sampleCadenceSeconds = .2, samples,
+                wallSeconds = watch.Elapsed.TotalSeconds,
+                resolvedTick, authorityCleanupTick, authorityResolvedWall, authorityCleanupWall, presentedResolvedWall,
+                presentedCleanupWall = presentedResolvedWall is { } settled ? watch.Elapsed.TotalSeconds - settled : (double?)null,
+                pausedWallSeconds = 0, maxCaptureFrames = 3, sampleCadenceSeconds = .2, samples,
                 measurementOverhead = "Three PNG readbacks, geometry sampling and optional external 15fps desktop recording; software rendering is not human/hardware qualification.",
                 inspected, phase = state.Phase.ToString(),
                 outcome = state.Players.Select(p => new { p.Id, p.Health, soldiers = p.Soldiers.Select(u => new { u.Id, u.Health, u.Type, u.Level }).ToArray() }).ToArray()

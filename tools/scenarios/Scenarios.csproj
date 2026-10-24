@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
   <ItemGroup><ProjectReference Include="../../src/Game.Shared/Game.Shared.csproj" /></ItemGroup>
+  <ItemGroup><Compile Include="../campaign-review/*.cs" Link="CampaignReview/%(Filename)%(Extension)" /></ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "consequence-review") return Game.Shared.Reviews.DecisionReview.Run(args.Skip(1).ToArray());
     if (args.FirstOrDefault() == "recovery-campaigns")
     {
         var runs = (from doctrine in Game.Core.RunCatalog.Doctrines from seed in new[] { 1UL, SoloSession.DefaultSeed } from batch in new[] { false, true }

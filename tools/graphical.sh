@@ -104,6 +104,16 @@ PYFIXTURE
     # with headroom for slow CI instead of terminating its later legal stages.
     timeout --kill-after=5s 540s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
     ;;
+  capture-major-encounters)
+    client_timeout=240
+    major_output=${COMMON_WATCH_MAJOR_OUTPUT:-"$(pwd)/artifacts/captures/major-comparison"}
+    for width in 1280 1920; do
+      output="$major_output/$width"
+      timeout --kill-after=5s "${client_timeout}s" xvfb-run -a -s '-screen 0 2560x1440x24' \
+        bash tools/record-client.sh "$output.mkv" --settings-path "$settings_directory/audio-settings.json" \
+        --major-encounter-review "$output" --gameplay-captures "$output" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
   capture-combat-sequences)
     client_timeout=480
     label=${COMMON_WATCH_COMBAT_REVIEW_LABEL:-after}
