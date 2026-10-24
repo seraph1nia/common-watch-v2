@@ -1,7 +1,7 @@
 # Roadmap #15 implementation audit
 
 This audit uses the original parent and children #16–#25, the numbered contracts
-in this directory, the stacked draft PRs and the final selected-rule evidence.
+in this directory, the original stacked PRs, consolidated PR #35 and the final selected-rule evidence.
 It records implementation and automated review; it does not claim external
 review, human playtesting, a merge or issue closure. The original baseline is
 b4fa3f7807fcdf08040e9be2e186833b0504ab01. Final evidence is indexed by
@@ -132,3 +132,16 @@ qualify the storage device or establish the cause of the JSON/font/JIT failures.
 The exact recovery/kernel receipts and fresh affected-campaign replay are retained
 in the final manifest. No filesystem repair or package installation was attempted.
 Remote clean-checkout CI remains separate from this host's evidence and failures.
+
+
+## Consolidation and final review corrections
+
+At the user's request, all ten scopes are delivered together in PR #35 against
+`main`; PRs #26–#34 are superseded historical implementation boundaries. The
+final review found and corrected the combat Keep-health visibility comparison
+and the elapsed-tick table described in [PROGRESS.md](PROGRESS.md). Native
+regression uses only ordinary Ready commands and real combat damage; it fails
+with the old comparison and asserts the rendered label and layout after the fix.
+The failed local no-mistakes infrastructure run is reported separately from
+manual checks and remote CI. The original filesystem became read-only; final
+work is isolated on a writable RAM filesystem without a storage repair claim.

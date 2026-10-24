@@ -348,9 +348,9 @@ recording/PNG/rendering overhead, with no deliberate pause:
 | Encounter | Combat + cleanup ticks | 720p wall s | 1080p wall s |
 | --- | ---: | ---: | ---: |
 | early | 253 + 48 | 9.82 | 10.99 |
-| dense | 1928 + 48 | 7.96 | 9.15 |
-| major-10 | 2606 + 48 | 7.80 | 9.00 |
-| boss-20 | 5409 + 48 | 8.76 | 9.71 |
+| dense | 199 + 48 | 7.96 | 9.15 |
+| major-10 | 194 + 48 | 7.80 | 9.00 |
+| boss-20 | 224 + 48 | 8.76 | 9.71 |
 
 Both self-contained x64 exports pass with an explicit local editor-only
 `COMMON_WATCH_EXPORT_TEXT_DRIVER=Dummy` override. Ordinary headless editor startup
@@ -388,3 +388,13 @@ qualify the storage device or establish the cause of the JSON/font/JIT failures.
 The exact recovery/kernel receipts and fresh affected-campaign replay are retained
 in the final manifest. No filesystem repair or package installation was attempted.
 Remote clean-checkout CI remains separate from this host's evidence and failures.
+
+
+Final review correction: the elapsed combat column above now subtracts each
+receipt's `startTick` from `resolvedTick`. Correct combat durations are253/199/
+194/224ticks with48cleanup ticks each; the original absolute values1928/2606/
+5409were not elapsed durations. Actual wall measurements are unchanged. A separate
+presentation fix converts whole maximum Keep HP before comparing with fixed-point
+current HP; native legal full-health-to-damaged solo probes reproduce the old
+failure and verify the visible readout. See PROGRESS.md for consolidation into
+one PR and the failed local review database/read-only-filesystem qualification.

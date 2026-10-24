@@ -12,6 +12,7 @@ public partial class SettlementHud : Control
     public ActionFeedback Feedback { get; private set; } = null!;
     private TeamPanel _team = null!;
     internal TeamPanel Team => _team;
+    internal Label KeepDanger => _danger;
     private PreparationPanel _preparation = null!;
     private OpeningGuidePanel _opening = null!;
     internal OpeningGuidePanel OpeningGuide => _opening;
@@ -361,7 +362,7 @@ public partial class SettlementHud : Control
             _phase.Text = $"Wave {state.Wave} · plan committed";
         _phaseTrack.Refresh(state, finishingCombat);
         _phaseTrack.Visible = Presentation.PreparationTrack;
-        _danger.Visible = Presentation.LiveCombat && city.Health < state.Rules.CityHealth;
+        _danger.Visible = Presentation.LiveCombat && city.Health < HealthPoints.FromWhole(state.Rules.CityHealth);
         _danger.Text = $"P{city.Id} Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _keep.Text = $"Keep {HealthPoints.Format(city.Health)}/{state.Rules.CityHealth}";
         _rewards.Visible = Presentation.CanChooseReward;

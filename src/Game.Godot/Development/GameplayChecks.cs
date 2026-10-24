@@ -14,6 +14,7 @@ public partial class GameApplication
         await CheckPaintedHudControls();
         await CheckForestPresentation();
         await CheckOpeningGuide();
+        await CheckKeepDanger();
         await CheckCombatReadability();
         await CheckArmyDeployment();
         await CheckVeteranChoices();
@@ -349,6 +350,7 @@ public partial class GameApplication
         {
             match = snapshot?.MatchId, phase = snapshot?.Phase, wave = snapshot?.Wave,
             moment = _gameUi.Presentation.Moment.ToString(),
+            keepHealth = _session?.City.Health, keepDangerVisible = _gameUi.KeepDanger.IsVisibleInTree(), keepDangerText = _gameUi.KeepDanger.Text,
             regions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
             actions = VisibleHudActions(_gameUi).Select(b => new { text = b.Text, enabled = !b.Disabled }).ToArray()
         };

@@ -1,8 +1,8 @@
 # Refinement II checkpoint
 
 All ten children of [roadmap #15](https://github.com/seraph1nia/common-watch-v2/issues/15)
-are implemented in dependency order on stacked draft PRs. Original baseline:
-`b4fa3f7807fcdf08040e9be2e186833b0504ab01`. No merge or issue closure is claimed.
+are implemented in dependency order and consolidated into [PR #35](https://github.com/seraph1nia/common-watch-v2/pull/35) against `main`, superseding the earlier stacked PRs #26–#34. Original baseline:
+`b4fa3f7807fcdf08040e9be2e186833b0504ab01`. The original implementation boundaries below are historical evidence; final integration and issue closure are tracked by PR #35.
 The [completion audit](COMPLETION_AUDIT.md) maps original requirements to behavior,
 measurements, PRs and qualifications. Each numbered contract retains its evidence.
 
@@ -89,3 +89,26 @@ Final hashing also encountered an actual EIO/Btrfs checksum failure. The affecte
 cooperative summary was recovered byte-identically from its aggregate; a later
 complete source/evidence/export hash pass succeeded. This is not storage repair
 or proof of hardware reliability. See #25/audit and kernel/recovery receipts.
+
+
+## Consolidated final review
+
+The user requested one combined PR and explicitly authorized local fixes.
+PR #35 now contains the full main-to-feature diff. Final review identified the
+combat Keep warning's mixed fixed-point/whole-HP comparison and absolute tick
+values incorrectly labelled elapsed durations. The warning now compares against
+`HealthPoints.FromWhole`; a legal native solo battle tests full-health suppression,
+ordinary nonlethal damage, exact displayed health and actual Control bounds.
+The probe runs in the normal gameplay integration checks and independently via
+`--keep-danger-test`. Final timing rows use `resolvedTick-startTick` and
+`authorityCleanupTick-resolvedTick`; measured wall times remain unchanged.
+
+The no-mistakes review process completed, but its database failed to persist the
+approval gate with disk I/O errors. The supported fix response found no executor;
+a user-authorized force restart exposed the failed run, and guarded recovery
+could not preserve its verified head. No no-mistakes pass is claimed. The user
+authorized direct local fixes. The original filesystem subsequently refused writes
+as read-only, so final changes/tests run in a fresh GitHub clone on RAM-backed
+`/tmp/common-watch-final`, preserving the original branch and published history.
+Pinned versions/locks/assets remain unchanged. Final verification is recorded in
+PR #35 and its exact-head CI, with post-merge CI used for final integration.

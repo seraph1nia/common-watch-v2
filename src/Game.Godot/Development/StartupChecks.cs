@@ -21,6 +21,7 @@ public partial class GameApplication
     private async Task RunDevelopmentActions()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (_args.Contains("--keep-danger-test")) { await CheckKeepDanger(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--steam-friends-test")) { await CheckSteamFriendsPresentation(); await QuitAfterAudioDrain(); return; }
         if (Argument("--environment-captures") is { } environmentOutput) { await CaptureEnvironment(environmentOutput); await QuitAfterAudioDrain(); return; }
         if (Argument("--arena-captures") is { } arenaOutput) { await CaptureModularArena(arenaOutput); await QuitAfterAudioDrain(); return; }
