@@ -29,13 +29,17 @@ mise run play-steam                # optional; development Steam App ID is hardc
 
 `play` runs from source for quick iteration; it does not export a release on each launch. It uses the same runtime presentation defaults, main menu, native controls, local preferences and normal audio as the exported game. `play-steam` adds only optional Steam startup.
 
-Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** supports the first three waves without gating Ready.
+Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** gives one contextual action in the first three waves without gating Ready. Production starts with Wood income and shows each producer’s next-Ready output beside its cost; Gold recovery remains a zero-Wood safety valve.
 
 The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
 
-Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Troops & homes** opens roster, squad, veteran and six-home management directly from the dock; selected military buildings and Town Halls also expose contextual management. **Worldtree** opens research. The city selector inspects allies read-only. Ready/Unready, whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with closer local camera framing and an optional sharp forest arena over a soft viewport backdrop. Successful nonfinal combat opens three reward cards. Resource income is visible beside stocks, and construction cards reflow with the floating dock. **City details** inspects doctrine, rewards, progression and recent feedback; the match controls retain important notices until resolved. **×** clears plot selection. **Esc**, **Menu**, F10 or controller Start opens only a menu square over the current view, with no backdrop or dimming; Continue/Esc closes it without leaving or pausing. There is no permanent Run dashboard or history footer. See [gameplay controls](docs/gameplay/PLAYING.md).
+Left-click selects a settlement clearing. The illustrated map covers the viewport under floating HUD controls; settlement pan, wheel zoom and camera reset are disabled. **Build** uses Production, Military, Defense, Trade and Utility tabs. Selecting a card spends nothing, including Lumbermill Gold recovery; **Build selected** confirms. Recruitment, upgrades, selling and trading stay in the selected building context. **Troops & homes** opens six persistent home targets with adjacent recruitment and placement; A wounded selected squad can review finite storage moves; accepted partial moves remain, and recovered hall members return through an explicit review. Members, storage, profiles and tower management remain available as bounded details; selected military buildings and Town Halls also expose contextual management. **Worldtree** opens research. The city selector inspects allies read-only. **Y** toggles Ready/Unready during planning; whole-match pause and host combat speed remain authoritative. Combat sectors are six columns wide, with closer local camera framing and an optional sharp forest arena over a soft viewport backdrop. Successful nonfinal combat opens three immediate supply/recovery quotes; consumed rewards are history, while Worldtree owns purchased specialization. Resource income is visible beside stocks, and construction cards reflow with the floating dock. **City details** inspects doctrine, rewards, progression and recent feedback; the match controls retain important notices until resolved. **×** clears plot selection. **Esc**, **Menu**, F10 or controller Start opens only a menu square over the current view, with no backdrop or dimming; Continue/Esc closes it without leaving or pausing. There is no permanent Run dashboard or history footer. See [gameplay controls](docs/gameplay/PLAYING.md).
 
-The menu offers **Return to main menu** and **Exit Game**, each with a confirmation explaining session loss. Solo progress is not saved; a host leaving ends the match for everyone; a guest disconnects and can reconnect only while the same host session remains running. Cancel/Esc keeps the session open. Opening the menu does not pause the match. Esc first closes an open Settings, details or rewards panel. A fresh match gets a new identity and personal doctrine offers. Offers derive from match/player identity independently of simulation RNG, remain stable through resize/settings/reconnect, and require a fresh explicit selection after restarting the client. The seven-column board is incompatible with this topology: board version **2**, combat rules **8**, wire protocol **17** reject older sessions/snapshots rather than migrating combat positions.
+The phase-specific HUD keeps stocks and income in planning, removes the ledger and completed preparation track in combat, and replaces chosen reward cards with a compact accepted-choice/team-waiting view. **Menu → Settings** opens preferences. **City details** retains funding manifests, completed upkeep and feedback history. The optional Guide starts collapsed. See the [HUD contract](docs/refinement-ii/16_PHASE_HUD.md).
+
+Actual combat entry closes preparation details and cancels unconfirmed retirement/construction intent. Settings and exit consent remain usable with a live-phase notice and a safe **Return to battle** route. Rewards wait for the final playback boundary; accepted choices leave a compact receipt (hover for the effect and observed changes), then follow authority into waiting or the next preparation without an extra Continue. Reopening details is deliberate; only harmless city/clearing context returns automatically. See the [screen journey](docs/refinement-ii/17_SCREEN_JOURNEY.md).
+
+The menu offers **Return to main menu** and **Exit Game**, each with a confirmation explaining session loss. Solo progress is not saved; a host leaving ends the match for everyone; a guest disconnects and can reconnect only while the same host session remains running. Cancel/Esc keeps the session open. Opening the menu does not pause the match. Esc first closes an open Settings, details or rewards panel. A fresh match gets a new identity and personal doctrine offers. Offers derive from match/player identity independently of simulation RNG, remain stable through resize/settings/reconnect, and require a fresh explicit selection after restarting the client. The seven-column board is incompatible with this topology: board version **2**, combat rules **8**, wire protocol **19** and reward rules **1** reject older sessions/snapshots rather than migrating combat positions or reinterpreting old passive offers.
 
 A legal opening: Farm on plot 1, Barracks on plot 2, Metal Mine on plot 3, then Lumbermill on plot 4 using the **4 Gold recovery** action. Advance preparation, recruit two Swordsmen, advance again and recruit two more, then ready for combat. Costs, economy, combat and drafting are always validated by Core.
 
@@ -62,6 +66,8 @@ mise run test-art
 
 Battle showcases and the asset showroom are development tools, separate from ordinary play. `profile-animation` repeats native battles at 30/60/120 FPS and three combat speeds; `capture-environment` records matched Off/Full environment timings, and `review-environment` presents those results. Measurements from software rendering describe that environment and do not establish physical GPU performance.
 
+Wave10 fields twoL3 Swordsmen, twoL3 Berserkers, oneL1 Crossbowman and oneL2 Mage. Wave20 retains its singleL5 boss. Forecasts show actual profiles; the major clear resources stay unchanged. See the [controlled campaign comparison](docs/refinement-ii/25_CAMPAIGN_CONSEQUENCES.md).
+
 Combat poses, shots, statuses, hits and deaths follow authoritative playback. Showcase scenarios are earned through legal commands. [Animation documentation](docs/COMBAT_ANIMATION.md) covers controls, receipts, captures and known static-sprite limitations.
 
 Sprite combat now uses the supplied [modular Rain / Ember arena](docs/MODULAR_BATTLE_ARENA.md).
@@ -69,6 +75,12 @@ All snapshot cells remain playable (this branch uses 6×9 per sector). The camer
 starts near your sector; drag with middle/right mouse, zoom with the wheel and
 choose **Field overview** or F for the complete field. `mise run capture-arena`
 checks 1–6 sectors in both projections at 720p/1080p using legal combat replays.
+The [combat readability pass](docs/refinement-ii/18_COMBAT_READABILITY.md) frames
+the useful engagement around native HUD controls, protects manual poses and
+keeps selected bodies/targets clear of a compact inspector. Short ownership/count
+labels and non-color base shapes replace the acronym legend. Normal-speed
+production sequences and actual six-player captures are available with
+`capture-combat-sequences` and `capture-combat-cooperation`.
 
 ## Verification
 
@@ -80,6 +92,8 @@ mise run test                       # Pillow + .NET/process tests + animation ca
 mise run test-session
 mise run test-gameplay-ui          # default + debug native UI; seven-wave host/guest replay
 mise run capture-gameplay-ui       # actual panels at 720p/1080p and allied inspection
+mise run test-army-workspace       # six homes, native focus/input and paid actions; three art profiles
+mise run capture-army-workspace    # paired recruit/deploy/purchase/preview/battle task
 mise run test-multiplayer
 mise run test-reconnect
 mise run test-network-faults
@@ -90,7 +104,12 @@ mise run capture-art
 mise run capture-settlement        # nine-pad map picking, purchase and actual screenshots
 mise run capture-opening           # six doctrines, three waves, actual production controls
 mise run capture-veterans          # history, recovery/recruit comparison and reviewed retirement
-mise run capture-bosses            # real W10/W20 forecasts, health/windup/death and restart
+mise run capture-recovery          # finite squad moves, partial capacity, explicit return and cancel
+mise run test-recovery-network     # remote accepted-prefix cancel, retry and private rejoin
+mise run capture-bosses            # W10 paired elites / W20 boss; actual forecasts, playback and restart
+mise run capture-hud               # native Ready, combat and acknowledged reward-waiting at both sizes
+mise run test-journey              # continuous native three-wave solo and 2/4/6-player journeys
+mise run test-cooperative-context  # city focus, owner guards, manual camera and three-wave co-op matrix
 mise run capture-cooperation       # 2–6-city team status, allied input and real early elimination
 mise run capture-forest            # building levels, approved mappings, missing/corrupt fallbacks
 mise run capture-feedback          # native receipts, pause, outcomes and muted-music mixer audition
@@ -136,7 +155,7 @@ Ordinary development edits C#, text scenes/resources and scripts, then runs mise
 The sprite settlement now uses the supplied [illustrated forest map](docs/SETTLEMENT_MAP.md): nine elliptical clearings, open hover/selection rings, gold icons on locked land and foundation-anchored buildings. See that guide for annotations and picking. The nine-slot rules and native inspector actions are unchanged. Missing map assets fall back to the debug grid. `mise run capture-settlement` verifies fixed-camera picking, ignored drag/wheel input and resizing and captures empty, hovered, selected and built states at 720p/1080p.
 
 The [painted forest HUD](docs/PAINTED_FOREST_HUD.md) adds authored RGBA paintings to
-the preserved supplied theme. Settings, a vertical resource ledger, selected context,
+the preserved supplied theme. Menu, a planning resource ledger, selected context,
 construction/navigation and the wave/Ready/Pause panel frame the settlement. The
 same native composition also works in plain mode.
 Selected buildings expose recruitment, squads, Town Hall management and the six homes/towers.

@@ -87,14 +87,89 @@ with open(sys.argv[1], 'w') as target:
 PYFIXTURE
     run_client --forest-review --expect-forest-art-missing --assets-root "$settings_directory/forest-fixture/sprites" --gameplay-captures "$(pwd)/artifacts/captures/forest-consistency/corrupt" "$@"
     ;;
+  test-recovery-network)
+    timeout --kill-after=5s 240s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/recovery-network.py
+    ;;
+  capture-recovery)
+    client_timeout=180
+    recovery_output=${COMMON_WATCH_RECOVERY_OUTPUT:-"$(pwd)/artifacts/captures/recovery"}
+    for width in 1280 1920; do
+      height=720; if [[ $width == 1920 ]]; then height=1080; fi
+      run_client --squad-recovery-review --gameplay-captures "$recovery_output/$width" --width "$width" --height "$height" "$@"
+    done
+    ;;
+  test-journey-network)
+    # Six software-rendered clients now include three explicit context reviews.
+    # Per-observation deadlines remain in the worker; bound the complete journey
+    # with headroom for slow CI instead of terminating its later legal stages.
+    timeout --kill-after=5s 540s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/journey-network.py --output "$(pwd)/artifacts/captures/journey/network" "$@"
+    ;;
+  capture-major-encounters)
+    client_timeout=240
+    major_output=${COMMON_WATCH_MAJOR_OUTPUT:-"$(pwd)/artifacts/captures/major-comparison"}
+    for width in 1280 1920; do
+      output="$major_output/$width"
+      timeout --kill-after=5s "${client_timeout}s" xvfb-run -a -s '-screen 0 2560x1440x24' \
+        bash tools/record-client.sh "$output.mkv" --settings-path "$settings_directory/audio-settings.json" \
+        --major-encounter-review "$output" --gameplay-captures "$output" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
+  capture-combat-sequences)
+    client_timeout=480
+    label=${COMMON_WATCH_COMBAT_REVIEW_LABEL:-after}
+    for width in 1280 1920; do
+      output="$(pwd)/artifacts/captures/combat-review/$label/$width"
+      timeout --kill-after=5s "${client_timeout}s" xvfb-run -a -s '-screen 0 2560x1440x24' \
+        bash tools/record-client.sh "$output.mkv" --settings-path "$settings_directory/audio-settings.json" \
+        --combat-sequences "$output" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
+  test-journey)
+    client_timeout=240
+    run_client --journey-test "$@"
+    ;;
+  test-army-workspace)
+    client_timeout=240
+    for presentation in default debug missing; do
+      presentation_options=()
+      if [[ $presentation == debug ]]; then presentation_options=(--world-art debug --hud-art plain --view topdown --debug-overlay off); fi
+      if [[ $presentation == missing ]]; then presentation_options=(--assets-root "$settings_directory/missing-art"); fi
+      for width in 1280 1920; do
+        run_client "${presentation_options[@]}" --army-workspace-test --journey-test --gameplay-captures "$(pwd)/artifacts/captures/army-workspace/checks/$presentation/$width" --width "$width" --height "$((width * 9 / 16))" "$@"
+      done
+    done
+    ;;
+  capture-army-workspace)
+    client_timeout=240
+    label=${COMMON_WATCH_ARMY_REVIEW_LABEL:-after}
+    for width in 1280 1920; do
+      run_client --army-workspace-trace --journey-test --gameplay-captures "$(pwd)/artifacts/captures/army-workspace/$label/$width" --width "$width" --height "$((width * 9 / 16))" "$@"
+    done
+    ;;
+  capture-journey)
+    client_timeout=240
+    journey_output=${COMMON_WATCH_JOURNEY_OUTPUT:-"$(pwd)/artifacts/captures/journey"}
+    for presentation in default debug; do
+      presentation_options=()
+      if [[ $presentation == debug ]]; then presentation_options=(--world-art debug --hud-art plain --view topdown --debug-overlay off); fi
+      for width in 1280 1920; do
+        height=$((width * 9 / 16))
+        run_client "${presentation_options[@]}" --journey-test --gameplay-captures "$journey_output/$presentation/$width" --width "$width" --height "$height" "$@"
+      done
+    done
+    ;;
+  capture-hud)
+    timeout --kill-after=5s 180s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/hud-phases.py --output "$(pwd)/artifacts/captures/hud-phases" "$@"
+    ;;
   capture-cooperation)
     timeout --kill-after=5s 600s xvfb-run -a -s '-screen 0 1920x1080x24' python3 tools/cooperation.py
     ;;
   capture-bosses)
     client_timeout=180
+    boss_output=${COMMON_WATCH_BOSS_OUTPUT:-"$(pwd)/artifacts/captures/bosses"}
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi
-      run_client --boss-review --gameplay-captures "$(pwd)/artifacts/captures/bosses/$width" --width "$width" --height "$height" "$@"
+      run_client --boss-review --gameplay-captures "$boss_output/$width" --width "$width" --height "$height" "$@"
     done
     ;;
   capture-veterans)
@@ -106,9 +181,10 @@ PYFIXTURE
     ;;
   capture-opening)
     client_timeout=180
+    opening_output=${COMMON_WATCH_OPENING_OUTPUT:-"$(pwd)/artifacts/captures/opening"}
     for width in 1280 1920; do
       height=720; if [[ $width == 1920 ]]; then height=1080; fi
-      run_client --opening-review --gameplay-captures "$(pwd)/artifacts/captures/opening/$width" --width "$width" --height "$height" "$@"
+      run_client --opening-review --gameplay-captures "$opening_output/$width" --width "$width" --height "$height" "$@"
     done
     ;;
   test-gameplay|capture-gameplay)

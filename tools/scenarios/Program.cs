@@ -2,6 +2,154 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "consequence-review") return Game.Shared.Reviews.DecisionReview.Run(args.Skip(1).ToArray());
+    if (args.FirstOrDefault() == "recovery-campaigns")
+    {
+        var runs = (from doctrine in Game.Core.RunCatalog.Doctrines from seed in new[] { 1UL, SoloSession.DefaultSeed } from batch in new[] { false, true }
+                    select RecoveryCampaignReview.Run(doctrine.Id, seed, batch)).ToArray();
+        foreach (var pair in runs.Chunk(2)) if (pair[0].Digest != pair[1].Digest) throw new InvalidOperationException("Recovery campaign command/boundary digests differ.");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+        Console.WriteLine($"RECOVERY_CAMPAIGNS_PASS runs={runs.Length} pairedDigests=12 battles={runs.Sum(r => r.Battles.Length)} moves={runs.Sum(r => r.MemberMoves)}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "squad-recovery-review")
+    {
+        var cases = SquadRecoveryReview.Collect(); var equivalence = SquadRecoveryReview.Compare(); var replacements = SquadRecoveryReview.Replacements(); var rewardThenProduction = SquadRecoveryReview.RewardThenProduction(); var unfundedStorage = SquadRecoveryReview.UnfundedStorage();
+        if (!equivalence.SameBefore || !equivalence.SameAfterMoves || !equivalence.SameAfterPayment)
+            throw new InvalidOperationException("Individual and finite squad commands must settle identically.");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(new { cases, equivalence, replacements, rewardThenProduction, unfundedStorage }, Game.Core.WireJson.Options));
+        Console.WriteLine($"SQUAD_RECOVERY_REVIEW_PASS cases={cases.Length} exactIndividualEquivalence={equivalence.SameAfterPayment}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "opening-tasks")
+    {
+        var runs = new[] { "overspend", "late-food", "missing-trainer", "after-commit", "no-food" }.Select(OpeningMistakes.Run).ToArray();
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+        Console.WriteLine($"OPENING_TASKS_PASS tasks={runs.Length} rejected={runs.Sum(r => r.Steps.Count(s => !s.Result.Accepted))}");
+        return 0;
+    }
+    if (args.FirstOrDefault() == "normal-opening-horizons")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (bool normal in new[] { false, true })
+        {
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from family in new[] { "frontline", "mixed", "towers", "research" }
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, family, seed, openingOrder: normal ? "normal-wood" : "canonical", adaptOpening: normal, recordCheckpoints: true)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], normal ? "normal.json" : "reference.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"NORMAL_HORIZONS_PASS normal={normal} runs={runs.Length} battles={runs.Sum(r => r.Battles.Length)} victories={runs.Count(r => r.Battles[^1].Result == "Victory")}");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "normal-openings")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (string order in new[] { "canonical", "normal-wood", "normal-frontline", "normal-role" })
+        {
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, "opening", seed, openingOrder: order)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"{order}.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"NORMAL_OPENING_PASS order={order} runs={runs.Length} threeWaves={runs.Count(r => r.Battles.Length == 3 && r.Battles[^1].Result != "Defeat")} firstSurvived={runs.Count(r => r.Battles[0].Result != "Defeat")}");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-food")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (int stages in new[] { 3, 2 })
+        {
+            using var solo = GameplayScenarios.CreateAt("forecast", rules: new Game.Core.Rules { PreparationStages = stages });
+            var before = solo.Snapshot; var forecast = solo.City.FoodForecast!;
+            var accepted = solo.Send("ready");
+            if (!accepted.Accepted || !forecast.Participating.SequenceEqual(solo.City.LastUpkeep!.Participating) || forecast.Paid != solo.City.LastUpkeep.Paid)
+                throw new InvalidOperationException("Partial Food forecast must match actual final payment.");
+            File.WriteAllText(Path.Combine(args[1], $"partial-food-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(new { before, after = solo.Snapshot }, Game.Core.WireJson.Options));
+            Console.WriteLine($"PREPARATION_FOOD_PASS stages={stages} funded={forecast.Funded.Length} unfunded={forecast.Unfed.Length} paid={forecast.Paid}");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-campaigns")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (int stages in new[] { 3, 2 })
+        {
+            var rules = new Game.Core.Rules { PreparationStages = stages };
+            var adaptive = (from family in new[] { "frontline", "ranged", "mixed", "towers", "research" }
+                            from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                            from response in new[] { false, true }
+                            select CampaignReview.Run(family, seed, response, rules)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"forecast-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(adaptive, Game.Core.WireJson.Options));
+            var reordered = (from doctrine in Game.Core.RunCatalog.Doctrines
+                             from family in new[] { "frontline", "mixed", "towers", "research" }
+                             from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                             select RewardEconomyReview.Run(doctrine.Id, family, seed, rules: rules, openingOrder: "economy-first", adaptOpening: true)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"reordered-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(reordered, Game.Core.WireJson.Options));
+            Console.WriteLine($"PREPARATION_CAMPAIGNS_PASS stages={stages} forecastVictories={adaptive.Count(r => r.Waves[^1].Result == "Victory")}/20 reorderedVictories={reordered.Count(r => r.Battles[^1].Result == "Victory")}/48");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-focused")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (int stages in new[] { 3, 2 })
+        {
+            var rules = new Game.Core.Rules { PreparationStages = stages };
+            var runs = (from family in new[] { "reserve", "research", "towers" }
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run("warden", family, seed, rules: rules, recordPreparations: true)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"focused-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"PREPARATION_FOCUSED_PASS stages={stages} healing={runs.Sum(r => r.Commands.Where(c => c.Preparation is not null).Sum(c => c.SoldierHealing))} payments={runs.Sum(r => r.Commands.Count(c => c.Preparation is not null))}");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-opening-orders")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (string order in new[] { "canonical", "army-first", "economy-first" })
+            foreach (int stages in new[] { 3, 2 })
+            {
+                var rules = new Game.Core.Rules { PreparationStages = stages };
+                var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                            from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                            select RewardEconomyReview.Run(doctrine.Id, "opening", seed, rules: rules, openingOrder: order)).ToArray();
+                File.WriteAllText(Path.Combine(args[1], $"{order}-{stages}.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+                Console.WriteLine($"PREPARATION_OPENING_ORDER_PASS order={order} stages={stages} runs={runs.Length} threeWaves={runs.Count(r => r.Battles.Length == 3 && r.Battles[^1].Result != "Defeat")}");
+            }
+        return 0;
+    }
+    if (args.FirstOrDefault() == "preparation-review")
+    {
+        Directory.CreateDirectory(args[1]);
+        foreach (int stages in new[] { 3, 2 })
+        {
+            var rules = new Game.Core.Rules { PreparationStages = stages };
+            var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                        from family in new[] { "opening", "frontline", "ranged", "mixed", "towers", "research" }
+                        from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                        select RewardEconomyReview.Run(doctrine.Id, family, seed, rules: rules)).ToArray();
+            File.WriteAllText(Path.Combine(args[1], $"{stages}-stage.json"), System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options));
+            Console.WriteLine($"PREPARATION_CANDIDATE_PASS stages={stages} runs={runs.Length} battles={runs.Sum(r => r.Battles.Length)} fullVictories={runs.Count(r => r.Family != "opening" && r.Battles[^1].Result == "Victory")}");
+        }
+        return 0;
+    }
+    if (args.FirstOrDefault() is "reward-economy-review" or "build-review")
+    {
+        var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                    from family in new[] { "opening", "frontline", "ranged", "mixed", "towers", "research" }
+                    from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    select RewardEconomyReview.Run(doctrine.Id, family, seed)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], report);
+        foreach (var run in runs) Console.WriteLine($"{run.Doctrine}/{run.Family}/{run.Seed}: {run.Battles.Length} battles {run.Battles[^1].Result}; lost {run.Battles.Sum(b => b.Casualties)}, Keep {run.Battles.Sum(b => b.KeepDamage)}, shortages {run.Shortages.Length}");
+        Console.WriteLine($"REWARD_ECONOMY_REVIEW_PASS {runs.Length} runs {runs.Sum(r => r.Battles.Length)} battles; ordinary accepted commands only");
+        return 0;
+    }
     if (args.FirstOrDefault() == "cooperation-review")
     {
         var runs = (from players in Enumerable.Range(2, 5)
@@ -32,21 +180,6 @@ try
         foreach (var item in cases) Console.WriteLine($"{item.Name} seed={item.Seed} W{item.Wave}\n{item.Comparison.Summary}\n{item.Comparison.Details}");
         return 0;
     }
-    if (args.FirstOrDefault() == "build-review")
-    {
-        var runs = new List<BuildRun>();
-        foreach (ulong seed in new[] { SoloSession.DefaultSeed, 1UL })
-        {
-            runs.AddRange(Game.Core.RunCatalog.Doctrines.Select(d => BuildIdentityReview.Review(d.Id, "opening", seed, 5, opening: true)));
-            runs.AddRange(new[] { "frontline", "ranged", "mixed", "towers", "research" }.Select(f => BuildIdentityReview.Review("warden", f, seed)));
-            runs.Add(BuildIdentityReview.Review("warden", "sparse-early", seed, 2, opening: true, sparseAtEnd: true));
-            runs.Add(BuildIdentityReview.Review("warden", "frontline", seed, 18, sparseAtEnd: true));
-        }
-        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
-        if (args.Length > 1) { Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!); File.WriteAllText(args[1], report); }
-        foreach (var run in runs) Console.WriteLine($"{run.Doctrine}/{run.Family}/{run.Seed}: {run.Waves.Length} waves · " + run.Waves[^1].Result);
-        return 0;
-    }
     if (args.FirstOrDefault() == "opening-review")
     {
         var runs = Game.Core.RunCatalog.Doctrines.Select(d => OpeningCampaign.Review(d.Id)).ToArray();
@@ -71,7 +204,7 @@ try
     string json;
     if (GameplayScenarios.Checkpoints.Contains(checkpoint))
     {
-        using var solo = GameplayScenarios.CreateAt(checkpoint);
+        using var solo = GameplayScenarios.CreateAt(checkpoint, enrich: !args.Contains("--raw"));
         json = System.Text.Json.JsonSerializer.Serialize(new { checkpoint, state = solo.Snapshot }, Game.Core.WireJson.Options);
     }
     else json = ScenarioRunner.Record(checkpoint);

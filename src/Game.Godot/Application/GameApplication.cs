@@ -81,6 +81,7 @@ public partial class GameApplication : Node
         _gameUi.CommandSubmitted += ResumeAfterCommand;
         _gameUi.ArenaChanged += RefreshWorld;
         _gameUi.ArenaOverviewRequested += OverviewArena;
+        _gameUi.CombatFramingRequested += PrepareBattleCamera;
         CreateAudioUi();
     }
     private void ResumeAfterCommand() { _frozen = false; RefreshUi(true); RefreshWorld(); }
@@ -90,7 +91,7 @@ public partial class GameApplication : Node
         _frozen = false; RefreshUi(true); RefreshWorld();
     }
     private GodotSession WrapSolo(SoloSession solo) => _sessions.Open(session => session.Solo(solo));
-    private void OnSessionChanged() { _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
+    private void OnSessionChanged() { _settings?.SetLivePhase(false, ""); _menuPopup?.SetLivePhase(false, ""); _exitConfirmation?.SetLivePhase(false, ""); _exitConfirmation?.Clear(); _steamFriends?.Close(); CloseMenu(false); _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ReplaceSession(SoloSession session) { _steam?.Leave(); WrapSolo(session); _gameUi.Visible = true; _sessionMenu.Visible = false; _battlefield?.Reset(); _gameUi?.Reset(); _feedback?.Bind(_session); ResetCamera(); }
     private void ResetCamera() => _camera?.Reset();
 
@@ -118,7 +119,12 @@ public partial class GameApplication : Node
         if (_session is null || !_session.HasState) { RefreshSessionMenu(); return; }
         if (_battle is not null) { _gameUi.Hide(); _sessionMenu.Hide(); UpdateBattleHud(); return; }
         RefreshSessionMenu();
-        if (_gameUi.Visible) _gameUi.Refresh(_session, _options, _battlefield.Finishing, force);
+        if (_gameUi.Visible)
+        {
+            _gameUi.OverlayCovered = _settings.Visible || _menuPopup.Visible || _exitConfirmation.Visible;
+            _gameUi.Refresh(_session, _options, _battlefield.Finishing, force);
+            RefreshLivePhaseNotice();
+        }
     }
 
     private WorldCamera _camera = null!;
@@ -157,8 +163,9 @@ public partial class GameApplication : Node
         if (_session is not { HasState: true }) { _settlementView.Hide(); _arenaPreview.Hide(); _battlefield.Reset(); _arenaBackdrop.Hide(); return; }
         _battlefield.SelectedUnit = _gameUi.LiveInspector.SelectedUnit;
         _battlefield.SelectedStructure = _gameUi.LiveInspector.SelectedStructure;
+        _battlefield.HudOccluders = _gameUi.CombatOccluders.ToArray();
         _battlefield.Present(_session, _battle);
-        bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation or Phase.RewardDraft;
+        bool preview = !_battlefield.Active && _gameUi.ShowArena && _session.Snapshot.Phase is Phase.Building or Phase.Preparation;
         _arenaPreview.Present(_session.Snapshot, preview, _options.GroundCompression);
         _arenaBackdrop.Present(_assets, _battlefield.Active || preview);
         _settlementView.Present(_session, !_battlefield.Active && !preview && _session.Snapshot.Phase != Phase.Lobby);
@@ -170,14 +177,36 @@ public partial class GameApplication : Node
         else if (_battlefield.Active || preview)
         {
             var state = _battle?.Snapshot ?? _session.Snapshot;
-            string key = $"{state.MatchId}:{state.Arena!.Sectors.Length}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
+            string key = $"{state.MatchId}:{state.WaveStartedTick}:{state.Arena!.Sectors.Length}:{_session.ViewedCity.Id}:{_options.View}:{_options.Mode}:{WorldArea.Size}";
             if (_camera.Fixed || key != _arenaCameraKey)
             {
+                if (_arenaFrameRequestKey != key)
+                {
+                    _arenaFrameRequestKey = key; _arenaFrameRequestFrame = Engine.GetProcessFrames();
+                    _camera.PrepareFrame();
+                }
+                // A new battle changes retained native containers after this
+                // world's presentation pass. Let that layout settle once before
+                // saving the default pose; later HUD/actor updates never reframe.
+                if (Engine.GetProcessFrames() <= _arenaFrameRequestFrame) return;
                 _arenaCameraKey = key;
+                if (_camera.ArenaMode != ArenaCameraMode.Automatic) return;
                 var layout = new ArenaLayout(state.Arena, new HexProjection(30, _options.GroundCompression));
-                var focus = layout.SectorCenter(_session.PlayerId);
-                _camera.FrameArena(_battlefield.Active ? _battlefield.RenderBounds : _arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch);
+                var focus = layout.SectorCenter(_session.ViewedCity.Id);
+                if (_battlefield.Active)
+                {
+                    var engagement = BattleFraming.Engagement(state, new HexProjection(30, _options.GroundCompression), _session.ViewedCity.Id, _battlefield.Playback?.Units(), _battlefield.Playback?.Tick);
+                    _camera.FrameBattle(engagement, BattleFraming.SafeArea(WorldArea, engagement, _gameUi.CombatOccluders), _session.ViewedCity.Id);
+                }
+                else _camera.FrameArena(_arenaPreview.RenderBounds, WorldArea.Size, new Vector2(focus.X, focus.Y), layout.Pitch, _session.ViewedCity.Id);
             }
+        }
+        _gameUi.CameraContext(_camera.ArenaMode, _battlefield.Active || preview, _camera.FocusCity);
+        if (_battlefield.Active && _gameUi.LiveInspector.Visible)
+        {
+            var inspector = _gameUi.LiveInspector;
+            inspector.KeepSubjectVisible(WorldArea.Size, _battlefield.InspectionPoints().Select(_camera.ToScreen).ToArray(),
+                _gameUi.CombatOccluders.Where(r => r != inspector.GetGlobalRect()), _battlefield.AnimationTick);
         }
         Vector2 mouse = GetViewport().GetMousePosition();
         _settlementView.HoverAt(!_gameUi.BlocksWorld && !_settings.Visible && !_inviteConfirmation.Visible && !_steamFriends.Visible && !_exitConfirmation.Visible && !_menuPopup.Visible && WorldArea.HasPoint(mouse)
@@ -214,15 +243,26 @@ public partial class GameApplication : Node
             { HandleBattleKey(key.Keycode); GetViewport().SetInputAsHandled(); return; }
         }
         if (_session is null || !_session.HasState || _session.Snapshot.Phase == Phase.Lobby || _gameUi.BlocksWorld) return;
+        if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Y, CtrlPressed: false, AltPressed: false, MetaPressed: false }
+            && _gameUi.TryToggleReady())
+        { GetViewport().SetInputAsHandled(); return; }
         if (!_settlementView.Visible && input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F })
-        { OverviewArena(); GetViewport().SetInputAsHandled(); return; }
+        { _gameUi.CameraNavigated(); OverviewArena(); GetViewport().SetInputAsHandled(); return; }
         var area = WorldArea;
-        if (!_settlementView.Visible) _camera.Handle(input, area);
+        if (!_settlementView.Visible)
+        {
+            _camera.Handle(input, area);
+            if (input.IsActionPressed("camera_reset") || _camera.ArenaMode != ArenaCameraMode.Automatic)
+                _gameUi.CameraNavigated();
+        }
         if (input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click && area.HasPoint(click.Position) )
             SelectAt(click.Position);
     }
     private Rect2 WorldArea => GetViewport().GetVisibleRect();
     private string _arenaCameraKey = "";
+    private string _arenaFrameRequestKey = "";
+    private ulong _arenaFrameRequestFrame;
+    private void PrepareBattleCamera() { _arenaCameraKey = _arenaFrameRequestKey = ""; _camera.PrepareFrame(); }
     private void OverviewArena()
     {
         if (_battlefield.Active) FrameArena(_battlefield.RenderBounds);
@@ -259,6 +299,7 @@ public partial class GameApplication : Node
             _gameUi.MenuRequested -= OpenMenu; _gameUi.ReconnectRequested -= ReconnectCurrent;
             _gameUi.CommandSubmitted -= ResumeAfterCommand; _gameUi.ArenaChanged -= RefreshWorld;
             _gameUi.ArenaOverviewRequested -= OverviewArena;
+            _gameUi.CombatFramingRequested -= PrepareBattleCamera;
         }
         if (_closeSubscribed) GetWindow().CloseRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.SettingsRequested -= OpenMenuSettings;
@@ -268,7 +309,8 @@ public partial class GameApplication : Node
         if (_menuPopup is not null) _menuPopup.QuitRequested -= RequestQuit;
         if (_sessionMenu is not null) _sessionMenu.QuitRequested -= RequestQuit;
         if (_exitConfirmation is not null) _exitConfirmation.Clear();
-        if (_settings is not null) { _settings.Opened -= StopCameraDrag; if (_gameUi is not null) _gameUi.SettingsRequested -= _settings.Open; }
+        if (_settings is not null) { _settings.Opened -= StopCameraDrag; _settings.ReturnToBattleRequested -= ReturnToBattle; }
+        if (_exitConfirmation is not null) _exitConfirmation.ReturnToBattleRequested -= ReturnToBattle;
         _audio?.Stop();
         _sessions.Close();
         _steam?.Shutdown();

@@ -8,12 +8,13 @@ public static class SnapshotCompatibility
     public static void RequireSharedArena(MatchSnapshot state)
     {
         ArgumentNullException.ThrowIfNull(state);
+        if (state.RewardRulesVersion != BattleRewards.RulesVersion)
+            throw new ArgumentException("Legacy reward snapshot refused: immediate reward rules are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
         if (state.BattleFlowVersion != MatchSnapshot.CurrentBattleFlowVersion || !Enum.IsDefined(state.CombatSpeed)
-            || state.Phase == Phase.Building && state.Turn is not (1 or 2)
-            || state.Phase == Phase.Preparation && state.Turn != 3 || state.NextWave is null
+            || !PreparationSchedule.ValidPhase(state.Rules, state.Phase, state.Turn) || state.NextWave is null
             || state.NextWave.Any(u => u is null || u.Id >= 0 || u.Faction != Faction.Skeletons || u.Health != u.Profile.Health)
             || state.NextWave.Select(u => u.Id).Distinct().Count() != state.NextWave.Length)
-            throw new ArgumentException("Legacy battle-flow snapshot refused: three preparations and authoritative wave forecasts are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
+            throw new ArgumentException("Legacy battle-flow snapshot refused: authoritative preparation schedules and wave forecasts are required. Rejoin a compatible authority or start a fresh match.", nameof(state));
         if (state.CombatRulesVersion != CurrentSquadRulesVersion || state.Rules?.Combat is null || state.Rules.Arena is null
             || state.Rules.Combat.RulesVersion != state.CombatRulesVersion || state.Rules.Combat.Board is not { Capacity: 1, Id: "shared-watch-arena" }
             || state.Arena is null || state.Arena.Board is not { Capacity: 1 } || state.Squads is null || state.Structures is null)
@@ -53,7 +54,7 @@ public static class SnapshotCompatibility
                     || home.Used < 0
                     || home.Used > roster.SquadCapacity).Any())
                 throw new ArgumentException("Malformed city deployment or construction projection.", nameof(state));
-            RequireCity(city, state.Phase, configuration, economy, army);
+            RequireCity(city, state, configuration, economy, army);
         }
         if (RulesIdentity.Combine(configuration.Fingerprint, economy.Fingerprint,
             campaign.Fingerprint) != state.ConfigurationFingerprint)
@@ -167,9 +168,10 @@ public static class SnapshotCompatibility
                 || (w with { Entries = waves[i].Entries }) != waves[i] || !w.Entries.SequenceEqual(waves[i].Entries)).Any())
             throw new ArgumentException("Malformed authoritative catalog projection.", nameof(state));
     }
-    private static void RequireCity(CityState city, Phase phase, CombatConfiguration combat, EconomyConfiguration economy, ArmyConfiguration army)
+    private static void RequireCity(CityState city, MatchSnapshot state, CombatConfiguration combat, EconomyConfiguration economy, ArmyConfiguration army)
     {
-        RequireRun(city.Run, phase);
+        Phase phase = state.Phase;
+        RequireRun(city, state);
         economy.Research.ValidateState(city.Research);
         if (!city.Resources.IsValid || city.Soldiers.Any(u => !Enum.IsDefined(u.Type))
             || city.RecruitmentQuotes is null || !city.RecruitmentQuotes.SequenceEqual(economy.RecruitmentQuotes(combat, city.Research, city.Run))
@@ -192,7 +194,7 @@ public static class SnapshotCompatibility
         TownHallState[] halls = army.Snapshot(city.Soldiers, city.Army!.PurchasedHomes, city.Slots).Halls;
         if (!city.Army.Halls.SequenceEqual(halls))
             throw new ArgumentException("Malformed Town Hall projection.", nameof(city));
-        ResourceCost? production = phase is Phase.Victory or Phase.Defeat || city.Eliminated ? default(ResourceCost) : economy.ProjectedProduction(city.Slots, city.Research, city.Run);
+        ResourceCost? production = phase is Phase.Victory or Phase.Defeat || city.Eliminated ? default(ResourceCost) : economy.ProjectedProduction(city.Slots, city.Research, city.Run, PreparationSchedule.ResourceMultiplier(state.Rules, state.Turn));
         if (city.ProductionIncome != production)
             throw new ArgumentException("Malformed production projection.", nameof(city));
         BattleFoodForecast? expected = phase is Phase.Victory or Phase.Defeat ? null : BattleFood.Project(city, phase == Phase.Preparation);
@@ -208,22 +210,45 @@ public static class SnapshotCompatibility
             || receipt.Participating.Distinct().Count() != receipt.Participating.Length))
             throw new ArgumentException("Malformed upkeep receipt projection.", nameof(city));
     }
-    private static void RequireRun(RunState run, Phase phase)
+    private static void RequireRun(CityState city, MatchSnapshot state)
     {
-        if (run is null || !RunCatalog.Doctrines.Any(d => d.Id == run.Doctrine) || run.Cards is null || run.Offers is null
-            || run.FirstAttackSquads is null || run.WarhornSquads is null || run.DraftWave is < 0 or > 19
-            || run.CodexClears is < 0 or > 20 || run.EnemyKills < 0 || run.MerchantWave is < 0 or > 20
-            || run.Started == (phase == Phase.Lobby) || !run.Started && (run.Cards.Length > 0 || run.DraftWave != 0 || run.Choice is not null)
-            || run.FirstAttackSquads.Any(s => s <= 0) || run.FirstAttackSquads.Distinct().Count() != run.FirstAttackSquads.Length
-            || run.WarhornSquads.Distinct().Count() != run.WarhornSquads.Length
-            || run.Cards.Any(c => c is null || !RunCatalog.Cards.Any(d => d.Id == c.Id && c.Count > 0 && c.Count <= d.MaxStacks))
-            || run.Cards.Select(c => c.Id).Distinct().Count() != run.Cards.Length
-            || run.Cards.Count(c => RunCatalog.Card(c.Id).Rarity == CardRarity.Relic) > 2
-            || run.Offers.Length != (run.DraftWave == 0 ? 0 : 3) || run.Offers.Distinct().Count() != run.Offers.Length
-            || run.Offers.Any(id => !RunCatalog.Cards.Any(c => c.Id == id)) || run.Choice is not null && !run.Offers.Contains(run.Choice)
-            || run.Choice is not null && run.Stacks(run.Choice) == 0
-            || run.DraftWave < 7 && run.Offers.Any(id => RunCatalog.Card(id).Rarity == CardRarity.Relic)
-            || run.WarhornSquads.Any(s => !run.FirstAttackSquads.Contains(s))) throw new ArgumentException("Malformed authoritative run state.");
+        RunState run = city.Run; int keepMaximum = HealthPoints.FromWhole(state.Rules.CityHealth);
+        if (run is null || !RunCatalog.Doctrines.Any(d => d.Id == run.Doctrine)
+            || run.Offers is null || run.Quotes is null || run.Rewards is null
+            || run.DraftWave < 0 || run.DraftWave >= state.TotalWaves
+            || run.MerchantWave < 0 || run.MerchantWave > state.TotalWaves
+            || run.Started == (state.Phase == Phase.Lobby)
+            || !run.Started && (run.DraftWave != 0 || run.Rewards.Length != 0 || run.Choice is not null)
+            || run.Offers.Length != (run.DraftWave == 0 ? 0 : 3) || run.Quotes.Length != run.Offers.Length
+            || run.Offers.Distinct().Count() != run.Offers.Length
+            || run.Quotes.Any(q => !BattleRewards.ValidQuote(q, run.DraftWave, keepMaximum))
+            || !run.Quotes.Select(q => q.Id).SequenceEqual(run.Offers)
+            || run.Rewards.Length != run.DraftWave - (run.DraftWave > 0 && run.Choice is null ? 1 : 0)
+            || run.Rewards.Where((r, i) => !BattleRewards.ValidReceipt(r, keepMaximum) || r.Wave != i + 1).Any()
+            || run.Choice is not null && !run.Offers.Contains(run.Choice))
+            throw new ArgumentException("Malformed authoritative immediate rewards.");
+        if (run.Choice is { } choice)
+        {
+            BattleRewardQuote quote = run.Quotes.Single(q => q.Id == choice);
+            var expected = new BattleRewardReceipt(run.DraftWave, quote.Id, quote.Resources, quote.KeepHealing,
+                quote.SoldierHealing, quote.Soldiers.Length, quote.ResourceCapped);
+            if (run.Rewards.LastOrDefault() != expected) throw new ArgumentException("Chosen reward receipt differs from its frozen quote.");
+        }
+        if (state.Phase == Phase.RewardDraft && !city.Eliminated && (run.DraftWave != state.LastRewardedWave
+            || run.Choice is null && run.Quotes.Any(q => !BattleRewards.CanApply(city, q, run.DraftWave, keepMaximum))))
+            throw new ArgumentException("Current reward quotes differ from the frozen authoritative subjects.");
+        if (city.LastBattleLoss is { } loss)
+        {
+            int maximumField = ArmyConfiguration.PlotCount * state.Rules.Arena.SquadCapacity;
+            if (city.LastUpkeep is not { } upkeep || loss.Wave < 1 || loss.Wave > upkeep.Wave || upkeep.Wave > state.Wave
+                || loss.Participants < 0 || loss.Participants > maximumField || loss.Survivors < 0 || loss.Survivors > loss.Participants
+                || loss.KeepDamage < 0 || loss.KeepDamage > keepMaximum || loss.FieldUnfunded < 0 || loss.FieldUnfunded > maximumField
+                || loss.Wave == upkeep.Wave && (loss.Participants != upkeep.Participating.Length || loss.FieldUnfunded > upkeep.Unfed.Length)
+                || loss.Wave != upkeep.Wave && state.Phase != Phase.Combat)
+                throw new ArgumentException("Malformed frozen battle outcome.");
+        }
+        else if (state.Phase != Phase.Combat && city.LastUpkeep is not null)
+            throw new ArgumentException("Completed battle outcome is missing.");
     }
     private static void RequireProjection(UnitState member, SharedArena arena, CombatConfiguration configuration)
     {

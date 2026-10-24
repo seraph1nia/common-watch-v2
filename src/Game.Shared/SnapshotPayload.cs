@@ -52,10 +52,10 @@ public static class SnapshotPayload
         }
         MatchSnapshot? state = JsonSerializer.Deserialize<MatchSnapshot>(output.GetBuffer().AsSpan(0, checked((int)output.Length)), WireJson.Options);
         if (state is not null && (state.BattleFlowVersion != MatchSnapshot.CurrentBattleFlowVersion
-            || state.Phase == Phase.Building && state.Turn is not (1 or 2)
-            || state.Phase == Phase.Preparation && state.Turn != 3
+            || state.RewardRulesVersion != BattleRewards.RulesVersion
+            || !PreparationSchedule.ValidPhase(state.Rules, state.Phase, state.Turn)
             || !Enum.IsDefined(state.CombatSpeed)))
-            throw new InvalidDataException("Incompatible battle-flow snapshot. Reconnect to a matching running host; historical snapshots are not game saves.");
+            throw new InvalidDataException("Incompatible battle-flow or reward snapshot. Reconnect to a matching running host; historical snapshots are not game saves.");
         return state;
     }
 }

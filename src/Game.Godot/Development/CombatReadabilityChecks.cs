@@ -6,6 +6,33 @@ namespace Game.GodotClient;
 
 public partial class GameApplication
 {
+    private async Task CheckKeepDanger()
+    {
+        ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
+        for (int stage = 0; stage < _session.Snapshot.Rules.PreparationStages; stage++)
+        {
+            _session.Send("ready");
+            Require(_session.LastResult?.Accepted == true, "legal idle Keep-danger preparation");
+        }
+        RefreshWorld(); RefreshUi(true);
+        int maximum = HealthPoints.FromWhole(_session.Snapshot.Rules.CityHealth);
+        Require(_session.Snapshot.Phase == Phase.Combat && _session.City.Health == maximum,
+            "Keep-danger probe enters an ordinary battle at full health");
+        Require(!_gameUi.KeepDanger.IsVisibleInTree(), "healthy Keep has no combat warning");
+        await GameplayCapture("keep-danger-full");
+        for (int step = 0; step < 18000 && _session.Snapshot.Phase == Phase.Combat
+            && _session.City.Health == maximum; step++) _session.Step();
+        RefreshWorld(); RefreshUi(true);
+        Require(_session.Snapshot.Phase == Phase.Combat && _session.City.Health > HealthPoints.FromWhole(1)
+            && _session.City.Health < maximum, "ordinary combat damages a still-living Keep above one HP");
+        await GameplayCapture("keep-danger-damaged");
+        Require(_gameUi.KeepDanger.IsVisibleInTree()
+            && _gameUi.KeepDanger.Text == $"P{_session.City.Id} Keep {HealthPoints.Format(_session.City.Health)}/{_session.Snapshot.Rules.CityHealth}",
+            "damaged solo Keep exposes the actual health readout during combat");
+        Require(_gameUi.PhaseArea.Encloses(_gameUi.KeepDanger.GetGlobalRect()), "Keep warning fits the combat controls");
+        GD.Print("GODOT_KEEP_DANGER_PASS legal-full-to-damaged solo actual-native-label fixed-point-health");
+    }
+
     private async Task CheckCombatReadability()
     {
         ReplaceSession(ScenarioRunner.CreateAt("settlement")); _frozen = true; RefreshUi(true);

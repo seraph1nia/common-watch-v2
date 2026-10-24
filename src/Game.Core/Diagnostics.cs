@@ -9,7 +9,7 @@ public static class WireJson
 {
     // Both independent predecessor branches used14 for incompatible schemas.
     // Integrated shared squads + three-preparation forecasts require a fresh peer.
-    public const int ProtocolVersion = 17;
+    public const int ProtocolVersion = 19;
     public const string EventPrefix = "ODOT_EVENT ";
     public static readonly JsonSerializerOptions Options = new()
     {

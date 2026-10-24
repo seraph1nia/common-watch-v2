@@ -9,7 +9,8 @@ public partial class GameApplication
     {
         float original = _audio.Settings.MusicVolume;
         ulong playerId = _audio.Player.GetInstanceId();
-        _settingsButton.EmitSignal(BaseButton.SignalName.Pressed);
+        _gameUi.MenuButton.EmitSignal(BaseButton.SignalName.Pressed);
+        _menuPopup.SettingsButton.EmitSignal(BaseButton.SignalName.Pressed);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         // Layout consumes a normal simulation frame; changing preferences must not issue commands.
         long revision = _session.Snapshot.Revision;

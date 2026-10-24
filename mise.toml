@@ -85,6 +85,11 @@ raw_args = true
 description = "Actual Godot menu, doctrine, replacement and gameplay lifecycle checks"
 depends = ["test-graphics"]
 
+[tasks.test-cooperative-context]
+description = "Native 2/4/6-player owner, inspection, camera and three-wave transitions; real team exceptions"
+depends = ["build"]
+run = ["bash tools/journey-matrix.sh --cooperative-focus", "bash tools/graphical.sh capture-cooperation", "COMMON_WATCH_COOP_TERMINAL=1 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation/victory bash tools/graphical.sh capture-cooperation"]
+
 [tasks.test-multiplayer]
 description = "Actual godot LAN processes: one through six players through combat and drafting"
 depends = ["build"]
@@ -249,7 +254,7 @@ depends = ["build"]
 run = "bash tools/graphical.sh capture-veterans"
 
 [tasks.capture-bosses]
-description = "Legal wave 10/20 forecast, crowned figures, playback health/windup/death and restart"
+description = "Legal W10 elite formation/W20 boss forecasts, playback health/windup/death and restart"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-bosses"
 
@@ -267,3 +272,67 @@ run = "bash tools/graphical.sh capture-forest-consistency"
 description = "Native action/playback feedback at both sizes, pause/retry/baseline checks and actual muted-music mixer audition"
 depends = ["build"]
 run = "bash tools/graphical.sh capture-feedback"
+
+[tasks.capture-hud]
+description = "Native two-client planning, Ready, combat, reward and accepted-waiting views at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-hud"
+raw_args = true
+
+[tasks.capture-journey]
+description = "Continuous native three-wave solo journey and overlay transitions in default/debug at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-journey"
+raw_args = true
+
+[tasks.capture-combat-sequences]
+description = "Observe normal 1x early/mixed/boss combat, actual pixels and wall/tick durations at 720p/1080p"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-combat-sequences"
+raw_args = true
+
+[tasks.capture-combat-cooperation]
+description = "Real six-player paid mixed-army encounter at normal 1x, both sizes and native local/overview cameras"
+depends = ["build"]
+run = "bash tools/combat-cooperation.sh"
+raw_args = true
+
+[tasks.capture-army-workspace]
+description = "Native recruit/reinforce/deploy/purchase/preview/battle task trace at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-army-workspace"
+raw_args = true
+
+[tasks.test-journey-network]
+description = "Continuous three-wave native co-op journey with real waiting, delayed acknowledgment and reconnect"
+depends = ["build"]
+run = "bash tools/graphical.sh test-journey-network"
+raw_args = true
+
+[tasks.test-journey]
+description = "Complete solo and 2/4/6-player native transition matrix, default/debug and 720p/1080p"
+depends = ["build"]
+run = ["bash tools/graphical.sh capture-journey", "bash tools/journey-matrix.sh"]
+
+[tasks.test-army-workspace]
+description = "Six-home native workspace: paid placement, towers, input and art fallback at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh test-army-workspace"
+raw_args = true
+
+[tasks.capture-recovery]
+description = "Native finite squad recovery, exact wounds, partial capacity and safe cancel at both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-recovery"
+raw_args = true
+
+[tasks.test-recovery-network]
+description = "Actual remote recovery with held authority, accepted-prefix cancellation, retry and private rejoin"
+depends = ["build"]
+run = "bash tools/graphical.sh test-recovery-network"
+
+[tasks.capture-major-encounters]
+description = "Actual normal-speed single-boss versus elite formation at W10/W20, both sizes"
+depends = ["build"]
+run = "bash tools/graphical.sh capture-major-encounters"
+raw_args = true

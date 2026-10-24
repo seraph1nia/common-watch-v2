@@ -12,6 +12,13 @@ public partial class MatchControls : VBoxContainer
     private HBoxContainer _speeds = null!;
     private readonly Dictionary<CombatSpeed, Button> _speedButtons = [];
     private bool _illustrated;
+    private Action<string> _send = null!;
+    public bool TryToggleReady()
+    {
+        if (_session is not { HasState: true, Connected: true, Pending: false } || !ReadyButton.IsVisibleInTree() || ReadyButton.Disabled) return false;
+        if (_session.Snapshot.Paused || _session.Snapshot.Phase is not (Phase.Building or Phase.Preparation) || _session.City.Eliminated) return false;
+        _send(_session.City.Ready ? "unready" : "ready"); return true;
+    }
     public Button ReadyButton { get; private set; } = null!;
     internal Button PauseButton => _pause;
     internal string TransitionText => _consequence.Text;
@@ -19,15 +26,25 @@ public partial class MatchControls : VBoxContainer
     {
         _illustrated = skin.Illustrated;
         AddThemeConstantOverride("separation", 4);
-        void Send(string action) { _session.Send(action); submitted(); }
+        void Send(string action)
+        {
+            if (_session is not { HasState: true, Connected: true, Pending: false }) return;
+            var state = _session.Snapshot;
+            if (state.Phase is Phase.Victory or Phase.Defeat) return;
+            if (action is "ready" or "unready" && (state.Phase is not (Phase.Building or Phase.Preparation) || !ReadyButton.IsVisibleInTree() || ReadyButton.Disabled)) return;
+            if (CombatSpeedRates.TryAction(action, out _) && (state.Phase != Phase.Combat || !_speeds.IsVisibleInTree() || !_session.IsHost)) return;
+            if (action is "pause" or "resume" && (!_pause.IsVisibleInTree() || _pause.Disabled)) return;
+            _session.Send(action); submitted();
+        }
+        _send = Send;
         var ready = new HBoxContainer(); AddChild(ready);
-        ReadyButton = skin.Button("Ready", () => Send(_session.City.Ready ? "unready" : "ready"), "ForestPrimaryButton");
+        ReadyButton = skin.Button("Ready", () => TryToggleReady(), "ForestPrimaryButton");
         ReadyButton.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         ReadyButton.CustomMinimumSize = new(0, 44); ReadyButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; ready.AddChild(ReadyButton);
         _pause = skin.Button("Pause", () => Send(_session.Snapshot.Paused ? "resume" : "pause"), "ForestArcaneButton");
         _pause.SizeFlagsHorizontal = SizeFlags.ExpandFill; _pause.CustomMinimumSize = new(0, 44); ready.AddChild(_pause);
         _consequence = WrapLabel(); _consequence.AddThemeFontSizeOverride("font_size", 14); AddChild(_consequence);
-        _speeds = new HBoxContainer(); AddChild(_speeds);
+        _speeds = new HBoxContainer(); ready.AddChild(_speeds); ready.MoveChild(_speeds, 0);
         foreach (CombatSpeed speed in Enum.GetValues<CombatSpeed>())
         {
             var button = skin.Button(CombatSpeedRates.Label(speed), () => Send(CombatSpeedRates.Action(speed))); _speeds.AddChild(button); _speedButtons.Add(speed, button);
@@ -41,14 +58,15 @@ public partial class MatchControls : VBoxContainer
         bool ended = state.Phase is Phase.Defeat or Phase.Victory;
         bool combat = state.Phase == Phase.Combat || finishingCombat;
         bool preparing = !finishingCombat && state.Phase is Phase.Building or Phase.Preparation;
-        ReadyButton.Visible = preparing && !session.City.Eliminated; _speeds.Visible = combat;
+        ReadyButton.Visible = preparing && !session.City.Eliminated; _speeds.Visible = state.Phase == Phase.Combat;
         string next = state.Phase == Phase.Preparation ? "battle" : $"prep {state.Turn + 1}";
         ReadyButton.Text = session.City.Ready ? "Unready" : $"Ready · {next}";
         if (session.ViewedCity.Id != session.PlayerId) ReadyButton.Text = (session.City.Ready ? "Unready" : "Ready") + $" · P{session.PlayerId}";
         _consequence.Visible = preparing;
+        string delivery = PreparationSchedule.ResourceMultiplier(state.Rules, state.Turn) == 2 ? "2× resource income" : "income";
         _consequence.Text = (state.Paused ? "PAUSED · Next: " : "Next: ") + (state.Phase == Phase.Preparation
-            ? "income + Food → battle."
-            : $"income → prep {state.Turn + 1}/3.");
+            ? delivery + " + Food → battle."
+            : $"{delivery} → prep {state.Turn + 1}/{state.Rules.PreparationStages}.");
         if (session.City.Eliminated && !ended) _consequence.Text = "Observing · survivors advance the match.";
         if (state.Players.Length > 1)
         {
@@ -56,6 +74,7 @@ public partial class MatchControls : VBoxContainer
             int readyCount = state.Players.Count(p => p.Connected && !p.Eliminated && p.Ready);
             _consequence.Text += $"\nAll connected survivors Ready: {readyCount}/{required}.";
         }
+        ReadyButton.Text += " [Y]";
         ReadyButton.ThemeTypeVariation = _illustrated ? "ForestPrimaryButton" : "";
         ReadyButton.Disabled = !session.Connected || session.Pending || state.Paused || session.City.Eliminated;
         _pause.Text = state.Paused ? "Resume" : "Pause";
@@ -68,11 +87,13 @@ public partial class MatchControls : VBoxContainer
             pair.Value.Text = (pair.Key == state.CombatSpeed ? "✓ " : "") + CombatSpeedRates.Label(pair.Key);
             pair.Value.TooltipText = session.IsHost ? "Authoritative combat pace" : "Only the original playing host controls combat speed.";
         }
-        _status.Text = state.Paused && preparing ? "PAUSED" : (state.Paused ? "PAUSED · " : "") +
+        _status.Text = state.Paused && !ended ? "PAUSED" : (state.Paused ? "PAUSED · " : "") +
             (ended ? $"{state.Phase} · {(state.Phase == Phase.Defeat ? PresentationLimits.DefeatText(state.DefeatReason) : "All waves held")}" :
             "Waiting: " + string.Join(", ", state.Players.Where(p => p.Connected && !p.Eliminated && !p.Ready).Select(p => $"P{p.Id}")));
-        _status.Visible = state.Paused && !preparing || ended;
+        // Combat already exposes Resume and a paused phase heading. Keep its
+        // speed and pause controls together instead of stacking three rows.
+        _status.Visible = ended || state.Paused && !preparing && !combat;
         _status.AddThemeFontSizeOverride("font_size", ended ? 22 : 16);
-        ReadyButton.TooltipText = $"Ready controls your city P{session.PlayerId}; Unready unlocks editing.\nAll connected, standing cities must be Ready\nto settle production {state.Turn}/3.\nEach settlement advances research and eligible paid recovery.\nOnly the final settlement pays battle Food.\nFood shortage permits Ready; unfunded field soldiers sit out.";
+        ReadyButton.TooltipText = $"Y toggles Ready / Unready. Ready controls your city P{session.PlayerId}; Unready unlocks editing.\nAll connected, standing cities must be Ready\nto settle production {state.Turn}/{state.Rules.PreparationStages}.\nEach settlement advances research and eligible paid recovery.\nOnly the final settlement pays battle Food.\nFood shortage permits Ready; unfunded field soldiers sit out.";
     }
 }

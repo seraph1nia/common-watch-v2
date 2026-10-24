@@ -12,4 +12,8 @@
   <ItemGroup><Compile Include="../../src/Game.Godot/Environment/EnvironmentSettings.cs" Link="EnvironmentSettings.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../src/Game.Godot/Development/PreparationObservations.cs" Link="PreparationObservations.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../../tools/session-probe/OpeningProbe.cs" Link="OpeningProbe.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/UI/HudPresentation.cs" Link="HudPresentation.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/UI/HudJourney.cs" Link="HudJourney.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/UI/ArmySelection.cs" Link="ArmySelection.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../src/Game.Godot/UI/ObserverSelection.cs" Link="ObserverSelection.cs" /></ItemGroup>
 </Project>

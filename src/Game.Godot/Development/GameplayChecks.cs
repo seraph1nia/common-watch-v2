@@ -14,9 +14,11 @@ public partial class GameApplication
         await CheckPaintedHudControls();
         await CheckForestPresentation();
         await CheckOpeningGuide();
+        await CheckKeepDanger();
         await CheckCombatReadability();
         await CheckArmyDeployment();
         await CheckVeteranChoices();
+        await CheckSquadRecoveryChoices();
         await CheckBossPresentation();
         _frozen = true;
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true;
@@ -29,7 +31,7 @@ public partial class GameApplication
             Require(label.Text.StartsWith(expected + " / "), "ribbon income uses authoritative production: " + resource);
         }
         Require(GetViewport().GetVisibleRect().Encloses(_gameUi.Resources.GetGlobalRect()), "complete resource ribbon fits viewport");
-        Press(_gameUi.FeedbackButton); await GameplayCapture("city-details");
+        Press(_gameUi.CityDetailsButton); await GameplayCapture("city-details");
         Require(_gameUi.Details.Visible && _gameUi.Details.RecentFeedback.Contains(_gameUi.SessionFeedback), "visible recent feedback routes to read-only city details");
         _gameUi.Details.Close();
         _session.SelectSlot(0); RefreshUi(true); await GameplayCapture("hud-build");
@@ -105,9 +107,20 @@ public partial class GameApplication
         ReplaceSession(GameplayScenarios.CreateAt("army")); _frozen = true; RefreshUi(true);
         Require(Enum.GetValues<UnitType>().All(t => _session.City.Soldiers.Any(u => u.Type == t)), "all four legally recruited classes");
         OpenDetails(DetailsPage.Army);
+        foreach (UnitType role in Enum.GetValues<UnitType>())
+        {
+            var fighter = _session.City.Soldiers.First(u => u.Type == role && u.Assignment is { Stored: false });
+            await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Home" + (fighter.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
+            var recruit = _gameUi.Details.Army.Recruitment.Buttons["Recruit" + role];
+            Require(recruit.IsVisibleInTree(), "selecting a home exposes its compatible trainer and role: " + role);
+            int trainer = _gameUi.Details.Army.TrainerSelector.GetSelectedId();
+            var actualQuote = _session.City.RecruitmentQuotes.Single(q => q.Type == role && q.Level == _session.City.Slots[trainer].Level);
+            Require(recruit.Text.Contains(GameplayContext.Cost(actualQuote.Cost)), "workspace uses actual equipment/doctrine price for " + role);
+        }
         int member = _session.City.Soldiers.First(u => u.Type == UnitType.Swordsman).Id;
+        _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + member]);
-        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
+        Require(_gameUi.Details.Inspector.SelectedUnit == member && _gameUi.Details.Inspector.AdvancedDetails.Contains("Service history") && !_gameUi.Details.Inspector.Details.Contains("Service history"), "reusable persistent member inspector");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var rosterScroll = _gameUi.Details.Army.RosterScroll;
         rosterScroll.ScrollVertical = 80;
@@ -121,19 +134,27 @@ public partial class GameApplication
         await CheckMenuPopup("army");
         OpenDetails(DetailsPage.Army);
         _gameUi.Details.Army.ShowHomes();
-        Require(_gameUi.Details.Deployment.HomeButtons.Count == 12, "six numbered homes with inspect and deployment controls");
+        Require(_gameUi.Details.Deployment.HomeButtons.Count == 6, "six numbered persistent home controls");
         var chosenSquad = _session.City.Soldiers.First(u => u.Assignment is { Stored: false });
         _gameUi.Details.Army.SelectSquad(chosenSquad.SquadId);
-        Press(_gameUi.Details.Deployment.HomeButtons["Deploy" + (chosenSquad.Assignment!.Tile + ArmyConfiguration.PlotOffset)]);
-        Require(_session.LastResult?.Accepted == true, "native squad and arena-cell command");
+        var destination = _gameUi.Details.Deployment.Homes.FirstOrDefault(h => h.CanDeploy && !h.Members.Any(u => u.SquadId == chosenSquad.SquadId));
+        if (destination is not null)
+        {
+            await JourneyClick(_gameUi.Details.Deployment.HomeButtons["Home" + destination.Home.PlotId]);
+            await JourneyClick(_gameUi.Details.Army.DeployButton); _frozen = true;
+            Require(_session.LastResult?.Accepted == true && _session.City.Soldiers.First(u => u.Id == chosenSquad.Id).Assignment!.Tile == destination.Home.PlotId - ArmyConfiguration.PlotOffset, "native selected-home placement command");
+        }
+        else Require(!_gameUi.Details.Army.DeployButton.Visible && _gameUi.Details.Deployment.Homes.All(h => h.Members.Any(u => u.SquadId == chosenSquad.SquadId) || !h.CanDeploy), "full occupied army exposes no fake relocation target or redundant current-home command");
         await GameplayCapture("army-deployment");
         _gameUi.Details.Close();
 
         ReplaceSession(GameplayScenarios.CreateAt("town-hall")); _frozen = true; RefreshUi(true); OpenDetails(DetailsPage.Army);
         var stored = _session.City.Soldiers.First(u => u.Assignment is { Stored: true });
+        _gameUi.Details.Army.ShowRoster();
         Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
-        Require(_gameUi.Details.Inspector.Details.Contains("paid recovery eligible"), "paid recovery shown from real roster");
+        Require(_gameUi.Details.Inspector.Details.Contains(stored.RecoveryEligible ? "; recovery eligible" : "; recovery needs a funded completed battle"), "actual stored eligibility shown from real roster");
         _gameUi.Details.Army.ShowManagement(); await GameplayCapture("town-hall");
+        _gameUi.Details.Army.ShowRoster(); Press(_gameUi.Details.Army.MemberButtons["Member" + stored.Id]);
         int health = stored.Health;
         Press(_gameUi.Details.Inspector.Buttons["Return"]);
         Require(_session.City.Soldiers.Single(u => u.Id == stored.Id).Assignment is { Stored: false }, "native veteran return");
@@ -182,12 +203,18 @@ public partial class GameApplication
         var homeTower = _session.Snapshot.Structures.Single(structure => structure.Slot == 9);
         _gameUi.Inspect(homeTower); Press(_gameUi.Details.Inspector.Buttons["ManageTower"]);
         Require(_gameUi.Details.Visible && _gameUi.Details.Deployment.SelectedPlot == 9, "army-home tower routes to contextual Homes, without a settlement plot override");
-        Press(_gameUi.Details.Deployment.Inspector.Actions["Sell"]);
+        Press(_gameUi.Details.Army.HomeInspector.Actions["Sell"]);
         Require(_session.LastResult?.Accepted == true && _session.City.Army!.Homes[0].Plot.Type == Building.Empty, "contextual army-home tower sale remains authoritative");
         _gameUi.Details.Close();
 
         ReplaceSession(ScenarioRunner.CreateAt("combat")); _frozen = true; RefreshUi(true);
-        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness"); await GameplayCapture("hud-combat"); await CheckMenuPopup("combat");
+        Require(!_gameUi.ReadyButton.Visible, "combat replaces readiness");
+        foreach (string region in new[] { "ledger", "threat", "guide", "selected-plot", "navigation/build", "preparation-track" })
+            Require(!_gameUi.Regions[region].IsVisibleInTree(), "combat removes irrelevant region: " + region);
+        Require(!_gameUi.ArenaButton.IsVisibleInTree(), "live battle has no misleading arena toggle");
+        long combatSequence = _session.LastResult?.Sequence ?? 0;
+        _gameUi.ReadyButton.EmitSignal(BaseButton.SignalName.Pressed);
+        Require((_session.LastResult?.Sequence ?? 0) == combatSequence, "stale hidden Ready cannot submit"); await GameplayCapture("hud-combat"); await CheckMenuPopup("combat");
         ReplaceSession(GameplayScenarios.CreateAt("reward")); _frozen = true; RefreshUi(true);
         Require(_gameUi.Draft.RewardButtons.Count == 3, "actual three-card draft");
         long draftRevision = _session.Snapshot.Revision;
@@ -197,21 +224,23 @@ public partial class GameApplication
         if (_gameUi.Draft.Result.Expanded) Press(_gameUi.Draft.Result.ExpandButton);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var cards = _gameUi.Draft.Cards.ToArray();
-        Require(cards.All(c => c.TargetsText.Length > 0 && c.EffectsText.Length > 0), "every offered reward explains current targets or a deliberate pivot");
+        var quoted = _session.City.Run.Quotes;
+        Require(cards.Length == 3 && quoted.Length == 3, "three frozen immediate quotes");
+        for (int index = 0; index < cards.Length; index++)
+        {
+            var rewardQuote = quoted[index];
+            Require(cards[index].TargetsText == RunPresentation.Benefit(rewardQuote.Resources, rewardQuote.KeepHealing, rewardQuote.SoldierHealing, rewardQuote.Soldiers.Length), "primary copy matches authority exactly");
+            Require(cards[index].EffectsText.Length > 0 && cards[index].IsVisibleInTree()
+                && _gameUi.Draft.GetGlobalRect().Encloses(cards[index].ChooseButton.GetGlobalRect()), "every primary choice is visible without an effects action");
+        }
         await GameplayCapture("reward-draft");
-        long effectRevision = _session.Snapshot.Revision;
-        WorldtreeClick(cards[0].EffectsButton.GetGlobalRect().GetCenter());
+        long inspectionRevision = _session.Snapshot.Revision;
+        GetViewport().PushInput(new InputEventMouseMotion { Position = cards[0].CopyArea.GetCenter() }, true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(cards[0].EffectsVisible && cards[0].CopyArea.Size.Y >= 64 && _session.Snapshot.Revision == effectRevision, "native reward effects inspection spends nothing and leaves the offer intact");
-        await GameplayCapture("reward-current-effects");
-        cards[0].EffectsButton.GrabFocus();
-        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = true }, true);
-        GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = false }, true);
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Require(!cards[0].EffectsVisible && _session.City.Run.Choice is null, "keyboard closes effects without choosing a reward");
+        Require(_session.Snapshot.Revision == inspectionRevision && _session.City.Run.Choice is null, "hovering quoted benefit never selects or mutates authority");
         await CheckMenuPopup("rewards");
         Press(_gameUi.Draft.RewardButtons[0]);
-        Require(_session.City.Run.Cards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
+        Require(_session.City.Run.Rewards.Length > 0 && _session.Snapshot.Phase == Phase.Building, "actual draft accepted");
 
         ReplaceSession(GameplayScenarios.CreateAt("victory")); _frozen = true; RefreshUi(true);
         Require(!_gameUi.Draft.Visible && _session.Snapshot.Wave == 20, "wave twenty terminal without new draft"); await GameplayCapture("victory");
@@ -252,7 +281,7 @@ public partial class GameApplication
             Require(before.GetPixelv(point) == after.GetPixelv(point), "popup adds no backdrop or dimming outside its square over " + screen);
         if (screen == "settlement")
         {
-            Click(_gameUi.SettingsButton.GetGlobalRect().End - new Vector2(2, 2));
+            Click(_gameUi.MenuButton.GetGlobalRect().End - new Vector2(2, 2));
             Require(_settings.Visible == settings, "popup also blocks underlying HUD buttons at the viewport edge");
         }
         Click(screen == "settlement" && _settlementView.HasMap ? _camera.ToScreen(_settlementView.PlotPosition(7)) : new Vector2(12, 180));
@@ -316,6 +345,26 @@ public partial class GameApplication
         System.IO.Directory.CreateDirectory(directory);
         string path = System.IO.Path.Combine(directory, name + ".png");
         using var image = GetViewport().GetTexture().GetImage(); Require(image.SavePng(path) == Error.Ok, "gameplay capture " + name);
+        var snapshot = _session is { HasState: true } ? _session.Snapshot : null;
+        var inventory = new
+        {
+            match = snapshot?.MatchId, phase = snapshot?.Phase, wave = snapshot?.Wave,
+            moment = _gameUi.Presentation.Moment.ToString(),
+            keepHealth = _session?.City.Health, keepDangerVisible = _gameUi.KeepDanger.IsVisibleInTree(), keepDangerText = _gameUi.KeepDanger.Text,
+            regions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
+            actions = VisibleHudActions(_gameUi).Select(b => new { text = b.Text, enabled = !b.Disabled }).ToArray()
+        };
+        System.IO.File.WriteAllText(System.IO.Path.ChangeExtension(path, ".json"), System.Text.Json.JsonSerializer.Serialize(inventory, WireJson.Options));
         GD.Print("GODOT_GAMEPLAY_CAPTURE " + path);
     }
+    private static IEnumerable<Button> VisibleHudActions(Node node)
+    {
+        foreach (var child in node.GetChildren())
+        {
+            if (child is Control control && !control.IsVisibleInTree()) continue;
+            if (child is Button button) yield return button;
+            foreach (var descendant in VisibleHudActions(child)) yield return descendant;
+        }
+    }
+
 }

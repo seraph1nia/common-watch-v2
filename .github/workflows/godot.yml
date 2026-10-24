@@ -63,6 +63,28 @@ jobs:
           --no-build --no-restore --nologo
           --logger 'trx;LogFileName=godot.trx' --results-directory artifacts/test-results
 
+      - name: Test native phase-specific HUD and accepted reward waiting
+        run: mise run capture-hud
+
+      - name: Test spatial army workspace and art fallback at both sizes
+        run: mise run test-army-workspace
+
+      - name: Test finite squad recovery and private remote cancellation
+        run: |
+          mise run capture-recovery
+          mise run test-recovery-network
+
+      - name: Test native three-wave journey and overlay transitions
+        run: mise run capture-journey
+
+      - name: Test cooperative city focus and unchanged command ownership
+        run: |
+          for players in 2 6; do
+            mise exec -- bash tools/graphical.sh test-journey-network --cooperative-focus --players "$players" --width 1280 --output "$(pwd)/artifacts/captures/cooperation-review/ci-${players}p"
+          done
+          COMMON_WATCH_COOP_PLAYERS=2 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation-review/ci-exceptions mise exec -- bash tools/graphical.sh capture-cooperation
+          COMMON_WATCH_COOP_TERMINAL=1 COMMON_WATCH_COOP_OUTPUT=artifacts/captures/cooperation-review/ci-victory mise exec -- bash tools/graphical.sh capture-cooperation
+
       - name: Test and capture deterministic combat animation
         run: mise run test-animation
 
@@ -127,6 +149,10 @@ jobs:
             artifacts/test-logs/
             artifacts/test-results/
             artifacts/captures/godot/
+            artifacts/captures/journey/
+            artifacts/captures/army-workspace/
+            artifacts/captures/recovery/
+            artifacts/captures/cooperation-review/
             artifacts/profiles/
           if-no-files-found: ignore
           retention-days: 7

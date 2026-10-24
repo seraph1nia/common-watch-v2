@@ -21,9 +21,12 @@ public partial class GameApplication
     private async Task RunDevelopmentActions()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (_args.Contains("--keep-danger-test")) { await CheckKeepDanger(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--steam-friends-test")) { await CheckSteamFriendsPresentation(); await QuitAfterAudioDrain(); return; }
         if (Argument("--environment-captures") is { } environmentOutput) { await CaptureEnvironment(environmentOutput); await QuitAfterAudioDrain(); return; }
         if (Argument("--arena-captures") is { } arenaOutput) { await CaptureModularArena(arenaOutput); await QuitAfterAudioDrain(); return; }
+        if (Argument("--major-encounter-review") is { } majorOutput) { await CaptureCombatSequences(majorOutput, majorComparison: true); await QuitAfterAudioDrain(); return; }
+        if (Argument("--combat-sequences") is { } sequenceOutput) { await CaptureCombatSequences(sequenceOutput); await QuitAfterAudioDrain(); return; }
         // Presentation-only comparison controls. No scenario or authoritative state edits.
         if (Argument("--settlement-radius") is { } radius)
         {
@@ -38,6 +41,10 @@ public partial class GameApplication
         if (_args.Contains("--feedback-review")) { await CheckFeedbackPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--forest-review")) { await CheckForestPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--opening-review")) { await CheckOpeningCampaigns(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--army-workspace-test")) { await CheckArmyDeployment(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--army-workspace-trace")) { await TraceArmyWorkspace(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--journey-test")) { await CheckJourneyTransitions(); await CheckNativeSoloJourney(); await QuitAfterAudioDrain(); return; }
+        if (_args.Contains("--squad-recovery-review")) { await CheckSquadRecoveryChoices(); GD.Print("GODOT_SQUAD_RECOVERY_DRAIN"); await QuitAfterAudioDrain(); GD.Print("GODOT_SQUAD_RECOVERY_QUIT"); return; }
         if (_args.Contains("--gameplay-test")) { await GameplayUiChecks(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--boss-review")) { await CheckBossPresentation(); await QuitAfterAudioDrain(); return; }
         if (_args.Contains("--veteran-review")) { await CheckVeteranChoices(); await QuitAfterAudioDrain(); return; }

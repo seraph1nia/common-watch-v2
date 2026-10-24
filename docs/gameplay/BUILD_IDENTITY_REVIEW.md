@@ -1,5 +1,11 @@
 # Existing build identity and draft review — issue #7
 
+This is historical evidence for the original passive catalog. Its relevance-only
+experiment and active reward-stack descriptions were superseded by
+[issue #21's immediate rewards](../refinement-ii/21_IMMEDIATE_REWARDS.md).
+Original source remains reproducible; ordinary play does not ship that catalog.
+
+
 Local legal replays, native input checks and actual application screenshots are
 the accepted evidence for this roadmap. These establish visible information and
 functional choices; no human comprehension or balance result is claimed.

@@ -51,7 +51,7 @@ public sealed class VerticalSliceTests
         MatchSnapshot final = authority.Snapshot();
         Assert.Equal(Phase.Building, final.Phase);
         Assert.Equal(2, final.Wave);
-        Assert.Contains(final.Players[0].Run.Cards, c => c.Id == offers[0] && c.Count == 1);
+        Assert.Contains(final.Players[0].Run.Rewards, c => c.Id == offers[0] && c.Wave == 1);
         return JsonSerializer.Serialize(final, WireJson.Options);
     }
 

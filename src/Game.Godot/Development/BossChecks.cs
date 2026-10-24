@@ -9,16 +9,27 @@ public partial class GameApplication
 {
     private async Task CheckBossPresentation()
     {
-        foreach (int wave in new[] { 10, 20 })
+        ReplaceSession(GameplayScenarios.CreateAt("major-10")); _gameUi.Details.Close(); _frozen = true; RefreshUi(true); RefreshWorld();
+        var elite = _session.Snapshot.NextWave;
+        Require(elite.Length == 6 && elite.All(u => !u.IsBoss) && elite.Count(u => u.Type == UnitType.Berserker && u.Level == 3) == 2,
+            "W10 actual paired elite forecast, without a fabricated boss");
+        Require(_gameUi.PreparationSummary.Text.Contains("Elite", StringComparison.OrdinalIgnoreCase), "elite purpose replaces the stale boss promise");
+        await GameplayCapture("major-10-forecast"); await JourneyClick(_gameUi.ReadyButton);
+        Require(_session.Snapshot.Phase == Phase.Combat && _session.Snapshot.Enemies.Select(u => u.Profile).OrderBy(p => p.Health).SequenceEqual(elite.Select(u => u.Profile).OrderBy(p => p.Health)),
+            "native Ready consumes the actual elite profiles");
+        RefreshWorld(); RefreshUi(true); await GameplayCapture("major-10-live");
+        Require(_battlefield.BossFigureCount == 0 && _battlefield.CrownedFigures == 0, "formation does not invent boss crowns or profiles");
+        GD.Print("GODOT_ELITE_PASS wave10 legal-paired-profiles native-ready no-fake-boss");
+        foreach (int wave in new[] { 20 })
         {
             string scenario = "boss-" + wave;
-            ReplaceSession(GameplayScenarios.CreateAt(scenario)); _frozen = true; RefreshUi(true); RefreshWorld();
+            ReplaceSession(GameplayScenarios.CreateAt(scenario)); _gameUi.Details.Close(); _frozen = true; RefreshUi(true); RefreshWorld();
             var forecast = _session.Snapshot.NextWave.Single();
             Require(forecast.IsBoss && _session.Snapshot.Wave == wave, "legal single-boss preparation checkpoint");
             Require(_gameUi.PreparationSummary.Text.Contains("boss", StringComparison.OrdinalIgnoreCase)
                 && _gameUi.PreparationSummary.TooltipText.Contains(HealthPoints.Format(forecast.Profile.Health)), "boss purpose and authoritative HP available before Ready");
             await GameplayCapture(scenario + "-forecast");
-            Press(_gameUi.ReadyButton);
+            await JourneyClick(_gameUi.ReadyButton);
             Require(_session.Snapshot.Phase == Phase.Combat && _session.Snapshot.Enemies.Single().Profile == forecast.Profile, "native Ready consumes the accepted boss profile exactly");
             for (int n = 0; n < 180 && !_session.Playback.Units().Any(u => u.IsBoss && u.Hex?.Lifecycle == UnitLifecycle.Alive); n++) _session.Step();
             _frozen = true; RefreshWorld(); RefreshUi(true); await GameplayCapture(scenario + "-live");
@@ -54,6 +65,6 @@ public partial class GameApplication
             _battle = null; _arenaCameraKey = "";
         }
         ReplaceSession(ScenarioRunner.CreateAt("initial")); _frozen = true; RefreshWorld(); RefreshUi(true);
-        GD.Print("GODOT_BOSS_PASS waves=10/20 legal-forecast larger-crown health windup pause death restart native-ready unchanged-ground");
+        GD.Print("GODOT_BOSS_PASS wave20 legal-forecast larger-crown health windup pause death restart native-ready unchanged-ground");
     }
 }

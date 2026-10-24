@@ -33,8 +33,8 @@ public sealed class BattleOutcomeTests
         Assert.Same(outcome, journal.For(solo.PlayerId));
         journal.Reset(); journal.Observe(solo.Snapshot);
         var rejoined = Assert.IsType<BattleOutcome>(journal.For(solo.PlayerId));
-        Assert.Null(rejoined.Survived); Assert.Null(rejoined.Lost); Assert.Null(rejoined.KeepDamage);
-        Assert.Contains("missing history", rejoined.Details);
+        Assert.Equal(outcome.Survived, rejoined.Survived); Assert.Equal(outcome.Lost, rejoined.Lost); Assert.Equal(outcome.KeepDamage, rejoined.KeepDamage);
+        Assert.True(rejoined.ObservedEnd);
     }
     [Fact]
     public void FoodShortageAndDefeatNeverReuseAnEarlierClearReward()
@@ -58,13 +58,13 @@ public sealed class BattleOutcomeTests
         Assert.Equal(0, outcome.Survived); Assert.Equal(0, outcome.Lost);
     }
     [Fact]
-    public void TerminalBaselineCanReportCasualtiesWithoutInventingEarlierKeepDamage()
+    public void TerminalBaselineUsesTheAuthoritativeFrozenCasualtiesAndKeepDamage()
     {
         using var solo = GameplayScenarios.CreateAt("victory");
         var journal = new BattleOutcomeJournal(); journal.Observe(solo.Snapshot);
         var outcome = Assert.IsType<BattleOutcome>(journal.For(solo.PlayerId));
         Assert.Equal(20, outcome.Wave); Assert.Equal("Victory", outcome.Result);
-        Assert.Null(outcome.KeepDamage); Assert.NotNull(outcome.Survived);
+        Assert.Equal(solo.City.LastBattleLoss!.KeepDamage, outcome.KeepDamage); Assert.NotNull(outcome.Survived);
         Assert.Equal(solo.City.LastReward!.Amount, outcome.Resources);
     }
     [Fact]
@@ -83,7 +83,7 @@ public sealed class BattleOutcomeTests
     }
     private static void Accept(CommandResult result) => Assert.True(result.Accepted, result.Message);
     [Fact]
-    public void LateCooperativeResultDoesNotInferKeepDamageAfterARewardChoice()
+    public void LateCooperativeResultUsesFrozenKeepDamageAfterARewardChoice()
     {
         using var host = new AuthoritySession(AuthorityPolicy.PlayingHost, combatSeed: SoloSession.DefaultSeed);
         Assert.True(host.Admit(2, WireJson.ProtocolVersion, "", 0).Accepted);
@@ -110,7 +110,7 @@ public sealed class BattleOutcomeTests
         Assert.Equal(Phase.RewardDraft, host.Phase); // Other city has not chosen yet.
         journal.Observe(host.Snapshot());
         var outcome = Assert.IsType<BattleOutcome>(journal.For(1));
-        Assert.NotNull(outcome.Survived); Assert.Null(outcome.KeepDamage);
+        Assert.NotNull(outcome.Survived); Assert.Equal(city.LastBattleLoss!.KeepDamage, outcome.KeepDamage);
     }
     [Fact]
     public void MovingSquadObjectiveNeverResolvesAsAFriendlyMemberWithTheSameNumber()

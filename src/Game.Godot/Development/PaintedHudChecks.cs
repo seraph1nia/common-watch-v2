@@ -53,8 +53,8 @@ public partial class GameApplication
         int enemies = state.NextWave.Count(u => u.Destination == city.Id);
         Require(label.Text.Contains($"Wave {state.Wave} → P{city.Id}: {enemies} enemies"), "visible threat counts only the inspected city's destination manifest");
         Require(label.Text.Contains($"Army: {city.FoodForecast!.Participating.Length} fight"), "visible army count uses authoritative participation");
-        Require(label.Text.Contains($"Food payment: {city.FoodForecast.Paid}/{city.FoodForecast.Demand}"), "visible Food payment uses authoritative forecast");
-        Require(label.Text.Contains(state.Phase == Phase.Preparation ? "Includes final income" : "Stock now"), "forecast distinguishes final income from current stock");
+        Require(label.TooltipText.Contains($"Food payment: {city.FoodForecast.Paid}/{city.FoodForecast.Demand}"), "on-demand Food payment uses authoritative forecast");
+        Require(label.TooltipText.Contains(state.Phase == Phase.Preparation ? "Includes final income" : "Stock now"), "forecast distinguishes final income from current stock");
         Require(label.IsVisibleInTree() && _gameUi.PreparationArea.Encloses(label.GetGlobalRect()) && GetViewport().GetVisibleRect().Encloses(_gameUi.PreparationArea), "entire preparation summary fits its frame and viewport");
         Require(_gameUi.LedgerArea.End.Y + 8 <= _gameUi.PhaseArea.Position.Y,
             $"preparation ledger and phase frame remain separate: ledger={_gameUi.LedgerArea}, phase={_gameUi.PhaseArea}");

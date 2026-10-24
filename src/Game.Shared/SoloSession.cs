@@ -16,9 +16,9 @@ public sealed class SoloSession : IDisposable
     public CommandResult? LastResult { get; private set; }
     public int SelectedSlot { get; private set; } = -1;
 
-    public SoloSession(ulong seed = DefaultSeed, string? matchId = null)
+    public SoloSession(ulong seed = DefaultSeed, string? matchId = null, Rules? rules = null)
     {
-        _authority = new(AuthorityPolicy.Solo, matchId: matchId ?? $"common-watch-{seed}", combatSeed: seed);
+        _authority = new(AuthorityPolicy.Solo, rules: rules, matchId: matchId ?? $"common-watch-{seed}", combatSeed: seed);
         Snapshot = _authority.Snapshot();
         Playback.Accept(Snapshot, baseline: true);
     }

@@ -77,7 +77,7 @@ public sealed class GameplayParityTests
         Assert.All(stored, u => Assert.DoesNotContain(u.Id, solo.City.FoodForecast!.Participating));
         int market = Array.FindIndex(solo.City.Slots, s => s.Type == Building.Market);
         Accept(solo.Send("trade", market, resource: Resource.Metal, bundles: 4));
-        Accept(solo.Send("trade", market, resource: Resource.Wood, bundles: 2));
+        Accept(solo.Send("trade", market, resource: Resource.Wood, bundles: 1));
         Accept(solo.Send("trade", market, resource: Resource.Food, bundles: 2));
         Accept(solo.Send("upgrade-capacity", hall.Slot));
         Assert.Equal(3, solo.City.Army!.Halls.Single().CapacityLevel);
