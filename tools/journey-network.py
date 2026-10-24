@@ -7,6 +7,7 @@ from pathlib import Path
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 
@@ -18,6 +19,9 @@ parser.add_argument('--cooperative-focus', action='store_true')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'tools/preparation-review'))
+from timing import PreparationTiming
+timing = PreparationTiming()
 args.output.mkdir(parents=True, exist_ok=True)
 processes, logs, receipts = [], [], []
 counts = [0] * args.players
@@ -31,7 +35,10 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
 
     def status(i):
         path = work / str(i) / 'control/status.json'
-        return json.loads(path.read_text()) if path.exists() else None
+        result = json.loads(path.read_text()) if path.exists() else None
+        if result is not None:
+            timing.observe(i, result)
+        return result
 
     def wait(predicate, reason, seconds=60):
         deadline = time.monotonic() + seconds
@@ -75,19 +82,20 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
         assert result['Accepted'], result
 
     def capture(name, i=0):
-        path = args.output.resolve() / f'{name}.png'
-        path.unlink(missing_ok=True)
-        request(i, 'capture', path=str(path))
-        wait(path.exists, name)
-        current = status(i)
-        receipts.append(dict(name=name, client=i, match=current["state"]["MatchId"], seed=current["state"]["CombatSeed"], width=args.width, debug=args.debug, snapshot=current["state"], local=current['player'], viewed=current['viewed'],
-                             phase=current['state']['Phase'], moment=current['hudMoment'],
-                             receipt=current['rewardReceipt'], receiptCount=current['receiptCount'],
-                             stock=city(i)['Resources'], tick=current['state']['Tick'],
-                             speed=current['state']['CombatSpeed'], nativeActions=current['nativeActions'],
-                             teamHeading=current['teamHeading'], teamRows=current['teamRows'], teamWarnings=current.get('teamWarnings'), teamRect=current['teamRect'],
-                             cameraMode=current['cameraMode'], cameraFocusCity=current.get('cameraFocusCity'), cameraZoom=current['cameraZoom'], cameraPan=current['cameraPan'],
-                             qualification='Scripted native controls; paused captures and accelerated simulation are not human decision/waiting time.'))
+        with timing.measure('capture'):
+            path = args.output.resolve() / f'{name}.png'
+            path.unlink(missing_ok=True)
+            request(i, 'capture', path=str(path))
+            wait(path.exists, name)
+            current = status(i)
+            receipts.append(dict(name=name, client=i, match=current["state"]["MatchId"], seed=current["state"]["CombatSeed"], width=args.width, debug=args.debug, snapshot=current["state"], local=current['player'], viewed=current['viewed'],
+                                 phase=current['state']['Phase'], moment=current['hudMoment'],
+                                 receipt=current['rewardReceipt'], receiptCount=current['receiptCount'],
+                                 stock=city(i)['Resources'], tick=current['state']['Tick'],
+                                 speed=current['state']['CombatSpeed'], nativeActions=current['nativeActions'],
+                                 teamHeading=current['teamHeading'], teamRows=current['teamRows'], teamWarnings=current.get('teamWarnings'), teamRect=current['teamRect'],
+                                 cameraMode=current['cameraMode'], cameraFocusCity=current.get('cameraFocusCity'), cameraZoom=current['cameraZoom'], cameraPan=current['cameraPan'],
+                                 qualification='Scripted native controls; paused captures and accelerated simulation are not human decision/waiting time.'))
 
     def camera_checks():
         # Real native gestures and distinct command/view/focus identities. No
@@ -287,17 +295,18 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
                 assert city(1)['Run']['Choice'] == chosen and status(1)['receiptCount'] == 0 and not status(1)['draftVisible']
                 capture('reconnected-accepted-baseline', 1)
             if wave == 1:
-                os.killpg(processes[0].pid, signal.SIGSTOP)
-                try:
-                    count = status(last)['receiptCount']
-                    delayed_before = city(last)
-                    delayed_quote = delayed_before['Run']['Quotes'][0]
-                    request(last, 'reward-pointer', index=0)
-                    wait(lambda: status(last)['pending'], 'real delayed acknowledgment')
-                    assert status(last)['draftVisible'] and status(last)['receiptCount'] == count
-                    capture('pending-choice-before-authority', last)
-                finally:
-                    os.killpg(processes[0].pid, signal.SIGCONT)
+                with timing.measure('deliberate-test-delay'):
+                    os.killpg(processes[0].pid, signal.SIGSTOP)
+                    try:
+                        count = status(last)['receiptCount']
+                        delayed_before = city(last)
+                        delayed_quote = delayed_before['Run']['Quotes'][0]
+                        request(last, 'reward-pointer', index=0)
+                        wait(lambda: status(last)['pending'], 'real delayed acknowledgment')
+                        assert status(last)['draftVisible'] and status(last)['receiptCount'] == count
+                        capture('pending-choice-before-authority', last)
+                    finally:
+                        os.killpg(processes[0].pid, signal.SIGCONT)
                 wait(lambda: city(last)['Run']['Choice'] is not None and not status(last)['pending'], 'delayed choice accepted')
                 wait(lambda: status(last)['receiptCount'] == count + 1, 'one delayed receipt')
                 assert_reward_grant(last, delayed_before, delayed_quote)
@@ -308,6 +317,7 @@ with tempfile.TemporaryDirectory(prefix='common-watch-journey-') as temporary:
             capture(f'w{wave}-next-planning')
         print(f'GODOT_JOURNEY_NETWORK_PASS players={args.players} width={args.width} debug={args.debug} waves=3 native-purchases ready/unready overlays finishing pending accepted-waiting reconnect', flush=True)
     finally:
+        (args.output / 'timing.json').write_text(json.dumps(timing.report(), indent=2))
         for process in reversed(processes):
             if process.poll() is None:
                 os.killpg(process.pid, signal.SIGCONT)
