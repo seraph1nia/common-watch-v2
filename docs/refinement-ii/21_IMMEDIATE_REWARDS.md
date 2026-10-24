@@ -104,7 +104,8 @@ Keep healing, soldier total/count and meaningful capacity limits.
 
 Select three distinct positive families by a stable independent RewardStream
 shuffle. There are no rarity or stack caps. Repeating a consumable in later
-waves never creates a passive modifier. Keep at most 19 receipts per city;
+waves never creates a passive modifier. Keep at most 19 receipts per city in the default twenty-wave campaign
+(or 255 for the existing bounded custom-campaign maximum);
 requesting details, resizing, pause or reconnect does not consume combat RNG.
 No final Victory draft or eliminated-recipient grant.
 

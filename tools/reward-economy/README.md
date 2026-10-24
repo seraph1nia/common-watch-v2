@@ -29,3 +29,15 @@ lock, project, resources, units or snapshots are changed. Compare policy hashes
 and exact reports before attributing differences to the new reward rules.
 Headless ticks are not rendered wall time. These correlated scripted policies
 expose economic changes; wins do not establish fairness or human experience.
+
+Compare two reports with:
+
+```sh
+python3 tools/reward-economy/compare.py --before BEFORE.json --after AFTER.json \
+  --output COMPARISON.json
+```
+
+The original 72-run report contains 1,050 actual battles. Ten full-campaign
+policies lose early: Merchant's four nonranged families at W1 and Grovekeeper's
+ranged family at W3, both seeds. These outcomes remain in the matched report;
+they are evidence for opening work rather than hidden or replaced with grants.
