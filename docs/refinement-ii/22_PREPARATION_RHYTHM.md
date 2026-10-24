@@ -1,7 +1,9 @@
 # Preparation rhythm — issue #22 experiment design
 
 This design precedes any preparation-rule edit. #21 is locally verified on
-`da3a51d`; final CI75 is pending. No stage-count change occurs until that gate.
+`da3a51d`; final CI75 is pending. The baseline source remains unchanged while an
+isolated experimental checkout may run headless candidate comparisons. No
+shipping-default change occurs before that gate and the measured decision.
 The fresh immediate-reward three-stage source is preserved as
 `artifacts/refinement-ii/r7/three-stage-source.tar` (SHA-256
 `3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7`).
