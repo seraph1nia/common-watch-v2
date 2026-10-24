@@ -2,6 +2,19 @@ using Game.Shared;
 
 try
 {
+    if (args.FirstOrDefault() == "reward-economy-review")
+    {
+        var runs = (from doctrine in Game.Core.RunCatalog.Doctrines
+                    from family in new[] { "opening", "frontline", "ranged", "mixed", "towers", "research" }
+                    from seed in new[] { 1UL, SoloSession.DefaultSeed }
+                    select RewardEconomyReview.Run(doctrine.Id, family, seed)).ToArray();
+        string report = System.Text.Json.JsonSerializer.Serialize(runs, Game.Core.WireJson.Options);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[1]))!);
+        File.WriteAllText(args[1], report);
+        foreach (var run in runs) Console.WriteLine($"{run.Doctrine}/{run.Family}/{run.Seed}: {run.Battles.Length} battles {run.Battles[^1].Result}; lost {run.Battles.Sum(b => b.Casualties)}, Keep {run.Battles.Sum(b => b.KeepDamage)}, shortages {run.Shortages.Length}");
+        Console.WriteLine($"REWARD_ECONOMY_REVIEW_PASS {runs.Length} runs {runs.Sum(r => r.Battles.Length)} battles; ordinary accepted commands only");
+        return 0;
+    }
     if (args.FirstOrDefault() == "cooperation-review")
     {
         var runs = (from players in Enumerable.Range(2, 5)
