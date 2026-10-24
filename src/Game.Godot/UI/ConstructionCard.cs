@@ -46,12 +46,12 @@ public partial class ConstructionCard : Button
     private void FitContent() => CustomMinimumSize = new(176, Mathf.Max(104, _content?.GetCombinedMinimumSize().Y ?? 0));
     internal bool ContentFits => _content is not null && GetGlobalRect().Encloses(_content.GetGlobalRect())
         && _content.GetCombinedMinimumSize().Y <= Size.Y;
-    public void Present(string title, string purpose, string cost, string reason, string details, bool selected)
+    public void Present(string title, string purpose, string cost, string reason, string details, bool selected, bool showReason = true)
     {
         _title.Text = (selected ? "✓ " : "") + title;
         _purpose.Text = purpose; _cost.Text = cost;
-        _reason.Text = reason; _reason.Visible = reason.Length > 0;
-        _purpose.Visible = reason.Length == 0;
+        _reason.Text = reason; _reason.Visible = showReason && reason.Length > 0;
+        _purpose.Visible = !showReason || reason.Length == 0;
         TooltipText = details + (reason.Length > 0 ? "\n" + reason : "");
         Disabled = reason.Length > 0; SetPressedNoSignal(selected);
     }

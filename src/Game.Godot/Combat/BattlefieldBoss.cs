@@ -31,7 +31,7 @@ public partial class BattlefieldView
             float fraction = maximum > 0 ? (float)Math.Clamp(health / maximum, 0, 1) : 0;
             float scale = GetGlobalTransformWithCanvas().Scale.Y;
             float width = Math.Min(440 / scale, visible.Size.X - 20 / scale);
-            var rect = new Rect2(new(visible.GetCenter().X - width / 2, visible.End.Y - 104 / scale), new(width, 42 / scale));
+            var rect = new Rect2(new(visible.GetCenter().X - width / 2, visible.Position.Y + 12 / scale), new(width, 42 / scale));
             BossHealthArea = rect;
             bool defeated = local.All(u => u.Health <= 0);
             BossHealthText = defeated ? "BOSS DEFEATED" : $"BOSS{(local.Length > 1 ? " ×" + local.Length : "")} → P{city} · {HealthPoints.Format((int)health)}/{HealthPoints.Format((int)maximum)} HP";

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+using System.Text.Json;
 using Game.Core;
 using Xunit;
 
@@ -8,49 +9,49 @@ public sealed class BuildImpactTests
 {
     private static void Accept(CommandResult result) => Assert.True(result.Accepted, result.Message);
     [Fact]
-    public void EmptyRosterLabelsFuturePurchasesAsPivotsWithoutInventingTargets()
+    public void ThreePrimaryChoicesDescribeFrozenBenefitsWithoutTechCountersOrMutation()
     {
-        using var solo = new SoloSession(); Accept(solo.Start());
-        foreach (string id in new[] { "A01", "A04", "A06", "M03", "R01", "R03", "T02", "E01" })
+        using var solo = ScenarioRunner.CreateAt("draft");
+        string before = JsonSerializer.Serialize(solo.Snapshot, WireJson.Options);
+        var view = RunPresentation.Project(solo.Snapshot, solo.City, solo.PlayerId, true, false);
+        Assert.Equal(3, view.Cards.Length);
+        foreach (var quote in solo.City.Run.Quotes)
         {
-            var view = BuildImpact.Reward(solo.Snapshot, solo.City, id);
-            Assert.False(view.HasCurrentTarget); Assert.Contains("Pivot", view.Targets);
+            var card = view.Cards.Single(c => c.Id == quote.Id);
+            Assert.Equal(RunPresentation.Benefit(quote.Resources, quote.KeepHealing, quote.SoldierHealing, quote.Soldiers.Length), card.Description);
+            Assert.True(BuildImpact.Reward(solo.Snapshot, solo.City, quote.Id).HasCurrentTarget);
+            foreach (string removed in new[] { "multiplier", "stack", "relic", "Current effects" })
+                Assert.DoesNotContain(removed, card.Description + card.Subtitle + card.Footer, StringComparison.OrdinalIgnoreCase);
         }
-        Assert.True(BuildImpact.Reward(solo.Snapshot, solo.City, "T01").HasCurrentTarget);
-        Assert.Contains("62.5 → 72.5", BuildImpact.Reward(solo.Snapshot, solo.City, "T01").Details);
-        Assert.Contains("Keep +0 HP", BuildImpact.Reward(solo.Snapshot, solo.City, "F04").Targets);
+        Assert.False(BuildImpact.Reward(solo.Snapshot, solo.City, "A01").HasCurrentTarget);
+        Assert.Equal(before, JsonSerializer.Serialize(solo.Snapshot, WireJson.Options));
     }
     [Fact]
-    public void EveryExistingCardAndTechnologyCanBeInspectedOnALegalMixedRosterWithoutMutation()
+    public void ActualChosenBonusMatchesTheQuoteAndLeavesProfilesAndProductionUnmodified()
+    {
+        using var solo = ScenarioRunner.CreateAt("draft");
+        var before = solo.City; var quote = before.Run.Quotes.First();
+        Accept(solo.ChooseReward(quote.Id));
+        var after = solo.City; var receipt = Assert.Single(after.Run.Rewards);
+        Assert.Equal(quote.Resources, receipt.Resources); Assert.Equal(quote.KeepHealing, receipt.KeepHealing);
+        Assert.Equal(quote.SoldierHealing, receipt.SoldierHealing); Assert.Equal(quote.Soldiers.Length, receipt.SoldierCount);
+        Assert.True(before.Resources.TryAdd(quote.Resources, out var stock)); Assert.Equal(stock, after.Resources);
+        Assert.Equal(before.ProductionIncome, after.ProductionIncome);
+        Assert.Equal(before.Soldiers.Select(u => u.Profile), after.Soldiers.Select(u => u.Profile));
+        Assert.Contains("history", BuildImpact.Inspection(after));
+        Assert.Contains("Fortified defense", BuildDirection.Inspection(after));
+    }
+    [Fact]
+    public void EveryTechnologyStillHasAReadOnlyExplanationOnALegalMixedRoster()
     {
         using var solo = GameplayScenarios.CreateAt("army");
-        string before = System.Text.Json.JsonSerializer.Serialize(solo.Snapshot, WireJson.Options);
-        foreach (var card in RunCatalog.Cards)
-        {
-            var view = BuildImpact.Reward(solo.Snapshot, solo.City, card.Id);
-            Assert.NotEmpty(view.Targets); Assert.NotEmpty(view.Details);
-        }
+        string before = JsonSerializer.Serialize(solo.Snapshot, WireJson.Options);
         foreach (var technology in solo.Snapshot.TechnologyCatalog)
         {
             var view = BuildImpact.Research(solo.Snapshot, solo.City, technology);
             Assert.NotEmpty(view.Targets); Assert.NotEmpty(view.Details);
         }
-        Assert.Equal(before, System.Text.Json.JsonSerializer.Serialize(solo.Snapshot, WireJson.Options));
-        Assert.Contains("already", BuildImpact.Reward(solo.Snapshot, solo.City, "M06").Details);
-        Assert.Contains("first", BuildImpact.Reward(solo.Snapshot, solo.City, "R01").Details, StringComparison.OrdinalIgnoreCase);
-    }
-    [Fact]
-    public void TowerTargetsIncludeSettlementAndArmyHomes()
-    {
-        using var solo = GameplayScenarios.CreateAt("late");
-        Accept(solo.Send("buy-plot", 7)); Accept(solo.Send("build", 7, Building.ArrowTower));
-        var home = solo.City.Army!.Homes[0];
-        foreach (var unit in solo.City.Soldiers.Where(u => u.Assignment?.Tile == home.Cell).ToArray()) Accept(solo.Send("retire", unitId: unit.Id));
-        Accept(solo.Send("build", home.PlotId, Building.ArrowTower));
-        var view = BuildImpact.Reward(solo.Snapshot, solo.City, "T02");
-        Assert.Equal("2 current arrow towers", view.Targets);
-        Assert.Contains("Plot 8: damage 5.5/0 → 6/0", view.Details);
-        Assert.Contains("Home 1: damage 5.5/0 → 6/0", view.Details);
+        Assert.Equal(before, JsonSerializer.Serialize(solo.Snapshot, WireJson.Options));
     }
     [Fact]
     public void AvailableResearchPreviewMatchesTheAcceptedProfilesAndDoesNotHealVeterans()
@@ -78,76 +79,16 @@ public sealed class BuildImpactTests
         Accept(solo.Send("research-tech", technology: technology.Id));
         Assert.Equal(before.Stone + solo.City.Slots.Count(s => s.Type == Building.Stonecutter), solo.City.ProductionIncome!.Value.Stone);
     }
-    [Fact]
-    public void RealOfferPreviewMatchesTheAcceptedRewardAndRetainsOffers()
-    {
-        using var solo = GameplayScenarios.CreateAt("reward");
-        string[] offers = solo.City.Run.Offers.ToArray();
-        string id = offers.First(); var view = BuildImpact.Reward(solo.Snapshot, solo.City, id);
-        var before = solo.City.Soldiers.ToArray();
-        Accept(solo.ChooseReward(id));
-        Assert.Equal(offers, solo.City.Run.Offers); Assert.Equal(id, solo.City.Run.Choice);
-        foreach (var soldier in solo.City.Soldiers)
-        {
-            var old = before.Single(u => u.Id == soldier.Id);
-            if (old.Profile.Health != soldier.Profile.Health)
-                Assert.Contains($"max HP {HealthPoints.Format(old.Profile.Health)} → {HealthPoints.Format(soldier.Profile.Health)}", view.Details);
-        }
-        Assert.Contains("Fortified defense", BuildDirection.Inspection(solo.City));
-    }
-    [Theory]
-    [InlineData("E01")]
-    [InlineData("A03")]
-    public void OfferedProducerAndCrossbowBonusesMatchAcceptedIncomeAndRoundedDamage(string id)
-    {
-        using var solo = new SoloSession(); Accept(solo.Send("doctrine:huntsman")); Accept(solo.Start());
-        for (int wave = 1; wave <= 4; wave++)
-        {
-            if (solo.Snapshot.Phase == Phase.RewardDraft) Accept(solo.ChooseReward(GameplayScenarios.RewardChoice(solo.City.Run)));
-            for (int stage = 0; stage < 3; stage++)
-            {
-                for (int n = 0; n < 100 && OpeningCampaign.Next(solo.Snapshot, solo.PlayerId) is { } intent; n++) Accept(solo.Submit(intent));
-                Accept(solo.Send("ready"));
-            }
-            GameplayScenarios.FinishCombat(solo);
-        }
-        Assert.Contains(id, solo.City.Run.Offers);
-        var before = solo.City; var view = BuildImpact.Reward(solo.Snapshot, before, id);
-        Assert.True(view.HasCurrentTarget); Accept(solo.ChooseReward(id));
-        if (id == "E01")
-        {
-            Assert.Contains("Wood/production", view.Details);
-            Assert.Equal(before.ProductionIncome!.Value.Wood + before.Slots.Count(s => s.Type == Building.Lumbermill), solo.City.ProductionIncome!.Value.Wood);
-        }
-        else
-        {
-            var bows = before.Soldiers.Where(u => u.Type == UnitType.Crossbowman).ToArray(); Assert.NotEmpty(bows);
-            foreach (var old in bows)
-            {
-                var current = solo.City.Soldiers.Single(u => u.Id == old.Id);
-                Assert.True(current.Profile.Damage > old.Profile.Damage);
-                Assert.Contains($"primary {HealthPoints.Format(old.Profile.Damage)} → {HealthPoints.Format(current.Profile.Damage)}", view.Details);
-                Assert.Equal(old.Health, current.Health);
-            }
-        }
-    }
     [Theory]
     [InlineData("frontline")]
     [InlineData("ranged")]
     [InlineData("research")]
-    public void LegalReplayNumberingAndRetainedDraftsStayDeterministic(string family)
+    public void PaidImmediateRewardReplaysRetainThreeDistinctOffersAndExactEconomy(string family)
     {
-        var a = BuildIdentityReview.Review("warden", family, 1, 5);
-        var b = BuildIdentityReview.Review("warden", family, 1, 5);
-        Assert.Equal(5, a.Waves.Length);
-        Assert.Equal(a.Actions, b.Actions);
-        for (int i = 0; i < a.Waves.Length; i++)
-        {
-            Assert.Equal("RewardDraft", a.Waves[i].Result);
-            Assert.Equal(i + 1, a.Waves[i].Draft!.CompletedWave);
-            Assert.Equal(a.Waves[i].Draft!.Offers, b.Waves[i].Draft!.Offers);
-            Assert.Equal(3, a.Waves[i].Draft!.Offers.Distinct().Count());
-            Assert.Equal(3, a.Waves[i].Draft!.OneCurrentSlotExperiment.Distinct().Count());
-        }
+        var first = RewardEconomyReview.Run("warden", family, 1, 5);
+        var second = RewardEconomyReview.Run("warden", family, 1, 5);
+        Assert.Equal(5, first.Battles.Length);
+        Assert.Equal(JsonSerializer.Serialize(first, WireJson.Options), JsonSerializer.Serialize(second, WireJson.Options));
+        Assert.All(first.Battles, battle => { Assert.Equal("RewardDraft", battle.Result); Assert.Equal(3, battle.Offers.Distinct().Count()); });
     }
 }

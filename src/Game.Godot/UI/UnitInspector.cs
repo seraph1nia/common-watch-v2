@@ -45,7 +45,7 @@ public partial class UnitInspector : VBoxContainer
     public void Initialize(HudSkin skin)
     {
         _skin = skin; _text = WrapLabel("Select a soldier, enemy or structure."); AddChild(_text);
-        if (ReadOnlyLive) _text.AddThemeFontSizeOverride("font_size", 14);
+        if (ReadOnlyLive) { _text.AddThemeFontSizeOverride("font_size", 14); AddThemeConstantOverride("separation", 2); }
         AdvancedButton = skin.Button("Advanced details ▾", () => { _advanced.Visible = !_advanced.Visible; AdvancedButton.Text = _advanced.Visible ? "Advanced details ▴" : "Advanced details ▾"; }, "ForestQuietButton");
         AddChild(AdvancedButton);
         _advanced = WrapLabel(); _advanced.AddThemeFontSizeOverride("font_size", 13); AddChild(_advanced); _advanced.Hide();
@@ -72,7 +72,7 @@ public partial class UnitInspector : VBoxContainer
     public void Select(StructureState structure) { if (_structure != (structure.Owner, structure.Kind, structure.Slot)) ResetAdvanced(); _veteranScroll.Hide(); _id = 0; _structure = (structure.Owner, structure.Kind, structure.Slot); }
     public void Refresh(GameplayContext context, CombatPlayback? playback = null)
     {
-        _context = context; _veteranScroll.Visible &= !_preview && !ReadOnlyLive && _structure is null; _actions.Begin(); _hall.Hide(); _squad.Hide(); _destination.Hide(); VeteranButton.Hide();
+        _context = context; _veteranScroll.Visible &= !_preview && !ReadOnlyLive && _structure is null; _actions.Begin((context.Session, context.State.MatchId, context.City.Id, _id, _structure, _preview)); _hall.Hide(); _squad.Hide(); _destination.Hide(); VeteranButton.Hide();
         AdvancedButton.Visible = _id != 0 || _structure is not null;
         var units = playback?.Units() ?? context.State.Players.SelectMany(p => p.Soldiers).Concat(context.State.Enemies).Concat(context.State.DyingBodies).ToArray();
         double tick = playback?.Tick ?? context.State.Tick;
@@ -83,7 +83,6 @@ public partial class UnitInspector : VBoxContainer
             var tower = context.State.TowerCatalog.FirstOrDefault(t => t.Type == structure.TowerType && t.Level == structure.Level);
             _text.Text = $"P{structure.Owner} · {structure.Kind}\nHP {HealthPoints.Format(structure.Health)}/{HealthPoints.Format(structure.MaximumHealth)} · L{structure.Level}\n{(structure.Active ? "Active" : "Inactive / destroyed")}";
             _advanced.Text = $"Cell {structure.Cell}, plot {structure.Slot + 1}";
-            if (tower is not null) tower = RunEffects.Tower(tower, context.State.Players.Single(p => p.Id == structure.Owner).Run);
             if (tower is not null) { _text.Text += $"\n{structure.TowerType}\nBase damage {HealthPoints.Format(tower.Damage)}/{HealthPoints.Format(tower.SecondaryDamage)} · Reach {tower.HexRange}"; _advanced.Text += $"\nWindup {tower.WindupTicks}; cadence {tower.CadenceTicks} ticks"; }
             if (structure.Kind == ArenaStructureKind.Watchpost) { _text.Text += $"\nReach {context.State.Rules.Arena.DefenderRange} · Base damage {context.State.Rules.DefenderDamage}\nWatchpost resets for the next battle."; _advanced.Text += $"\nWindup {context.State.Rules.Combat.Defender.WindupTicks}; cadence {context.State.Rules.Combat.Defender.CadenceTicks} ticks"; }
             if (!ReadOnlyLive && structure.Slot >= 0 && structure.Owner == context.City.Id)
@@ -100,11 +99,17 @@ public partial class UnitInspector : VBoxContainer
         var funded = planning ? city?.FoodForecast?.Funded : city?.LastUpkeep?.Funded;
         string funding = funded is null ? "Funding unavailable" : funded.Contains(unit.Id) ? "Funded" : "Unfunded";
         var p = unit.Profile;
-        _text.Text = CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
-        if (!ReadOnlyLive && city is not null) _text.Text += $"\nService history: {unit.Experience} battles (no stat or equipment gain)\n" +
+        _text.Text = ReadOnlyLive
+            ? $"{CombatInspection.Owner(unit)} · {unit.Type}{(unit.IsBoss ? " · BOSS" : "")}\n{CombatInspection.Role(unit)} · L{unit.Level}"
+                + $"\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(unit.Profile.Health)}"
+                + $"\nNow: {(unit.Health <= 0 ? "Fallen" : unit.Hex?.Action.ToString() ?? "Preparing")} · Effects: {CombatInspection.Effects(unit, tick)}"
+                + (TeamAwareness.Sector(context.State, unit) is > 0 and var sector ? $"\nLocation: P{sector} sector" : "")
+                + "\nTarget: " + LiveTarget(unit, units, playback?.Structures() ?? context.State.Structures, context.Session.PlayerId)
+            : CombatInspection.Basic(unit, _preview ? context.State.NextWave : units, tick, _preview, playback?.Structures() ?? context.State.Structures);
+        if (!ReadOnlyLive && city is not null) _text.Text += "\n" +
             (unit.Assignment is { Stored: true } stored ? $"Stored: Town Hall plot {stored.HallSlot + 1}; never fights" : unit.Assignment is { } basicHome ? $"Army home {basicHome.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home")
-            + $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}";
-        _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
+            + $"\n{funding}" + (unit.Health < unit.Profile.Health || unit.Assignment is { Stored: true } ? $"; recovery {(unit.RecoveryEligible ? "eligible" : "needs a funded completed battle")}" : "");
+        if (!ReadOnlyLive) _text.Text += $"\nTraits: {Capabilities(unit.Capabilities)}";
         _advanced.Text = $"#{unit.Id} {unit.Type} · {unit.Class}\n{unit.Faction} · owner P{unit.Owner} · L{unit.Level}, rank {unit.Rank}{(unit.IsBoss ? " BOSS" : "")}\nHP {HealthPoints.Format(unit.Health)}/{HealthPoints.Format(p.Health)}; Service history: {unit.Experience} battles (no stat or equipment gain)\nDamage direct/secondary {HealthPoints.Format(p.Damage)}/{HealthPoints.Format(p.SecondaryDamage)}\nStructure damage {HealthPoints.Format(p.StructureDamage)}; range {p.HexRange}\nMovement {p.MoveTicks}, windup {p.WindupTicks}, cadence {p.CadenceTicks} ticks\nSquad #{unit.SquadId}, member slot {unit.FormationSlot}\n" +
             (unit.Assignment is { Stored: true } a ? $"Stored: Town Hall plot {a.HallSlot + 1}, place {a.Tile + 1}; never fights" : unit.Assignment is { } home ? $"Army home {home.Tile + 1}; {(unit.Deployed ? "field" : "queued")}" : "No persistent home") +
             $"\n{funding}; paid recovery {(unit.RecoveryEligible ? "eligible" : "not eligible")}\nCapabilities: {Capabilities(unit.Capabilities)}\n{Statuses(unit.Statuses, context.State.Tick)}\nTarget {unit.TargetKind} #{unit.TargetId}; action {unit.Hex?.Action}\nCommitted start {unit.ActionStartTick}, impact {unit.ImpactTick}, ready {unit.ReadyTick}";
@@ -146,7 +151,7 @@ public partial class UnitInspector : VBoxContainer
                 _actions.Item(_skin, "CancelRetire", "Keep soldier / cancel retirement", () => { _reviewRetirement = false; Refresh(_context); _retireInvoker?.GrabFocus(); });
             }
         }
-        else _text.Text += "\nInspection only.";
+        else if (!ReadOnlyLive) _text.Text += "\nInspection only.";
         _actions.End();
     }
     public void CancelRetirement()
@@ -154,6 +159,14 @@ public partial class UnitInspector : VBoxContainer
         _reviewRetirement = false; _retireSession = null; SetProcess(false);
         foreach (string key in new[] { "ConfirmRetire", "CancelRetire" })
             if (_actions.Buttons.TryGetValue(key, out var button)) button.Hide();
+    }
+    private static string LiveTarget(UnitState unit, UnitState[] units, StructureState[] structures, int local)
+    {
+        string Ally(int owner) => owner == local ? "Your" : "Ally " + owner;
+        if (CombatInspection.TargetMembers(unit, units).FirstOrDefault(u => u.Health > 0) is { } target)
+            return $"{(target.Faction == Faction.Adventurers ? Ally(target.Owner) : "Enemy")} {target.Type}";
+        if (CombatInspection.TargetStructure(unit, structures) is { } structure) return $"{Ally(structure.Owner)} {structure.Kind}";
+        return "None";
     }
     private void ReviewRetirement()
     {

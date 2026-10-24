@@ -5,6 +5,11 @@ namespace Game.GodotClient;
 /// <summary>Explains session loss before an explicit leave or exit; cancel retains native focus.</summary>
 public partial class SessionExitDialog : ConfirmationDialog
 {
+    private string _baseText = "";
+    private Button _battle = null!;
+    internal Button BattleButton => _battle;
+    public Control? FallbackFocus { get; set; }
+    public event Action? ReturnToBattleRequested;
     private Action? _confirm;
     private Control? _invoker;
 
@@ -16,6 +21,8 @@ public partial class SessionExitDialog : ConfirmationDialog
         DialogAutowrap = true;
         Confirmed += Confirm;
         Canceled += Cancel;
+        _battle = AddButton("Cancel — return to battle", false, "battle"); _battle.Hide();
+        CustomAction += OnCustomAction;
     }
 
     public void Ask(bool exit, GodotSession? session, Action confirm)
@@ -33,12 +40,23 @@ public partial class SessionExitDialog : ConfirmationDialog
             { IsHost: true } => "You are hosting. Leaving will end the match for everyone and disconnect all players. Match progress is not saved and cannot be resumed.",
             _ => "You will disconnect from the current match. The host and other players can continue. You can reconnect only while the host keeps this same session running."
         };
-        DialogText = (exit ? "The game will close.\n\n" : "You will leave this session and return to the main menu.\n\n")
+        _baseText = DialogText = (exit ? "The game will close.\n\n" : "You will leave this session and return to the main menu.\n\n")
             + consequences + (session is null ? "" : "\n\nYour settings will be kept.");
         PopupCentered(new(560, 260));
         GetCancelButton().GrabFocus();
     }
 
+    private void OnCustomAction(StringName action)
+    {
+        if (action != "battle") return;
+        Cancel(); ReturnToBattleRequested?.Invoke();
+    }
+    public void SetLivePhase(bool live, string notice)
+    {
+        _battle.Visible = live;
+        string text = _baseText + (notice.Length > 0 ? "\n\n" + notice : "");
+        if (DialogText != text) DialogText = text;
+    }
     public void Clear() { Hide(); _confirm = null; _invoker = null; }
 
     private void Confirm()
@@ -53,6 +71,7 @@ public partial class SessionExitDialog : ConfirmationDialog
         var invoker = _invoker;
         Clear();
         if (IsInstanceValid(invoker) && invoker!.IsVisibleInTree()) invoker.GrabFocus();
+        else if (IsInstanceValid(FallbackFocus) && FallbackFocus!.IsVisibleInTree()) FallbackFocus.GrabFocus();
     }
 
     public override void _Input(InputEvent input)
@@ -64,6 +83,7 @@ public partial class SessionExitDialog : ConfirmationDialog
 
     public override void _ExitTree()
     {
+        CustomAction -= OnCustomAction; ReturnToBattleRequested = null;
         Confirmed -= Confirm;
         Canceled -= Cancel;
         _confirm = null; _invoker = null;

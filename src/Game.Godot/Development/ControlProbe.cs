@@ -7,11 +7,14 @@ namespace Game.GodotClient;
 
 public partial class GameApplication
 {
+    private bool _normalCombatProbe;
     private long _controlWrite;
     private int _controlRequests;
     private bool _pausedAtDeath, _pausedOnFall, _pausedOnLowKeep;
+    private bool _captureCrossSector, _pausedOnCrossSector;
     private bool _gameplayPolicy;
     private int _captureCombatWave;
+    private int _captureCombatTick = 180;
     private async void CaptureGameplayNetwork(string path)
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -32,6 +35,40 @@ public partial class GameApplication
             System.IO.File.Delete(path); _controlRequests++;
             switch (Text("kind"))
             {
+                case "hold-presentation":
+                    _frozen = Text("enabled") == "yes"; _session?.HoldPlaybackForProbe(_frozen); break;
+                case "normal-combat": _normalCombatProbe = true; break;
+                case "combat-metrics": NativeRequest(() => SaveCombatSequenceSample(Text("path"))); break;
+                case "camera-native":
+                    GetWindow().GrabFocus(); GetViewport().GuiReleaseFocus();
+                    var cameraKey = Enum.Parse<Key>(Text("key", "F"));
+                    GetViewport().PushInput(new InputEventKey { Keycode = cameraKey, PhysicalKeycode = cameraKey, Pressed = true }, true);
+                    GetViewport().PushInput(new InputEventKey { Keycode = cameraKey, PhysicalKeycode = cameraKey, Pressed = false }, true);
+                    break;
+                case "camera-pan-native":
+                    GetWindow().GrabFocus(); GetViewport().GuiReleaseFocus();
+                    var from = GetViewport().GetVisibleRect().GetCenter(); var shift = new Vector2(Number("dx", 70), Number("dy", 30));
+                    WorldtreePointer(from);
+                    GetViewport().PushInput(new InputEventMouseButton { Position = from, GlobalPosition = from, ButtonIndex = MouseButton.Middle, Pressed = true }, true);
+                    GetViewport().PushInput(new InputEventMouseMotion { Position = from + shift, GlobalPosition = from + shift, Relative = shift, ButtonMask = MouseButtonMask.Middle }, true);
+                    GetViewport().PushInput(new InputEventMouseButton { Position = from + shift, GlobalPosition = from + shift, ButtonIndex = MouseButton.Middle, Pressed = false }, true);
+                    break;
+                case "camera-wheel-native":
+                    GetWindow().GrabFocus(); GetViewport().GuiReleaseFocus();
+                    var wheelAt = GetViewport().GetVisibleRect().GetCenter();
+                    GetViewport().PushInput(new InputEventMouseButton { Position = wheelAt, GlobalPosition = wheelAt, ButtonIndex = MouseButton.WheelUp, Pressed = true }, true);
+                    GetViewport().PushInput(new InputEventMouseButton { Position = wheelAt, GlobalPosition = wheelAt, ButtonIndex = MouseButton.WheelUp, Pressed = false }, true);
+                    break;
+                case "recovery-review-native": NativeRequest(() => ReviewRecoveryNative(Number("squadId"))); break;
+                case "recovery-commit-native": NativeRequest(() => JourneyClick(_gameUi.Details.Army.Recovery.Actions["Commit"])); break;
+                case "recovery-cancel-native": NativeRequest(() => JourneyClick(_gameUi.Details.Army.Recovery.Actions["Cancel"])); break;
+                case "opening-step-native": NativeOpeningStep(); break;
+                case "journey-overlay": NativeRequest(() => OpenJourneyOverlay(Text("overlay"))); break;
+                case "cancel-native": CancelUi(); break;
+                case "single-player-native": NativeRequest(() => JourneyClick(_sessionMenu.SoloButton)); break;
+                case "doctrine-native" when _session is { HasState: true }:
+                    NativeRequest(() => JourneyClick(_sessionMenu.Doctrines.GetChildren().OfType<DoctrineCard>().ElementAt(Number("index", 0)).ChooseButton)); break;
+                case "start-native": NativeRequest(() => JourneyClick(_sessionMenu.StartButton)); break;
                 case "single-player": _sessionMenu.SoloButton.EmitSignal(BaseButton.SignalName.Pressed); break;
                 case "leave": ReturnToMenu(); break;
                 case "reconnect": BeginJoin(Argument("--join") ?? ""); break;
@@ -46,18 +83,51 @@ public partial class GameApplication
                 case "choose-doctrine" when _session is { HasState: true } && _session.Snapshot.Phase == Phase.Lobby:
                     ((DoctrineCard)_sessionMenu.Doctrines.GetChild(Number("index", 0))).ChooseButton.EmitSignal(BaseButton.SignalName.Pressed); RefreshUi(true); break;
                 case "team-city" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var teamButton): teamButton.EmitSignal(BaseButton.SignalName.Pressed); break;
+                case "team-activate-native":
+                    if (_gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var focusedCity))
+                    {
+                        bool controller = Text("input") == "controller";
+                        NativeRequest(async () =>
+                        {
+                            Require(focusedCity.IsVisibleInTree(), "native team target is visible");
+                            GetWindow().GrabFocus(); focusedCity.GrabFocus(); await JourneyFrames();
+                            if (controller)
+                            {
+                                GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.A, Pressed = true }, true);
+                                GetViewport().PushInput(new InputEventJoypadButton { ButtonIndex = JoyButton.A, Pressed = false }, true);
+                            }
+                            else
+                            {
+                                GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = true }, true);
+                                GetViewport().PushInput(new InputEventKey { Keycode = Key.Enter, Pressed = false }, true);
+                            }
+                            RefreshUi(true); await JourneyFrames();
+                        });
+                    }
+                    break;
+                case "team-details-native": NativeRequest(() => JourneyClick(_gameUi.Team.DetailsButton)); break;
+                case "focus-city-native": NativeRequest(() => JourneyClick(_gameUi.Team.FocusButton)); break;
+                case "team-inspect-native":
+                    if (_gameUi.Team.InspectionButtons.TryGetValue(Enum.Parse<DetailsPage>(Text("page", "Army")), out var inspection))
+                        NativeRequest(() => JourneyClick(inspection));
+                    break;
                 case "team-pointer" when _gameUi.Team.CityButtons.TryGetValue(Number("owner"), out var pointerButton): WorldtreeClick(pointerButton.GetGlobalRect().GetCenter()); break;
+                case "reward-pointer" when _gameUi.Draft.IsVisibleInTree():
+                    if (_gameUi.Draft.RewardButtons.ElementAtOrDefault(Number("index", 0)) is { Disabled: false } rewardButton)
+                        WorldtreeClick(rewardButton.GetGlobalRect().GetCenter());
+                    break;
                 case "ready-pointer": WorldtreeClick(_gameUi.ReadyButton.GetGlobalRect().GetCenter()); break;
-                case "watch-ally": _gameUi.Team.WatchButton.EmitSignal(BaseButton.SignalName.Pressed); break;
+                case "watch-ally": NativeRequest(() => JourneyClick(_gameUi.Team.WatchButton)); break;
                 case "policy": _gameplayPolicy = Text("enabled") == "yes"; break;
-                case "hold-combat": _captureCombatWave = Number("wave", 6); break;
+                case "hold-combat": _captureCombatWave = Number("wave", 6); _captureCombatTick = Math.Clamp(Number("tick", 180), 1, 180); break;
+                case "hold-cross-sector": _captureCrossSector = true; break;
                 case "show-homes" when _session is { HasState: true }:
                     _gameUi.Details.Open(DetailsPage.Army, new GameplayContext(_session, ResumeAfterCommand));
                     _gameUi.Details.Army.ShowHomes(); RefreshUi(true); break;
                 case "select-squad": _gameUi.Details.Army.SelectSquad(Number("squadId")); break;
                 case "deploy-home":
-                    if (_gameUi.Details.Deployment.HomeButtons.TryGetValue("Deploy" + Number("slot"), out var target))
-                        target.EmitSignal(BaseButton.SignalName.Pressed);
+                    if (_gameUi.Details.Deployment.HomeButtons.TryGetValue("Home" + Number("slot"), out var target))
+                        NativeRequest(async () => { await JourneyClick(target); if (!_gameUi.Details.Army.DeployButton.Disabled && _gameUi.Details.Army.DeployButton.IsVisibleInTree()) await JourneyClick(_gameUi.Details.Army.DeployButton); });
                     break;
                 case "inspect-combat" when _session is { HasState: true }:
                     if (_session.Playback.Units().FirstOrDefault(u => u.Id == Number("unitId")) is { } combatant)
@@ -101,28 +171,49 @@ public partial class GameApplication
         { _pausedOnFall = true; _session.Send("pause"); }
         if (!_pausedAtDeath && Argument("--pause-at-death") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.DyingBodies.Length > 0)
         { _pausedAtDeath = true; _session.Send("pause"); }
-        if (Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
+        if (_captureCrossSector && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
+            && !_session.Snapshot.Paused && _session.Snapshot.Players.SelectMany(p => p.Soldiers).Any(u =>
+                u.Health > 0 && u.Deployed && TeamAwareness.Sector(_session.Snapshot, u) is > 0 and var sector && sector != u.Owner))
+        { _captureCrossSector = false; _pausedOnCrossSector = true; _session.Send("pause"); }
+        if (!_normalCombatProbe && Argument("--test-fast-combat") == "yes" && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat)
         {
             // Reach an armed capture boundary in this call, before normal frame
             // advancement can cross it and finish the requested battle.
             int steps = _captureCombatWave > 0 && _session.Snapshot.Wave >= _captureCombatWave
-                ? (int)Math.Clamp(180 - (_session.Snapshot.Tick - _session.Snapshot.WaveStartedTick), 0, 180) : 10;
+                ? (int)Math.Clamp(_captureCombatTick - (_session.Snapshot.Tick - _session.Snapshot.WaveStartedTick), 0, _captureCombatTick) : 10;
             for (int i = 0; i < steps && _session.Snapshot.Phase == Phase.Combat && !_session.Snapshot.Paused; i++) _session.Step();
         }
         if (_captureCombatWave > 0 && _session is { HasState: true, IsHost: true } && _session.Snapshot.Phase == Phase.Combat
-            && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= 180)
+            && _session.Snapshot.Wave >= _captureCombatWave && _session.Snapshot.Tick - _session.Snapshot.WaveStartedTick >= _captureCombatTick)
         { _captureCombatWave = 0; _session.Send("pause"); }
         if (System.Environment.TickCount64 - _controlWrite < 80) return;
         _controlWrite = System.Environment.TickCount64;
         var status = new { processedRequests = _controlRequests, connected = _session?.Connected ?? false, player = _session?.PlayerId ?? 0,
             doctrineOffers = _sessionMenu.Offers, doctrineStartDisabled = _sessionMenu.StartButton.Disabled, doctrineStartVisible = _sessionMenu.StartButton.IsVisibleInTree(),
+            recoveryVisible = _gameUi.Details.Army.Recovery.IsVisibleInTree(),
+            recoveryText = _gameUi.Details.Army.Recovery.Copy,
+            recoveryCompleted = _gameUi.Details.Army.Recovery.Sequence?.Completed ?? 0,
+            recoveryTotal = _gameUi.Details.Army.Recovery.Sequence?.Total ?? 0,
+            recoveryPending = _gameUi.Details.Army.Recovery.Sequence?.PendingMember ?? 0,
+            nativeBusy = _nativeJourneyBusy, nativeError = _nativeJourneyError, nativeActions = _nativeJourneyActions,
+            receiptCount = _gameUi.Journey.ReceiptCount, rewardReceipt = _gameUi.Journey.Receipt,
+            detailsVisible = _gameUi.Details.IsVisibleInTree(), previewVisible = _arenaPreview.Visible,
+            settingsVisible = _settings.Visible, menuVisible = _menuPopup.Visible,
+            hudMoment = _gameUi.Presentation.Moment.ToString(),
+            hudRegions = _gameUi.Regions.Where(p => p.Value.IsVisibleInTree()).Select(p => p.Key).ToArray(),
+            draftVisible = _gameUi.Draft.IsVisibleInTree(),
+            hudFocusVisible = GetViewport().GuiGetFocusOwner() is { } hudFocus && hudFocus.IsVisibleInTree(),
             viewed = _session is { HasState: true } ? _session.ViewedCity.Id : 0,
             readOnly = _session is { HasState: true } ? new GameplayContext(_session, () => { }).EditReason : "No session",
             disabledResearch = _gameUi.Details.Research.PurchaseButtons.Values.All(b => b.Disabled || !b.Visible),
             teamVisible = _gameUi.Team.IsVisibleInTree(), teamHeading = _gameUi.Team.Heading,
+            teamWarnings = _gameUi.Team.Warnings, teamExpanded = _gameUi.Team.Expanded,
             teamRows = _gameUi.Team.CityButtons.Values.Select(b => b.Text).ToArray(), teamTargetsFit = _gameUi.Team.TargetsFit,
             teamObserver = _gameUi.Team.Overview?.Observer ?? false, readyVisible = _gameUi.ReadyButton.IsVisibleInTree(),
             teamBounds = _gameUi.Team.GetGlobalRect().ToString(),
+            teamRect = new { x = _gameUi.Team.GlobalPosition.X, y = _gameUi.Team.GlobalPosition.Y, width = _gameUi.Team.Size.X, height = _gameUi.Team.Size.Y },
+            cameraFocusCity = _camera.FocusCity, cameraMode = _camera.ArenaMode.ToString(), cameraZoom = _camera.Magnification,
+            cameraPan = new { x = _camera.PanPixels.X, y = _camera.PanPixels.Y }, cameraSectors = CameraSectorPoints(),
             feedbackTransactions = _feedback.Transactions, feedbackCombat = _feedback.CombatCues, feedbackMilestones = _feedback.Milestones,
             feedbackPlayed = _audio.Feedback.Played, feedbackSuppressed = _audio.Feedback.Suppressed, feedbackActive = _audio.Feedback.Active,
             feedbackPulses = _gameUi.Feedback.Count, feedbackFits = _gameUi.Feedback.Fits && _gameUi.Feedback.AvoidsGameplay,
@@ -131,15 +222,19 @@ public partial class GameApplication
             preparationText = _gameUi.PreparationSummary.Text,
             preparationVisible = _gameUi.PreparationSummary.IsVisibleInTree(), viewportWidth = GetWindow().Size.X,
             homesVisible = _gameUi.Details.Visible && _gameUi.Details.Army.HomesVisible,
-            homeSquad = _gameUi.Details.Army.SelectedSquad, homeNotice = _gameUi.Details.Deployment.Notice,
-            homeTargetsDisabled = _gameUi.Details.Deployment.HomeButtons.Where(p => p.Key.StartsWith("Deploy")).All(p => p.Value.Disabled),
+            homeSquad = _gameUi.Details.Army.SelectedSquad, homeNotice = _gameUi.Details.Army.Notice,
+            homePlacementLocked = _gameUi.Details.Army.PlacementLocked,
             homeTargetsFit = _gameUi.Details.Deployment.HomeButtons.Values.All(b => _gameUi.Details.Army.HomeViewport.GetGlobalRect().Encloses(b.GetGlobalRect()) && GetViewport().GetVisibleRect().Encloses(b.GetGlobalRect())),
             homeLayout = new {
                 viewport = _gameUi.Details.Army.HomeViewport.GetGlobalRect().ToString(),
                 targets = _gameUi.Details.Deployment.HomeButtons.ToDictionary(p => p.Key, p => p.Value.GetGlobalRect().ToString()) },
             finishingCombat = _battlefield.Finishing,
+            captureStops = new { lowKeep = _pausedOnLowKeep, fallen = _pausedOnFall, crossSector = _pausedOnCrossSector },
+            presentationHeld = _session?.PlaybackHeldForProbe ?? false, playbackTick = _session?.Playback.Tick,
             liveUnit = _gameUi.LiveInspector.SelectedUnit, liveVisible = _gameUi.LiveInspector.Visible,
             liveText = _gameUi.LiveInspector.Inspector.Details,
+            observedUnits = _session is { HasState: true } ? _session.Playback.Units().Where(u => u.Health > 0 && u.Deployed)
+                .Select(u => new { id = u.Id, owner = u.Owner, sector = TeamAwareness.Sector(_session.Snapshot, u), cell = u.Hex?.Position.Cell }).ToArray() : [],
             liveFits = GetViewport().GetVisibleRect().Encloses(_gameUi.LiveInspector.GetGlobalRect()),
             blocksWorld = _gameUi.BlocksWorld, squadCues = _battlefield.SquadCueCount,
             highlightedMembers = _battlefield.HighlightedMembers, highlightedTarget = _battlefield.HighlightedTarget,
@@ -162,4 +257,15 @@ public partial class GameApplication
         return family is "idle" or "limited" ? CooperationReview.Next(_session!.Snapshot, _session.PlayerId, family)
             : GameplayScenarios.NextPreparation(_session!.Snapshot, _session.PlayerId, family);
     }
+    private object[] CameraSectorPoints()
+    {
+        if (_session is not { HasState: true } || _session.Snapshot.Arena is not { } arena) return [];
+        var layout = new ArenaLayout(arena, new HexProjection(30, _options.GroundCompression));
+        return arena.Sectors.Select(sector =>
+        {
+            var center = layout.SectorCenter(sector.Owner); var point = _camera.ToScreen(new Vector2(center.X, center.Y));
+            return (object)new { owner = sector.Owner, x = point.X, y = point.Y };
+        }).ToArray();
+    }
+
 }

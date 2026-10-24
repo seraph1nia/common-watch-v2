@@ -1,5 +1,10 @@
 # Campaign purposes and boss presentation — issue #9
 
+Historical #9 review at b4fa3f7: its tables, strategies and recordings describe the
+original campaign, not the current default. Refinement II selects paired elites
+at W10 while retaining the W20 boss. Current comparisons, counterexamples and
+qualification status are in [the #25 report](../refinement-ii/25_CAMPAIGN_CONSEQUENCES.md).
+
 ## Selected curve
 
 Retain the existing twenty-wave composition, levels, rewards and single-boss

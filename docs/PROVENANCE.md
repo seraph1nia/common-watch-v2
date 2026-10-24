@@ -28,6 +28,35 @@ The later user-supplied `common_watch_cutout_prototype.zip` contributes one addi
 
 `assets/audio/LVS04_11_Echoes_of_Valhalla_bpm82_loop.wav` is copied unchanged from `src/Game/Assets/Music/` at the same pinned upstream revision. Its accompanying README retains the upstream music text, followed by a local Event feedback section. The track is **Echoes of Valhalla** by **LUShvalleySound**. The WAV SHA-256 is `3783f4deed1ecd7933a17538a1d880ffb04319f6e11f34dc66f2df7a05ab70b4`. See [the retained upstream music provenance](../assets/audio/README.md) for the owner's supplied-file history and the limits of the recorded licensing information; the music is not asserted to have the source code's GPL license.
 
+## Intentional reward rules redesign — 2026-10-24
+
+Roadmap #15 / issue #21 explicitly authorizes replacing the imported passive
+battle catalog with immediate supplies/recovery after the presentation gate.
+The [committed reward design](refinement-ii/21_IMMEDIATE_REWARDS.md) specifies
+new offer identities, frozen quantities, actual receipts, overflow preflight,
+removal of active reward modifiers, protocol 18 and required reward-rules version
+1 before implementation. Combat rules 8 and battle-flow 3 are retained here.
+This is an intentional local Core extension, not a byte-identical upstream claim.
+The existing Worldtree, doctrine definitions, enemy profiles, pins, locks, licenses,
+source artwork and authored audio remain unchanged by this reward scope.
+The [original-rule replay route](refinement-ii/25_ORIGINAL_BASELINE.md) retains
+exact original sources, commands and events; old offers are rejected rather than
+silently migrated into new meanings. Implementation and economic evidence are
+recorded separately from this design declaration.
+
+## Preparation schedule comparison — 2026-10-24
+
+Issue #22's [precommitted experiment](refinement-ii/22_PREPARATION_RHYTHM.md)
+compares the immediate-reward three-stage baseline with two actual Ready
+boundaries. The candidate delivers resource multipliers 2 then 1, while Research
+and eligible stored healing occur once at each real boundary. The measured
+selection retains three in ordinary play, with a guarded native Ready shortcut.
+Two remains an explicit development comparison. Declaration7cc21db preceded Core
+implementation87daf98: battle-flow4/protocol19 and a fingerprint of the authoritative
+stage count. Combat8/reward1, default prices, enemies,
+Worldtree and assets stay fixed. This intentional local Core experiment is
+separate from the unchanged original import/archive and the #21 source baseline.
+
 ## Session work
 
 `src/Game.Shared/SnapshotPayload.cs` and `SessionFile.cs` adapt the original project's proven codec and private credential file behavior. `tests/Game.Godot.Session.Tests/SteamOperationStateTests.cs` adapts its callback-state regression tests. The authority uses the pinned import plus the six-player extension documented above. Original lifecycle/RPC scene-reset infrastructure was not copied. New session implementations and tests are GPL-3.0-only.
@@ -73,3 +102,23 @@ artwork license; existing code GPL-3.0-only notices and upstream provenance rema
 intact. The image has fourteen painted sockets despite the delivery's claim of
 eighteen; the presentation adds four controls using its supplied ring textures.
 See [layout, fallback and verification](WORLDTREE.md).
+
+## Bounded campaign selection — 2026-10-24
+
+Issue #25's [precommitted comparison and rules gate](refinement-ii/25_CAMPAIGN_CONSEQUENCES.md)
+selects only defaultW10:2L3 Swordsmen,2L3 Berserkers,1L1 Crossbowman,1L2 Mage,
+as an ordinary nonboss formation with the unchanged major clear reward. W20
+retains its singleL5 boss. This local campaign-data change follows legal matched/
+held-out preparation experiments, both runnable formation alternatives, exact
+native/CLI checkpoints and240 independently replayed campaign continuations.
+The original b4fa3f7 source/trace archive and frozen41cc004 single-boss campaign
+remain separate; no original import provenance or recorded failure is rewritten.
+
+No combat profile, hit timing, power multiplier, cost, Food/healing, reward rule,
+command or schema changes. Combat8/reward1/battleflow4/protocol19 remain: complete
+campaign content already participates in the authoritative fingerprint. Current
+schema peers can receive declared valid alternative catalogs; the fingerprint
+validates the received catalog, rather than imposing local-default equality.
+Older18admission remains refused. Live authorities retain immutable rules and
+private reconnect identity; fresh default matches alone get the newW10. Existing
+single-boss validation is unchanged; a formation is never disguised as a boss.

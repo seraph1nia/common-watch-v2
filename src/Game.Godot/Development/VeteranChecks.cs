@@ -12,7 +12,7 @@ public partial class GameApplication
         ReplaceSession(GameplayScenarios.CreateAt("town-hall")); _frozen = true; RefreshUi(true);
         var unit = _session.City.Soldiers.First(u => u.Assignment is { Stored: true } && u.Health < u.Profile.Health);
         _gameUi.Inspect(unit); var inspector = _gameUi.Details.Inspector;
-        Require(inspector.Details.Contains("Service history") && !inspector.Details.Contains("XP"), "veteran history does not imply stat progression");
+        Require(!inspector.Details.Contains("Service history") && inspector.AdvancedDetails.Contains("Service history") && !inspector.AdvancedDetails.Contains("XP"), "history stays optional and never implies stat progression");
         long revision = _session.Snapshot.Revision;
         Press(inspector.VeteranButton);
         inspector.VeteranButton.GrabFocus();

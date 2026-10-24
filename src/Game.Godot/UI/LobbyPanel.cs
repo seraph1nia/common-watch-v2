@@ -22,6 +22,7 @@ public partial class LobbyPanel : PanelContainer
     public Button StartButton { get; private set; } = null!;
     public HBoxContainer Doctrines { get; private set; } = null!;
     public VBoxContainer LobbyActions { get; private set; } = null!;
+    private Label _livePhase = null!;
     private Label _title = null!;
     private Label _selectionHint = null!;
     public VBoxContainer MainButtons { get; private set; } = null!;
@@ -69,6 +70,7 @@ public partial class LobbyPanel : PanelContainer
         }
         else MenuCard.AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
         var title = new Label { Text = "THE COMMON WATCH", HorizontalAlignment = HorizontalAlignment.Center }; _title = title; title.AddThemeFontSizeOverride("font_size", 30); column.AddChild(title);
+        _livePhase = WrapLabel(); column.AddChild(_livePhase); _livePhase.Hide();
         MainButtons = new VBoxContainer(); column.AddChild(MainButtons);
         if (popup) { ContinueButton = skin.Button("Continue [Esc]", () => ContinueRequested?.Invoke()); MainButtons.AddChild(ContinueButton); }
         SoloButton = skin.Button("Single Player", () => SoloRequested?.Invoke(), "ForestPrimaryButton"); MainButtons.AddChild(SoloButton);
@@ -94,6 +96,11 @@ public partial class LobbyPanel : PanelContainer
         LobbyActions = new VBoxContainer(); footer.AddChild(LobbyActions);
         BackButton = skin.Button("Back to main menu", () => MenuRequested?.Invoke()); _setup.AddChild(BackButton);
         if (!popup) InitializeBackground(skin.MenuBackground);
+    }
+    public void SetLivePhase(bool live, string notice)
+    {
+        _livePhase.Text = notice; _livePhase.Visible = notice.Length > 0;
+        if (ContinueButton is not null) ContinueButton.Text = live ? "Return to battle [Esc]" : "Continue [Esc]";
     }
     public void ShowError(string message)
     {

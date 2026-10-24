@@ -15,7 +15,9 @@ public partial class SettingsPanel : Control
     private const string Content = "Center/Panel/Margin/Content/";
     public HSlider Slider => GetNode<HSlider>(Content + "Slider");
     public Button CloseButton => GetNode<Button>(Content + "Close");
-    public event Action? Opened;
+    public event Action? Opened, ReturnToBattleRequested;
+    private Label _livePhase = null!;
+    internal Button BattleButton { get; private set; } = null!;
     internal bool CoveredByMenu { get; set; }
 
     public void Bind(AudioController audio, Texture2D? background, EnvironmentController environment)
@@ -39,7 +41,17 @@ public partial class SettingsPanel : Control
         Slider.SetValueNoSignal(audio.Settings.MusicVolume * 100);
         Slider.ValueChanged += OnVolume;
         CloseButton.Pressed += Close;
+        var content = GetNode<VBoxContainer>("Center/Panel/Margin/Content");
+        _livePhase = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart }; content.AddChild(_livePhase);
+        BattleButton = new Button { Text = "Return to battle", CustomMinimumSize = new(0, 44) }; content.AddChild(BattleButton);
+        BattleButton.Pressed += ReturnToBattle;
+        SetLivePhase(false, "");
         Refresh();
+    }
+    private void ReturnToBattle() { Close(); ReturnToBattleRequested?.Invoke(); }
+    public void SetLivePhase(bool live, string notice)
+    {
+        _livePhase.Text = notice; _livePhase.Visible = notice.Length > 0; BattleButton.Visible = live;
     }
     private void OnEffects(long selected) => _environment.SetQuality((EnvironmentQuality)selected);
     private void RefreshEffects() => _effects.Selected = (int)_environment.Settings.Quality;
@@ -84,6 +96,7 @@ public partial class SettingsPanel : Control
         if (_audio is not null) _audio.VolumeChanged -= Refresh;
         Slider.ValueChanged -= OnVolume;
         CloseButton.Pressed -= Close;
-        Opened = null;
+        BattleButton.Pressed -= ReturnToBattle;
+        Opened = ReturnToBattleRequested = null;
     }
 }

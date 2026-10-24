@@ -19,16 +19,31 @@ public static class RunPresentation
                         safe ? $"Starting: {Resources(allocation)} · Research {d.Research}" : "Unavailable: starting allocation exceeds configured bounds.",
                         city.Run.Doctrine == d.Id, owner && state.Phase == Phase.Lobby && safe);
                 }).ToArray());
-        string status = string.Join(" · ", state.Players.Where(p => !p.Eliminated).Select(p => $"P{p.Id}: {(p.Run.Choice is not null ? "selected" : p.Connected ? "choosing" : "away · deterministic fallback")}"));
-        return new($"Wave {city.Run.DraftWave} reward · choose one", status + $"\nImmediate resource multiplier ×{RunEffects.Multiplier(city.Run.DraftWave)}; no extra production.", forecast,
-            city.Run.Offers.Select(id =>
+        int waiting = state.Players.Count(p => !p.Eliminated && p.Connected && p.Run.Choice is null);
+        return new($"Wave {city.Run.DraftWave} reward · choose one", state.Players.Length > 1 ? $"{waiting} {(waiting == 1 ? "city" : "cities")} choosing" : "", forecast,
+            city.Run.Quotes.Select(quote =>
             {
-                RewardCard card = RunCatalog.Card(id);
-                return new RunCardView(id, card.Name, card.Rarity.ToString(), card.Effect,
-                    $"Acquired {city.Run.Stacks(id)}/{card.MaxStacks}" + (card.Multiplied ? $" · resource reward ×{RunEffects.Multiplier(city.Run.DraftWave)}" : ""),
-                    city.Run.Choice == id, owner && state.Phase == Phase.RewardDraft && city.Run.Choice is null);
+                RewardCard card = RunCatalog.Card(quote.Id);
+                return new RunCardView(quote.Id, card.Name,
+                    card.MissingHealthPercent > 0 ? "Living soldiers, including storage · no resurrection" : "",
+                    Benefit(quote.Resources, quote.KeepHealing, quote.SoldierHealing, quote.Soldiers.Length),
+                    quote.ResourceCapped ? "At resource capacity: the exact quoted shipment is reduced." : "",
+                    city.Run.Choice == quote.Id, owner && state.Phase == Phase.RewardDraft && city.Run.Choice is null);
             }).ToArray());
     }
+    public static string Benefit(ResourceCost resources, int keepHealing, long soldierHealing, int soldiers)
+    {
+        var parts = new List<string>();
+        foreach (Resource resource in Enum.GetValues<Resource>())
+            if (resources.Amount(resource) > 0) parts.Add($"+{resources.Amount(resource)} {resource} now");
+        if (keepHealing > 0) parts.Add($"Restore {HealthPoints.Format(keepHealing)} Keep HP");
+        if (soldierHealing > 0) parts.Add($"Restore {(soldierHealing / (decimal)HealthPoints.Scale).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} HP across {soldiers} living soldiers");
+        return string.Join("\n", parts);
+    }
+    public static string Receipt(BattleRewardReceipt receipt)
+        => $"Wave {receipt.Wave} · {RunCatalog.Card(receipt.Id).Name} · "
+            + Benefit(receipt.Resources, receipt.KeepHealing, receipt.SoldierHealing, receipt.SoldierCount).Replace('\n', ' ')
+            + (receipt.ResourceCapped ? " · shipment limited by resource capacity" : "");
     public static string Resources(ResourceCost cost) => string.Join(" · ", Enum.GetValues<Resource>().Where(r => cost.Amount(r) != 0).Select(r => $"{cost.Amount(r)} {r}"));
     public static ResourceCost Starting(Rules rules, DoctrineDefinition doctrine)
     {
@@ -38,5 +53,5 @@ public static class RunPresentation
     private static bool TryStarting(Rules rules, DoctrineDefinition doctrine, out ResourceCost result)
         => new ResourceCost(rules.StartingGold, rules.StartingWood).TryAdd(doctrine.StartingBonus, out result) && result.TryPay(doctrine.StartingPenalty, out result);
     public static string Inspection(CityState city) => RunCatalog.Doctrine(city.Run.Doctrine).Name + "\n" + RunCatalog.Doctrine(city.Run.Doctrine).Benefits + "\nDrawback: " + RunCatalog.Doctrine(city.Run.Doctrine).Drawback
-        + "\nAcquired rewards:\n" + string.Join("\n", city.Run.Cards.Select(s => $"{RunCatalog.Card(s.Id).Name} ×{s.Count} · {RunCatalog.Card(s.Id).Effect}"));
+        + "\nConsumed battle rewards (history, no active modifiers):\n" + string.Join("\n", city.Run.Rewards.Select(Receipt));
 }

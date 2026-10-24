@@ -14,15 +14,14 @@ public sealed class EncounterReviewTests
         var names = catalog.Select(w => EncounterBriefing.Purpose(w, catalog.FirstOrDefault(p => p.Number == w.Number - 1), w.Number == 20)).ToArray();
         Assert.True(names.Distinct().Count() >= 7);
         Assert.Equal("Ranged pressure", names[2]); Assert.Equal("Mixed-arms pressure", names[3]);
-        Assert.Equal("Heavier frontline", names[4]); Assert.Equal("Boss duel", names[9]);
-        Assert.Equal("Return to formations", names[10]); Assert.Equal("Final boss duel", names[19]);
+        Assert.Equal("Heavier frontline", names[4]); Assert.Equal("Elite formation", names[9]);
+        Assert.Equal("Ranged follow-up", names[10]); Assert.Equal("Final boss", names[19]);
         Assert.All(catalog.Where(w => w.IsBoss), w => { var entry = Assert.Single(w.Entries); Assert.True(entry.IsBoss); Assert.Equal(1, entry.Count); });
         var combat = new CombatConfiguration(solo.Snapshot.Rules);
         var campaign = new CampaignConfiguration(solo.Snapshot.Rules.Campaign, combat);
         Assert.All(catalog, w => Assert.Equal(WavePower.Total(w, combat) * 6, WavePower.Total(w, combat, 6)));
     }
     [Theory]
-    [InlineData("boss-10")]
     [InlineData("boss-20")]
     public void BossBriefUsesTheRealForecastAndRecordedBossDeathWithoutStateInjection(string checkpoint)
     {
@@ -38,6 +37,18 @@ public sealed class EncounterReviewTests
         Assert.Equal(boss.Profile, death.Unit!.Profile); Assert.Equal(0, death.Unit.Health);
         Assert.NotEqual(Phase.Combat, recording.Frames[^1].Phase);
         Assert.Equal(checkpoint == "boss-20" ? Phase.Victory : Phase.RewardDraft, recording.Frames[^1].Phase);
+    }
+    [Fact]
+    public void EliteBriefAndRecordedDeathsUseTheCurrentCatalogWithoutInventingBosses()
+    {
+        using var solo = GameplayScenarios.CreateAt("major-10");
+        var forecast = solo.Snapshot.NextWave;
+        Assert.Equal(6, forecast.Length); Assert.DoesNotContain(forecast, u => u.IsBoss);
+        Assert.Equal("Elite formation", EncounterBriefing.Project(solo.Snapshot, solo.PlayerId).Purpose);
+        var recording = new BattleShowcase("major-10");
+        Assert.Equal(6, recording.Frames.SelectMany(f => f.CombatEvents).Count(e => e.Type == CombatEventType.Death && e.Unit?.Faction == Faction.Skeletons));
+        Assert.DoesNotContain(recording.Frames.SelectMany(f => f.Enemies), u => u.IsBoss);
+        Assert.Equal(Phase.RewardDraft, recording.Frames[^1].Phase);
     }
     [Theory]
     [InlineData("mixed")]

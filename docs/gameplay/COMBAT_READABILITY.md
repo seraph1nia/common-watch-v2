@@ -1,24 +1,30 @@
 # Combat readability and outcomes — issue #4
 
-Ordinary combat groups health/count information by squad. F, R and M identify
-frontline, ranged and magic roles; P1–P6 identify allies and E→P identifies the
-enemy destination. The lower-left legend explains those cues. Orange warning
-marks flag squads at or below 30% of their observed total maximum health. The
+The [Refinement II pass](../refinement-ii/18_COMBAT_READABILITY.md) frames the
+useful engagement and reduces default annotations. Ordinary squads use short
+You / Ally N / Enemy member counts, with plain-language roles on selection.
+Circle, split-circle and triangular bases distinguish local, allied and enemy
+figures without color alone; the acronym legend is removed. Health bars appear
+for damage, selection and critical threats. Low flags squads at or below 30% of
+their observed total maximum health. The
 observed denominator persists through casualties within a battle and resets on a
 new playback generation or battle; reconnect does not invent an earlier roster.
-Ownership rings, stronger ground shadows and subdued terrain separate actors
-from the existing forest. Badges stay inside the viewport below menu controls, including
-debug/topdown framing. Exact simulation IDs and individual bars remain in
-debug presentation. Nearby damage labels aggregate actual positive damage over
-short presentation buckets; they never cause damage or change timing.
+Ground shadows and subdued terrain preserve the existing forest. Labels avoid
+actor silhouettes and native controls, yielding when congested. Exact simulation
+IDs and individual bars remain in explicit debug overlay. Damage numbers
+aggregate actual positive damage for selected squads, bosses and structures;
+ordinary hits retain sampled motion/flash without extra text. None drives damage
+or changes timing.
 
-Clicking a live actor opens a narrow, read-only panel beside the field. Health,
-role, active effects, target and practical capabilities use the same playback
+Clicking a live actor opens a compact, read-only panel beside the field. Health,
+role, action, active effects and target use the same playback
 frame as the figures. Gold rings identify the selected squad; orange rings and
 a line identify its current objective or committed target. Moving objectives
 resolve squad IDs; committed attacks resolve the primary member ID. Structures
 resolve their owner, kind and cell. Advanced details preserve raw identity and
-timing behind a native button. Escape closes inspection before opening the menu.
+timing and full capabilities behind a native button. Placement protects the
+selected body and target without resetting the camera. Escape closes inspection
+before opening the menu.
 
 The existing draft contains a three-line factual result and optional details.
 Reward choice remains immediately available; no new dismissal is required.

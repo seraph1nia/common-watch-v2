@@ -16,9 +16,13 @@ public sealed class TeamAwarenessTests
         var team = TeamAwareness.Project(state, p2);
         Assert.Equal("Ready", team.Members[0].State); Assert.Equal("Preparing", team.Members[1].State);
         Assert.False(team.Observer); Assert.Equal(revision, match.Snapshot().Revision);
+        Assert.Equal(p2, team.LocalPlayer); Assert.Equal(new[] { p1, p2 }, team.Boundary.RequiredCities);
+        Assert.Equal(1, team.Boundary.Complete); Assert.Equal(1, team.Boundary.Waiting);
         Send("pause"); Assert.True(TeamAwareness.Project(match.Snapshot(), p2).Paused);
         match.SetConnected(p2, false);
         var away = TeamAwareness.Project(match.Snapshot(), p1).Members[1];
+        var pausedBoundary = TeamAwareness.Project(match.Snapshot(), p1).Boundary;
+        Assert.Equal(new[] { p1 }, pausedBoundary.RequiredCities); Assert.Equal(1, pausedBoundary.Complete); Assert.Equal(0, pausedBoundary.Waiting);
         Assert.Equal("Away", away.State); Assert.Contains("do not block readiness", away.Details);
         match.SetConnected(p2, true); Assert.Equal("Preparing", TeamAwareness.Project(match.Snapshot(), p1).Members[1].State);
         Assert.Equal("Away", TeamAwareness.Project(match.Snapshot(), p2, connected: false).Members[1].State);
@@ -86,14 +90,40 @@ public sealed class TeamAwarenessTests
             }
             Send(id, "ready");
         }
+        var presentedCombat = match.Snapshot().Players.SelectMany(p => p.Soldiers).ToArray();
         for (int n = 0; n < 18000 && match.Phase == Phase.Combat; n++) match.Step();
         Assert.Equal(Phase.RewardDraft, match.Phase);
         Assert.All(TeamAwareness.Project(match.Snapshot(), 1).Members, m => Assert.Equal("Choosing", m.State));
+        var beforeChoice = match.Snapshot();
+        // Two real accepted snapshots model a slower presentation, not a new
+        // simulation phase or a fabricated native checkpoint.
+        var finishing = TeamAwareness.Project(beforeChoice, 1, presented: presentedCombat, finishingCombat: true);
+        Assert.Equal("Finishing", finishing.Members[0].State);
+        Assert.Equal("Choosing", finishing.Members[1].State);
+        Assert.Equal(2, finishing.Boundary.Waiting);
+        Assert.Equal(presentedCombat.Count(u => u.Owner == 1 && u.Health > 0 && u.Deployed), finishing.Members[0].Field);
+        Assert.Contains("playback is finishing", finishing.Members[0].Details);
+        var survivors = TeamAwareness.Project(beforeChoice, 1);
+        foreach (var member in survivors.Members)
+        {
+            Assert.Equal(beforeChoice.Players.Single(p => p.Id == member.Id).Soldiers.Count(u => u.Health > 0 && u.Assignment is { Stored: false }), member.Field);
+            Assert.Contains("surviving field", member.Details); Assert.DoesNotContain("projected to fight", member.Details);
+        }
         Send(1, "reward:" + GameplayScenarios.RewardChoice(match.Snapshot().Players[0].Run));
+        // Actual accepted command with the prior accepted inventory: projection-only
+        // receipt/snapshot ordering fixture, never a native campaign screenshot.
+        var syncing = TeamAwareness.Project(beforeChoice, 1, localChoiceAccepted: true);
+        Assert.Equal("Syncing", syncing.Members[0].State);
+        Assert.Equal(1, syncing.Boundary.Complete); Assert.Equal(1, syncing.Boundary.Waiting);
         var team = TeamAwareness.Project(match.Snapshot(), 1);
+        Assert.Equal(1, team.Boundary.Complete); Assert.Equal(1, team.Boundary.Waiting);
         Assert.Equal("Selected", team.Members[0].State); Assert.Equal("Choosing", team.Members[1].State);
         Send(2, "reward:" + GameplayScenarios.RewardChoice(match.Snapshot().Players[1].Run));
         Assert.All(TeamAwareness.Project(match.Snapshot(), 1).Members, m => Assert.Equal("Preparing", m.State));
+        var delayed = TeamAwareness.Project(match.Snapshot(), 1, presented: presentedCombat, finishingCombat: true);
+        Assert.Equal("Finishing", delayed.Members[0].State);
+        Assert.Contains("currently active", delayed.Members[0].Details);
+        Assert.DoesNotContain("Food uses stock now", delayed.Members[0].Details);
     }
     [Fact]
     public void TerminalVeteranProfilesDoNotPromiseFuturePurchasesOrRecovery()
@@ -106,5 +136,6 @@ public sealed class TeamAwarenessTests
         Assert.All(view.Recovery, r => { Assert.False(r.CanStore); Assert.Equal(member.Health, r.HealthAfterProduction); });
         var team = TeamAwareness.Project(solo.Snapshot, solo.PlayerId);
         Assert.False(team.Observer); Assert.Contains("No further production", team.Explanation);
+        Assert.All(team.Members, m => { Assert.Contains("Match ended", m.Details); Assert.DoesNotContain("surviving field", m.Details); });
     }
 }

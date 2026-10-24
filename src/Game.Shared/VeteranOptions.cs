@@ -9,8 +9,8 @@ public sealed record ReplacementOption(int TrainerSlot, RecruitmentQuote Quote, 
 public sealed record VeteranOptions(UnitState Member, int Upkeep, RecoveryOption[] Recovery, ReplacementOption[] Replacements, string Unavailable = "")
 {
     public const string ServiceMeaning = "Service history counts successful clears actually fought while funded; it grants no stats or equipment upgrades.";
-    public string Summary => $"Service history: {Member.Experience} battles\nEquipment L{Member.Level} stays fixed. " + ServiceMeaning
-        + $"\nKeep: HP {HealthPoints.Format(Member.Health)}/{HealthPoints.Format(Member.Profile.Health)}; strike {HealthPoints.Format(Member.Profile.Damage)}/{HealthPoints.Format(Member.Profile.SecondaryDamage)}; range {Member.Profile.HexRange}; " + (Unavailable.Length > 0 ? "current profile only." : $"{Upkeep} Food per funded battle, including storage.")
+    public string History => $"Service history: {Member.Experience} battles. " + ServiceMeaning;
+    public string Summary => $"Equipment L{Member.Level} stays fixed.\nKeep: HP {HealthPoints.Format(Member.Health)}/{HealthPoints.Format(Member.Profile.Health)}; strike {HealthPoints.Format(Member.Profile.Damage)}/{HealthPoints.Format(Member.Profile.SecondaryDamage)}; range {Member.Profile.HexRange}; " + (Unavailable.Length > 0 ? "current profile only." : $"{Upkeep} Food per funded battle, including storage.")
         + (Unavailable.Length > 0 ? "\n" + Unavailable : "\nRetirement removes this soldier permanently, with no refund. Replacement is a separate paid recruit with new identity and zero service.");
     public string Details => Unavailable.Length > 0 ? Unavailable + " Current profiles/history remain inspectable; no future recovery, recruitment or retirement is available."
         : string.Join("\n\n", Recovery.Select(r => $"Town Hall plot {r.HallSlot + 1}: " + (r.Reason.Length > 0 ? r.Reason :
@@ -21,6 +21,7 @@ public sealed record VeteranOptions(UnitState Member, int Upkeep, RecoveryOption
             + $"HP {HealthPoints.Format(r.Quote.Profile.Health)}; strike {HealthPoints.Format(r.Quote.Profile.Damage)}/{HealthPoints.Format(r.Quote.Profile.SecondaryDamage)}; range {r.Quote.Profile.HexRange}; upkeep {r.Quote.Upkeep} Food. "
             + (r.SpaceNow ? "Compatible space available now." : "No compatible field space now; storage/retirement may free a place.")
             + (r.TrainerUpgrade is { } upgrade && r.AfterTrainerUpgrade is { } next ? $"\nTrainer upgrade costs {RunPresentation.Resources(upgrade)}; future L{next.Level} recruit costs {RunPresentation.Resources(next.Cost)}, HP {HealthPoints.Format(next.Profile.Health)}, strike {HealthPoints.Format(next.Profile.Damage)}/{HealthPoints.Format(next.Profile.SecondaryDamage)}. Existing soldiers keep their equipment and wounds." : ""))))
+        + "\n\n" + History
         + "\n\nResearch/reward effects already included. Strike values are base profiles, not guaranteed damage or a strength score. No automatic replacement or re-equipment.";
 }
 

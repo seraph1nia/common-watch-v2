@@ -16,6 +16,7 @@ public sealed class BattleShowcase
     double credit;
     public BattleShowcase(string scenario, int players = 1)
     {
+        if (scenario == "boss-10") scenario = "major-10";
         Scenario = scenario;
         Frames = scenario == "arena" ? ArenaShowcase.Record(players) : Record(scenario);
         Snapshot = Frames[0];
@@ -56,7 +57,7 @@ public sealed class BattleShowcase
     }
     static IReadOnlyList<MatchSnapshot> Record(string scenario)
     {
-        if (scenario is "boss-10" or "boss-20")
+        if (scenario is "major-10" or "boss-20")
         {
             using var boss = GameplayScenarios.CreateAt(scenario); Require(boss.Send("ready"));
             return RecordFrames(boss);
@@ -67,7 +68,7 @@ public sealed class BattleShowcase
         if (scenario == "structures")
         {
             Require(solo.Send("build", 9, Building.ArrowTower));
-            for (int n = 0; n < 3; n++) Require(solo.Send("ready"));
+            for (int n = 0; n < solo.Snapshot.Rules.PreparationStages; n++) Require(solo.Send("ready"));
         }
         if (scenario is not ("swordsman" or "structures"))
         {
@@ -76,9 +77,9 @@ public sealed class BattleShowcase
             {
                 while (solo.Snapshot.Phase == Phase.Combat) solo.Step();
                 if (solo.Snapshot.Phase != Phase.RewardDraft) throw new InvalidOperationException($"Legal showcase opening lost before advanced wave: wave {solo.Snapshot.Wave}, {solo.Snapshot.Phase}, city HP {solo.City.Health}, roster {solo.City.Soldiers.Length}.");
-                solo.ChooseReward(solo.City.Run.Offers.Contains("F05") ? "F05" : solo.City.Run.Offers[0]);
+                Require(solo.ChooseReward(solo.City.Run.Offers[0]));
                 while (solo.Snapshot.DyingBodies.Length > 0) solo.Step();
-                for (int preparation = 0; preparation < 3; preparation++)
+                for (int preparation = 0; preparation < solo.Snapshot.Rules.PreparationStages; preparation++)
                 {
                     // Rejected optional purchases do not change state. Accepted ones use normal commands.
                     if (mageStatuses)

@@ -8,7 +8,6 @@ public partial class ResourcePanel : VBoxContainer
 {
     private readonly Dictionary<Resource, Label> _rows = [];
     private readonly Dictionary<Resource, Label> _income = [];
-    private Label _food = null!;
     private bool? _wide;
     internal IReadOnlyDictionary<Resource, Label> IncomeLabels => _income;
     internal float WideMinimumWidth => GetCombinedMinimumSize().X;
@@ -34,8 +33,6 @@ public partial class ResourcePanel : VBoxContainer
             var income = new Label { HorizontalAlignment = HorizontalAlignment.Right, MouseFilter = MouseFilterEnum.Ignore };
             income.AddThemeFontSizeOverride("font_size", 14); income.AddThemeColorOverride("font_color", new Color("b7ddc8")); grid.AddChild(income); _income.Add(resource, income);
         }
-        AddChild(new HSeparator());
-        _food = WrapLabel(); _food.AddThemeFontSizeOverride("font_size", 14); AddChild(_food);
     }
     public void Refresh(GameplayContext context)
     {
@@ -55,10 +52,5 @@ public partial class ResourcePanel : VBoxContainer
             _income[pair.Key].Text = signed + " / prod.";
             pair.Value.TooltipText = _income[pair.Key].TooltipText = $"{pair.Key}: available stock now; {signed} each production stage.";
         }
-        string receipt = city.LastUpkeep is { } paid ? $"Paid · wave {paid.Wave}: {paid.Paid} Food\n{paid.Funded.Length} funded · {paid.Unfed.Length} sat out" : "No upkeep paid yet";
-        _food.Text = state.Phase is Phase.Building or Phase.Preparation && city.FoodForecast is { } food
-            ? $"Battle Food: {food.Paid}/{food.Demand} · remaining {food.Available - food.Paid}\nSoldiers: {food.Participating.Length} fight · {food.Funded.Length} funded"
-            : receipt;
-        _food.TooltipText = receipt + "\nStages 1–2 forecast current stock.\nStage 3 includes final production.\nFood is paid when battle starts.\nStored soldiers can be funded but never fight.";
     }
 }

@@ -1,5 +1,119 @@
 # Verification
 
+## Immediate reward refinement (#21)
+
+[Contract/audit](refinement-ii/21_IMMEDIATE_REWARDS.md) and
+[economy comparison](refinement-ii/21_ECONOMY.md) document the intentional Core
+extension after Gate A CI71 passed. Wire18/reward1/fingerprint4 reject old offers.
+Locked zero-warning build; Core65, Shared147, models109; native session3; final
+four full gameplay profiles and seven remote waves; 1–6 multiplayer; private
+reconnect; animation/fallbacks and14art views passed locally. Native2p720/6p1080
+three-wave journeys compare frozen quotes with actual resource/HP deltas and
+receipts, including delayed ACK and ready/draft reconnect. Both chooser sizes
+were visually inspected; three primary actions remain visible. Original72-run
+1050-battle report reproduces byte-identically; new1037-battle report exposes
+Arcanist losses, a Grovekeeper improvement and ordinal-policy selection bias.
+No enemy retuning, human/balance claim or new artwork. Exact scopes, accepted
+logs/hashes and pending CI status are under artifacts/refinement-ii/r7/manifest.json;
+PR31 carries final revision checks. Physical/native-platform/live Steam gaps and
+known intermittent native runtime risk remain.
+
+
+## Refinement II cooperative context and presentation gate (2026-10-24)
+
+[The cooperative contract](refinement-ii/20_COOPERATIVE_CONTEXT.md) separates
+command owner, inspected city and physical camera focus, with compact actual
+boundaries/exceptions, stable manual/overview navigation and one deferred observer
+choice. All local presentation gates pass under unchanged Core rules. Eighteen
+matched team states shrink at both sizes; six-player 720p figures grow 22.9%,
+1080p 4.2%, with zero initial label/body intersections. Eight final normal-speed
+solo pairs retain exact outcomes/ticks and pass 474 body/target inspection checks.
+
+Build, Core 46 / Shared 145 / models 109, three native session facts, four full
+gameplay profiles and seven remote waves, 1–6-player multiplayer, private
+reconnect/faults, 24 arena cases, art/animation and continuous solo/cooperative
+three-wave journeys passed. Real crossing, low Keep, fall, manual observer,
+Defeat and a paid two-client W20 Victory are captured. Times distinguish paused
+capture/input work, accelerated setup and actual normal-speed observation.
+The report retains probe repairs, evidence scopes and the rare native
+fallen-owner-survivor gap. Physical/human, other-platform and live Steam remain
+unqualified. Earlier CI watchdog shutdown errors do not establish a native/JIT fix.
+
+
+## Refinement II spatial army workspace (2026-10-23)
+
+The [workspace contract and capability routes](refinement-ii/19_ARMY_WORKSPACE.md)
+record six retained home selectors, one placement confirmation, adjacent actual
+recruitment quotes and bounded optional member/storage/home/profile details.
+`mise run test-army-workspace` checks both sizes with default, debug/plain and
+missing artwork. `mise run capture-army-workspace` records the ordinary paid task;
+`python3 tools/compare-army-workspaces.py` compares it to the retained baseline.
+The paired task drops from 12 to 8 actions, 4 to 2 navigation changes and 2 to 0
+changes between major Army sections; both versions pay the same resources and
+accept the same assignments. The baseline popup's signal qualification and lack
+of human timing/comprehension evidence are retained explicitly in the report.
+
+
+## Refinement II combat framing and cues (2026-10-23)
+
+[The combat contract](refinement-ii/18_COMBAT_READABILITY.md) records stable
+engagement framing, retained manual/overview poses, selective ownership/health
+cues and compact body-aware inspection. Eight paired native normal-speed solo
+fixtures at 720p/1080p preserve outcomes and final ticks. Initial median actor
+heights grow 9–15% / 22–28%; initial text/actor bounds intersections fall from
+3/8/4/3 to zero. All 470 recorded selected-body/target checks avoid the inspector.
+Those geometry observations do not establish human comprehension or balance.
+
+Locked zero-warning build, Core 46 / Shared 145 / models 102, three native session
+process tests, four complete default/debug gameplay profiles plus seven paid
+cooperative waves, private reconnect, 24 sector/projection/size native camera
+cases, animation/fallback captures and nine repeated FPS/speed cases passed.
+All repeated-battle effects cleared. Target FPS was 30/60/120; software-rendered
+measured FPS was 29.6–98.9. Default/debug normal-speed early/mixed/W10/W20 captures
+and real six-player normal-speed encounters at both sizes passed. Overview
+persisted in the later network observations. Core/Shared source, protocol, pins
+and supplied artwork/audio remain unchanged.
+
+Network setup interleaving changes unit IDs/tie breaks, so exact counterfactual
+outcome evidence uses the solo fixtures. PNGs/geometry are native pixel size;
+optional desktop videos are half-scale proxies. The later [#20 integration](refinement-ii/20_COOPERATIVE_CONTEXT.md) resolves the
+maximum-group 720p framing obligation with compact monitoring and grouped combat
+controls; its final six-player comparison measures a 22.9% gain. Physical hardware,
+human findings, native other-OS and live Steam remain unqualified; the earlier
+intermittent native runtime risk is not claimed solved.
+
+## Refinement II HUD and screen journey (2026-10-23)
+
+The [HUD inventory](refinement-ii/16_PHASE_HUD.md) and
+[journey contract](refinement-ii/17_SCREEN_JOURNEY.md) document authority-derived
+visibility, deterministic local entry effects, safe Settings/exit exceptions,
+accepted reward receipts and reconnect baselines. Core/Shared source, rules,
+compatibility versions, pins and supplied art/audio remain unchanged.
+
+Local evidence includes locked zero-warning build, Core 46 / Shared 145 /
+session-model 102 tests, three native session process checks, four full gameplay
+profiles plus seven cooperative waves, animation, private reconnect and 1–6-player
+multiplayer checks. New continuous three-wave journeys pass in all four solo
+profiles and the eight-profile cooperative matrix: 2-player default/debug at
+720p/1080p, and 4/6-player default at both sizes. Focused follow-ups cover
+Settings focus during an arriving choice acknowledgment and compact syncing
+before inventory delivery. See the journey contract for final checkpoint detail.
+
+The matrix exposed reproducible native wrapped-text/automatic-scrollbar layout
+oscillation, now prevented by reserving width in the inspector and selected
+building/construction scrolls. A separate native case reproduced focus moving
+from Settings to an old chooser invoker; restoration now applies only when the
+chooser owned focus. These fixes do not establish that the earlier intermittent
+native .NET/JIT/allocator risk is solved.
+
+#16's [Godot run 53](https://github.com/seraph1nia/common-watch-v2/actions/runs/40013031985)
+passed every step, including native integration/phase/animation checks and both
+release cross-builds. Earlier runs 49/51 diagnosed capture-budget, missing-host
+startup observation and double-status-read defects in the development probes;
+their corrected local checks also passed. Cross-builds and accelerated native
+automation do not qualify human pacing/comprehension, native Windows/macOS,
+physical hardware or live Steam.
+
 ## Cooperative CI capture boundary (2026-10-23)
 
 [PR workflow 39880793409](https://github.com/seraph1nia/common-watch-v2/actions/runs/39880793409)
@@ -869,3 +983,9 @@ is synthesized by the review builder. Native Windows, physical GPU/audio and
 live Steam are unexecuted gaps. Water/reflection, foliage/window masks and any
 additional background separation remain asset-dependent; reusable shaders were
 rendered only as technical swatches where no qualified surface exists.
+
+Preparation rhythm comparison (#22): `tools/preparation-review/README.md` reproduces both real schedules, matched paid policies and independently checked resource/research/stored-heal receipts. Shipping retains three stages with native Y Ready/Unready; paired solo720/1080 and2/4/6-client720 journeys include pause, unready, delayed ACK and reconnect. Scripted timing categories are not human session-time evidence. See `docs/refinement-ii/22_PREPARATION_RHYTHM.md`.
+
+Ordinary opening comparison (#23): `tools/opening-review/README.md` reproduces normal/economy/frontline/specialist paid routes, five scripted mistakes and W5/10/20 actual city/army snapshots. `capture-opening` uses pointer/wheel input for six doctrines through three waves at both target sizes; signal-only captures are not treated as journey evidence. Human comprehension remains unmeasured.
+
+Finite squad recovery (#24): `tools/recovery-review/README.md` reproduces ten legal contexts, actual replacement/payment receipts and twelve individual/group digest pairs across480 battles. Native720/1080 checks cover partial capacity, explicit return, safe synthetic controller cancel, unchanged identity/health/gear/resources and fewer navigation inputs. The two-client held-host test observes an accepted prefix through cancel/retry/private rejoin and the next actual production heal. These are automated consequences and inspected images, not human or physical controller observations. See `docs/refinement-ii/24_SQUAD_RECOVERY.md`.

@@ -98,7 +98,7 @@ public class AnimationContract
 
 public sealed class BossAnimationContract
 {
-    private static readonly Lazy<BattleShowcase> Recording = new(() => new("boss-10"));
+    private static readonly Lazy<BattleShowcase> Recording = new(() => new("boss-20"));
     [Fact]
     public void ActualBossAnticipationScaleAndDeathUseOnlyAuthoritativeTicks()
     {
@@ -119,7 +119,7 @@ public sealed class BossAnimationContract
     {
         foreach (var speed in Enum.GetValues<CombatSpeed>())
         {
-            var battle = new BattleShowcase("boss-10") { Speed = speed }; int deaths = 0;
+            var battle = new BattleShowcase("boss-20") { Speed = speed }; int deaths = 0;
             for (int n = 0; n < fps * 60 && !battle.Complete; n++)
             {
                 battle.Advance(1.0 / fps);
