@@ -14,8 +14,8 @@ Full specifications remain cached in `/tmp/common-watch-issues/{15..25}.md`.
 | 4 | #19 squad workspace | cb8d787, draft PR29; CI59 passed including both exports |
 | 5 | #20 cooperative context | ce2d5c6, draft PR30; CI71 passed including both exports |
 | 6 | #21 immediate rewards | da3a51d49e3cafb97b67aaf7f7cf6cb3a1f3f04a, draft PR31; final exact-SHA CI75/40050084771 passed including both exports |
-| 7 | #22 preparation rhythm | Active branch refinement/22-preparation-rhythm; executable comparison and three-stage selection implemented; all local gates passed; draft PR32, CI77 running |
-| 8 | #23 opening economy | Next: normal-payment routes, minimal adjustment comparison and reduced contextual flow |
+| 7 | #22 preparation rhythm | dbcd3d9, draft PR32; all local gates and exact-SHA CI79 passed including both exports |
+| 8 | #23 opening economy | Active refinement/23-normal-openings; ordinary Wood-first routes, one prompt and native production flow implemented; final journeys/CI pending |
 | 9 | #24 veteran recovery | Required: real squad-level recovery alternative under immediate rewards / selected three stages |
 | 10 | #25 campaign consequences | Original exact baseline archived; controlled tradeoffs, elite formation, held-out seeds and final calibration still required |
 
@@ -58,48 +58,80 @@ Fresh three-stage archive at da3a51d:
 `artifacts/refinement-ii/r7/three-stage-source.tar`,
 SHA3a68f3ad6358d29a8a9fae7efaeae782338693b22ce9e936ce7d3277133959b7.
 
-## Active #22 boundary
+## Completed #22 boundary
 
-Root now contains the formerly isolated experiment, cherry-picked after #21 CI
-completed. Declaration7cc21db precedes Core87daf98; comparison/shortcut f63e867.
-Separate worktree `artifacts/worktrees/r5-two-stage` / experiment/22-two-stage
-remains available, with no owned workers. Do not delete tracked assets or .uid
-files; import-generated untracked UIDs are excluded. No agents spawned.
+Final dbcd3d9cf48856fdcc39f6ef05c445bcd2cd34d3, stacked draft PR32. Exact-SHA
+CI79/40053240623 SUCCESS including both exports; all local build/Core74/Shared147,
+session3,1–6multiplayer/reconnect, gameplay/remote7waves, animation and paired
+native loops passed. Declaration7cc21db precedes Core87daf98; production90cde21.
+Selected default3; executable comparison2 pays2×then1×resources with one Research/
+healing event per actual Ready. Protocol19/battleflow4, combat8/reward1. Native Y
+shortcut is explicit, guarded and repeat-safe. No autoReady/timer/spending.
 
-Selected shipping rhythm is three actual Ready events. Runnable two-stage
-alternative delivers2×then1×resources, Research and eligible stored healing once
-per actual Ready; no phantom events/autoready/timers. Protocol19/battleflow4,
-combat8/reward1; stage-count fingerprint. Ordinary play has no new setting.
-Guarded native Y Ready/Unready shortcut reduces pointer travel without removing
-deliberate economic boundaries. Source-derived production/phase/guidance/policy
-bounds and relevant inspector quotes are integrated. Final-parent decision review
-and #25 integrated sign-off remain visible; no closure claim.
+Data r5: canonical144, opening-order72, forecast40, reordered continuation96,
+focused12, partialFood. Original canonical3 is byte-identical to freshR7. Preserve
+two-stage canonical Grovekeeper W1 and Huntsman ranged W8 failures. Economy-first
+recovers all12 openings but does not erase losses. Research Mastery W10/P1→W11/P1;
+ordinary healing totals have different exposure, not a per-event increase.
+All actual solo2/3×720/1080 and2/4/6-client720 loops passed; timing is scripted
+summed client intervals, not wall/human time. Parent15 comment6378598861 posts
+review evidence, not external approval. No closure/merge.
 
-Data: `artifacts/refinement-ii/r5` and
-`artifacts/captures/preparation-review`. Canonical144 runs, opening-order72,
-forecast-response40, reordered continuation96, reserve/research/tower12 full
-campaigns plus two legal partial-Food checkpoints. Core74 /Shared147 pass in the
-isolated prototype. Canonical3 report is byte-identical to freshR7. Preserve
-Grovekeeper two-stage W1 defeats and Huntsman ranged W8 defeat. Economy-first
-recovers all12 three-wave doctrine/seed openings, but does not erase those losses.
+Source archive r5/selected-three-stage-source.tar SHA
+82e3fa841bf44f90a2cccf3ccf719a1b879bda45694783d404549e202522b85c.
+R5 manifest final CI updated without rehashing later #23 source. Historical source
+hashes must remain tied to dbcd3d9. Experiment worktree r5-two-stage has no workers;
+its source is intentionally older. Do not accidentally build it for #23 checks.
 
-Native baseline2/4/6p and paired adapted3/2×2/4/6p720 passed. All four final
-solo2/3×720/1080 journeys passed native Y/paused/repeat checks and separate stage
-timing. Final root build/Core74/Shared147/session3/multiplayer1–6/reconnect,
-two full illustrated/plain gameplay profiles with native resize coverage, seven
-remote waves and12 animation/native fallback gates passed. Handles43928/80302
-are terminal0; no owned native workers. Root may safely rebuild now.
-Draft PR32 is pushed on90cde21; CI77/40052899907 remains running. Final docs will
-have a separate commit; record exact-SHA gate before claiming CI complete.
-Parent15 decision comment6378598861 posts evidence for review, not external approval.
+## Active #23 boundary
 
-Research/storage receipts independently verified by
-`tools/preparation-review/verify-focused.py`:360vs240 payments; Research progress
-192vs128; ordinary healing2820.95vs3241.43HP, exposure differs and no per-event
-increase is claimed. Guardian W7/P1→P2; Mastery W10/P1→W11/P1. Legal partial Food
-16funded/2unfunded,16paid both. Read22_PREPARATION_RHYTHM.md for decision, exact
-resource timing, count audit, evidence limits and reproduction.
+Root branch refinement/23-normal-openings. Design76f5fb6, executable alternatives
+f2a904c, selectiona68774f precede production36c7895. Native probe refinement7616b9f.
+No Core or price/allocation/profile change; protocol19 remains compatible with22.
+Normal Wood-first reaches3clears for all6doctrines×2seeds without Gold recovery.
+Merchant needs2early Lumbermills; normal frontline-first2field members loseW1,
+both seeds. Paid Mage/archer alternatives pass; preserve their casualties and
+advanced temporary-building sale. Four48-run order matrices are in r9/opening-orders.
 
-Next: preserve final source/log manifest and check #22 exact-SHA CI. Compact at issue boundary. Continue
-#23, then #24, then #25 in full; executable alternatives remain mandatory. Do not
-stop after publishing #22 or call the overall objective complete.
+UI: producer ordering/actual Core-derived next output; short doctrine implications;
+one optional prompt; explicit Military destination; numbered checklist/home-visit
+state and duplicate recovery hint removed. No old-result duplication. Expert
+collapse preference and all advanced catalog actions stay. No automatic spending.
+Opening probes now use actual pointer/wheel controls instead of signals.
+
+Current local gates: zero-warning build; Core74/Shared156; all6doctrines×3waves at
+720/1080 passed in latest native-opening4, including first-context/Military navigation,
+disabled unaffordable activation and paid recovery; native session3 passed; two full
+illustrated/plain gameplay profiles plus7remote waves passed. Queue34139 finished0: final main-menu solo720/1080 and actual2p720/6p1080
+normal-route journeys pass, including delayed ACK/slow playback/reconnect. Final
+capture24608 finished0; both extra illustrated profiles and purchase screenshots
+pass and were visually inspected. No owned native workers remain. Safe to build
+root now. Earlier63646/47919/84258 are terminal (recorded failures retained).
+Logs /tmp/common-watch-r9-*; owned queue is bounded and sequential.
+
+Headless48reference/48normal full campaigns:808battles/40Victories→946/45.
+Eight Merchant W1 failures become W20Victory; Grovekeeper mixed W14/W16 and tower
+seed20261018W16 now lose after former wins. Preserve all negatives. W5/W10/W20
+actual city/army/resource/research snapshots are in r9/horizons. Fixed continuation
+can leave a second Metal Mine competing with Stone; #25 must test that investment
+rather than silently rewriting failures. Five scripted task traces include3authority
+rejections with unchanged revision/resources; noFood actually defeats Keep with
+zero participants. Scripts are not human comprehension or balance findings.
+
+Original reward reproduction tooling171badd now pins #21 harness da3a51d instead
+of copying later API-dependent probes into old Core. Fresh83-file-verified original
+source reran72cases/1050battles byte-identically, SHA197405bf601c7de6ee1bd4e008ef81c0a15453604e0b3e0a73bd9ba52cd0246d.
+Reproduction handle60313 terminal0; no old-source workers remain.
+
+Native failures: initial Warden intro overflowed720, copy shortened; both complete
+native passes then passed. A new guide probe attempted navigation while selected
+plot context intentionally hid guidance; fixed by native clear-selection first.
+No simulation patch, longer timeout or runtime-crash cause claim.
+
+Next: preserve final normal-route reports/capture/log/source manifest,
+readable comparison/reproduction docs, stacked draft PR33 and exact-SHA CI. Track
+#22 as COMPLETE (CI79green); no more #22 build/retest work. Compact at boundary,
+then #24 real squad-level recovery alternative under immediate rewards/three stages,
+then #25 controlled tradeoffs/elite formation/held-outs/final all-doctrine and uneven
+cooperative calibration. All specifications and final native/export gates remain
+authorized and active. No agents, no pending permission, no overall completion.

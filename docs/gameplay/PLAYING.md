@@ -118,3 +118,5 @@ anticipation/defeat cues. Bosses retain their original hit/occupancy rules and
 single-member squads; secondary attacks have no extra member to hit in them.
 
 Press **Y** during uncovered planning to toggle Ready / Unready for your city. Key repeat, pending commands and pause cannot advance another stage. Final Ready pays income and Food and starts combat immediately; it does not open another recruitment window. Ordinary play keeps three explicit preparations.
+
+Production lists Wood income first and shows per-producer next-Ready output beside the real cost. Establish that income before exhausting Wood; Merchant’s smaller Wood allocation makes early production order matter. The optional Guide offers one context action, and a trainer prompt opens Military directly. It never buys or submits Ready. Zero-Wood recovery remains an explicit paid safety valve.

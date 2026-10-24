@@ -24,6 +24,7 @@ public partial class GameApplication
         await JourneyClick(guide.ActionButton);
         Require(_session.Snapshot.Revision == revision && _session.SelectedSlot >= 0
             && _gameUi.Inspector.BuildButtons[Building.Lumbermill].IsVisibleInTree(), "single Wood prompt opens its purchase context without spending");
+        await GameplayCapture("opening-normal-wood-purchase");
         await DriveOpening(new(GameplayAction.Build, 3, Building.Lumbermill));
         await DriveOpening(new(GameplayAction.Build, 1, Building.MetalMine));
         await JourneyClick(_gameUi.ClearSelectionButton);

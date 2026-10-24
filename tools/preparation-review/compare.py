@@ -11,6 +11,8 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--before', type=Path, required=True)
 p.add_argument('--after', type=Path, required=True)
 p.add_argument('--output', type=Path, required=True)
+p.add_argument('--before-stages', type=int, choices=(2, 3), default=3)
+p.add_argument('--after-stages', type=int, choices=(2, 3), default=2)
 a = p.parse_args()
 
 def load(filename):
@@ -33,7 +35,7 @@ rows = []
 for key in old:
     x, y = old[key], new[key]
     assert x['MatchId'] == y['MatchId'] and x['Starting'] == y['Starting']
-    for stages, run in ((3, x), (2, y)):
+    for stages, run in ((a.before_stages, x), (a.after_stages, y)):
         assert all(c['Result']['Accepted'] for c in run['Commands'])
         assert sum(c['Command']['Action'] == 'ready' for c in run['Commands']) == len(run['Battles']) * stages
         assert all(len(b['Offers']) in (0, 3) for b in run['Battles'])

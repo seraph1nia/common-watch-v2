@@ -29,7 +29,7 @@ mise run play-steam                # optional; development Steam App ID is hardc
 
 `play` runs from source for quick iteration; it does not export a release on each launch. It uses the same runtime presentation defaults, main menu, native controls, local preferences and normal audio as the exported game. `play-steam` adds only optional Steam startup.
 
-Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** supports the first three waves without gating Ready.
+Doctrine cards lead with playstyle; **Full effects & stock** retains all numeric detail. An optional **Guide** gives one contextual action in the first three waves without gating Ready. Production starts with Wood income and shows each producer’s next-Ready output beside its cost; Gold recovery remains a zero-Wood safety valve.
 
 The main menu has **Single Player**, **Multiplayer**, **Settings** and **Exit Game**. Single Player opens three distinct personal doctrine cards; explicitly select one before **Start Match**. Multiplayer contains LAN hosting/joining/reconnect and Steam entry points. Only the host starts a network match, after every connected player explicitly selects a doctrine. Every submenu returns to the main menu.
 

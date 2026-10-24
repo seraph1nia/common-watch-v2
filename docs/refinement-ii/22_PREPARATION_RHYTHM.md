@@ -288,8 +288,8 @@ seven remote waves,12 animation model checks and native animation/fallbacks.
 All four final solo2/3×720/1080 journeys pass with Y/paused/key-repeat checks.
 Both final target sizes were visually inspected. No owned native workers remain.
 Draft [PR32](https://github.com/seraph1nia/common-watch-v2/pull/32) is stacked on31.
-CI77 is running; its terminal status and the final documentation revision must be
-recorded accurately before claiming the remote gate. The decision was posted for
+Final exact revisiondbcd3d9 passed CI79/40053240623, including Linux and Windows
+exports. The r5 manifest records the completed gate and selected-source archive. The decision was posted for
 [parent review](https://github.com/seraph1nia/common-watch-v2/issues/15#issuecomment-6378598861);
 posting evidence does not claim an external review. No human comprehension, physical
 controller/audio, live Steam or native Windows/macOS qualification is claimed.

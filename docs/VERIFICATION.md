@@ -985,3 +985,5 @@ additional background separation remain asset-dependent; reusable shaders were
 rendered only as technical swatches where no qualified surface exists.
 
 Preparation rhythm comparison (#22): `tools/preparation-review/README.md` reproduces both real schedules, matched paid policies and independently checked resource/research/stored-heal receipts. Shipping retains three stages with native Y Ready/Unready; paired solo720/1080 and2/4/6-client720 journeys include pause, unready, delayed ACK and reconnect. Scripted timing categories are not human session-time evidence. See `docs/refinement-ii/22_PREPARATION_RHYTHM.md`.
+
+Ordinary opening comparison (#23): `tools/opening-review/README.md` reproduces normal/economy/frontline/specialist paid routes, five scripted mistakes and W5/10/20 actual city/army snapshots. `capture-opening` uses pointer/wheel input for six doctrines through three waves at both target sizes; signal-only captures are not treated as journey evidence. Human comprehension remains unmeasured.

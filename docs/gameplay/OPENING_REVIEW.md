@@ -1,3 +1,5 @@
+> Historical first-pass review. The selected ordinary-payment flow and broader alternatives are documented in [Refinement II #23](../refinement-ii/23_NORMAL_OPENINGS.md). Its normal starts do not require Gold recovery.
+
 # Opening economy and first-battle learning — issue #6
 
 The first three waves have an optional contextual guide in the top HUD band.
