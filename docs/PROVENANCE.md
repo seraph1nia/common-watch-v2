@@ -28,6 +28,22 @@ The later user-supplied `common_watch_cutout_prototype.zip` contributes one addi
 
 `assets/audio/LVS04_11_Echoes_of_Valhalla_bpm82_loop.wav` is copied unchanged from `src/Game/Assets/Music/` at the same pinned upstream revision. Its accompanying README retains the upstream music text, followed by a local Event feedback section. The track is **Echoes of Valhalla** by **LUShvalleySound**. The WAV SHA-256 is `3783f4deed1ecd7933a17538a1d880ffb04319f6e11f34dc66f2df7a05ab70b4`. See [the retained upstream music provenance](../assets/audio/README.md) for the owner's supplied-file history and the limits of the recorded licensing information; the music is not asserted to have the source code's GPL license.
 
+## Intentional reward rules redesign — 2026-10-24
+
+Roadmap #15 / issue #21 explicitly authorizes replacing the imported passive
+battle catalog with immediate supplies/recovery after the presentation gate.
+The [committed reward design](refinement-ii/21_IMMEDIATE_REWARDS.md) specifies
+new offer identities, frozen quantities, actual receipts, overflow preflight,
+removal of active reward modifiers, protocol 18 and required reward-rules version
+1 before implementation. Combat rules 8 and battle-flow 3 are retained here.
+This is an intentional local Core extension, not a byte-identical upstream claim.
+The existing Worldtree, doctrine definitions, enemy profiles, pins, locks, licenses,
+source artwork and authored audio remain unchanged by this reward scope.
+The [original-rule replay route](refinement-ii/25_ORIGINAL_BASELINE.md) retains
+exact original sources, commands and events; old offers are rejected rather than
+silently migrated into new meanings. Implementation and economic evidence are
+recorded separately from this design declaration.
+
 ## Session work
 
 `src/Game.Shared/SnapshotPayload.cs` and `SessionFile.cs` adapt the original project's proven codec and private credential file behavior. `tests/Game.Godot.Session.Tests/SteamOperationStateTests.cs` adapts its callback-state regression tests. The authority uses the pinned import plus the six-player extension documented above. Original lifecycle/RPC scene-reset infrastructure was not copied. New session implementations and tests are GPL-3.0-only.
