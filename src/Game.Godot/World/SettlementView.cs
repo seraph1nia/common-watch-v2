@@ -13,8 +13,10 @@ public partial class SettlementView : Node2D
     private AssetLoader _assets = null!;
     private EnvironmentView _environmentView = null!;
     private EnvironmentController _environment = null!;
+    private SettlementBackdrop _backdrop = null!;
     private string _emitterKey = "";
     private (Texture2D Texture, SettlementMapLayout Layout)? _map;
+    internal EnvironmentView Atmosphere => _environmentView;
     public bool HasMap => _map is not null;
     public SettlementMapLayout? MapLayout => _map?.Layout;
     public int? HoveredSlot { get; private set; }
@@ -42,11 +44,17 @@ public partial class SettlementView : Node2D
     }
     private float _compression = 1;
     private Vector2 Center => new(HexRadius * Mathf.Sqrt(3) / 4, HexRadius * 1.5f * 3 * _compression);
-    public void Initialize(AssetLoader assets, EnvironmentController environment) { _assets = assets; _art = new(assets); _environment = environment; _environmentView = environment.Attach(this, EnvironmentScene.Settlement); Hide(); }
+    public void Initialize(AssetLoader assets, EnvironmentController environment)
+    {
+        _assets = assets; _art = new(assets); _environment = environment;
+        _backdrop = new SettlementBackdrop(); AddChild(_backdrop); _backdrop.Initialize(environment);
+        _environmentView = environment.Attach(this, EnvironmentScene.Settlement); Hide();
+    }
     public void Present(GodotSession session, bool visible)
     {
         _session = session;
         _map = _assets.SettlementMap();
+        _backdrop.Present(_map?.Texture, _map is { } map ? new Vector2(map.Layout.Width, map.Layout.Height) : Vector2.Zero);
         if (_compression != _assets.Options.GroundCompression || Projection.Radius != HexRadius)
         { _compression = _assets.Options.GroundCompression; Projection = new(HexRadius, _compression); }
         Visible = visible; UpdateEnvironmentAnchors(); QueueRedraw();
@@ -95,7 +103,7 @@ public partial class SettlementView : Node2D
     public override void _Draw()
     {
         _levelCues.Clear();
-        if (_map is { } map) { DrawMap(map.Texture, map.Layout); return; }
+        if (_map is { } map) { DrawMap(map.Layout); return; }
         for (int i = 0; i < SettlementLayout.Coordinates.Count; i++)
         {
             var coordinate = SettlementLayout.Coordinates[i]; var slot = _session.ViewedCity.Slots[i];
@@ -122,22 +130,10 @@ public partial class SettlementView : Node2D
             DrawBuildingProgress(i, LocalPosition(Projection.Project(SettlementLayout.Coordinates[i])));
     }
 
-    private void DrawMap(Texture2D texture, SettlementMapLayout layout)
+    private void DrawMap(SettlementMapLayout layout)
     {
-        // The source already contains perspective. Image, rings and upright sprites share
-        // uncompressed image pixels and the native Camera2D transform.
-        var imageRect = new Rect2(MapPosition(new MapPoint(0, 0)), new Vector2(layout.Width, layout.Height));
-        var viewport = GetViewport().GetVisibleRect(); var inverse = GetViewport().CanvasTransform.AffineInverse();
-        var worldRect = new Rect2(inverse * viewport.Position, viewport.Size / GetViewport().CanvasTransform.Scale);
-        if (!imageRect.Encloses(worldRect))
-        {
-            // Extreme aspect ratios cap the foreground scale to protect every clearing.
-            // A subdued cover of the same approved forest fills decorative outer edges.
-            float cover = Mathf.Max(worldRect.Size.X / layout.Width, worldRect.Size.Y / layout.Height);
-            Vector2 crop = worldRect.Size / cover;
-            DrawTextureRectRegion(texture, worldRect, new Rect2((new Vector2(layout.Width, layout.Height) - crop) / 2, crop), new Color(.55f, .62f, .52f));
-        }
-        DrawTextureRect(texture, imageRect, false);
+        // The retained backdrop shares these uncompressed image pixels and Camera2D.
+        // Its material never touches rings, upright buildings, labels or picking.
         foreach (var spot in layout.Spots)
         {
             bool selected = spot.Slot == _session.SelectedSlot, hovered = spot.Slot == HoveredSlot;

@@ -112,6 +112,27 @@ aligned with the board. Moving procedural shadows provide depth without sliding
 those contacts. The settlement's distant region is explicitly the upper 24% of
 the map; this is restrained haze, not inferred painting depth or whole-map blur.
 
+## Living settlement painting
+
+With **Subtle / Full** enabled, `World/SettlementBackdrop.cs` renders the existing
+settlement PNG through `SettlementLivingMap.gdshader`: 64 held frames at **8 fps**,
+looping every **eight seconds**. No video, generated artwork, frame atlas or new
+texture decode is needed. The original PNG and layout JSON are unchanged.
+
+The shader uses source-pixel coordinates and pigment thresholds to add small
+river/waterfall displacements and traveling highlights, green foliage shimmer,
+and localized forge/crystal pulses. These are restrained approximations on a
+flattened painting, not separated animated objects or qualified surface masks.
+The central construction clearing is excluded from foliage sway. Paths and
+banks are protected by pigment selection, not reconstructed geometry.
+
+The backdrop is a separate retained CanvasItem at depth -1. Selection rings,
+building cutouts, labels, anchors, camera framing and all nine picking ellipses
+remain outside its material. Extreme-aspect decorative cover uses the same
+shader and source crop. Material parameters update only when the held frame or
+quality changes. The shared environment clock supplies pause/focus/sample behavior;
+Off restores the unmodified source rendering. Subtle scales motion/light to 45%.
+
 ## Timing and lifecycle
 
 Ambient time advances only when an enabled composition is visible, the window has
@@ -175,6 +196,7 @@ All shaders are Compatibility `canvas_item` resources in `Environment/Shaders`.
 | `WindSway` | `visual_time`, `strength`, `frequency`, `phase_offset`, `anchor_stiffness`, `wind_direction`, `banner`; anchored isolated foliage/fabric only |
 | `WaterRipple` | `visual_time`, `ripple_strength`, `ripple_speed`, `wave_frequency`, `flow`, `highlight_strength`, `water_tint`, `surface_mask`, `use_mask`; isolated water or painted reflection texture |
 | `DistanceBlur` | `blur_strength`, `distance_fade`, `haze_tint`; five-tap sampling of a supplied distant texture only, never the screen |
+| `SettlementLivingMap` | `visual_time`, `strength`; map-specific, stepped eight-second loop on existing painted colors |
 
 Wind and water resources are functional, graphically compiled swatches in the
 capture suite. They are **not applied to the flattened settlement**. It contains
@@ -188,7 +210,9 @@ The sway vertex shader holds the base (`UV.y=1`) stationary. For banners, `banne
 holds the left attachment (`UV.x=0`) stationary. Only four corners of an ordinary
 sprite deform; richer fabric needs an authored subdivided mesh. Animated windows
 need separate emissive masks/cutouts. No automatic occluders, whole-building
-brightness pulses, new artwork or derived game masks were created.
+brightness pulses, new artwork or derived game masks were created. The separate
+map-specific living-painting shader above uses approximate pigment/region selection;
+it does not attach these generic swatch shaders to the flattened map.
 
 ## Practical extensions
 
@@ -264,6 +288,9 @@ on paused/live clocks, actual native focus loss, fixed samples, pan/zoom/resizin
 hiding/reappearance, qualities, presets and effect controls. Static captures must
 remain pixel-identical; explicit resampling and control changes must change pixels
 without rebuilding unchanged layer geometry.
+The isolated living-map captures additionally disable all settlement atmosphere
+layers/particles/emitters/tint and assert changed map pixels, identical samples
+within a held frame, exact eight-second loop closure and static Off samples.
 It captures all seven settlement presets at 2/12 seconds, menu
 motion, technical shader swatches, missing artwork and debug fallback. Original
 camera/purchase/native picking suites remain the stronger interaction checks.
@@ -275,8 +302,9 @@ is not graphical verification. See `docs/VERIFICATION.md` for executed results.
 Lighting uses additive texture/procedural glow and localized tint, not renderer
 bloom, realtime occlusion or gameplay lights. Smoke origins on current cutouts
 use explicit foundation-relative offsets; changed artwork requires retuning.
-The map has no qualified depth/water/emission/foliage masks. No dynamic river
-reflection, moving painted trees, window animation or reconstructed depth is
+The map has no qualified depth/water/emission/foliage masks. Living-painting motion
+is a small color-selected texture displacement, not independently moving tree
+cutouts. No dynamic river reflection, window animation or reconstructed depth is
 claimed. Atmosphere stays within the authored world bounds; the existing soft
 arena backdrop fills outside those bounds. No new gameplay weather, Steam/native
 Windows qualification, renderer migration or physical GPU performance claim is

@@ -1,5 +1,37 @@
 # Verification
 
+## Living settlement painting — local implementation checks
+
+The retained settlement backdrop now uses a map-specific 8 fps / eight-second
+shader loop, without editing source artwork or authoritative layout. Effects
+remain opt-in through Environment effects Subtle/Full; Off keeps source pixels.
+
+Executed in this working environment:
+
+- `mise run build`: passed, zero warnings/errors.
+- `mise run test-core`: 75 passed.
+- `mise run test-shared`: 169 passed.
+- `git diff --check`: passed.
+- `mise run test-session`: all three native graphical integration cases passed
+  after the user installed Xvfb/xauth prerequisites.
+- `mise run capture-settlement`: passed native camera/picking/hover, purchase,
+  construction and five window sizes. The isolated living-map checks also passed:
+  visible map-only motion, held 8 fps frames, exact eight-second loop closure and
+  identical Off samples (`GODOT_LIVING_MAP_PASS`).
+- `mise run capture-environment`: shader identity comparisons completed, including
+  SettlementLivingMap's neutral vertex tint/modulation/alpha checks. The broader
+  suite then failed at `static controls invalidate actual pixels: emitters-disabled`
+  in the arena invalidation probe, before its full capture matrix. This suite is
+  **not passing**; no complete environment/performance qualification is claimed.
+
+The first graphical run caught a redefinition of Godot's built-in `TAU` in the new
+shader; the duplicate declaration was removed and subsequent runs compile it.
+Inspected `artifacts/captures/godot/settlement-map/living-map-t2.png`: painted scenery,
+building cutouts, labels and native controls render with the separate backdrop.
+Loop assertions compare actual Xvfb/Mesa llvmpipe viewport pixels. This does not
+qualify motion aesthetics on physical hardware. Live Steam/native-platform checks
+were not run; the known intermittent native .NET/JIT risk remains unresolved.
+
 ## Immediate reward refinement (#21)
 
 [Contract/audit](refinement-ii/21_IMMEDIATE_REWARDS.md) and

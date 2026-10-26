@@ -104,7 +104,7 @@ public partial class GameApplication
         };
         AddChild(viewport);
         foreach (string textureName in new[] { "fire_glow", "crystal_glow" })
-        foreach (string shaderName in new[] { "SoftGlow", "WaterRipple", "DistanceBlur" })
+        foreach (string shaderName in new[] { "SoftGlow", "WaterRipple", "DistanceBlur", "SettlementLivingMap" })
         {
             var texture = _assets.Load("arena/" + textureName);
             Require(texture is not null, "identity swatch uses supplied translucent artwork");

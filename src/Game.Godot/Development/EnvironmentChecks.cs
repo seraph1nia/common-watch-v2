@@ -106,6 +106,7 @@ public partial class GameApplication
         }
         _battle = null; _battleLayer?.Hide();
         ReplaceSession(ScenarioRunner.CreateAt("sprite-settlement")); _frozen = true; RefreshUi(true); RefreshWorld();
+        await CheckLivingSettlementMap(directory);
         foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(1920, 1080) })
         {
             GetWindow().Size = size;

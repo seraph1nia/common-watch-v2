@@ -78,6 +78,7 @@ public partial class GameApplication
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); RefreshWorld(); _camera.Reset();
         await CaptureMap("buildings");
         await SmokeCameraAndInput();
+        await CheckLivingSettlementMap(directory);
         GD.Print("GODOT_SETTLEMENT_MAP_PASS nine-pads ellipses native-hover selection fixed-pan fixed-zoom resize cover purchase construction depth-sort");
 
         async Task CaptureMap(string name)
